@@ -1,0 +1,41 @@
+/* ---------- The press mechanic ----------
+   Every pressable control is a solid object sitting on a shelf.
+   Two per-instance custom properties drive it:
+     --am-edge   the control's own darker shade (border + shelf)
+     --am-depth  how far it sits above the page, and how far it travels down
+   The travel distance and the shelf height are the same number on purpose. */
+.am-reset, .am-reset * { box-sizing: border-box; }
+
+.am-pressable {
+  --am-edge: var(--line-200);
+  --am-depth: var(--press-depth);
+  border: var(--edge-width) solid var(--am-edge);
+  box-shadow: 0 var(--am-depth) 0 var(--am-edge);
+  margin-bottom: var(--am-depth); /* reserve the shelf so pressing never reflows the page */
+  cursor: pointer;
+  font: inherit;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+  transition: transform var(--press-duration) ease-out, box-shadow var(--press-duration) ease-out, background-color 120ms ease-out;
+}
+.am-pressable:active:not(:disabled) {
+  transform: translateY(var(--am-depth));
+  box-shadow: 0 0 0 var(--am-edge);
+}
+.am-pressable:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.am-pressable:disabled {
+  cursor: not-allowed;
+  box-shadow: none;
+  transform: translateY(var(--am-depth));
+}
+
+a { color: var(--brand-blue-600); text-decoration-thickness: 2px; text-underline-offset: 2px; }
+a:hover { color: var(--focus-ring); }
+
+@media (prefers-reduced-motion: reduce) {
+  .am-pressable { transition: none; }
+}

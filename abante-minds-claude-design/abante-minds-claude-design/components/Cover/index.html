@@ -1,0 +1,335 @@
+<!-- @dsCard height=340 -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* inlined from styles.css so this card renders standalone */
+/* Abante Minds design tokens. Generated from tokens.json — edit there, not here. */
+:root, [data-theme="day"] {
+  --surface-100: #eef3fb;
+  --surface-200: #ffffff;
+  --surface-300: #dbe7f8;
+  --ink-900: #16202c;
+  --ink-600: #51617a;
+  --ink-inverse: #ffffff;
+  --line-200: #6a87bd;
+  --focus-ring: #0f62d6;
+  --brand-blue-600: #2458c9;
+  --brand-blue-100: #dbe8ff;
+  --action-500: #ff8a15;
+  --action-600: #ef7a00;
+  --action-700: #b85c00;
+  --action-on: #16202c;
+  --success-700: #0b7a63;
+  --success-100: #d3f3ea;
+  --danger-700: #c1440e;
+  --danger-100: #fde3d2;
+  --celebration-gold-500: #f5b400;
+  --celebration-coral-600: #c93830;
+  --celebration-teal-600: #0b756b;
+  --skill-1-600: #4c46b0;
+  --skill-1-100: #e3e2fa;
+  --skill-2-600: #0b7a89;
+  --skill-2-100: #d1eef2;
+  --skill-3-600: #8c3379;
+  --skill-3-100: #f5dcef;
+  --skill-4-600: #8a670a;
+  --skill-4-100: #f5ecc8;
+  --shadow-card: 0 1px 2px rgba(22,32,44,0.06), 0 2px 8px rgba(22,32,44,0.08);
+  --shadow-celebration: 0 8px 28px rgba(245,180,0,0.35);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-pill: 999px;
+  --press-depth: 4px;
+  --press-depth-lg: 6px;
+  --edge-width: 2px;
+  --font-sans: "Lexend", system-ui, -apple-system, sans-serif;
+  --font-display: "Baloo 2", system-ui, -apple-system, sans-serif;
+}
+
+/* Type styles. Apply as a class: <p class="body-lg">, <span class="button-label">. */
+.caption { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 500; }
+.body-sm { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; }
+.body { font-family: var(--font-sans); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-lg { font-family: var(--font-sans); font-size: 17px; line-height: 24px; font-weight: 400; }
+.label { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; }
+.button-label { font-family: var(--font-sans); font-size: 16px; line-height: 20px; font-weight: 700; letter-spacing: 0.2px; }
+.heading-sm { font-family: var(--font-sans); font-size: 18px; line-height: 24px; font-weight: 600; }
+.heading-md { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 700; }
+.heading-lg { font-family: var(--font-sans); font-size: 28px; line-height: 34px; font-weight: 700; }
+.celebration-heading { font-family: var(--font-display); font-size: 32px; line-height: 38px; font-weight: 700; }
+.celebration-display { font-family: var(--font-display); font-size: 48px; line-height: 52px; font-weight: 700; }
+/* Abante Minds component styles. Loaded after the generated tokens.css,
+   so every var(--token-name) below refers to a token in project/tokens.json. */
+
+.am-reset, .am-reset * { box-sizing: border-box; }
+
+/* ---------- The press mechanic ----------
+   Every pressable control in this system is a solid object sitting on a shelf.
+   Two per-instance custom properties drive it:
+     --am-edge   the control's own darker shade (border + shelf)
+     --am-depth  how far it sits above the page, and how far it travels down
+   Resting: a 2px edge all round, plus a shelf of --am-depth below it.
+   Pressed:  the control moves down by exactly --am-depth and the shelf
+             collapses to zero, so the object lands flush on the page.
+   The travel distance and the shelf height are the same number on purpose —
+   that equality is what makes the press read as a real object bottoming out
+   rather than a rectangle sliding around. */
+.am-pressable {
+  --am-edge: var(--line-200);
+  --am-depth: var(--press-depth);
+  border: var(--edge-width) solid var(--am-edge);
+  box-shadow: 0 var(--am-depth) 0 var(--am-edge);
+  margin-bottom: var(--am-depth); /* reserve the shelf so pressing never reflows the page */
+  cursor: pointer;
+  font: inherit;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent; /* kill Android's grey flash; the press IS the feedback */
+  touch-action: manipulation;               /* no 300ms double-tap delay */
+  transition: transform 80ms ease-out, box-shadow 80ms ease-out, background-color 120ms ease-out;
+}
+.am-pressable:active:not(:disabled) {
+  transform: translateY(var(--am-depth));
+  box-shadow: 0 0 0 var(--am-edge);
+}
+.am-pressable:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.am-pressable:disabled {
+  cursor: not-allowed;
+  /* a disabled control is already flat — there is nothing left to push down */
+  box-shadow: none;
+  transform: translateY(var(--am-depth));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .am-pressable { transition: none; }
+  .am-practice-header-track > span, .am-skill-card-progress > span { transition: none; }
+}
+
+/* ---------- Button ---------- */
+.am-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-pill);
+  line-height: 1;
+}
+.am-btn-primary {
+  --am-edge: var(--action-700);
+  background: var(--action-500);
+  color: var(--action-on);
+}
+.am-btn-primary:hover:not(:disabled) { background: var(--action-600); }
+/* Disabled reads as an inert slab, not a quieter control: flat, no shelf, and
+   no edge either — otherwise it is too easily mistaken for the ghost variant,
+   which IS pressable. Shape says "not now" before color does. */
+.am-btn-primary:disabled,
+.am-btn-ghost:disabled,
+.am-btn-inverse:disabled {
+  --am-edge: var(--surface-300);
+  background: var(--surface-300);
+  color: var(--ink-600);
+}
+.am-btn-ghost {
+  --am-edge: var(--line-200);
+  background: var(--surface-200);
+  color: var(--ink-600);
+}
+.am-btn-ghost:hover:not(:disabled) { color: var(--ink-900); }
+/* On a saturated celebration field the amber CTA would vanish, so it inverts:
+   a white pill with an ink edge. Reward mode only. */
+.am-btn-inverse {
+  --am-edge: var(--ink-900);
+  background: var(--surface-200);
+  color: var(--ink-900);
+}
+.am-btn-inverse:hover:not(:disabled) { background: var(--surface-300); }
+
+/* ---------- SkillCard ---------- */
+.am-skill-card {
+  --am-depth: var(--press-depth-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 148px;
+  min-height: 148px; /* uniform tiles: a two-line label must not make one card taller than its neighbour */
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--ink-900);
+}
+.am-skill-card .label { flex: 1; } /* label takes the slack so the progress bar always sits on the baseline */
+.am-skill-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: var(--surface-200);
+}
+.am-skill-card-progress {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-200);
+  overflow: hidden;
+}
+.am-skill-card-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------- PracticeHeader ---------- */
+.am-practice-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface-100);
+  border-bottom: 1px solid var(--line-200);
+}
+.am-practice-header-tier {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--brand-blue-100);
+  color: var(--brand-blue-600);
+}
+.am-practice-header-track {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-300);
+  overflow: hidden;
+}
+.am-practice-header-track > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--brand-blue-600);
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.am-practice-header-count { color: var(--ink-600); white-space: nowrap; }
+
+/* ---------- CelebrationBanner ---------- */
+.am-celebration {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--celebration-gold-500); /* flat, not a gradient: white-on-gradient was unreadable at the gold end */
+  color: var(--ink-900);
+}
+.am-celebration-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--surface-200);
+  color: var(--celebration-coral-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin-bottom: var(--space-2);
+}
+.am-celebration-actions { margin-top: var(--space-6); }
+
+/* ---------- ProfileCard ---------- */
+.am-profile-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-200);
+  box-shadow: var(--shadow-card);
+  max-width: 320px;
+}
+.am-profile-card-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--ink-inverse);
+  flex-shrink: 0;
+}
+.am-profile-card-meta { color: var(--ink-600); }
+
+html,body{margin:0}body{background:var(--surface-100);font-family:var(--font-sans);color:var(--ink-900)}
+
+</style></head><body>
+<div class="am-reset" style="width:100%; background: var(--surface-200);">
+<svg viewBox="0 0 960 320" width="100%" height="320" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Abante Minds">
+  <!--
+    blocks: brand-blue-600 slab 176x272 (identity, calm mode), ink-900 140x132 + brand-blue-100 140x124 stacked satellites (grounding + one tint for relief) — full-value identity hues plus one tint, no more.
+    arrangement: one tall slab bottom-aligned at the right edge, two stacked satellites (tint over ink) to its left; rectangular, calm geometry carries the identity blocks.
+    pattern: pills/discs — "soft, friendly, large radii" — a scatter of 13 circles in the reward palette (action-500, celebration-gold-500, celebration-coral-600, celebration-teal-600) because the system's own signature shape is radius-pill and its one energetic palette is reward-mode; the scatter reads as the reward mode layered over the calm blocks.
+    scales: radius-md (16px) on every rectangular block corner; radius-pill (rx = half the short side, i.e. a true circle) on every pattern unit; space-4 (16px) as the gap between stacked satellites.
+  -->
+  <style>
+    .ground { fill: var(--surface-200); }
+    .brand { fill: var(--brand-blue-600); }
+    .ink { fill: var(--ink-900); }
+    .tint { fill: var(--brand-blue-100); }
+    .action-500 { fill: var(--action-500); }
+    .celebration-gold-500 { fill: var(--celebration-gold-500); }
+    .celebration-coral-600 { fill: var(--celebration-coral-600); }
+    .celebration-teal-600 { fill: var(--celebration-teal-600); }
+    .name { font-family: var(--font-display); font-weight: 700; fill: var(--ink-900); }
+    .tagline { font-family: var(--font-sans); font-weight: 400; fill: var(--ink-600); }
+  </style>
+
+  <rect class="ground" x="0" y="0" width="960" height="320" />
+
+  <rect class="tint" x="500" y="24" width="140" height="124" rx="16" />
+  <rect class="ink" x="500" y="164" width="140" height="132" rx="16" />
+  <rect class="brand" x="760" y="24" width="176" height="272" rx="16" />
+
+  <circle class="action-500" cx="556" cy="60" r="7" />
+  <circle class="celebration-gold-500" cx="612" cy="44" r="9" />
+  <circle class="celebration-coral-600" cx="700" cy="52" r="11" />
+  <circle class="celebration-teal-600" cx="860" cy="50" r="14" />
+  <circle class="action-500" cx="908" cy="96" r="17" />
+  <circle class="celebration-gold-500" cx="540" cy="140" r="20" />
+  <circle class="celebration-coral-600" cx="636" cy="168" r="8" />
+  <circle class="celebration-teal-600" cx="788" cy="132" r="12" />
+  <circle class="action-500" cx="870" cy="190" r="15" />
+  <circle class="celebration-gold-500" cx="560" cy="236" r="10" />
+  <circle class="celebration-coral-600" cx="668" cy="258" r="13" />
+  <circle class="celebration-teal-600" cx="742" cy="224" r="9" />
+  <circle class="action-500" cx="900" cy="260" r="7" />
+
+  <text class="name" x="40" y="170" font-size="100" style="line-height:0.95">
+    <tspan x="40" dy="0">Abante</tspan>
+    <tspan x="40" dy="95">Minds</tspan>
+  </text>
+  <text class="tagline" x="40" y="305" font-size="14">Free math practice for the phone a kid already has.</text>
+</svg>
+</div>
+
+</body></html>

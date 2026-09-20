@@ -1,0 +1,303 @@
+<!-- @dsCard group="Foundations" height=1952 subtitle="29 tokens, one theme, every usage rule" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* inlined from styles.css so this card renders standalone */
+/* Abante Minds design tokens. Generated from tokens.json — edit there, not here. */
+:root, [data-theme="day"] {
+  --surface-100: #eef3fb;
+  --surface-200: #ffffff;
+  --surface-300: #dbe7f8;
+  --ink-900: #16202c;
+  --ink-600: #51617a;
+  --ink-inverse: #ffffff;
+  --line-200: #6a87bd;
+  --focus-ring: #0f62d6;
+  --brand-blue-600: #2458c9;
+  --brand-blue-100: #dbe8ff;
+  --action-500: #ff8a15;
+  --action-600: #ef7a00;
+  --action-700: #b85c00;
+  --action-on: #16202c;
+  --success-700: #0b7a63;
+  --success-100: #d3f3ea;
+  --danger-700: #c1440e;
+  --danger-100: #fde3d2;
+  --celebration-gold-500: #f5b400;
+  --celebration-coral-600: #c93830;
+  --celebration-teal-600: #0b756b;
+  --skill-1-600: #4c46b0;
+  --skill-1-100: #e3e2fa;
+  --skill-2-600: #0b7a89;
+  --skill-2-100: #d1eef2;
+  --skill-3-600: #8c3379;
+  --skill-3-100: #f5dcef;
+  --skill-4-600: #8a670a;
+  --skill-4-100: #f5ecc8;
+  --shadow-card: 0 1px 2px rgba(22,32,44,0.06), 0 2px 8px rgba(22,32,44,0.08);
+  --shadow-celebration: 0 8px 28px rgba(245,180,0,0.35);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-pill: 999px;
+  --press-depth: 4px;
+  --press-depth-lg: 6px;
+  --edge-width: 2px;
+  --font-sans: "Lexend", system-ui, -apple-system, sans-serif;
+  --font-display: "Baloo 2", system-ui, -apple-system, sans-serif;
+}
+
+/* Type styles. Apply as a class: <p class="body-lg">, <span class="button-label">. */
+.caption { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 500; }
+.body-sm { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; }
+.body { font-family: var(--font-sans); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-lg { font-family: var(--font-sans); font-size: 17px; line-height: 24px; font-weight: 400; }
+.label { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; }
+.button-label { font-family: var(--font-sans); font-size: 16px; line-height: 20px; font-weight: 700; letter-spacing: 0.2px; }
+.heading-sm { font-family: var(--font-sans); font-size: 18px; line-height: 24px; font-weight: 600; }
+.heading-md { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 700; }
+.heading-lg { font-family: var(--font-sans); font-size: 28px; line-height: 34px; font-weight: 700; }
+.celebration-heading { font-family: var(--font-display); font-size: 32px; line-height: 38px; font-weight: 700; }
+.celebration-display { font-family: var(--font-display); font-size: 48px; line-height: 52px; font-weight: 700; }
+/* Abante Minds component styles. Loaded after the generated tokens.css,
+   so every var(--token-name) below refers to a token in project/tokens.json. */
+
+.am-reset, .am-reset * { box-sizing: border-box; }
+
+/* ---------- The press mechanic ----------
+   Every pressable control in this system is a solid object sitting on a shelf.
+   Two per-instance custom properties drive it:
+     --am-edge   the control's own darker shade (border + shelf)
+     --am-depth  how far it sits above the page, and how far it travels down
+   Resting: a 2px edge all round, plus a shelf of --am-depth below it.
+   Pressed:  the control moves down by exactly --am-depth and the shelf
+             collapses to zero, so the object lands flush on the page.
+   The travel distance and the shelf height are the same number on purpose —
+   that equality is what makes the press read as a real object bottoming out
+   rather than a rectangle sliding around. */
+.am-pressable {
+  --am-edge: var(--line-200);
+  --am-depth: var(--press-depth);
+  border: var(--edge-width) solid var(--am-edge);
+  box-shadow: 0 var(--am-depth) 0 var(--am-edge);
+  margin-bottom: var(--am-depth); /* reserve the shelf so pressing never reflows the page */
+  cursor: pointer;
+  font: inherit;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent; /* kill Android's grey flash; the press IS the feedback */
+  touch-action: manipulation;               /* no 300ms double-tap delay */
+  transition: transform 80ms ease-out, box-shadow 80ms ease-out, background-color 120ms ease-out;
+}
+.am-pressable:active:not(:disabled) {
+  transform: translateY(var(--am-depth));
+  box-shadow: 0 0 0 var(--am-edge);
+}
+.am-pressable:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.am-pressable:disabled {
+  cursor: not-allowed;
+  /* a disabled control is already flat — there is nothing left to push down */
+  box-shadow: none;
+  transform: translateY(var(--am-depth));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .am-pressable { transition: none; }
+  .am-practice-header-track > span, .am-skill-card-progress > span { transition: none; }
+}
+
+/* ---------- Button ---------- */
+.am-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-pill);
+  line-height: 1;
+}
+.am-btn-primary {
+  --am-edge: var(--action-700);
+  background: var(--action-500);
+  color: var(--action-on);
+}
+.am-btn-primary:hover:not(:disabled) { background: var(--action-600); }
+/* Disabled reads as an inert slab, not a quieter control: flat, no shelf, and
+   no edge either — otherwise it is too easily mistaken for the ghost variant,
+   which IS pressable. Shape says "not now" before color does. */
+.am-btn-primary:disabled,
+.am-btn-ghost:disabled,
+.am-btn-inverse:disabled {
+  --am-edge: var(--surface-300);
+  background: var(--surface-300);
+  color: var(--ink-600);
+}
+.am-btn-ghost {
+  --am-edge: var(--line-200);
+  background: var(--surface-200);
+  color: var(--ink-600);
+}
+.am-btn-ghost:hover:not(:disabled) { color: var(--ink-900); }
+/* On a saturated celebration field the amber CTA would vanish, so it inverts:
+   a white pill with an ink edge. Reward mode only. */
+.am-btn-inverse {
+  --am-edge: var(--ink-900);
+  background: var(--surface-200);
+  color: var(--ink-900);
+}
+.am-btn-inverse:hover:not(:disabled) { background: var(--surface-300); }
+
+/* ---------- SkillCard ---------- */
+.am-skill-card {
+  --am-depth: var(--press-depth-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 148px;
+  min-height: 148px; /* uniform tiles: a two-line label must not make one card taller than its neighbour */
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--ink-900);
+}
+.am-skill-card .label { flex: 1; } /* label takes the slack so the progress bar always sits on the baseline */
+.am-skill-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: var(--surface-200);
+}
+.am-skill-card-progress {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-200);
+  overflow: hidden;
+}
+.am-skill-card-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------- PracticeHeader ---------- */
+.am-practice-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface-100);
+  border-bottom: 1px solid var(--line-200);
+}
+.am-practice-header-tier {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--brand-blue-100);
+  color: var(--brand-blue-600);
+}
+.am-practice-header-track {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-300);
+  overflow: hidden;
+}
+.am-practice-header-track > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--brand-blue-600);
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.am-practice-header-count { color: var(--ink-600); white-space: nowrap; }
+
+/* ---------- CelebrationBanner ---------- */
+.am-celebration {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--celebration-gold-500); /* flat, not a gradient: white-on-gradient was unreadable at the gold end */
+  color: var(--ink-900);
+}
+.am-celebration-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--surface-200);
+  color: var(--celebration-coral-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin-bottom: var(--space-2);
+}
+.am-celebration-actions { margin-top: var(--space-6); }
+
+/* ---------- ProfileCard ---------- */
+.am-profile-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-200);
+  box-shadow: var(--shadow-card);
+  max-width: 320px;
+}
+.am-profile-card-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--ink-inverse);
+  flex-shrink: 0;
+}
+.am-profile-card-meta { color: var(--ink-600); }
+
+html,body{margin:0}body{background:var(--surface-100);font-family:var(--font-sans);color:var(--ink-900)}
+
+.pad{padding:24px;max-width:900px}
+h1{margin:0 0 6px}.note{color:var(--ink-600);margin:0 0 24px;max-width:62ch}
+section{margin-bottom:26px}
+h2{font:600 13px/1 var(--font-sans);letter-spacing:.04em;color:var(--ink-600);
+   text-transform:uppercase;margin:0 0 12px;padding-bottom:8px;border-bottom:1px solid var(--line-200)}
+.grid{display:grid;gap:10px;grid-template-columns:repeat(auto-fill,minmax(250px,1fr))}
+.pairs{grid-template-columns:repeat(2,minmax(0,1fr));align-items:start}
+@media(max-width:620px){.pairs{grid-template-columns:1fr}}
+.sw{display:flex;gap:12px;align-items:flex-start}
+.chip{width:52px;height:52px;border-radius:var(--radius-sm);flex-shrink:0;display:grid;
+   place-items:center;font:700 15px/1 var(--font-sans);border:1px solid rgba(22,32,44,.12)}
+.meta{display:flex;flex-direction:column;gap:1px;min-width:0}
+.meta b{font:600 13px/1.3 var(--font-sans)}
+.meta code{font:500 11px/1.4 ui-monospace,monospace;color:var(--ink-600)}
+.meta span{font:400 11px/1.45 var(--font-sans);color:var(--ink-600)}
+</style></head><body>
+<main class="pad"><h1 class="heading-md">Colour</h1><p class="body-sm note">One theme, "Day". Bright fills take dark labels: <code>action-500</code> and <code>celebration-gold-500</code> carry <code>ink-900</code>, never white. Every text pair here clears WCAG AA on the grounds its note names.</p><section><h2>Surfaces</h2><div class="grid"><div class="sw"><div class="chip" style="background:#eef3fb;color:#16202c">Aa</div><div class="meta"><b>surface-100</b><code>#eef3fb</code><span>Page background on practice/question screens and the calm app shell.</span></div></div><div class="sw"><div class="chip" style="background:#ffffff;color:#16202c">Aa</div><div class="meta"><b>surface-200</b><code>#ffffff</code><span>Raised cards, panels, and modals on surface-100.</span></div></div><div class="sw"><div class="chip" style="background:#dbe7f8;color:#16202c">Aa</div><div class="meta"><b>surface-300</b><code>#dbe7f8</code><span>Selected/active fill for calm-mode chips, progress tracks, and the PIN keypad.</span></div></div></div></section><section><h2>Ink</h2><div class="grid"><div class="sw"><div class="chip" style="background:#16202c;color:#ffffff">Aa</div><div class="meta"><b>ink-900</b><code>#16202c</code><span>Primary text on surface-100, surface-200, surface-300, celebration-gold-500, and every -100 tint below.</span></div></div><div class="sw"><div class="chip" style="background:#51617a;color:#ffffff">Aa</div><div class="meta"><b>ink-600</b><code>#51617a</code><span>Secondary text, captions, helper copy, and disabled-control labels on surface-100, surface-200, and surface-300.</span></div></div><div class="sw"><div class="chip" style="background:#ffffff;color:#16202c">Aa</div><div class="meta"><b>ink-inverse</b><code>#ffffff</code><span>Text and icons on the darker saturated fills only: brand-blue-600, celebration-coral-600, celebration-teal-600, and the skill -600 fills. Never on action-500 or celebration-gold-500 — those take ink-900.</span></div></div></div></section><section><h2>Lines & focus</h2><div class="grid"><div class="sw"><div class="chip" style="background:#6a87bd;color:#ffffff">Aa</div><div class="meta"><b>line-200</b><code>#6a87bd</code><span>Borders, dividers, and input outlines on surface-100 and surface-200; also the edge and press shelf of ghost and disabled buttons, where action-700 would over-promise.</span></div></div><div class="sw"><div class="chip" style="background:#0f62d6;color:#ffffff">Aa</div><div class="meta"><b>focus-ring</b><code>#0f62d6</code><span>Solid 2px focus outline on any interactive control, on every surface. Never the only cue removed on blur.</span></div></div></div></section><section><h2>Brand</h2><div class="grid"><div class="sw"><div class="chip" style="background:#2458c9;color:#ffffff">Aa</div><div class="meta"><b>brand-blue-600</b><code>#2458c9</code><span>Calm-mode identity accent: headers, the active tab underline, the selected-answer border on practice screens.</span></div></div><div class="sw"><div class="chip" style="background:#dbe8ff;color:#16202c">Aa</div><div class="meta"><b>brand-blue-100</b><code>#dbe8ff</code><span>Tint fill for calm-mode highlights, info banners, and unselected-but-eligible answer tiles.</span></div></div></div></section><section><h2>Action — the one CTA colour</h2><div class="grid"><div class="sw"><div class="chip" style="background:#ff8a15;color:#16202c">Aa</div><div class="meta"><b>action-500</b><code>#ff8a15</code><span>THE one CTA color: the face of every Go / Continue / Submit button. Never used for anything else, so it always means 'do this next.' Takes action-on labels, never white.</span></div></div><div class="sw"><div class="chip" style="background:#ef7a00;color:#ffffff">Aa</div><div class="meta"><b>action-600</b><code>#ef7a00</code><span>Hover face of action-500 (pointer devices only; touch goes straight to the pressed state). Takes action-on labels.</span></div></div><div class="sw"><div class="chip" style="background:#b85c00;color:#ffffff">Aa</div><div class="meta"><b>action-700</b><code>#b85c00</code><span>The solid edge of an action button: its 2px border all round plus the press-depth shelf below it. This edge, not the face, is what makes the button read as a raised object against surface-100.</span></div></div><div class="sw"><div class="chip" style="background:#16202c;color:#ffffff">Aa</div><div class="meta"><b>action-on</b><code>#16202c</code><span>Label and icon color on action-500 and action-600 fills. Dark on a bright fill reads better than white in direct sunlight, which is where these phones are used.</span></div></div></div></section><section><h2>Answer states</h2><div class="grid"><div class="sw"><div class="chip" style="background:#0b7a63;color:#ffffff">Aa</div><div class="meta"><b>success-700</b><code>#0b7a63</code><span>Correct-answer text and icon (paired with a check glyph, never color alone). Colorblind-safe blue-green, kept off the red-green axis.</span></div></div><div class="sw"><div class="chip" style="background:#d3f3ea;color:#16202c">Aa</div><div class="meta"><b>success-100</b><code>#d3f3ea</code><span>Correct-answer tile fill and streak-progress fill.</span></div></div><div class="sw"><div class="chip" style="background:#c1440e;color:#ffffff">Aa</div><div class="meta"><b>danger-700</b><code>#c1440e</code><span>Wrong-answer text and icon (paired with an X glyph, never color alone). Colorblind-safe vermillion, distinguishable from success-700 by more than hue.</span></div></div><div class="sw"><div class="chip" style="background:#fde3d2;color:#16202c">Aa</div><div class="meta"><b>danger-100</b><code>#fde3d2</code><span>Wrong-answer tile fill.</span></div></div></div></section><section><h2>Reward mode only</h2><div class="grid"><div class="sw"><div class="chip" style="background:#f5b400;color:#16202c">Aa</div><div class="meta"><b>celebration-gold-500</b><code>#f5b400</code><span>Reward-mode only: the flat field of a full-screen celebration, plus streak counters and star fills. Carries ink-900 text — never ink-inverse, which fails against it.</span></div></div><div class="sw"><div class="chip" style="background:#c93830;color:#ffffff">Aa</div><div class="meta"><b>celebration-coral-600</b><code>#c93830</code><span>Reward-mode only: confetti pieces and the badge glyph on a surface-200 disc. Carries ink-inverse text where used as a fill.</span></div></div><div class="sw"><div class="chip" style="background:#0b756b;color:#ffffff">Aa</div><div class="meta"><b>celebration-teal-600</b><code>#0b756b</code><span>Reward-mode only: secondary celebration fill and confetti. Carries ink-inverse text.</span></div></div></div></section><section><h2>Skill / topic identity</h2><div class="grid pairs"><div class="sw"><div class="chip" style="background:#4c46b0;color:#ffffff">Aa</div><div class="meta"><b>skill-1-600</b><code>#4c46b0</code><span>Skill/topic-picker card 1 (e.g. Numbers & Arithmetic): its border, press shelf, progress fill, and the icon glyph on the card's surface-200 chip.</span></div></div><div class="sw"><div class="chip" style="background:#e3e2fa;color:#16202c">Aa</div><div class="meta"><b>skill-1-100</b><code>#e3e2fa</code><span>Skill/topic-picker card 1 face, with ink-900 label text.</span></div></div><div class="sw"><div class="chip" style="background:#0b7a89;color:#ffffff">Aa</div><div class="meta"><b>skill-2-600</b><code>#0b7a89</code><span>Skill/topic-picker card 2 (e.g. Ratios & Percent): its border, press shelf, progress fill, and the icon glyph on the card's surface-200 chip.</span></div></div><div class="sw"><div class="chip" style="background:#d1eef2;color:#16202c">Aa</div><div class="meta"><b>skill-2-100</b><code>#d1eef2</code><span>Skill/topic-picker card 2 face, with ink-900 label text.</span></div></div><div class="sw"><div class="chip" style="background:#8c3379;color:#ffffff">Aa</div><div class="meta"><b>skill-3-600</b><code>#8c3379</code><span>Skill/topic-picker card 3 (e.g. Geometry): its border, press shelf, progress fill, and the icon glyph on the card's surface-200 chip.</span></div></div><div class="sw"><div class="chip" style="background:#f5dcef;color:#16202c">Aa</div><div class="meta"><b>skill-3-100</b><code>#f5dcef</code><span>Skill/topic-picker card 3 face, with ink-900 label text.</span></div></div><div class="sw"><div class="chip" style="background:#8a670a;color:#ffffff">Aa</div><div class="meta"><b>skill-4-600</b><code>#8a670a</code><span>Skill/topic-picker card 4 (e.g. Word Problems): its border, press shelf, progress fill, and the icon glyph on the card's surface-200 chip.</span></div></div><div class="sw"><div class="chip" style="background:#f5ecc8;color:#16202c">Aa</div><div class="meta"><b>skill-4-100</b><code>#f5ecc8</code><span>Skill/topic-picker card 4 face, with ink-900 label text.</span></div></div></div></section></main>
+
+</body></html>

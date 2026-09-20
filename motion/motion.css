@@ -1,0 +1,150 @@
+/* Abante Minds — motion foundation.
+   Load AFTER styles.css. Everything here animates transform or opacity only:
+   those are the two properties a 2019 budget Android composites on the GPU
+   without a layout or paint pass. */
+
+/* ---------- Motion tokens ---------- */
+:root {
+  --dur-instant: 80ms;    /* press feedback */
+  --dur-fast: 160ms;      /* state change, answer reveal */
+  --dur-base: 240ms;      /* screen and question transitions */
+  --dur-slow: 400ms;      /* progress and tier fills */
+  --dur-takeover: 320ms;  /* the celebration entrance */
+
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-in: cubic-bezier(0.4, 0, 1, 1);
+  --ease-pop: cubic-bezier(0.34, 1.3, 0.64, 1);
+
+  /* depth.css predates the tokens; point its press duration at the token so
+     there is exactly one number to change. */
+  --press-duration: var(--dur-instant);
+}
+
+/* Durations go to near-zero, not to `none`. The rules keep firing, so every
+   position and state change still lands — only the travel is removed. */
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0.01ms;
+    --dur-fast: 0.01ms;
+    --dur-base: 0.01ms;
+    --dur-slow: 0.01ms;
+    --dur-takeover: 0.01ms;
+  }
+}
+
+/* ---------- Press ----------
+   Reverted to the design system's own box-shadow shelf. The pseudo-element
+   rewrite was measurably cheaper but never matched the silhouette the system
+   is built on, so press.css keeps the mechanic and only its duration is
+   retokenised (--press-duration above). */
+
+/* ---------- FIX 2: fills scale, they do not resize ----------
+   Both fills are textless bare spans, so there is no child to counter-squash.
+   The element is laid out full width once and scaled on the X axis from its
+   left edge; --am-fill is 0..1. */
+.am-practice-header-track > span,
+.am-skill-card-progress > span,
+.am-fill {
+  width: 100% !important;
+  transform: scaleX(var(--am-fill, 0));
+  transform-origin: left center;
+  transition: transform var(--dur-slow) var(--ease-out) !important;
+  will-change: transform;
+}
+
+/* ---------- Question to next question ----------
+   Fires 30-50 times a session, so it is the cheapest sequence in the app: two
+   composited keyframes, no JS timing, and the incoming node is never gated. */
+@keyframes am-question-in {
+  from { opacity: 0; transform: translate3d(16px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes am-question-out {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translate3d(-16px, 0, 0); }
+}
+.am-question-stage { position: relative; }
+.am-question-enter { animation: am-question-in var(--dur-base) var(--ease-out) both; }
+.am-question-exit {
+  /* pulled out of flow so the incoming question is already in place and tappable
+     while the old one is still fading */
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  animation: am-question-out var(--dur-base) var(--ease-in) both;
+}
+
+/* ---------- Answer reveal ----------
+   The glyph is in the DOM and opaque before anything animates — the animation
+   scales a mark that already carries the meaning, it never creates it. */
+@keyframes am-glyph-pop {
+  from { transform: scale(0.4); }
+  to   { transform: none; }
+}
+.am-glyph-pop { animation: am-glyph-pop var(--dur-fast) var(--ease-pop) both; }
+
+/* An answer tile is a small element; the colour swap is the state change itself,
+   not decoration, and it has nowhere else to live. */
+.am-answer-tile {
+  transition:
+    background-color var(--dur-fast) var(--ease-out),
+    border-color var(--dur-fast) var(--ease-out),
+    color var(--dur-fast) var(--ease-out);
+}
+
+/* ---------- Tier down ----------
+   Same --dur-fast state change as any other reveal. No takeover, no shake, no
+   flash: the app does not perform disappointment at a kid who missed one. */
+.am-tier-change { transition: background-color var(--dur-fast) var(--ease-out); }
+
+/* ---------- Screen transitions ----------
+   goToScreen() toggles the `hidden` attribute. The UA rule for it is a plain
+   `display:none`, which an inline display on the same element beats, so it is
+   restated here with weight. */
+[hidden] { display: none !important; }
+
+@keyframes am-screen-in-forward {
+  from { opacity: 0; transform: translate3d(24px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+@keyframes am-screen-out-back {
+  from { opacity: 1; transform: none; }
+  to   { opacity: 0; transform: translate3d(24px, 0, 0); }
+}
+.am-screen-forward { animation: am-screen-in-forward var(--dur-base) var(--ease-out) both; }
+.am-screen-back    { animation: am-screen-out-back var(--dur-base) var(--ease-in) both; }
+
+/* ---------- Loading ----------
+   A skeleton shows the shape of what is coming; a spinner shows only that you
+   are waiting. Opacity-only, so it costs nothing while the fetch is the bottleneck. */
+@keyframes am-skeleton-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.5; }
+}
+.am-skeleton {
+  background: var(--surface-300);
+  border-radius: var(--radius-sm);
+  animation: am-skeleton-pulse 1.2s var(--ease-out) infinite;
+}
+
+/* ---------- Offline and sync ---------- */
+.am-offline-banner {
+  transform: translate3d(0, -100%, 0);
+  transition: transform var(--dur-base) var(--ease-out);
+  will-change: transform;
+}
+.am-offline-banner[data-visible="true"] { transform: none; }
+
+@keyframes am-sync-pulse {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.45; }
+}
+.am-sync-pending { animation: am-sync-pulse 1.2s var(--ease-out) infinite; }
+
+/* The only place reduced motion removes a rule instead of shortening it: an
+   idle loop at 0.01ms is a strobe, and nobody triggered it. */
+@media (prefers-reduced-motion: reduce) {
+  .am-skeleton,
+  .am-sync-pending { animation: none; }
+  .am-skeleton { opacity: 0.75; }
+}

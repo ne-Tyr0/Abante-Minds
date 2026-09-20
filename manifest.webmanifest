@@ -1,0 +1,26 @@
+{
+  "name": "Abante Minds",
+  "short_name": "Abante Minds",
+  "description": "NCE math practice that works offline.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#eef3fb",
+  "theme_color": "#eef3fb",
+  "lang": "en",
+  "icons": [
+    {
+      "src": "assets/abante-minds-mark.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "assets/abante-minds-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+/* Lexend — all reading and UI text. Baloo 2 — Reward mode only.
+   Both are the real brand faces (Google Fonts, OFL). No local binaries were
+   supplied with the source kit, so they are loaded from Google's CDN; drop
+   self-hosted woff2 files in assets/fonts/ and replace these @font-face rules
+   for a fully offline build. */
+@import url("https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Baloo+2:wght@600;700&display=swap");

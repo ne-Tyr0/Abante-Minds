@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "abante-minds",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["devserver.py", "5176"],
+      "port": 5176
+    }
+  ]
+}

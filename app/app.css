@@ -1,0 +1,196 @@
+/* Abante Minds — app shell.
+   Load after the design system and motion. Nothing here restates a token: it
+   holds the shell slots together and carries the three width rules the design
+   document sets out — the gutter steps 24 -> 32 -> 48, the reading column caps
+   at 720, and tap targets stay at 48 everywhere. */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  height: 100%;
+  background: var(--surface-100);
+  color: var(--ink-900);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- shell ---------- */
+.am-root {
+  display: flex;
+  min-height: 100dvh;
+  background: var(--surface-100);
+}
+.am-root[data-gold="true"],
+.am-root[data-gold="true"] .am-frame { background: var(--celebration-gold-500); }
+
+.am-frame {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100dvh;
+  background: var(--surface-100);
+}
+
+.am-slot-body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  /* The screen entrance slides in from 24px to the right. Without this the
+     travel counts as overflow and flashes a scrollbar on every transition. */
+  overflow-x: hidden;
+  overscroll-behavior: contain;
+  display: flex;
+  flex-direction: column;
+}
+.am-slot-status,
+.am-slot-banner,
+.am-slot-header,
+.am-slot-belowfold,
+.am-slot-footer,
+.am-slot-nav { flex: none; }
+
+.am-slot-nav > .am-bottomnav { height: 64px; }
+
+/* The body column stretches so a screen with a `flex:1` spacer can push its
+   content apart exactly as the design document draws it. The reading column
+   caps at 720 on phone and tablet. */
+.am-column { flex: 1; max-width: 720px; }
+
+/* ---------- entrances ----------
+   motion.css owns the forward case; back is its mirror so a returning screen
+   arrives from the side it left towards. */
+@keyframes am-screen-in-back {
+  from { opacity: 0; transform: translate3d(-24px, 0, 0); }
+  to   { opacity: 1; transform: none; }
+}
+.am-screen-back-in { animation: am-screen-in-back var(--dur-base) var(--ease-out) both; }
+
+/* ---------- fills ----------
+   motion.css lays every fill out full width and scales it by --am-fill, which
+   ui.js sets on the element itself. The grow-in is a plain animation with no
+   fill mode, so if it never runs -- background tab, throttled rAF, reduced
+   motion -- the bar still sits at its real value instead of at zero. */
+@keyframes am-fill-in { from { transform: scaleX(0); } }
+.am-fill,
+.am-practice-header-track > span,
+.am-skill-card-progress > span {
+  animation: am-fill-in var(--dur-slow) var(--ease-out) 1;
+}
+
+/* ---------- brand ---------- */
+.am-wordmark {
+  font-family: var(--font-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--brand-blue-600);
+}
+.am-wordmark-lg {
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 40px;
+  font-weight: 700;
+  color: var(--brand-blue-600);
+}
+
+/* ---------- form fields ----------
+   Drawn as the design document draws them: a 52px box with the system edge,
+   not a browser input. */
+.am-input {
+  height: 52px;
+  width: 100%;
+  border: 2px solid var(--line-200);
+  border-radius: var(--radius-sm);
+  background: var(--surface-200);
+  color: var(--ink-900);
+  padding: 0 14px;
+}
+.am-input:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-color: var(--brand-blue-600);
+}
+
+/* The caret is painted, not a real one — the value arrives through the keypad,
+   and the design document draws it as a still rule, so it does not blink. */
+.am-caret { flex: none; }
+
+/* ---------- locked scaffold ----------
+   A hint or step that has not been revealed is still a target, so it gets the
+   same focus treatment as anything else pressable. */
+.am-locked:focus-visible,
+.am-navitem:focus-visible,
+.am-railitem:focus-visible,
+.am-backlink:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+.am-navitem, .am-railitem { min-height: var(--tap-button); }
+
+/* ---------- tablet ----------
+   32px gutters, the extra width spent on a second card rather than longer
+   lines. Action and nav stay at the bottom because a tablet is still held. */
+.am-pair { display: flex; flex-direction: column; gap: var(--space-4); }
+
+@media (min-width: 768px) {
+  .am-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--space-6);
+    align-items: start;
+  }
+  .am-pair > * { min-width: 0; }
+  .am-slot-nav > .am-bottomnav { height: 72px; }
+}
+
+/* ---------- desktop ----------
+   48px gutters, the bottom nav becomes a left rail, and the primary moves
+   inline next to the content it acts on. Cards cap at 720 so the tier line
+   never stretches. */
+.am-rail-slot { flex: none; }
+.am-rail-slot[hidden] { display: none; }
+
+.am-rail {
+  width: 260px;
+  height: 100dvh;
+  position: sticky;
+  top: 0;
+  background: var(--surface-200);
+  border-right: 1px solid var(--line-200);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-8);
+}
+.am-rail-brand { display: flex; align-items: center; gap: var(--space-3); }
+.am-rail-note {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+@media (min-width: 1280px) {
+  .am-frame { min-height: 100dvh; }
+  /* The cap moves off the column and onto the cards, so the extra width can
+     become a second column instead of a longer line. */
+  .am-column { max-width: none; }
+  .am-pair { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); gap: var(--space-6); }
+  .am-card { max-width: 720px; }
+}
+
+/* The keypad stays on desktop — a shared school desktop is still touched — but
+   it sits beside the field instead of under it. */
+@media (min-width: 1280px) {
+  .am-keypad button { font-size: 22px; }
+}
+
+/* ---------- print / very short viewports ----------
+   A 5-inch phone in landscape should still reach the bottom action, so the
+   body scrolls rather than the page. */
+@media (max-height: 560px) {
+  .am-slot-body { overflow-y: auto; }
+}

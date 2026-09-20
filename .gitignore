@@ -1,0 +1,12 @@
+# Claude Code worktrees — these are checkouts, not project files, and they
+# belong to whichever repo created them.
+.claude/worktrees/
+
+# Python
+__pycache__/
+*.py[cod]
+
+# OS
+.DS_Store
+Thumbs.db
+desktop.ini

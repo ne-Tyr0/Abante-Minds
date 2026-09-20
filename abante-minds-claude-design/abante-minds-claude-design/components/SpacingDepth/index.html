@@ -1,0 +1,303 @@
+<!-- @dsCard group="Foundations" height=1112 subtitle="Spacing, radius, shadow, and the press mechanic" -->
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Baloo+2:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* inlined from styles.css so this card renders standalone */
+/* Abante Minds design tokens. Generated from tokens.json — edit there, not here. */
+:root, [data-theme="day"] {
+  --surface-100: #eef3fb;
+  --surface-200: #ffffff;
+  --surface-300: #dbe7f8;
+  --ink-900: #16202c;
+  --ink-600: #51617a;
+  --ink-inverse: #ffffff;
+  --line-200: #6a87bd;
+  --focus-ring: #0f62d6;
+  --brand-blue-600: #2458c9;
+  --brand-blue-100: #dbe8ff;
+  --action-500: #ff8a15;
+  --action-600: #ef7a00;
+  --action-700: #b85c00;
+  --action-on: #16202c;
+  --success-700: #0b7a63;
+  --success-100: #d3f3ea;
+  --danger-700: #c1440e;
+  --danger-100: #fde3d2;
+  --celebration-gold-500: #f5b400;
+  --celebration-coral-600: #c93830;
+  --celebration-teal-600: #0b756b;
+  --skill-1-600: #4c46b0;
+  --skill-1-100: #e3e2fa;
+  --skill-2-600: #0b7a89;
+  --skill-2-100: #d1eef2;
+  --skill-3-600: #8c3379;
+  --skill-3-100: #f5dcef;
+  --skill-4-600: #8a670a;
+  --skill-4-100: #f5ecc8;
+  --shadow-card: 0 1px 2px rgba(22,32,44,0.06), 0 2px 8px rgba(22,32,44,0.08);
+  --shadow-celebration: 0 8px 28px rgba(245,180,0,0.35);
+}
+:root {
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-12: 48px;
+  --radius-sm: 10px;
+  --radius-md: 16px;
+  --radius-pill: 999px;
+  --press-depth: 4px;
+  --press-depth-lg: 6px;
+  --edge-width: 2px;
+  --font-sans: "Lexend", system-ui, -apple-system, sans-serif;
+  --font-display: "Baloo 2", system-ui, -apple-system, sans-serif;
+}
+
+/* Type styles. Apply as a class: <p class="body-lg">, <span class="button-label">. */
+.caption { font-family: var(--font-sans); font-size: 12px; line-height: 16px; font-weight: 500; }
+.body-sm { font-family: var(--font-sans); font-size: 13px; line-height: 18px; font-weight: 400; }
+.body { font-family: var(--font-sans); font-size: 15px; line-height: 22px; font-weight: 400; }
+.body-lg { font-family: var(--font-sans); font-size: 17px; line-height: 24px; font-weight: 400; }
+.label { font-family: var(--font-sans); font-size: 14px; line-height: 20px; font-weight: 600; }
+.button-label { font-family: var(--font-sans); font-size: 16px; line-height: 20px; font-weight: 700; letter-spacing: 0.2px; }
+.heading-sm { font-family: var(--font-sans); font-size: 18px; line-height: 24px; font-weight: 600; }
+.heading-md { font-family: var(--font-sans); font-size: 22px; line-height: 28px; font-weight: 700; }
+.heading-lg { font-family: var(--font-sans); font-size: 28px; line-height: 34px; font-weight: 700; }
+.celebration-heading { font-family: var(--font-display); font-size: 32px; line-height: 38px; font-weight: 700; }
+.celebration-display { font-family: var(--font-display); font-size: 48px; line-height: 52px; font-weight: 700; }
+/* Abante Minds component styles. Loaded after the generated tokens.css,
+   so every var(--token-name) below refers to a token in project/tokens.json. */
+
+.am-reset, .am-reset * { box-sizing: border-box; }
+
+/* ---------- The press mechanic ----------
+   Every pressable control in this system is a solid object sitting on a shelf.
+   Two per-instance custom properties drive it:
+     --am-edge   the control's own darker shade (border + shelf)
+     --am-depth  how far it sits above the page, and how far it travels down
+   Resting: a 2px edge all round, plus a shelf of --am-depth below it.
+   Pressed:  the control moves down by exactly --am-depth and the shelf
+             collapses to zero, so the object lands flush on the page.
+   The travel distance and the shelf height are the same number on purpose —
+   that equality is what makes the press read as a real object bottoming out
+   rather than a rectangle sliding around. */
+.am-pressable {
+  --am-edge: var(--line-200);
+  --am-depth: var(--press-depth);
+  border: var(--edge-width) solid var(--am-edge);
+  box-shadow: 0 var(--am-depth) 0 var(--am-edge);
+  margin-bottom: var(--am-depth); /* reserve the shelf so pressing never reflows the page */
+  cursor: pointer;
+  font: inherit;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent; /* kill Android's grey flash; the press IS the feedback */
+  touch-action: manipulation;               /* no 300ms double-tap delay */
+  transition: transform 80ms ease-out, box-shadow 80ms ease-out, background-color 120ms ease-out;
+}
+.am-pressable:active:not(:disabled) {
+  transform: translateY(var(--am-depth));
+  box-shadow: 0 0 0 var(--am-edge);
+}
+.am-pressable:focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+.am-pressable:disabled {
+  cursor: not-allowed;
+  /* a disabled control is already flat — there is nothing left to push down */
+  box-shadow: none;
+  transform: translateY(var(--am-depth));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .am-pressable { transition: none; }
+  .am-practice-header-track > span, .am-skill-card-progress > span { transition: none; }
+}
+
+/* ---------- Button ---------- */
+.am-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 48px;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-pill);
+  line-height: 1;
+}
+.am-btn-primary {
+  --am-edge: var(--action-700);
+  background: var(--action-500);
+  color: var(--action-on);
+}
+.am-btn-primary:hover:not(:disabled) { background: var(--action-600); }
+/* Disabled reads as an inert slab, not a quieter control: flat, no shelf, and
+   no edge either — otherwise it is too easily mistaken for the ghost variant,
+   which IS pressable. Shape says "not now" before color does. */
+.am-btn-primary:disabled,
+.am-btn-ghost:disabled,
+.am-btn-inverse:disabled {
+  --am-edge: var(--surface-300);
+  background: var(--surface-300);
+  color: var(--ink-600);
+}
+.am-btn-ghost {
+  --am-edge: var(--line-200);
+  background: var(--surface-200);
+  color: var(--ink-600);
+}
+.am-btn-ghost:hover:not(:disabled) { color: var(--ink-900); }
+/* On a saturated celebration field the amber CTA would vanish, so it inverts:
+   a white pill with an ink edge. Reward mode only. */
+.am-btn-inverse {
+  --am-edge: var(--ink-900);
+  background: var(--surface-200);
+  color: var(--ink-900);
+}
+.am-btn-inverse:hover:not(:disabled) { background: var(--surface-300); }
+
+/* ---------- SkillCard ---------- */
+.am-skill-card {
+  --am-depth: var(--press-depth-lg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: 148px;
+  min-height: 148px; /* uniform tiles: a two-line label must not make one card taller than its neighbour */
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  text-align: left;
+  color: var(--ink-900);
+}
+.am-skill-card .label { flex: 1; } /* label takes the slack so the progress bar always sits on the baseline */
+.am-skill-card-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  background: var(--surface-200);
+}
+.am-skill-card-progress {
+  height: 6px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-200);
+  overflow: hidden;
+}
+.am-skill-card-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* ---------- PracticeHeader ---------- */
+.am-practice-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-6);
+  background: var(--surface-100);
+  border-bottom: 1px solid var(--line-200);
+}
+.am-practice-header-tier {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-pill);
+  background: var(--brand-blue-100);
+  color: var(--brand-blue-600);
+}
+.am-practice-header-track {
+  flex: 1;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-300);
+  overflow: hidden;
+}
+.am-practice-header-track > span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--brand-blue-600);
+  transition: width 400ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.am-practice-header-count { color: var(--ink-600); white-space: nowrap; }
+
+/* ---------- CelebrationBanner ---------- */
+.am-celebration {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  text-align: center;
+  padding: var(--space-12) var(--space-6);
+  border-radius: var(--radius-md);
+  background: var(--celebration-gold-500); /* flat, not a gradient: white-on-gradient was unreadable at the gold end */
+  color: var(--ink-900);
+}
+.am-celebration-badge {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: var(--surface-200);
+  color: var(--celebration-coral-600);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  margin-bottom: var(--space-2);
+}
+.am-celebration-actions { margin-top: var(--space-6); }
+
+/* ---------- ProfileCard ---------- */
+.am-profile-card {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--surface-200);
+  box-shadow: var(--shadow-card);
+  max-width: 320px;
+}
+.am-profile-card-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: var(--ink-inverse);
+  flex-shrink: 0;
+}
+.am-profile-card-meta { color: var(--ink-600); }
+
+html,body{margin:0}body{background:var(--surface-100);font-family:var(--font-sans);color:var(--ink-900)}
+
+.pad{padding:24px;max-width:860px}
+h1{margin:0 0 6px}.note{color:var(--ink-600);margin:0 0 18px;max-width:62ch}
+h2{font:600 12px/1 var(--font-sans);letter-spacing:.05em;color:var(--ink-600);text-transform:uppercase;
+   margin:26px 0 10px;padding-bottom:8px;border-bottom:1px solid var(--line-200)}
+.demo{background:var(--surface-200);border-radius:var(--radius-md);padding:18px 18px 8px;
+   display:flex;gap:12px;align-items:flex-start;flex-wrap:wrap}
+.demo p{width:100%;color:var(--ink-600);margin:4px 0 8px}
+.row{display:flex;align-items:center;gap:12px;padding:7px 0;border-bottom:1px solid var(--surface-300)}
+.row b{font:600 12px/1 var(--font-sans);width:112px;flex-shrink:0}
+.row code{font:500 11px/1 ui-monospace,monospace;color:var(--ink-600);width:52px;flex-shrink:0}
+.u{font:400 11px/1.45 var(--font-sans);color:var(--ink-600);flex:1;min-width:0}
+.bar{height:16px;background:var(--brand-blue-600);border-radius:3px;flex-shrink:0}
+.rbox{width:40px;height:40px;background:var(--brand-blue-100);
+   border:var(--edge-width) solid var(--brand-blue-600);flex-shrink:0}
+.sbox{width:40px;height:26px;background:var(--surface-200);border-radius:var(--radius-sm);flex-shrink:0}
+</style></head><body>
+<main class="pad"><h1 class="heading-md">Spacing, radius &amp; depth</h1><p class="body-sm note">How far a pressable control sits above the page, and how far it travels when pressed. These three values are what make a tap feel like it landed.</p><div class="demo"><button class="am-reset am-pressable am-btn am-btn-primary button-label" type="button">Press me</button><button class="am-reset am-pressable am-btn am-btn-ghost button-label" type="button">Ghost</button><button class="am-reset am-pressable am-btn am-btn-primary button-label" type="button" disabled>Disabled</button><p class="body-sm">Travel equals shelf height exactly. Disabled is drawn already-pressed.</p></div><h2>Spacing</h2><div class="row"><span class="bar" style="width:4px"></span><b>space-1</b><code>4px</code><span class="u">Icon-to-label gaps, tight inline spacing.</span></div><div class="row"><span class="bar" style="width:8px"></span><b>space-2</b><code>8px</code><span class="u">Compact stacks, chip padding.</span></div><div class="row"><span class="bar" style="width:12px"></span><b>space-3</b><code>12px</code><span class="u">Default padding inside small controls and answer tiles.</span></div><div class="row"><span class="bar" style="width:16px"></span><b>space-4</b><code>16px</code><span class="u">Card padding, default gap between stacked elements.</span></div><div class="row"><span class="bar" style="width:24px"></span><b>space-6</b><code>24px</code><span class="u">Section spacing, screen side margins on small phones.</span></div><div class="row"><span class="bar" style="width:32px"></span><b>space-8</b><code>32px</code><span class="u">Space above/below a full-screen celebration headline.</span></div><div class="row"><span class="bar" style="width:48px"></span><b>space-12</b><code>48px</code><span class="u">Top offset for the celebration display number.</span></div><h2>Radius</h2><div class="row"><span class="rbox" style="border-radius:10px"></span><b>radius-sm</b><code>10px</code><span class="u">Answer tiles, inputs, PIN keypad keys.</span></div><div class="row"><span class="rbox" style="border-radius:16px"></span><b>radius-md</b><code>16px</code><span class="u">Cards and panels: skill cards, profile card, modals.</span></div><div class="row"><span class="rbox" style="border-radius:999px"></span><b>radius-pill</b><code>999px</code><span class="u">Every button and chip — the one consistent pill shape for anything tappable that means 'go.'</span></div><h2>Depth</h2><div class="row"><b>press-depth</b><code>4px</code><span class="u">The shelf under a button: its resting height above the page, and the exact distance it travels down on press before the shelf collapses to nothing.</span></div><div class="row"><b>press-depth-lg</b><code>6px</code><span class="u">The same mechanic on a large target — skill cards and answer tiles. A bigger object earns a deeper throw.</span></div><div class="row"><b>edge-width</b><code>2px</code><span class="u">The solid darker border around every pressable control, in that control's own -700 or -600 shade. It carries the control's boundary against the page, which a pale fill on a pale surface cannot.</span></div><h2>Shadow</h2><div class="row"><span class="sbox" style="box-shadow:0 1px 2px rgba(22,32,44,0.06), 0 2px 8px rgba(22,32,44,0.08)"></span><b>shadow-card</b><span class="u">Raised, non-pressable panels on surface-100 in calm/practice mode — the profile card, modals. Anything pressable uses the press-depth shelf instead, not a blur.</span></div><div class="row"><span class="sbox" style="box-shadow:0 8px 28px rgba(245,180,0,0.35)"></span><b>shadow-celebration</b><span class="u">A gold glow for a badge or streak counter sitting on a calm surface, where it needs to feel like it arrived from Reward mode. Not used inside a celebration field itself, where a gold glow on gold is invisible.</span></div></main>
+
+</body></html>

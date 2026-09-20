@@ -1,0 +1,1075 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics><meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/colors.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/typography.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/depth.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/foundations/press.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/styles.css">
+<link rel="stylesheet" href="motion/motion.css">
+<script src="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/_ds_bundle.js"></script>
+<script src="motion/motion.js"></script>
+<style>
+body{margin:0;background:#e2e9f4;font-family:var(--font-sans),system-ui,sans-serif}
+a{color:var(--brand-blue-600)}a:hover{color:var(--focus-ring)}
+.dv-turn{padding:40px 44px 32px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 6px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--ink-900);color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:700 15px/1.2 var(--font-sans);color:var(--ink-900)}
+.dv-row{margin:34px 0 0}
+.dv-rowhd{font:700 14px/1.2 var(--font-sans);color:var(--ink-900);margin:0 0 4px;text-transform:uppercase;letter-spacing:1.2px}
+.dv-rowsub{font:400 13px/1.5 var(--font-sans);color:var(--ink-600);margin:0 0 18px}
+.dv-chain{display:flex;flex-wrap:nowrap;gap:10px;align-items:flex-start;margin:0 0 26px}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:8px;width:384px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(22,32,44,.1);color:var(--ink-900);border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:600 13px/1.3 var(--font-sans);color:var(--ink-900)}
+.dv-note{font:400 12px/1.45 var(--font-sans);color:var(--ink-600)}
+.dv-opt:target .dv-oid{background:var(--focus-ring);color:#fff}
+.dv-arrow{flex:none;align-self:center;width:140px;display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:34px}
+.dv-arrowlbl{font:500 11.5px/1.35 var(--font-sans);color:var(--ink-600);text-align:center}
+.dv-arrowline{display:flex;align-items:center;width:100%}
+.dv-bezel{padding:11px;background:#c3cfe2;border-radius:34px;box-shadow:0 2px 10px rgba(22,32,44,.14)}
+.dv-screen{width:360px;height:800px;border-radius:24px;overflow:hidden;background:var(--surface-100);color:var(--ink-900);display:flex;flex-direction:column}
+.dv-next{margin:28px 0 0;font:13px/1.6 var(--font-sans);color:var(--ink-600)}
+</style></helmet>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Abante Minds — November scope, all 20 screens in the design system</span></div>
+<div class="dv-rowsub" style="max-width:660px">Laid out as a flow: arrows carry the transition, branch arrows are labelled with what the learner did. Copy and data are unchanged from the wireframes. <a class="dv-oid" href="#1u">1u</a> is live — you can tap through the practice loop.</div>
+
+<div class="dv-row">
+<div class="dv-rowhd">Live — practice loop</div>
+<div class="dv-rowsub">Question 9 &rarr; word problem 10 &rarr; correct 11 / not yet 12 &rarr; tier up 14 &rarr; summary 16. Real taps: the keypad enters digits, check judges the answer.</div>
+<div class="dv-chain">
+<div class="dv-opt" id="1u"><div class="dv-olabel"><a class="dv-oid" href="#1u">1u</a>Live · tap the keypad, then check</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+
+<sc-if value="{{ isQ9 }}" hint-placeholder-val="{{ true }}">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ 3 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="padding:24px 24px 0"><div class="body-lg" style="font-weight:500;text-wrap:pretty">A sari-sari store marks up a &#8369;240 item by 15%. How much is added?</div></div>
+<div style="padding:20px 24px 0"><div style="height:64px;border:2px solid var(--line-200);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;gap:8px;padding:0 16px"><span class="heading-md" style="color:var(--ink-600)">&#8369;</span><span class="heading-lg">{{ typed }}</span></div></div>
+<div style="padding:12px 24px 0"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" hint-size="120px,48px">Show a hint</x-import></div>
+<div style="flex:1"></div>
+<div style="padding:0 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+<div class="am-pressable heading-md" onClick="{{ keys.k1 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">1</div>
+<div class="am-pressable heading-md" onClick="{{ keys.k2 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">2</div>
+<div class="am-pressable heading-md" onClick="{{ keys.k3 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">3</div>
+<div class="am-pressable heading-md" onClick="{{ keys.k4 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">4</div>
+<div class="am-pressable heading-md" onClick="{{ keys.k5 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">5</div>
+<div class="am-pressable heading-md" onClick="{{ keys.k6 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">6</div>
+<div class="am-pressable heading-md" onClick="{{ keys.k7 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">7</div>
+<div class="am-pressable heading-md" onClick="{{ keys.k8 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">8</div>
+<div class="am-pressable heading-md" onClick="{{ keys.k9 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">9</div>
+<div class="am-pressable heading-md" onClick="{{ keys.kdot }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">.</div>
+<div class="am-pressable heading-md" onClick="{{ keys.k0 }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">0</div>
+<div class="am-pressable label" onClick="{{ keys.kdel }}" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center;color:var(--ink-600)">Delete</div>
+</div>
+<div style="padding:16px 24px 20px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" on-click="{{ check }}" hint-size="100%,48px">Check</x-import></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isQ10 }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ 4 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="padding:24px 24px 0"><div class="body-lg" style="font-weight:500;text-wrap:pretty">Aling Rosa sells 3 kilos of fish for &#8369;450. At the same rate, what do 5 kilos cost?</div></div>
+<div style="padding:24px 24px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div class="am-pressable heading-md" onClick="{{ picks.a }}" style="--am-edge:{{ edgeA }};background:{{ faceA }};border-radius:var(--radius-sm);height:76px;display:flex;align-items:center;justify-content:center">&#8369;650</div>
+<div class="am-pressable heading-md" onClick="{{ picks.b }}" style="--am-edge:{{ edgeB }};background:{{ faceB }};border-radius:var(--radius-sm);height:76px;display:flex;align-items:center;justify-content:center">&#8369;700</div>
+<div class="am-pressable heading-md" onClick="{{ picks.c }}" style="--am-edge:{{ edgeC }};background:{{ faceC }};border-radius:var(--radius-sm);height:76px;display:flex;align-items:center;justify-content:center">&#8369;750</div>
+<div class="am-pressable heading-md" onClick="{{ picks.d }}" style="--am-edge:{{ edgeD }};background:{{ faceD }};border-radius:var(--radius-sm);height:76px;display:flex;align-items:center;justify-content:center">&#8369;900</div>
+</div>
+<div style="padding:16px 24px 0"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" hint-size="120px,48px">Show a hint</x-import></div>
+<div style="flex:1"></div>
+<div style="padding:0 24px 24px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" on-click="{{ check }}" hint-size="100%,48px">Check</x-import></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isFb }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ fbIndex }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="padding:20px 24px 0"><div class="body-sm" style="color:var(--ink-600);text-wrap:pretty">{{ fbQuestion }}</div></div>
+<div style="padding:16px 24px 0">
+<div style="border-radius:var(--radius-md);padding:16px;display:flex;align-items:center;gap:14px;background:{{ fbFace }};border:2px solid {{ fbEdge }}">
+<span style="width:44px;height:44px;flex:none;border-radius:50%;background:var(--surface-200);display:flex;align-items:center;justify-content:center;color:{{ fbEdge }}">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="{{ fbIcon }}" size="{{ 24 }}" hint-size="24px,24px"></x-import>
+</span>
+<span><span class="heading-md" style="display:block">{{ given }}</span><span class="label" style="color:{{ fbEdge }}">{{ fbLabel }}</span></span>
+</div>
+</div>
+<div style="padding:18px 24px 0"><div class="body" style="text-wrap:pretty">{{ explain }}</div></div>
+<div style="flex:1"></div>
+<div style="padding:0 24px 24px;display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" on-click="{{ advance }}" hint-size="100%,48px">{{ advanceLabel }}</x-import>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isTier }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0;background:var(--celebration-gold-500)">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.CelebrationBanner" headline="Tier 3" sublabel="Unlocked, Ligaya" icon="level-up" style="{{ bannerStyle }}" hint-size="100%,420px"></x-import>
+<div style="padding:0 32px;text-align:center"><div class="body" style="color:var(--ink-900)">20 of 20 in percentages. The questions get longer from here.</div></div>
+<div style="padding:24px 24px 0;display:flex;gap:8px;align-items:stretch">
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--success-700)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-900)">Tier 1</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--success-700)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-900)">Tier 2</span></span>
+<span style="flex:1;background:var(--surface-200);border:2px solid var(--ink-900);border-radius:var(--radius-md);padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--celebration-coral-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="trophy" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="label" style="color:var(--ink-900)">Tier 3</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-600)">Tier 4</span></span>
+</div>
+<div style="flex:1"></div>
+<div style="padding:0 24px 32px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="inverse" full-width="{{ true }}" on-click="{{ toSummary }}" hint-size="100%,48px">Keep going</x-import></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSum }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0">
+<div style="padding:24px 24px 0"><div class="heading-lg">Session done</div><div class="body-sm" style="color:var(--ink-600);margin-top:4px">Percentages &middot; 9 minutes</div></div>
+<div style="padding:18px 24px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px;text-align:center"><div class="heading-lg">10</div><div class="caption" style="color:var(--ink-600)">attempted</div></div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px;text-align:center"><div class="heading-lg">7</div><div class="caption" style="color:var(--ink-600)">correct</div></div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px;text-align:center"><div class="heading-lg">2</div><div class="caption" style="color:var(--ink-600)">tier</div></div>
+</div>
+<div style="margin:20px 24px 0;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:10px">
+<div class="caption" style="color:var(--ink-600)">Tier 2 progress</div>
+<div style="height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;background:var(--brand-blue-600);border-radius:var(--radius-pill)"></span></div>
+<div class="body-sm" style="color:var(--ink-600)">12 of 20. Eight more correct to reach tier 3.</div>
+</div>
+<div style="flex:1"></div>
+<div style="padding:0 24px 24px;display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" on-click="{{ restart }}" hint-size="100%,48px">Practice again</x-import>
+</div>
+</div>
+</sc-if>
+
+</div></div><div class="dv-note">The one interactive frame. Everything else in this file is a static layout.</div></div>
+</div>
+</div>
+
+<div class="dv-row">
+<div class="dv-rowhd">Row 1 — Entry</div>
+<div class="dv-rowsub">Install, sign in, recover a PIN, set up a profile.</div>
+<div class="dv-chain">
+
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>1 &middot; Splash with install hint</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px">
+<img src="assets/abante-minds-mark.png" alt="Abante Minds" style="width:104px;height:104px;object-fit:contain">
+<div style="font-family:var(--font-display);font-size:34px;line-height:40px;font-weight:700;color:var(--brand-blue-600)">Abante Minds</div>
+<div class="body" style="color:var(--ink-600);text-align:center">NCE math practice &middot; works offline</div>
+</div>
+<div style="flex:none;margin:0 24px 28px;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:12px">
+<div class="body" style="text-wrap:pretty">Add Abante Minds to your home screen. It keeps working when there is no signal.</div>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Add to home screen</x-import>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" full-width="{{ true }}" hint-size="100%,48px">Not now</x-import>
+</div>
+</div></div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">added to home screen</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>2 &middot; PIN login</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;padding:20px 24px 0;display:flex;flex-direction:column;gap:8px">
+<div class="heading-md">Sign in</div>
+<div class="caption" style="color:var(--ink-600);margin-top:6px">Username</div>
+<div style="height:52px;border:2px solid var(--line-200);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;padding:0 14px"><span class="body-lg">ligaya.m</span></div>
+<div class="caption" style="color:var(--ink-600);margin-top:8px">Enter your PIN</div>
+<div style="display:flex;gap:10px">
+<div style="flex:1;height:56px;border:2px solid var(--line-200);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;justify-content:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--ink-900)"></span></div>
+<div style="flex:1;height:56px;border:2px solid var(--line-200);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;justify-content:center"><span style="width:12px;height:12px;border-radius:50%;background:var(--ink-900)"></span></div>
+<div style="flex:1;height:56px;border:2px solid var(--brand-blue-600);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;justify-content:center"><span style="width:2px;height:24px;background:var(--brand-blue-600)"></span></div>
+<div style="flex:1;height:56px;border:2px solid var(--line-200);border-radius:var(--radius-sm);background:var(--surface-200)"></div>
+</div>
+<div style="padding-top:10px"><a href="#1c" class="body-sm">Forgot your PIN?</a></div>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">1</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">2</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">3</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">4</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">5</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">6</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">7</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">8</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">9</div>
+<div style="height:54px"></div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center">0</div>
+<div class="am-pressable label" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:54px;display:flex;align-items:center;justify-content:center;color:var(--ink-600)">Delete</div>
+</div>
+<div style="flex:none;padding:16px 24px 24px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Sign in</x-import></div>
+</div></div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">branch &middot; forgot your PIN</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>3 &middot; PIN recovery, learner side</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;padding:12px 24px 0;display:flex;align-items:center;gap:8px;color:var(--ink-600)">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="back" size="{{ 20 }}" hint-size="20px,20px"></x-import>
+<span class="label">Back</span>
+</div>
+<div style="flex:none;padding:20px 24px 0;display:flex;flex-direction:column;gap:12px">
+<div class="heading-md">Forgot your PIN</div>
+<div class="body" style="text-wrap:pretty">Ask your adviser to reset it. This phone will send them a request &mdash; you do not need signal right now.</div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;align-items:center;gap:14px">
+<span style="width:48px;height:48px;flex:none;border-radius:var(--radius-md);background:var(--skill-2-600);color:var(--ink-inverse);display:flex;align-items:center;justify-content:center">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="profile" size="{{ 24 }}" hint-size="24px,24px"></x-import>
+</span>
+<span><span class="heading-sm" style="display:block">Mr. Dela Cruz</span><span class="body-sm" style="color:var(--ink-600)">Adviser &middot; Poblacion NHS</span></span>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;margin-top:8px">
+<span class="caption" style="color:var(--ink-600)">What happens next</span>
+<span style="display:flex;gap:12px;align-items:center;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px">
+<span class="label" style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--brand-blue-100);color:var(--brand-blue-600);display:flex;align-items:center;justify-content:center">1</span>
+<span class="body" style="flex:1">The request leaves this phone the next time it has signal.</span>
+</span>
+<span style="display:flex;gap:12px;align-items:center;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px">
+<span class="label" style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--brand-blue-100);color:var(--brand-blue-600);display:flex;align-items:center;justify-content:center">2</span>
+<span class="body" style="flex:1">Mr. Dela Cruz gives you a new four-digit PIN.</span>
+</span>
+<span style="display:flex;gap:12px;align-items:center;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px">
+<span class="label" style="width:28px;height:28px;flex:none;border-radius:50%;background:var(--brand-blue-100);color:var(--brand-blue-600);display:flex;align-items:center;justify-content:center">3</span>
+<span class="body" style="flex:1">You sign in with it. Your tier and streak are untouched.</span>
+</span>
+</div>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 24px;display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Ask adviser to reset it</x-import>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" full-width="{{ true }}" hint-size="100%,48px">Back to sign in</x-import>
+</div>
+</div></div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">request sent</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1v"><div class="dv-olabel"><a class="dv-oid" href="#1v">1v</a>3b &middot; Request sent</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px 28px">
+<span style="width:72px;height:72px;border-radius:50%;background:var(--success-100);color:var(--success-700);display:flex;align-items:center;justify-content:center">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 36 }}" hint-size="36px,36px"></x-import>
+</span>
+<div class="heading-md">Request sent</div>
+<div class="body" style="color:var(--ink-600);text-align:center;text-wrap:pretty">Mr. Dela Cruz has your request. Ask him for the new PIN, then sign in with it.</div>
+</div>
+<div style="flex:none;padding:0 24px 28px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Back to sign in</x-import></div>
+</div></div><div class="dv-note">Sent state of <a class="dv-oid" href="#1c">1c</a>. Nothing is queued invisibly &mdash; the confirmation is a screen, not a toast.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">first sign-in with a new PIN</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1d"><div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>4 &middot; First-run profile setup</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;padding:20px 24px 0;display:flex;flex-direction:column;gap:8px">
+<div class="heading-md">Set up your profile</div>
+<div class="body-sm" style="color:var(--ink-600)">This stays on the phone. You can change it later.</div>
+<div class="caption" style="color:var(--ink-600);margin-top:8px">Your name</div>
+<div style="height:52px;border:2px solid var(--line-200);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;padding:0 14px"><span class="body-lg">Ligaya Mendoza</span></div>
+<div class="caption" style="color:var(--ink-600);margin-top:8px">School or barangay</div>
+<div style="height:52px;border:2px solid var(--line-200);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;padding:0 14px"><span class="body-lg">Poblacion, Pilar</span></div>
+<div class="caption" style="color:var(--ink-600);margin-top:12px">Pick a colour</div>
+<div style="display:flex;gap:12px">
+<span class="am-pressable" style="--am-edge:var(--ink-900);width:56px;height:56px;border-radius:50%;background:var(--skill-1-600);display:block"></span>
+<span class="am-pressable" style="--am-edge:var(--skill-2-600);width:56px;height:56px;border-radius:50%;background:var(--skill-2-100);display:block"></span>
+<span class="am-pressable" style="--am-edge:var(--skill-3-600);width:56px;height:56px;border-radius:50%;background:var(--skill-3-100);display:block"></span>
+<span class="am-pressable" style="--am-edge:var(--skill-4-600);width:56px;height:56px;border-radius:50%;background:var(--skill-4-100);display:block"></span>
+</div>
+<div class="caption" style="color:var(--ink-600);margin-top:12px">Pick an icon</div>
+<div style="display:flex;gap:12px">
+<span class="am-pressable" style="--am-edge:var(--line-200);width:56px;height:56px;border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;justify-content:center;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 24 }}" hint-size="24px,24px"></x-import></span>
+<span class="am-pressable" style="--am-edge:var(--ink-900);width:56px;height:56px;border-radius:var(--radius-sm);background:var(--brand-blue-100);display:flex;align-items:center;justify-content:center;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="triangle" size="{{ 24 }}" hint-size="24px,24px"></x-import></span>
+<span class="am-pressable" style="--am-edge:var(--line-200);width:56px;height:56px;border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;justify-content:center;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="scales" size="{{ 24 }}" hint-size="24px,24px"></x-import></span>
+<span class="am-pressable" style="--am-edge:var(--line-200);width:56px;height:56px;border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;justify-content:center;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="coins" size="{{ 24 }}" hint-size="24px,24px"></x-import></span>
+</div>
+<div class="caption" style="color:var(--ink-600);margin-top:12px">This is how your card will look</div>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.ProfileCard" name="Ligaya Mendoza" school="Poblacion, Pilar" color-key="{{ 1 }}" style="{{ profileStyle }}" hint-size="100%,84px"></x-import>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 24px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Create profile</x-import></div>
+</div></div><div class="dv-note">Skill hues do the colour-picking work; the chosen swatch takes an ink-900 edge rather than a tick.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">profile created &rarr; Row 2</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+</div>
+</div>
+<div class="dv-row">
+<div class="dv-rowhd">Row 2 — Home and picking</div>
+<div class="dv-rowsub">Two entry states, two picker states. The amber pill is the only thing that means &ldquo;do this next&rdquo;.</div>
+<div class="dv-chain">
+
+<div class="dv-opt" id="1e"><div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>5 &middot; Home, first run</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;padding:24px 24px 0"><div class="heading-lg">Hello, Ligaya</div><div class="body-sm" style="color:var(--ink-600);margin-top:4px">Grade 9 &middot; NCE math practice</div></div>
+<div style="flex:none;margin:20px 24px 0;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:10px">
+<div class="heading-sm">Nothing attempted yet</div>
+<div class="body" style="text-wrap:pretty">Start with 10 questions on change and money. About eight minutes.</div>
+<div style="display:flex;align-items:center;gap:12px;margin-top:4px">
+<span class="caption" style="padding:4px 12px;border-radius:var(--radius-pill);background:var(--brand-blue-100);color:var(--brand-blue-600)">Tier 1</span>
+<span style="flex:1;height:8px;border-radius:var(--radius-pill);background:var(--surface-300)"></span>
+<span class="caption" style="color:var(--ink-600)">0 of 20</span>
+</div>
+</div>
+<div style="flex:none;margin:20px 24px 0;display:flex;flex-direction:column;gap:8px">
+<span class="caption" style="color:var(--ink-600)">Tier ladder</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;background:var(--brand-blue-100);border:2px solid var(--brand-blue-600);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="label" style="color:var(--ink-900)">1</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">2</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">3</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="trophy" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">4</span></span>
+</span>
+<span class="body-sm" style="color:var(--ink-600)">Twenty correct on tier 1 opens tier 2.</span>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 20px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Start practicing</x-import></div>
+<div style="flex:none;height:64px;display:flex;background:var(--surface-200);border-top:1px solid var(--line-200)">
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="home" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Home</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Practice</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="profile" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Profile</span></span>
+</div>
+</div></div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">start practicing</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1g"><div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>7 &middot; Topic picker, first run</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;padding:20px 24px 0"><div class="heading-md">Pick a topic</div><div class="body-sm" style="color:var(--ink-600);margin-top:4px">Four topics. Twenty questions each.</div></div>
+<div style="flex:none;padding:18px 24px 0;display:grid;grid-template-columns:148px 148px;gap:14px 12px;justify-content:center">
+<span style="display:flex;flex-direction:column;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.SkillCard" label="Change and money" icon="coins" color-key="{{ 1 }}" progress="{{ 0 }}" hint-size="148px,148px"></x-import><span style="display:flex;gap:4px;color:var(--surface-300)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span class="caption" style="color:var(--ink-600)">0 of 20</span></span>
+<span style="display:flex;flex-direction:column;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.SkillCard" label="Percentages" icon="percent" color-key="{{ 2 }}" progress="{{ 0 }}" hint-size="148px,148px"></x-import><span style="display:flex;gap:4px;color:var(--surface-300)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span class="caption" style="color:var(--ink-600)">0 of 20</span></span>
+<span style="display:flex;flex-direction:column;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.SkillCard" label="Ratio and rate" icon="scales" color-key="{{ 3 }}" progress="{{ 0 }}" hint-size="148px,148px"></x-import><span style="display:flex;gap:4px;color:var(--surface-300)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span class="caption" style="color:var(--ink-600)">0 of 20</span></span>
+<span style="display:flex;flex-direction:column;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.SkillCard" label="Measurement" icon="ruler" color-key="{{ 4 }}" progress="{{ 0 }}" hint-size="148px,148px"></x-import><span style="display:flex;gap:4px;color:var(--surface-300)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span class="caption" style="color:var(--ink-600)">0 of 20</span></span>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 24px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" disabled="{{ true }}" hint-size="100%,48px">Start practicing</x-import></div>
+</div></div><div class="dv-note">Nothing picked yet, so the action is drawn already-pressed and flat &mdash; shape says &ldquo;not now&rdquo; before colour does.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">topic picked &rarr; Row 3</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1f"><div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>6 &middot; Home, returning</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;padding:24px 24px 0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px">
+<span><span class="heading-lg" style="display:block">Hello, Ligaya</span><span class="body-sm" style="color:var(--ink-600)">Back for day 4</span></span>
+<span style="display:flex;align-items:center;gap:6px;padding:8px 14px;border-radius:var(--radius-pill);background:var(--brand-blue-100);color:var(--brand-blue-600)">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="streak" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="label">4</span>
+</span>
+</div>
+<div style="flex:none;margin:20px 24px 0;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:10px">
+<span style="display:flex;justify-content:space-between;align-items:baseline"><span class="heading-sm">Tier 2</span><span class="caption" style="color:var(--ink-600)">12 of 20 to tier 3</span></span>
+<span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+<span class="body" style="color:var(--ink-600)">Last session: percentages, 7 of 10 correct.</span>
+</div>
+<div style="flex:none;margin:16px 24px 0;display:flex;flex-direction:column;gap:8px">
+<span class="caption" style="color:var(--ink-600)">Tier ladder</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;background:var(--brand-blue-600);color:var(--ink-inverse);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">1</span></span>
+<span style="flex:1;background:var(--brand-blue-100);border:2px solid var(--brand-blue-600);border-radius:var(--radius-md);padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="label" style="color:var(--ink-900)">2</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">3</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="trophy" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">4</span></span>
+</span>
+</div>
+<div style="flex:none;margin:16px 24px 0;display:flex;flex-direction:column;gap:6px">
+<span class="caption" style="color:var(--ink-600)">4 days in a row</span>
+<span style="display:flex;gap:6px">
+<span style="flex:1;height:38px;border-radius:var(--radius-sm);background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:38px;border-radius:var(--radius-sm);background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:38px;border-radius:var(--radius-sm);background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:38px;border-radius:var(--radius-sm);background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:38px;border-radius:var(--radius-sm);background:var(--surface-300)"></span>
+<span style="flex:1;height:38px;border-radius:var(--radius-sm);background:var(--surface-300)"></span>
+<span style="flex:1;height:38px;border-radius:var(--radius-sm);background:var(--surface-300)"></span>
+</span>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 20px;display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Continue percentages</x-import>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" full-width="{{ true }}" hint-size="100%,48px">Pick another topic</x-import>
+</div>
+<div style="flex:none;height:64px;display:flex;background:var(--surface-200);border-top:1px solid var(--line-200)">
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="home" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Home</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Practice</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="profile" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Profile</span></span>
+</div>
+</div></div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">pick another topic</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1h"><div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>8 &middot; Topic picker, returning</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;padding:20px 24px 0"><div class="heading-md">Pick a topic</div><div class="body-sm" style="color:var(--ink-600);margin-top:4px">Percentages is where you left off.</div></div>
+<div style="flex:none;padding:18px 24px 0;display:grid;grid-template-columns:148px 148px;gap:14px 12px;justify-content:center">
+<span style="display:flex;flex-direction:column;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.SkillCard" label="Change and money" icon="coins" color-key="{{ 1 }}" progress="{{ 0.9 }}" hint-size="148px,148px"></x-import><span style="display:flex;gap:4px"><span style="color:var(--skill-1-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span style="color:var(--skill-1-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span style="color:var(--skill-1-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span></span><span class="caption" style="color:var(--ink-600)">18 of 20</span></span>
+<span style="display:flex;flex-direction:column;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.SkillCard" label="Percentages" icon="percent" color-key="{{ 2 }}" progress="{{ 0.6 }}" hint-size="148px,148px"></x-import><span style="display:flex;gap:4px"><span style="color:var(--skill-2-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span style="color:var(--skill-2-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span style="color:var(--surface-300)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span></span><span class="caption" style="color:var(--brand-blue-600)">12 of 20 &middot; picked</span></span>
+<span style="display:flex;flex-direction:column;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.SkillCard" label="Ratio and rate" icon="scales" color-key="{{ 3 }}" progress="{{ 0.25 }}" hint-size="148px,148px"></x-import><span style="display:flex;gap:4px"><span style="color:var(--skill-3-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span style="color:var(--surface-300)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span style="color:var(--surface-300)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span></span><span class="caption" style="color:var(--ink-600)">5 of 20</span></span>
+<span style="display:flex;flex-direction:column;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.SkillCard" label="Measurement" icon="ruler" color-key="{{ 4 }}" progress="{{ 0 }}" hint-size="148px,148px"></x-import><span style="display:flex;gap:4px;color:var(--surface-300)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="star" size="{{ 15 }}" hint-size="15px,15px"></x-import></span><span class="caption" style="color:var(--ink-600)">0 of 20 &middot; not started</span></span>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 24px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Continue percentages</x-import></div>
+</div></div><div class="dv-note">Same four hues at four different progress levels. Hue is topic identity only &mdash; it never becomes chrome.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">continue percentages &rarr; Row 3</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+</div>
+</div>
+
+<div class="dv-row">
+<div class="dv-rowhd">Row 3 — Practice</div>
+<div class="dv-rowsub">Question text gets the most room on every one of these. Correct and wrong each carry a glyph, never a fill alone.</div>
+<div class="dv-chain">
+
+<div class="dv-opt" id="1i"><div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>9 &middot; Computation, on-screen keypad</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ 3 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="flex:none;padding:24px 24px 0"><div class="body-lg" style="font-weight:500;text-wrap:pretty">A sari-sari store marks up a &#8369;240 item by 15%. How much is added?</div></div>
+<div style="flex:none;padding:20px 24px 0"><div style="height:64px;border:2px solid var(--brand-blue-600);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;gap:8px;padding:0 16px"><span class="heading-md" style="color:var(--ink-600)">&#8369;</span><span class="heading-lg">36</span><span style="width:2px;height:28px;background:var(--brand-blue-600)"></span></div></div>
+<div style="flex:none;padding:12px 24px 0;display:flex"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" hint-size="140px,48px">Show a hint</x-import></div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">1</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">2</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">3</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">4</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">5</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">6</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">7</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">8</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">9</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">.</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">0</div>
+<div class="am-pressable label" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center;color:var(--ink-600)">Delete</div>
+</div>
+<div style="flex:none;padding:16px 24px 20px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Check</x-import></div>
+</div></div><div class="dv-note">No options and no calculator. The keypad is the only way in.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">branch &middot; show a hint</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1m"><div class="dv-olabel"><a class="dv-oid" href="#1m">1m</a>13 &middot; Hint revealed</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ 3 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="flex:none;padding:22px 24px 0"><div class="body-lg" style="font-weight:500;text-wrap:pretty">A sari-sari store marks up a &#8369;240 item by 15%. How much is added?</div></div>
+<div style="flex:none;padding:18px 24px 0;display:flex;flex-direction:column;gap:10px">
+<span class="caption" style="color:var(--ink-600)">Hint 1 of 3</span>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px;display:flex;gap:12px;align-items:flex-start">
+<span style="color:var(--brand-blue-600);flex:none"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="hint" size="{{ 22 }}" hint-size="22px,22px"></x-import></span>
+<span class="body" style="text-wrap:pretty">Find 10% of &#8369;240 first. Move the decimal one place left.</span>
+</div>
+<div style="border:2px dashed var(--surface-300);border-radius:var(--radius-md);padding:14px;display:flex;gap:12px;align-items:center;color:var(--ink-600)">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="body-sm">Hint 2 &middot; tap to reveal</span>
+</div>
+<div style="border:2px dashed var(--surface-300);border-radius:var(--radius-md);padding:14px;display:flex;gap:12px;align-items:center;color:var(--ink-600)">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="body-sm">Hint 3 &middot; tap to reveal</span>
+</div>
+</div>
+<div style="flex:none;padding:18px 24px 0"><div style="height:64px;border:2px solid var(--line-200);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;gap:8px;padding:0 16px"><span class="heading-md" style="color:var(--ink-600)">&#8369;</span><span style="width:2px;height:28px;background:var(--brand-blue-600)"></span></div></div>
+<div style="flex:1"></div>
+<div style="flex:none;margin:0 24px 16px;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px 16px;display:flex;align-items:center;gap:12px">
+<span style="flex:none;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="hint" size="{{ 20 }}" hint-size="20px,20px"></x-import></span>
+<span class="body-sm" style="flex:1;color:var(--ink-600)">Hints used this session: 1 of 3. Using them all still counts the question.</span>
+</div>
+<div style="flex:none;padding:0 24px 24px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Check</x-import></div>
+</div></div><div class="dv-note">One scaffold step shown, two still locked. Revealing costs nothing but is visibly counted.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">checked &middot; not yet</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1l"><div class="dv-olabel"><a class="dv-oid" href="#1l">1l</a>12 &middot; Wrong state</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ 3 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="flex:none;padding:20px 24px 0"><div class="body-sm" style="color:var(--ink-600);text-wrap:pretty">A sari-sari store marks up a &#8369;240 item by 15%. How much is added?</div></div>
+<div style="flex:none;padding:16px 24px 0"><div style="border:2px solid var(--danger-700);background:var(--danger-100);border-radius:var(--radius-md);padding:16px;display:flex;align-items:center;gap:14px">
+<span style="width:44px;height:44px;flex:none;border-radius:50%;background:var(--surface-200);color:var(--danger-700);display:flex;align-items:center;justify-content:center"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="x" size="{{ 24 }}" hint-size="24px,24px"></x-import></span>
+<span><span class="heading-md" style="display:block">&#8369;276</span><span class="label" style="color:var(--danger-700)">Not yet</span></span>
+</div></div>
+<div style="flex:none;padding:16px 24px 0"><div class="body" style="text-wrap:pretty">&#8369;276 is the new price. The question asks only for the amount added.</div></div>
+<div style="flex:none;padding:18px 24px 0;display:flex;flex-direction:column;gap:10px">
+<span class="caption" style="color:var(--ink-600)">Step 1 of 3</span>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px"><span class="body-lg">10% of &#8369;240 = &#8369;24</span></div>
+<div style="border:2px dashed var(--surface-300);border-radius:var(--radius-md);padding:14px;display:flex;gap:12px;align-items:center;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="body-sm">Step 2 hidden</span></div>
+<div style="border:2px dashed var(--surface-300);border-radius:var(--radius-md);padding:14px;display:flex;gap:12px;align-items:center;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="body-sm">Step 3 hidden</span></div>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 24px;display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Try again</x-import>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" full-width="{{ true }}" hint-size="100%,48px">Show the full solution</x-import>
+</div>
+</div></div><div class="dv-note">The X glyph carries the meaning; coral is off the red-green axis. Feedback names the specific mistake and reveals one worked step.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">try again, then next question</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1j"><div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a>10 &middot; Word problem, multiple choice</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ 4 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="flex:none;padding:24px 24px 0"><div class="body-lg" style="font-weight:500;text-wrap:pretty">Aling Rosa sells 3 kilos of fish for &#8369;450. At the same rate, what do 5 kilos cost?</div></div>
+<div style="flex:none;padding:24px 24px 0;display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:76px;display:flex;align-items:center;justify-content:center">&#8369;650</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--brand-blue-600);background:var(--brand-blue-100);border-radius:var(--radius-sm);height:76px;display:flex;align-items:center;justify-content:center">&#8369;700</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:76px;display:flex;align-items:center;justify-content:center">&#8369;750</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:76px;display:flex;align-items:center;justify-content:center">&#8369;900</div>
+</div>
+<div style="flex:none;padding:16px 24px 0;display:flex"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" hint-size="140px,48px">Show a hint</x-import></div>
+<div style="flex:1"></div>
+<div style="flex:none;margin:0 24px 16px;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px 16px;display:flex;align-items:center;gap:12px">
+<span style="flex:none;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="level-up" size="{{ 20 }}" hint-size="20px,20px"></x-import></span>
+<span style="flex:1;display:flex;flex-direction:column;gap:6px">
+<span class="caption" style="color:var(--ink-600)">Tier 3 in 8 correct</span>
+<span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+</span>
+</div>
+<div style="flex:none;padding:0 24px 24px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Check</x-import></div>
+</div></div><div class="dv-note">Tiles are the answer-tile pattern, not a component: 10px radius, own edge and shelf.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">checked &middot; correct</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1k"><div class="dv-olabel"><a class="dv-oid" href="#1k">1k</a>11 &middot; Correct state</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ 4 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="flex:none;padding:20px 24px 0"><div class="body-sm" style="color:var(--ink-600);text-wrap:pretty">Aling Rosa sells 3 kilos of fish for &#8369;450. At the same rate, what do 5 kilos cost?</div></div>
+<div style="flex:none;padding:16px 24px 0"><div style="border:2px solid var(--success-700);background:var(--success-100);border-radius:var(--radius-md);padding:16px;display:flex;align-items:center;gap:14px">
+<span style="width:44px;height:44px;flex:none;border-radius:50%;background:var(--surface-200);color:var(--success-700);display:flex;align-items:center;justify-content:center"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 24 }}" hint-size="24px,24px"></x-import></span>
+<span><span class="heading-md" style="display:block">&#8369;750</span><span class="label" style="color:var(--success-700)">Tama</span></span>
+</div></div>
+<div style="flex:none;padding:18px 24px 0;display:flex;flex-direction:column;gap:8px">
+<span class="caption" style="color:var(--ink-600)">How it works</span>
+<span class="body-lg">3 kilos = &#8369;450, so 1 kilo = &#8369;150.</span>
+<span class="body-lg">5 &#215; &#8369;150 = &#8369;750.</span>
+</div>
+<div style="flex:none;padding:18px 24px 0;display:flex"><span style="display:flex;align-items:center;gap:8px;padding:8px 14px;border-radius:var(--radius-pill);background:var(--brand-blue-100);color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="streak" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="label">4 in a row</span></span></div>
+<div style="flex:1"></div>
+<div style="flex:none;margin:0 24px 16px;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+<span style="display:flex;justify-content:space-between;align-items:baseline"><span class="label">Tier 3 in 8 correct</span><span class="caption" style="color:var(--ink-600)">12 of 20</span></span>
+<span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+<span style="display:flex;gap:5px">
+<span style="flex:1;height:26px;border-radius:6px;background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--surface-300)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--surface-300)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--surface-300)"></span>
+</span>
+<span class="caption" style="color:var(--ink-600)">Day 4 of this week</span>
+</div>
+<div style="flex:none;padding:0 24px 24px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Next question</x-import></div>
+</div></div><div class="dv-note">Still calm mode. The streak is stated, not celebrated &mdash; gold stays out of practice screens.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">branch &middot; 20 of 20 correct &rarr; Row 4</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+</div>
+</div>
+<div class="dv-row">
+<div class="dv-rowhd">Row 4 — Progression</div>
+<div class="dv-rowsub">The only gold field in the product is <a class="dv-oid" href="#1n">1n</a>. The demote in <a class="dv-oid" href="#1o">1o</a> stays inside the practice layout.</div>
+<div class="dv-chain">
+
+<div class="dv-opt" id="1n"><div class="dv-olabel"><a class="dv-oid" href="#1n">1n</a>14 &middot; Tier up, full-screen takeover</div><div class="dv-bezel"><div class="dv-screen" style="background:var(--celebration-gold-500)">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-900)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--ink-900)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--ink-900)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--ink-900)"></span></span></div>
+<div style="flex:1;display:flex;flex-direction:column;justify-content:center">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.CelebrationBanner" headline="Tier 3" sublabel="Unlocked, Ligaya" icon="level-up" style="{{ bannerStyle }}" hint-size="100%,380px"></x-import>
+<div style="padding:0 32px;text-align:center"><div class="body-lg" style="color:var(--ink-900);text-wrap:pretty">20 of 20 in percentages. The questions get longer from here.</div></div>
+<div style="padding:24px 24px 0;display:flex;gap:8px;align-items:stretch">
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--success-700)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-900)">Tier 1</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--success-700)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-900)">Tier 2</span></span>
+<span style="flex:1;background:var(--surface-200);border:2px solid var(--ink-900);border-radius:var(--radius-md);padding:10px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--celebration-coral-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="trophy" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="label" style="color:var(--ink-900)">Tier 3</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 8px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-600)">Tier 4</span></span>
+</div>
+</div>
+<div style="flex:none;padding:0 24px 32px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="inverse" full-width="{{ true }}" hint-size="100%,48px">Keep going</x-import></div>
+</div></div><div class="dv-note">No header, no nav, one action. Baloo 2 appears here and nowhere else; the button inverts to a white face because amber and gold never share a screen.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">keep going &middot; streak breaks later</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1o"><div class="dv-olabel"><a class="dv-oid" href="#1o">1o</a>15 &middot; Tier down / streak reset</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ 6 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="flex:none;padding:18px 24px 0"><div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;gap:12px;align-items:flex-start">
+<span style="width:36px;height:36px;flex:none;border-radius:var(--radius-sm);background:var(--brand-blue-100);color:var(--brand-blue-600);display:flex;align-items:center;justify-content:center"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="streak" size="{{ 20 }}" hint-size="20px,20px"></x-import></span>
+<span><span class="heading-sm" style="display:block">Back to tier 2</span><span class="body" style="color:var(--ink-600);text-wrap:pretty">Your streak reset. Five correct in a row puts you back on tier 3.</span></span>
+</div></div>
+<div style="flex:none;padding:22px 24px 0"><div class="body-lg" style="font-weight:500;text-wrap:pretty">A jeepney fare is &#8369;13. What do 4 passengers pay?</div></div>
+<div style="flex:none;padding:20px 24px 0"><div style="height:64px;border:2px solid var(--line-200);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;gap:8px;padding:0 16px"><span class="heading-md" style="color:var(--ink-600)">&#8369;</span><span style="width:2px;height:28px;background:var(--brand-blue-600)"></span></div></div>
+<div style="flex:1"></div>
+<div style="flex:none;margin:0 24px 16px;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px 16px;display:flex;flex-direction:column;gap:8px">
+<span class="caption" style="color:var(--ink-600)">Streak reset today</span>
+<span style="display:flex;gap:5px">
+<span style="flex:1;height:26px;border-radius:6px;background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:26px;border-radius:6px;border:2px dashed var(--line-200)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--surface-300)"></span>
+<span style="flex:1;height:26px;border-radius:6px;background:var(--surface-300)"></span>
+</span>
+<span class="body-sm" style="color:var(--ink-600)">Four days held. Today is still open.</span>
+</div>
+<div style="flex:none;padding:0 24px 24px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Check</x-import></div>
+</div></div><div class="dv-note">Calm, not punishing: a card in the ordinary layout, no gold, no takeover, and the next question is already there.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">10 questions done</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1p"><div class="dv-olabel"><a class="dv-oid" href="#1p">1p</a>16 &middot; Session summary</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;padding:24px 24px 0"><div class="heading-lg">Session done</div><div class="body-sm" style="color:var(--ink-600);margin-top:4px">Percentages &middot; 9 minutes</div></div>
+<div style="flex:none;padding:18px 24px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px;text-align:center"><div class="heading-lg">10</div><div class="caption" style="color:var(--ink-600)">attempted</div></div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px;text-align:center"><div class="heading-lg">7</div><div class="caption" style="color:var(--ink-600)">correct</div></div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px;text-align:center"><div class="heading-lg">2</div><div class="caption" style="color:var(--ink-600)">tier</div></div>
+</div>
+<div style="flex:none;margin:20px 24px 0;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:10px">
+<span class="caption" style="color:var(--ink-600)">Tier 2 progress</span>
+<span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+<span class="body-sm" style="color:var(--ink-600)">12 of 20. Eight more correct to reach tier 3.</span>
+</div>
+<div style="flex:none;padding:20px 24px 0;display:flex;flex-direction:column;gap:10px">
+<span class="caption" style="color:var(--ink-600)">Do next</span>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:14px;display:flex;gap:12px;align-items:center">
+<span style="width:36px;height:36px;flex:none;border-radius:var(--radius-sm);background:var(--skill-2-100);color:var(--skill-2-600);display:flex;align-items:center;justify-content:center"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="retry" size="{{ 20 }}" hint-size="20px,20px"></x-import></span>
+<span class="body" style="text-wrap:pretty">Redo the 3 you missed, all markup questions.</span>
+</div>
+</div>
+<div style="flex:none;padding:18px 24px 0;display:flex;flex-direction:column;gap:8px">
+<span class="caption" style="color:var(--ink-600)">Badges &middot; 2 of 4</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;background:var(--brand-blue-100);border-radius:var(--radius-md);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="streak" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-900)">4 days</span></span>
+<span style="flex:1;background:var(--skill-2-100);border-radius:var(--radius-md);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--skill-2-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="level-up" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-900)">Tier 2</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">Tier 3</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">All 4</span></span>
+</span>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 24px;display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Practice again</x-import>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" full-width="{{ true }}" hint-size="100%,48px">Back home</x-import>
+</div>
+</div></div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">practice again &rarr; Row 3</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+</div>
+</div>
+
+<div class="dv-row">
+<div class="dv-rowhd">Row 5 — Offline and shell</div>
+<div class="dv-rowsub">A full session runs with no signal. The banner states the fact and never blocks the next action.</div>
+<div class="dv-chain">
+
+<div class="dv-opt" id="1q"><div class="dv-olabel"><a class="dv-oid" href="#1q">1q</a>17 &middot; Home with an offline banner</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;border:1px solid var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;background:var(--surface-300);padding:12px 24px"><div class="body-sm" style="color:var(--ink-900)">Offline. Practice is saved on this phone.</div></div>
+<div style="flex:none;padding:20px 24px 0"><div class="heading-lg">Hello, Ligaya</div><div class="body-sm" style="color:var(--ink-600);margin-top:4px">Back for day 4</div></div>
+<div style="flex:none;margin:18px 24px 0;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:10px">
+<span style="display:flex;justify-content:space-between;align-items:baseline"><span class="heading-sm">Tier 2</span><span class="caption" style="color:var(--ink-600)">12 of 20</span></span>
+<span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+<span class="body" style="color:var(--ink-600);text-wrap:pretty">All four topics are downloaded. 60 questions ready without signal.</span>
+</div>
+<div style="flex:none;margin:16px 24px 0;display:flex;flex-direction:column;gap:8px">
+<span class="caption" style="color:var(--ink-600)">Tier ladder</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;background:var(--brand-blue-600);color:var(--ink-inverse);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">1</span></span>
+<span style="flex:1;background:var(--brand-blue-100);border:2px solid var(--brand-blue-600);border-radius:var(--radius-md);padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="label" style="color:var(--ink-900)">2</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">3</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="trophy" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">4</span></span>
+</span>
+<span class="body-sm" style="color:var(--ink-600)">Tiers move whether or not there is signal.</span>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 20px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Continue percentages</x-import></div>
+<div style="flex:none;height:64px;display:flex;background:var(--surface-200);border-top:1px solid var(--line-200)">
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="home" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Home</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Practice</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="profile" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Profile</span></span>
+</div>
+</div></div><div class="dv-note">Flat surface-300 strip, no icon: the subset has no offline glyph and the rule is not to invent one.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">continue percentages</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1r"><div class="dv-olabel"><a class="dv-oid" href="#1r">1r</a>18 &middot; Practice while offline</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;border:1px solid var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Offline &middot; tier 2" question-index="{{ 7 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="flex:none;padding:24px 24px 0"><div class="body-lg" style="font-weight:500;text-wrap:pretty">A fisherman sells 12 kilos at &#8369;95 a kilo. How much does he collect?</div></div>
+<div style="flex:none;padding:20px 24px 0"><div style="height:64px;border:2px solid var(--brand-blue-600);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;gap:8px;padding:0 16px"><span class="heading-md" style="color:var(--ink-600)">&#8369;</span><span class="heading-lg">1140</span><span style="width:2px;height:28px;background:var(--brand-blue-600)"></span></div></div>
+<div style="flex:none;padding:12px 24px 0"><div class="body-sm" style="color:var(--ink-600)">6 answers held on this phone</div></div>
+<div style="flex:1"></div>
+<div style="flex:none;margin:0 24px 16px;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px 16px;display:flex;align-items:center;gap:12px">
+<span style="flex:none;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="level-up" size="{{ 20 }}" hint-size="20px,20px"></x-import></span>
+<span style="flex:1;display:flex;flex-direction:column;gap:6px">
+<span class="caption" style="color:var(--ink-600)">Tier 3 in 8 correct &middot; counts offline</span>
+<span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+</span>
+</div>
+<div style="flex:none;padding:0 24px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">1</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">2</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">3</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">4</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">5</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">6</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">7</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">8</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">9</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">.</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center">0</div>
+<div class="am-pressable label" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:52px;display:flex;align-items:center;justify-content:center;color:var(--ink-600)">Delete</div>
+</div>
+<div style="flex:none;padding:16px 24px 20px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Check</x-import></div>
+</div></div><div class="dv-note">Offline rides in the tier chip so the question keeps its room. The session runs to the end either way.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">signal returns</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1s"><div class="dv-olabel"><a class="dv-oid" href="#1s">1s</a>19 &middot; Reconnected, sync pending</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;background:var(--brand-blue-100);padding:12px 24px;display:flex;flex-direction:column;gap:8px">
+<span style="display:flex;gap:10px;align-items:center;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="retry" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="body-sm" style="color:var(--ink-900)">Back online. Sending 18 answers.</span></span>
+<span style="display:block;height:6px;border-radius:var(--radius-pill);background:var(--surface-200);overflow:hidden"><span style="display:block;height:100%;width:45%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+</div>
+<div style="flex:none;padding:20px 24px 0"><div class="heading-lg">Hello, Ligaya</div><div class="body-sm" style="color:var(--ink-600);margin-top:4px">Back for day 4</div></div>
+<div style="flex:none;margin:18px 24px 0;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;flex-direction:column;gap:10px">
+<span style="display:flex;justify-content:space-between;align-items:baseline"><span class="heading-sm">Tier 2</span><span class="caption" style="color:var(--ink-600)">12 of 20</span></span>
+<span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+<span class="body" style="color:var(--ink-600);text-wrap:pretty">Yesterday&#8217;s offline session is included. Nothing was lost.</span>
+</div>
+<div style="flex:none;margin:16px 24px 0;display:flex;flex-direction:column;gap:10px">
+<span class="caption" style="color:var(--ink-600)">Progress by topic</span>
+<span style="display:flex;flex-direction:column;gap:5px"><span style="display:flex;justify-content:space-between"><span class="label">Change and money</span><span class="caption" style="color:var(--ink-600)">18 of 20</span></span><span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:90%;border-radius:var(--radius-pill);background:var(--skill-1-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:5px"><span style="display:flex;justify-content:space-between"><span class="label">Percentages</span><span class="caption" style="color:var(--ink-600)">12 of 20</span></span><span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--skill-2-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:5px"><span style="display:flex;justify-content:space-between"><span class="label">Ratio and rate</span><span class="caption" style="color:var(--ink-600)">5 of 20</span></span><span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:25%;border-radius:var(--radius-pill);background:var(--skill-3-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:5px"><span style="display:flex;justify-content:space-between"><span class="label">Measurement</span><span class="caption" style="color:var(--ink-600)">0 of 20</span></span><span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300)"></span></span>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 20px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Continue percentages</x-import></div>
+<div style="flex:none;height:64px;display:flex;background:var(--surface-200);border-top:1px solid var(--line-200)">
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="home" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Home</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Practice</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="profile" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Profile</span></span>
+</div>
+</div></div><div class="dv-note">Sync is reported, never a gate. The learner can start the next session while it finishes.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">profile tab</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1t"><div class="dv-olabel"><a class="dv-oid" href="#1t">1t</a>20 &middot; Profile</div><div class="dv-bezel"><div class="dv-screen">
+<div style="height:28px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 16px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:none;padding:20px 24px 0"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.ProfileCard" name="Ligaya Mendoza" school="Poblacion, Pilar &middot; Grade 9 &middot; Tier 2" greeting="" color-key="{{ 2 }}" style="{{ profileStyle }}" hint-size="100%,84px"></x-import></div>
+<div style="flex:none;padding:16px 24px 0;display:flex;gap:10px">
+<div style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px;text-align:center"><div class="heading-md">4</div><div class="caption" style="color:var(--ink-600)">days in a row</div></div>
+<div style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:12px;text-align:center"><div class="heading-md">35</div><div class="caption" style="color:var(--ink-600)">correct so far</div></div>
+</div>
+<div style="flex:none;padding:18px 24px 0;display:flex;flex-direction:column;gap:8px">
+<span class="caption" style="color:var(--ink-600)">Badges &middot; 2 of 4</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;background:var(--brand-blue-100);border-radius:var(--radius-md);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="streak" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-900);text-align:center">4 days</span></span>
+<span style="flex:1;background:var(--skill-2-100);border-radius:var(--radius-md);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--skill-2-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="level-up" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="color:var(--ink-900);text-align:center">Tier 2</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="text-align:center">Tier 3</span></span>
+<span style="flex:1;background:var(--surface-200);border-radius:var(--radius-md);padding:10px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption" style="text-align:center">All 4</span></span>
+</span>
+</div>
+<div style="flex:none;padding:16px 24px 0;display:flex;flex-direction:column;gap:12px">
+<span class="caption" style="color:var(--ink-600)">Progress by topic</span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Change and money</span><span class="caption" style="color:var(--ink-600)">18 of 20</span></span><span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:90%;border-radius:var(--radius-pill);background:var(--skill-1-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Percentages</span><span class="caption" style="color:var(--ink-600)">12 of 20</span></span><span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--skill-2-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Ratio and rate</span><span class="caption" style="color:var(--ink-600)">5 of 20</span></span><span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:25%;border-radius:var(--radius-pill);background:var(--skill-3-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Measurement</span><span class="caption" style="color:var(--ink-600)">0 of 20</span></span><span style="display:block;height:8px;border-radius:var(--radius-pill);background:var(--surface-300)"></span></span>
+</div>
+<div style="flex:1"></div>
+<div style="flex:none;padding:0 24px 20px;display:flex;flex-direction:column;gap:10px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Back to practice</x-import>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" full-width="{{ true }}" hint-size="100%,48px">Sign out</x-import>
+</div>
+<div style="flex:none;height:64px;display:flex;background:var(--surface-200);border-top:1px solid var(--line-200)">
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="home" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Home</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Practice</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="profile" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Profile</span></span>
+</div>
+</div></div><div class="dv-note">The ID card from login, reused. Per-skill bars carry the topic hues; sign out is a ghost, not the primary.</div></div>
+
+</div>
+</div>
+
+<div class="dv-row">
+<div class="dv-rowhd">Row 6 — Tablet and desktop</div>
+<div class="dv-rowsub">Two rules hold the spacing together across devices: the gutter steps 24 &rarr; 32 &rarr; 48, and the reading column never exceeds 720. Tap targets stay at 48. The bottom-anchored action is a thumb-reach rule, so it survives on tablet and becomes an inline action on desktop, where the bottom nav turns into a left rail.</div>
+<div class="dv-chain">
+
+<div class="dv-opt" id="1w" style="width:auto"><div class="dv-olabel"><a class="dv-oid" href="#1w">1w</a>Tablet 834 &times; 1112 &middot; home, returning</div><div class="dv-bezel"><div class="dv-screen" style="width:834px;height:1112px;border-radius:20px">
+<div style="height:32px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 32px"><span class="caption" style="color:var(--ink-600)">9:41</span><span style="display:flex;gap:4px;align-items:center"><span style="width:14px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:8px;height:8px;border-radius:2px;background:var(--line-200)"></span><span style="width:18px;height:8px;border-radius:2px;background:var(--line-200)"></span></span></div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;min-height:0">
+<div style="width:100%;max-width:720px;padding:32px;display:flex;flex-direction:column;gap:32px">
+<div style="display:flex;align-items:flex-start;justify-content:space-between;gap:24px">
+<span><span class="heading-lg" style="display:block">Hello, Ligaya</span><span class="body" style="color:var(--ink-600)">Back for day 4</span></span>
+<span style="display:flex;align-items:center;gap:8px;padding:10px 16px;border-radius:var(--radius-pill);background:var(--brand-blue-100);color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="streak" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="heading-sm">4</span></span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px">
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:24px;display:flex;flex-direction:column;gap:12px">
+<span style="display:flex;justify-content:space-between;align-items:baseline"><span class="heading-md">Tier 2</span><span class="body-sm" style="color:var(--ink-600)">12 of 20 to tier 3</span></span>
+<span style="display:block;height:12px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+<span class="body" style="color:var(--ink-600)">Last session: percentages, 7 of 10 correct.</span>
+</div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:24px;display:flex;flex-direction:column;gap:12px">
+<span class="caption" style="color:var(--ink-600)">Tier ladder</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;background:var(--brand-blue-600);color:var(--ink-inverse);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">1</span></span>
+<span style="flex:1;background:var(--brand-blue-100);border:2px solid var(--brand-blue-600);border-radius:var(--radius-md);padding:10px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="label" style="color:var(--ink-900)">2</span></span>
+<span style="flex:1;background:var(--surface-100);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">3</span></span>
+<span style="flex:1;background:var(--surface-100);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="trophy" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">4</span></span>
+</span>
+<span class="body-sm" style="color:var(--ink-600)">Eight more correct opens tier 3.</span>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<span class="caption" style="color:var(--ink-600)">4 days in a row</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;height:48px;border-radius:var(--radius-sm);background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:48px;border-radius:var(--radius-sm);background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:48px;border-radius:var(--radius-sm);background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:48px;border-radius:var(--radius-sm);background:var(--brand-blue-600)"></span>
+<span style="flex:1;height:48px;border-radius:var(--radius-sm);background:var(--surface-300)"></span>
+<span style="flex:1;height:48px;border-radius:var(--radius-sm);background:var(--surface-300)"></span>
+<span style="flex:1;height:48px;border-radius:var(--radius-sm);background:var(--surface-300)"></span>
+</span>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;align-items:start">
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:24px;display:flex;flex-direction:column;gap:14px">
+<span class="caption" style="color:var(--ink-600)">Progress by topic</span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Change and money</span><span class="body-sm" style="color:var(--ink-600)">18 of 20</span></span><span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:90%;border-radius:var(--radius-pill);background:var(--skill-1-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Percentages</span><span class="body-sm" style="color:var(--ink-600)">12 of 20</span></span><span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--skill-2-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Ratio and rate</span><span class="body-sm" style="color:var(--ink-600)">5 of 20</span></span><span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:25%;border-radius:var(--radius-pill);background:var(--skill-3-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Measurement</span><span class="body-sm" style="color:var(--ink-600)">0 of 20</span></span><span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300)"></span></span>
+</div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:24px;display:flex;flex-direction:column;gap:12px">
+<span class="caption" style="color:var(--ink-600)">Badges &middot; 2 of 4</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;background:var(--brand-blue-100);border-radius:var(--radius-md);padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="streak" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption" style="color:var(--ink-900)">4 days</span></span>
+<span style="flex:1;background:var(--skill-2-100);border-radius:var(--radius-md);padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--skill-2-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="level-up" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption" style="color:var(--ink-900)">Tier 2</span></span>
+<span style="flex:1;background:var(--surface-100);border-radius:var(--radius-md);padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Tier 3</span></span>
+<span style="flex:1;background:var(--surface-100);border-radius:var(--radius-md);padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">All 4</span></span>
+</span>
+<span class="body-sm" style="color:var(--ink-600)">Tier 3 unlocks the badge and longer questions.</span>
+</div>
+</div>
+</div>
+</div>
+<div style="flex:none;display:flex;justify-content:center;padding:0 32px 24px"><div style="width:100%;max-width:520px;display:flex;flex-direction:column;gap:12px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" full-width="{{ true }}" hint-size="100%,48px">Continue percentages</x-import>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" full-width="{{ true }}" hint-size="100%,48px">Pick another topic</x-import>
+</div></div>
+<div style="flex:none;height:72px;display:flex;background:var(--surface-200);border-top:1px solid var(--line-200)">
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="home" size="{{ 24 }}" hint-size="24px,24px"></x-import><span class="caption">Home</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 24 }}" hint-size="24px,24px"></x-import><span class="caption">Practice</span></span>
+<span style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="profile" size="{{ 24 }}" hint-size="24px,24px"></x-import><span class="caption">Profile</span></span>
+</div>
+</div></div><div class="dv-note" style="max-width:720px">32px gutters, the column capped at 720, and the extra width spent on a second card rather than longer lines. Action and nav stay at the bottom because a tablet is still held.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">same screen, desktop</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1x" style="width:auto"><div class="dv-olabel"><a class="dv-oid" href="#1x">1x</a>Desktop 1440 &times; 900 &middot; home, returning</div><div class="dv-bezel"><div class="dv-screen" style="width:1440px;height:900px;border-radius:16px;flex-direction:row">
+<div style="flex:none;width:260px;background:var(--surface-200);border-right:1px solid var(--line-200);padding:24px;display:flex;flex-direction:column;gap:32px">
+<span style="display:flex;align-items:center;gap:12px"><img src="assets/abante-minds-mark.png" alt="Abante Minds" style="width:40px;height:40px;object-fit:contain"><span style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--brand-blue-600)">Abante Minds</span></span>
+<span style="display:flex;flex-direction:column;gap:8px">
+<span style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-pill);background:var(--brand-blue-100);color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="home" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="label" style="color:var(--ink-900)">Home</span></span>
+<span style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-pill);color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="label">Practice</span></span>
+<span style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-pill);color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="profile" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="label">Profile</span></span>
+</span>
+<span style="flex:1"></span>
+<span style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius-md);background:var(--brand-blue-100);color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="streak" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="label" style="color:var(--ink-900)">4 days in a row</span></span>
+</div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column">
+<div style="height:32px;flex:none;display:flex;align-items:center;justify-content:flex-end;padding:0 48px"><span class="caption" style="color:var(--ink-600)">9:41</span></div>
+<div style="flex:1;padding:16px 48px 48px;display:flex;flex-direction:column;gap:32px;min-height:0">
+<div><div class="heading-lg">Hello, Ligaya</div><div class="body-lg" style="color:var(--ink-600)">Back for day 4</div></div>
+<div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start">
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:32px;display:flex;flex-direction:column;gap:16px;max-width:720px">
+<span style="display:flex;justify-content:space-between;align-items:baseline"><span class="heading-md">Tier 2</span><span class="body" style="color:var(--ink-600)">12 of 20 to tier 3</span></span>
+<span style="display:block;height:14px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+<span class="body-lg" style="color:var(--ink-600)">Last session: percentages, 7 of 10 correct.</span>
+<span style="display:flex;gap:12px;margin-top:8px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" hint-size="220px,48px">Continue percentages</x-import>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" hint-size="180px,48px">Pick another topic</x-import>
+</span>
+</div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:24px;display:flex;flex-direction:column;gap:12px">
+<span class="caption" style="color:var(--ink-600)">Tier ladder</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;background:var(--brand-blue-600);color:var(--ink-inverse);border-radius:var(--radius-md);padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:4px"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="check" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">1</span></span>
+<span style="flex:1;background:var(--brand-blue-100);border:2px solid var(--brand-blue-600);border-radius:var(--radius-md);padding:12px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="label" style="color:var(--ink-900)">2</span></span>
+<span style="flex:1;background:var(--surface-100);border-radius:var(--radius-md);padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">3</span></span>
+<span style="flex:1;background:var(--surface-100);border-radius:var(--radius-md);padding:14px 6px;display:flex;flex-direction:column;align-items:center;gap:4px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="trophy" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="caption">4</span></span>
+</span>
+<span class="body-sm" style="color:var(--ink-600)">Eight more correct opens tier 3.</span>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:24px;align-items:start">
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:32px;display:flex;flex-direction:column;gap:16px;max-width:720px">
+<span class="caption" style="color:var(--ink-600)">Progress by topic</span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Change and money</span><span class="body-sm" style="color:var(--ink-600)">18 of 20</span></span><span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:90%;border-radius:var(--radius-pill);background:var(--skill-1-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Percentages</span><span class="body-sm" style="color:var(--ink-600)">12 of 20</span></span><span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--skill-2-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Ratio and rate</span><span class="body-sm" style="color:var(--ink-600)">5 of 20</span></span><span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:25%;border-radius:var(--radius-pill);background:var(--skill-3-600)"></span></span></span>
+<span style="display:flex;flex-direction:column;gap:6px"><span style="display:flex;justify-content:space-between"><span class="label">Measurement</span><span class="body-sm" style="color:var(--ink-600)">0 of 20</span></span><span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300)"></span></span>
+</div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:24px;display:flex;flex-direction:column;gap:12px">
+<span class="caption" style="color:var(--ink-600)">Badges &middot; 2 of 4</span>
+<span style="display:flex;gap:8px">
+<span style="flex:1;background:var(--brand-blue-100);border-radius:var(--radius-md);padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="streak" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption" style="color:var(--ink-900)">4 days</span></span>
+<span style="flex:1;background:var(--skill-2-100);border-radius:var(--radius-md);padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--skill-2-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="level-up" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption" style="color:var(--ink-900)">Tier 2</span></span>
+<span style="flex:1;background:var(--surface-100);border-radius:var(--radius-md);padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">Tier 3</span></span>
+<span style="flex:1;background:var(--surface-100);border-radius:var(--radius-md);padding:12px 4px;display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="caption">All 4</span></span>
+</span>
+<span class="body-sm" style="color:var(--ink-600)">Tier 3 unlocks the badge and longer questions.</span>
+</div>
+</div>
+</div>
+</div>
+</div></div><div class="dv-note" style="max-width:720px">48px gutters, bottom nav becomes a left rail, and the primary moves inline next to the content it acts on &mdash; there is no thumb at the bottom of a desktop screen. Cards cap at 720 so the tier line never stretches.</div></div>
+
+<div class="dv-arrow"><span class="dv-arrowlbl">practice, desktop</span><span class="dv-arrowline"><span style="flex:1;height:2px;background:var(--line-200)"></span><span style="width:0;height:0;border-left:9px solid var(--line-200);border-top:6px solid transparent;border-bottom:6px solid transparent"></span></span></div>
+
+<div class="dv-opt" id="1y" style="width:auto"><div class="dv-olabel"><a class="dv-oid" href="#1y">1y</a>Desktop 1440 &times; 900 &middot; practice</div><div class="dv-bezel"><div class="dv-screen" style="width:1440px;height:900px;border-radius:16px;flex-direction:row">
+<div style="flex:none;width:260px;background:var(--surface-200);border-right:1px solid var(--line-200);padding:24px;display:flex;flex-direction:column;gap:32px">
+<span style="display:flex;align-items:center;gap:12px"><img src="assets/abante-minds-mark.png" alt="Abante Minds" style="width:40px;height:40px;object-fit:contain"><span style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--brand-blue-600)">Abante Minds</span></span>
+<span style="display:flex;flex-direction:column;gap:8px">
+<span style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-pill);color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="home" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="label">Home</span></span>
+<span style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-pill);background:var(--brand-blue-100);color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lesson" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="label" style="color:var(--ink-900)">Practice</span></span>
+<span style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-radius:var(--radius-pill);color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="profile" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="label">Profile</span></span>
+</span>
+<span style="flex:1"></span>
+<span style="display:flex;align-items:center;gap:10px;padding:12px 16px;border-radius:var(--radius-md);background:var(--surface-100);color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="clock" size="{{ 22 }}" hint-size="22px,22px"></x-import><span class="label" style="color:var(--ink-900)">9 minutes today</span></span>
+</div>
+<div style="flex:1;min-width:0;display:flex;flex-direction:column">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.PracticeHeader" tier="Tier 2" question-index="{{ 3 }}" question-total="{{ 10 }}" hint-size="100%,56px"></x-import>
+<div style="flex:1;display:flex;justify-content:center;padding:48px;min-height:0">
+<div style="width:100%;max-width:720px;display:flex;flex-direction:column;gap:32px">
+<div class="heading-lg" style="text-wrap:pretty">A sari-sari store marks up a &#8369;240 item by 15%. How much is added?</div>
+<div style="display:flex;gap:32px;align-items:flex-start">
+<div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:16px">
+<div style="height:76px;border:2px solid var(--brand-blue-600);border-radius:var(--radius-sm);background:var(--surface-200);display:flex;align-items:center;gap:10px;padding:0 20px"><span class="heading-lg" style="color:var(--ink-600)">&#8369;</span><span class="heading-lg">36</span><span style="width:2px;height:32px;background:var(--brand-blue-600)"></span></div>
+<div class="body-sm" style="color:var(--ink-600)">Type on the keyboard or use the keypad.</div>
+<div style="display:flex;gap:12px;margin-top:8px">
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" hint-size="140px,48px">Check</x-import>
+<x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Button" variant="ghost" hint-size="160px,48px">Show a hint</x-import>
+</div>
+</div>
+<div style="flex:none;width:280px;display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">1</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">2</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">3</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">4</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">5</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">6</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">7</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">8</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">9</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">.</div>
+<div class="am-pressable heading-md" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center">0</div>
+<div class="am-pressable label" style="--am-edge:var(--line-200);background:var(--surface-200);border-radius:var(--radius-sm);height:56px;display:flex;align-items:center;justify-content:center;color:var(--ink-600)">Delete</div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:12px">
+<span class="caption" style="color:var(--ink-600)">Hint 1 of 3</span>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px">
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;gap:12px;align-items:flex-start">
+<span style="flex:none;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="hint" size="{{ 22 }}" hint-size="22px,22px"></x-import></span>
+<span class="body" style="flex:1;text-wrap:pretty">Find 10% of &#8369;240 first. Move the decimal one place left.</span>
+</div>
+<div style="border:2px dashed var(--surface-300);border-radius:var(--radius-md);padding:16px;display:flex;gap:12px;align-items:center;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="body-sm">Hint 2 &middot; click to reveal</span></div>
+<div style="border:2px dashed var(--surface-300);border-radius:var(--radius-md);padding:16px;display:flex;gap:12px;align-items:center;color:var(--ink-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="lock" size="{{ 20 }}" hint-size="20px,20px"></x-import><span class="body-sm">Hint 3 &middot; click to reveal</span></div>
+</div>
+<div style="background:var(--surface-200);border-radius:var(--radius-md);box-shadow:var(--shadow-card);padding:16px;display:flex;align-items:center;gap:16px">
+<span style="flex:none;color:var(--brand-blue-600)"><x-import component-from-global-scope="AbanteMindsDesignSystem_561b75.Icon" name="level-up" size="{{ 22 }}" hint-size="22px,22px"></x-import></span>
+<span style="flex:1;display:flex;flex-direction:column;gap:6px">
+<span class="label">Tier 3 in 8 correct</span>
+<span style="display:block;height:10px;border-radius:var(--radius-pill);background:var(--surface-300);overflow:hidden"><span style="display:block;height:100%;width:60%;border-radius:var(--radius-pill);background:var(--brand-blue-600)"></span></span>
+</span>
+<span class="body-sm" style="flex:none;color:var(--ink-600)">12 of 20</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div></div><div class="dv-note" style="max-width:720px">Question text keeps the most room at every width. The keypad stays &mdash; a shared school desktop is still touched &mdash; but sits beside the field instead of under it, and the typing hint appears only where a keyboard exists.</div></div>
+
+</div>
+</div>
+
+<p class="dv-next">Try next: &ldquo;take the tablet and desktop treatment across the rest of the screens&rdquo; &middot; &ldquo;put the badge shelf on home too&rdquo; &middot; &ldquo;push <a class="dv-oid" href="#1n">1n</a> further &mdash; it is still the plainest unlock&rdquo;</p>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+class Component extends DCLogic {
+  state = { step: "q9", q: 9, typed: "", picked: "", right: false };
+
+  press(d) {
+    if (this.state.step !== "q9") return;
+    this.setState(s => ({ typed: (s.typed + d).slice(0, 6) }));
+  }
+  del() { this.setState(s => ({ typed: s.typed.slice(0, -1) })); }
+  pick(v) { this.setState({ picked: v }); }
+
+  check() {
+    const s = this.state;
+    if (s.step === "q9") {
+      const right = s.typed.replace(/[^0-9.]/g, "") === "36";
+      this.setState({ step: "fb", q: 9, right });
+    } else if (s.step === "q10") {
+      if (!s.picked) return;
+      this.setState({ step: "fb", q: 10, right: s.picked === "750" });
+    }
+  }
+  advance() {
+    const s = this.state;
+    if (!s.right) { this.setState({ step: "q" + s.q, typed: s.q === 9 ? "" : s.typed, picked: s.q === 10 ? "" : s.picked }); return; }
+    this.setState({ step: s.q === 9 ? "q10" : "tier" });
+  }
+
+  tileEdge(v) { return this.state.picked === v ? "var(--brand-blue-600)" : "var(--line-200)"; }
+  tileFace(v) { return this.state.picked === v ? "var(--brand-blue-100)" : "var(--surface-200)"; }
+
+  renderVals() {
+    const s = this.state;
+    const right = s.right;
+    return {
+      isQ9: s.step === "q9",
+      isQ10: s.step === "q10",
+      isFb: s.step === "fb",
+      isTier: s.step === "tier",
+      isSum: s.step === "sum",
+      typed: s.typed,
+      keys: {
+        k1: () => this.press("1"), k2: () => this.press("2"), k3: () => this.press("3"),
+        k4: () => this.press("4"), k5: () => this.press("5"), k6: () => this.press("6"),
+        k7: () => this.press("7"), k8: () => this.press("8"), k9: () => this.press("9"),
+        k0: () => this.press("0"), kdot: () => this.press("."), kdel: () => this.del()
+      },
+      picks: { a: () => this.pick("650"), b: () => this.pick("700"), c: () => this.pick("750"), d: () => this.pick("900") },
+      edgeA: this.tileEdge("650"), faceA: this.tileFace("650"),
+      edgeB: this.tileEdge("700"), faceB: this.tileFace("700"),
+      edgeC: this.tileEdge("750"), faceC: this.tileFace("750"),
+      edgeD: this.tileEdge("900"), faceD: this.tileFace("900"),
+      check: () => this.check(),
+      advance: () => this.advance(),
+      advanceLabel: right ? "Next question" : "Try again",
+      toSummary: () => this.setState({ step: "sum" }),
+      restart: () => this.setState({ step: "q9", q: 9, typed: "", picked: "", right: false }),
+      fbIndex: s.q === 9 ? 3 : 4,
+      fbQuestion: s.q === 9
+        ? "A sari-sari store marks up a \u20B1240 item by 15%. How much is added?"
+        : "Aling Rosa sells 3 kilos of fish for \u20B1450. At the same rate, what do 5 kilos cost?",
+      given: "\u20B1" + (s.q === 9 ? (s.typed || "0") : (s.picked || "0")),
+      fbLabel: right ? "Tama" : "Not yet",
+      fbIcon: right ? "check" : "x",
+      fbFace: right ? "var(--success-100)" : "var(--danger-100)",
+      fbEdge: right ? "var(--success-700)" : "var(--danger-700)",
+      explain: s.q === 9
+        ? (right
+            ? "10% of \u20B1240 = \u20B124, and half of that is \u20B112. \u20B124 + \u20B112 = \u20B136."
+            : "That is the new price, not the markup. The question asks only for the amount added.")
+        : (right
+            ? "3 kilos = \u20B1450, so 1 kilo = \u20B1150. 5 \u00D7 \u20B1150 = \u20B1750."
+            : "Find the price of one kilo first: \u20B1450 \u00F7 3. Then multiply by 5."),
+      bannerStyle: { background: "transparent", boxShadow: "none", paddingBottom: 0 },
+      profileStyle: { maxWidth: "none", width: "100%" }
+    };
+  }
+}
+</script>
+</body>
+</html>

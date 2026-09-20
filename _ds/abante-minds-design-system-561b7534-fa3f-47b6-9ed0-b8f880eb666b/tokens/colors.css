@@ -1,0 +1,56 @@
+:root, [data-theme="day"] {
+  /* Surfaces — a calm, blue-leaning ground */
+  --surface-100: #eef3fb;
+  --surface-200: #ffffff;
+  --surface-300: #dbe7f8;
+
+  /* Ink */
+  --ink-900: #16202c;
+  --ink-600: #51617a;
+  --ink-inverse: #ffffff;
+  --line-200: #6a87bd;
+  --focus-ring: #0f62d6;
+
+  /* Brand */
+  --brand-blue-600: #2458c9;
+  --brand-blue-100: #dbe8ff;
+
+  /* Action — the single amber. Primary buttons only, nothing else. */
+  --action-500: #ff8a15;
+  --action-600: #ef7a00;
+  --action-700: #b85c00;
+  --action-on: #16202c;
+
+  /* Answer states — off the red/green axis, always paired with a glyph */
+  --success-700: #0b7a63;
+  --success-100: #d3f3ea;
+  --danger-700: #c1440e;
+  --danger-100: #fde3d2;
+
+  /* Reward mode only */
+  --celebration-gold-500: #f5b400;
+  --celebration-coral-600: #c93830;
+  --celebration-teal-600: #0b756b;
+
+  /* Skill identity — one hue pair per skill area, reserved for the picker */
+  --skill-1-600: #4c46b0;
+  --skill-1-100: #e3e2fa;
+  --skill-2-600: #0b7a89;
+  --skill-2-100: #d1eef2;
+  --skill-3-600: #8c3379;
+  --skill-3-100: #f5dcef;
+  --skill-4-600: #8a670a;
+  --skill-4-100: #f5ecc8;
+
+  /* Semantic aliases */
+  --text-body: var(--ink-900);
+  --text-muted: var(--ink-600);
+  --text-on-bright: var(--ink-900);
+  --text-on-dark: var(--ink-inverse);
+  --surface-page: var(--surface-100);
+  --surface-card: var(--surface-200);
+  --surface-sunken: var(--surface-300);
+  --border-default: var(--line-200);
+  --accent-identity: var(--brand-blue-600);
+  --accent-action: var(--action-500);
+}
