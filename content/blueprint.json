@@ -1,0 +1,995 @@
+{
+  "$comment": "Curriculum-derived blueprint for the NCE mathematics subtest. NOT official. See TABLE-OF-SPECIFICATIONS.md for provenance, assumptions and revision triggers.",
+  "version": "0.1",
+  "drafted": "2026-10-01",
+  "subtest": "math",
+  "official": false,
+  "source": {
+    "primary": "MATATAG Mathematics Curriculum Guide 2023, Grades 1-10",
+    "url": "https://www.academ-e.ph/wp-content/uploads/2023/09/Mathematics-CG-2023.pdf",
+    "pastPapers": 0,
+    "weightsMeasured": false
+  },
+  "exam": {
+    "name": "PSHS System National Competitive Examination",
+    "date": "2027-01-30",
+    "schoolYear": "2026-2027",
+    "calendar": "three-term, DepEd Order No. 009 s. 2026",
+    "termEnds": {
+      "t1": "2026-09-15",
+      "t2": "2026-12-18",
+      "t3": "2027-04-08"
+    },
+    "taughtByExamDay": {
+      "$comment": "Assumed mapping from quarter-based curriculum to the three-term calendar. Unverified.",
+      "taught": [
+        "G5.Q1",
+        "G5.Q2",
+        "G5.Q3",
+        "G5.Q4",
+        "G6.Q1",
+        "G6.Q2"
+      ],
+      "partial": [
+        "G6.Q3"
+      ],
+      "ahead": [
+        "G6.Q4"
+      ]
+    }
+  },
+  "templateFloorPerTopic": 10,
+  "templateTargetRule": "max(10, count of app-practicable competencies in the topic)",
+  "templateFloorRationale": "The floor of 10 comes from psychometrics: KR-20 / Cronbach's alpha needs roughly 10 items per subscale. The practicable-competency term stops a topic from leaving competencies with no template at all. Both are independent of draw weight.",
+  "templateTargetTotal": 143,
+  "domains": [
+    {
+      "key": "NA",
+      "label": "Number and Algebra",
+      "competencies": 49,
+      "weight": 0.5
+    },
+    {
+      "key": "MG",
+      "label": "Measurement and Geometry",
+      "competencies": 38,
+      "weight": 0.35
+    },
+    {
+      "key": "DP",
+      "label": "Data and Probability",
+      "competencies": 14,
+      "weight": 0.15
+    }
+  ],
+  "answerTypes": [
+    "integer",
+    "decimal",
+    "repeating",
+    "fraction",
+    "mixed",
+    "percent",
+    "exponent",
+    "pi-expression",
+    "unit",
+    "ratio-pair",
+    "time",
+    "factor-list",
+    "choice",
+    "visual-choice"
+  ],
+  "$answerTypeNote": "Negative numbers are deliberately absent: signed numbers are Grade 7 in MATATAG. Add only if above-level content is introduced.",
+  "schemas": {
+    "additive": [
+      "change",
+      "combine",
+      "compare"
+    ],
+    "multiplicative": [
+      "equal-groups",
+      "rate",
+      "multiplicative-compare",
+      "part-whole"
+    ],
+    "nonRoutine": [
+      "work-backwards",
+      "missing-middle",
+      "multi-step",
+      "excess-info"
+    ]
+  },
+  "topics": [
+    {
+      "key": "fractions",
+      "label": "Fractions",
+      "domain": "NA",
+      "weight": 0.11,
+      "status": "taught",
+      "answerTypes": [
+        "fraction",
+        "mixed"
+      ],
+      "practicableCompetencies": 10,
+      "templateTarget": 10
+    },
+    {
+      "key": "decimals",
+      "label": "Decimals",
+      "domain": "NA",
+      "weight": 0.13,
+      "status": "taught",
+      "answerTypes": [
+        "decimal",
+        "repeating",
+        "fraction"
+      ],
+      "practicableCompetencies": 20,
+      "templateTarget": 20
+    },
+    {
+      "key": "gemdas",
+      "label": "Order of operations and exponents",
+      "domain": "NA",
+      "weight": 0.09,
+      "status": "taught",
+      "answerTypes": [
+        "integer",
+        "decimal",
+        "exponent"
+      ],
+      "practicableCompetencies": 5,
+      "templateTarget": 10
+    },
+    {
+      "key": "ratio",
+      "label": "Ratio and proportion",
+      "domain": "NA",
+      "weight": 0.08,
+      "status": "taught",
+      "answerTypes": [
+        "integer",
+        "fraction",
+        "ratio-pair"
+      ],
+      "practicableCompetencies": 7,
+      "templateTarget": 10
+    },
+    {
+      "key": "percent",
+      "label": "Percentages",
+      "domain": "NA",
+      "weight": 0.05,
+      "status": "taught",
+      "answerTypes": [
+        "percent",
+        "fraction",
+        "decimal"
+      ],
+      "practicableCompetencies": 2,
+      "templateTarget": 10,
+      "authoringNote": "few competencies for its template target; needs deliberate problem-schema variety to avoid repetitive items"
+    },
+    {
+      "key": "factors",
+      "label": "Divisibility, primes, GCF and LCM",
+      "domain": "NA",
+      "weight": 0.04,
+      "status": "ahead",
+      "priority": "teach-ahead",
+      "answerTypes": [
+        "integer",
+        "factor-list"
+      ],
+      "practicableCompetencies": 5,
+      "templateTarget": 10
+    },
+    {
+      "key": "area",
+      "label": "Perimeter and area",
+      "domain": "MG",
+      "weight": 0.09,
+      "status": "partial",
+      "answerTypes": [
+        "integer",
+        "decimal",
+        "unit"
+      ],
+      "practicableCompetencies": 6,
+      "templateTarget": 10
+    },
+    {
+      "key": "circles",
+      "label": "Circles",
+      "domain": "MG",
+      "weight": 0.08,
+      "status": "ahead",
+      "priority": "teach-ahead",
+      "answerTypes": [
+        "decimal",
+        "pi-expression",
+        "unit"
+      ],
+      "practicableCompetencies": 7,
+      "templateTarget": 10
+    },
+    {
+      "key": "solids",
+      "label": "Solids, surface area and volume",
+      "domain": "MG",
+      "weight": 0.09,
+      "status": "partial",
+      "answerTypes": [
+        "integer",
+        "decimal",
+        "unit"
+      ],
+      "practicableCompetencies": 13,
+      "templateTarget": 13
+    },
+    {
+      "key": "transform",
+      "label": "Tessellation and transformations",
+      "domain": "MG",
+      "weight": 0.05,
+      "status": "taught",
+      "answerTypes": [
+        "visual-choice",
+        "choice"
+      ],
+      "needsVisualRenderer": true,
+      "practicableCompetencies": 3,
+      "templateTarget": 10,
+      "authoringNote": "few competencies for its template target; needs deliberate problem-schema variety to avoid repetitive items"
+    },
+    {
+      "key": "time",
+      "label": "Time and time zones",
+      "domain": "MG",
+      "weight": 0.04,
+      "status": "taught",
+      "answerTypes": [
+        "time",
+        "integer"
+      ],
+      "practicableCompetencies": 5,
+      "templateTarget": 10
+    },
+    {
+      "key": "data",
+      "label": "Graphs and tables",
+      "domain": "DP",
+      "weight": 0.11,
+      "status": "partial",
+      "answerTypes": [
+        "integer",
+        "percent",
+        "unit"
+      ],
+      "practicableCompetencies": 9,
+      "templateTarget": 10
+    },
+    {
+      "key": "probability",
+      "label": "Probability",
+      "domain": "DP",
+      "weight": 0.04,
+      "status": "taught",
+      "answerTypes": [
+        "fraction",
+        "percent"
+      ],
+      "practicableCompetencies": 2,
+      "templateTarget": 10,
+      "authoringNote": "few competencies for its template target; needs deliberate problem-schema variety to avoid repetitive items"
+    }
+  ],
+  "competencies": [
+    {
+      "code": "G5.Q1.1",
+      "domain": "MG",
+      "topic": "time",
+      "app": "Y",
+      "text": "describe a 12- and 24-hour clock system"
+    },
+    {
+      "code": "G5.Q1.2",
+      "domain": "MG",
+      "topic": "time",
+      "app": "Y",
+      "text": "convert 12-hour time to 24-hour time and back"
+    },
+    {
+      "code": "G5.Q1.3",
+      "domain": "MG",
+      "topic": "time",
+      "app": "Y",
+      "text": "solve problems involving 12- and 24-hour time"
+    },
+    {
+      "code": "G5.Q1.4",
+      "domain": "MG",
+      "topic": "time",
+      "app": "P",
+      "text": "compare time in world time zones to PH time using a map"
+    },
+    {
+      "code": "G5.Q1.5",
+      "domain": "MG",
+      "topic": "time",
+      "app": "Y",
+      "text": "solve problems comparing world time zones to PH time"
+    },
+    {
+      "code": "G5.Q1.6",
+      "domain": "NA",
+      "topic": "gemdas",
+      "app": "Y",
+      "text": "perform three or more operations applying GMDAS"
+    },
+    {
+      "code": "G5.Q1.7",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "P",
+      "text": "multiply fractions using models"
+    },
+    {
+      "code": "G5.Q1.8",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "Y",
+      "text": "multiply a fraction by a fraction"
+    },
+    {
+      "code": "G5.Q1.9",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "Y",
+      "text": "multi-step problems multiplying fractions"
+    },
+    {
+      "code": "G5.Q1.10",
+      "domain": "MG",
+      "topic": "area",
+      "app": "P",
+      "text": "identify the height of a parallelogram, triangle, trapezoid"
+    },
+    {
+      "code": "G5.Q1.11",
+      "domain": "MG",
+      "topic": "area",
+      "app": "Y",
+      "text": "find the area of a parallelogram, triangle, trapezoid"
+    },
+    {
+      "code": "G5.Q1.12",
+      "domain": "MG",
+      "topic": "area",
+      "app": "P",
+      "text": "estimate areas of triangles and quadrilaterals using grids"
+    },
+    {
+      "code": "G5.Q2.1",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "P",
+      "text": "divide fractions using models"
+    },
+    {
+      "code": "G5.Q2.2",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "Y",
+      "text": "divide a fraction by a fraction"
+    },
+    {
+      "code": "G5.Q2.3",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "Y",
+      "text": "multi-step problems dividing fractions"
+    },
+    {
+      "code": "G5.Q2.4",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "place value and digit value to thousandths"
+    },
+    {
+      "code": "G5.Q2.5",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "read and write decimals to thousandths"
+    },
+    {
+      "code": "G5.Q2.6",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "convert terminating decimals to fractions and back"
+    },
+    {
+      "code": "G5.Q2.7",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "compare and order decimals to thousandths"
+    },
+    {
+      "code": "G5.Q2.8",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "round decimals to the nearest thousandth"
+    },
+    {
+      "code": "G5.Q2.9",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "add and subtract decimals to 3 decimal places"
+    },
+    {
+      "code": "G5.Q2.10",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "multi-step add/subtract decimal problems, including money"
+    },
+    {
+      "code": "G5.Q2.11",
+      "domain": "NA",
+      "topic": "factors",
+      "app": "Y",
+      "text": "divisibility rules for 2,5,10 / 3,6,9 / 4,8,11,12"
+    },
+    {
+      "code": "G5.Q2.12",
+      "domain": "NA",
+      "topic": "factors",
+      "app": "Y",
+      "text": "distinguish prime from composite numbers"
+    },
+    {
+      "code": "G5.Q3.1",
+      "domain": "DP",
+      "topic": "data",
+      "app": "N",
+      "text": "collect bivariate data by interview or questionnaire"
+    },
+    {
+      "code": "G5.Q3.2",
+      "domain": "DP",
+      "topic": "data",
+      "app": "Y",
+      "text": "identify the appropriate graph for a data set"
+    },
+    {
+      "code": "G5.Q3.3",
+      "domain": "DP",
+      "topic": "data",
+      "app": "N",
+      "text": "construct double bar and double line graphs"
+    },
+    {
+      "code": "G5.Q3.4",
+      "domain": "DP",
+      "topic": "data",
+      "app": "Y",
+      "text": "interpret a double bar or double line graph"
+    },
+    {
+      "code": "G5.Q3.5",
+      "domain": "DP",
+      "topic": "data",
+      "app": "Y",
+      "text": "draw conclusions from a double bar or line graph"
+    },
+    {
+      "code": "G5.Q3.6",
+      "domain": "DP",
+      "topic": "data",
+      "app": "Y",
+      "text": "solve problems using double bar or line graph data"
+    },
+    {
+      "code": "G5.Q3.7",
+      "domain": "DP",
+      "topic": "probability",
+      "app": "Y",
+      "text": "describe probability as the chance of an event occurring"
+    },
+    {
+      "code": "G5.Q3.8",
+      "domain": "DP",
+      "topic": "probability",
+      "app": "Y",
+      "text": "theoretical probability of a simple event by listing outcomes"
+    },
+    {
+      "code": "G5.Q3.9",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "estimate a product of two decimals"
+    },
+    {
+      "code": "G5.Q3.10",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "multiply decimals to 2 decimal places"
+    },
+    {
+      "code": "G5.Q3.11",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "multi-step decimal multiplication problems, including money"
+    },
+    {
+      "code": "G5.Q3.12",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "estimate a quotient of two decimals"
+    },
+    {
+      "code": "G5.Q3.13",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "divide to a terminating decimal quotient"
+    },
+    {
+      "code": "G5.Q4.1",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "multi-step decimal division problems, including money"
+    },
+    {
+      "code": "G5.Q4.2",
+      "domain": "NA",
+      "topic": "gemdas",
+      "app": "Y",
+      "text": "three or more operations with fractions and decimals (GMDAS)"
+    },
+    {
+      "code": "G5.Q4.3",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "P",
+      "text": "illustrate solid figures with concrete and pictorial models"
+    },
+    {
+      "code": "G5.Q4.4",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "P",
+      "text": "relate plane figures to solid figures"
+    },
+    {
+      "code": "G5.Q4.5",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "Y",
+      "text": "differentiate prisms and pyramids by vertices, faces, edges"
+    },
+    {
+      "code": "G5.Q4.6",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "P",
+      "text": "illustrate and describe solid figures and their nets"
+    },
+    {
+      "code": "G5.Q4.7",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "N",
+      "text": "make models of solid figures"
+    },
+    {
+      "code": "G5.Q4.8",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "Y",
+      "text": "illustrate and find the surface area of solid figures"
+    },
+    {
+      "code": "G5.Q4.9",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "Y",
+      "text": "solve problems involving surface area"
+    },
+    {
+      "code": "G5.Q4.10",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "Y",
+      "text": "describe and distinguish cubes and rectangular prisms"
+    },
+    {
+      "code": "G5.Q4.11",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "P",
+      "text": "estimate volume using non-standard units"
+    },
+    {
+      "code": "G5.Q4.12",
+      "domain": "MG",
+      "topic": "transform",
+      "app": "P",
+      "text": "draw the image of an object after rotation about a point"
+    },
+    {
+      "code": "G6.Q1.1",
+      "domain": "MG",
+      "topic": "transform",
+      "app": "Y",
+      "text": "explore whether or not a shape tessellates"
+    },
+    {
+      "code": "G6.Q1.2",
+      "domain": "MG",
+      "topic": "transform",
+      "app": "N",
+      "text": "tessellate a surface using different shapes"
+    },
+    {
+      "code": "G6.Q1.3",
+      "domain": "MG",
+      "topic": "transform",
+      "app": "P",
+      "text": "draw images after translation, reflection, rotation"
+    },
+    {
+      "code": "G6.Q1.4",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "add and subtract decimals to 4 decimal places"
+    },
+    {
+      "code": "G6.Q1.5",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "multi-step add/subtract decimal problems, including money"
+    },
+    {
+      "code": "G6.Q1.6",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "mentally multiply decimals by 0.1, 0.01, 0.001, 10, 100, 1000"
+    },
+    {
+      "code": "G6.Q1.7",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "multi-step decimal multiplication problems, including money"
+    },
+    {
+      "code": "G6.Q1.8",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "divide to a repeating decimal quotient; whole by 1dp decimal"
+    },
+    {
+      "code": "G6.Q1.9",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "mentally divide decimals by 0.1/0.01/0.001 and 10/100/1000"
+    },
+    {
+      "code": "G6.Q1.10",
+      "domain": "NA",
+      "topic": "decimals",
+      "app": "Y",
+      "text": "solve problems involving division of decimals"
+    },
+    {
+      "code": "G6.Q1.11",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "Y",
+      "text": "products of fractions, whole numbers and mixed numbers"
+    },
+    {
+      "code": "G6.Q1.12",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "Y",
+      "text": "multi-step multiplication with fraction combinations"
+    },
+    {
+      "code": "G6.Q1.13",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "Y",
+      "text": "divide combinations of fractions, wholes and mixed numbers"
+    },
+    {
+      "code": "G6.Q1.14",
+      "domain": "NA",
+      "topic": "fractions",
+      "app": "Y",
+      "text": "multi-step division with fraction combinations"
+    },
+    {
+      "code": "G6.Q2.1",
+      "domain": "NA",
+      "topic": "ratio",
+      "app": "Y",
+      "text": "describe quantities using part-whole and part-part ratio"
+    },
+    {
+      "code": "G6.Q2.2",
+      "domain": "NA",
+      "topic": "ratio",
+      "app": "Y",
+      "text": "express one number as a fraction of another from their ratio"
+    },
+    {
+      "code": "G6.Q2.3",
+      "domain": "NA",
+      "topic": "ratio",
+      "app": "Y",
+      "text": "identify and write equivalent ratios"
+    },
+    {
+      "code": "G6.Q2.4",
+      "domain": "NA",
+      "topic": "ratio",
+      "app": "Y",
+      "text": "solve problems involving ratio"
+    },
+    {
+      "code": "G6.Q2.5",
+      "domain": "NA",
+      "topic": "ratio",
+      "app": "P",
+      "text": "illustrate ratio and proportion with tables or double number line"
+    },
+    {
+      "code": "G6.Q2.6",
+      "domain": "NA",
+      "topic": "ratio",
+      "app": "Y",
+      "text": "find how many times one value is larger than another"
+    },
+    {
+      "code": "G6.Q2.7",
+      "domain": "NA",
+      "topic": "ratio",
+      "app": "Y",
+      "text": "solve problems involving ratio and proportion"
+    },
+    {
+      "code": "G6.Q2.8",
+      "domain": "NA",
+      "topic": "percent",
+      "app": "Y",
+      "text": "relate percentages, fractions and decimals"
+    },
+    {
+      "code": "G6.Q2.9",
+      "domain": "NA",
+      "topic": "percent",
+      "app": "P",
+      "text": "identify and explain the uses of percentages"
+    },
+    {
+      "code": "G6.Q2.10",
+      "domain": "NA",
+      "topic": "gemdas",
+      "app": "Y",
+      "text": "write numbers in exponential form and back"
+    },
+    {
+      "code": "G6.Q2.11",
+      "domain": "NA",
+      "topic": "gemdas",
+      "app": "Y",
+      "text": "give the value of numbers expressed in exponential form"
+    },
+    {
+      "code": "G6.Q2.12",
+      "domain": "NA",
+      "topic": "gemdas",
+      "app": "Y",
+      "text": "calculations with exponential form applying GEMDAS"
+    },
+    {
+      "code": "G6.Q3.1",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "Y",
+      "text": "determine appropriate units for volume and capacity"
+    },
+    {
+      "code": "G6.Q3.2",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "Y",
+      "text": "convert cubic centimetres to litres and back"
+    },
+    {
+      "code": "G6.Q3.3",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "Y",
+      "text": "find the volume of a cube and of a rectangular prism"
+    },
+    {
+      "code": "G6.Q3.4",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "Y",
+      "text": "solve problems involving volumes of cubes and prisms"
+    },
+    {
+      "code": "G6.Q3.5",
+      "domain": "MG",
+      "topic": "solids",
+      "app": "Y",
+      "text": "solve problems involving capacity"
+    },
+    {
+      "code": "G6.Q3.6",
+      "domain": "MG",
+      "topic": "area",
+      "app": "Y",
+      "text": "convert square centimetres to square metres and back"
+    },
+    {
+      "code": "G6.Q3.7",
+      "domain": "MG",
+      "topic": "area",
+      "app": "Y",
+      "text": "area of composite figures from triangles, squares, rectangles"
+    },
+    {
+      "code": "G6.Q3.8",
+      "domain": "MG",
+      "topic": "area",
+      "app": "Y",
+      "text": "perimeter and area problems including trapezoids and composites"
+    },
+    {
+      "code": "G6.Q3.9",
+      "domain": "MG",
+      "topic": "circles",
+      "app": "N",
+      "text": "draw circles with different radii using a pair of compasses"
+    },
+    {
+      "code": "G6.Q3.10",
+      "domain": "MG",
+      "topic": "circles",
+      "app": "Y",
+      "text": "identify and describe the parts of a circle"
+    },
+    {
+      "code": "G6.Q3.11",
+      "domain": "MG",
+      "topic": "circles",
+      "app": "N",
+      "text": "measure the circumference of circles using appropriate tools"
+    },
+    {
+      "code": "G6.Q3.12",
+      "domain": "MG",
+      "topic": "circles",
+      "app": "P",
+      "text": "approximate pi as the ratio of circumference to diameter"
+    },
+    {
+      "code": "G6.Q3.13",
+      "domain": "MG",
+      "topic": "circles",
+      "app": "Y",
+      "text": "find the circumference of a circle"
+    },
+    {
+      "code": "G6.Q4.1",
+      "domain": "MG",
+      "topic": "circles",
+      "app": "P",
+      "text": "explore inductively the area of a circle toward the formula"
+    },
+    {
+      "code": "G6.Q4.2",
+      "domain": "MG",
+      "topic": "circles",
+      "app": "Y",
+      "text": "find the area of a circle using the formula"
+    },
+    {
+      "code": "G6.Q4.3",
+      "domain": "MG",
+      "topic": "circles",
+      "app": "Y",
+      "text": "area of composites of triangle, square, rectangle, circle, semicircle"
+    },
+    {
+      "code": "G6.Q4.4",
+      "domain": "MG",
+      "topic": "circles",
+      "app": "Y",
+      "text": "problems involving circumference and area of circles and composites"
+    },
+    {
+      "code": "G6.Q4.5",
+      "domain": "DP",
+      "topic": "data",
+      "app": "Y",
+      "text": "find angle measures and percentages from pie graph data"
+    },
+    {
+      "code": "G6.Q4.6",
+      "domain": "DP",
+      "topic": "data",
+      "app": "N",
+      "text": "construct a pie graph using appropriate tools"
+    },
+    {
+      "code": "G6.Q4.7",
+      "domain": "DP",
+      "topic": "data",
+      "app": "Y",
+      "text": "interpret data presented in a pie graph"
+    },
+    {
+      "code": "G6.Q4.8",
+      "domain": "DP",
+      "topic": "data",
+      "app": "Y",
+      "text": "interpret data from digital media in tabular or graphical form"
+    },
+    {
+      "code": "G6.Q4.9",
+      "domain": "DP",
+      "topic": "data",
+      "app": "Y",
+      "text": "draw conclusions or inferences from a pie graph"
+    },
+    {
+      "code": "G6.Q4.10",
+      "domain": "DP",
+      "topic": "data",
+      "app": "Y",
+      "text": "solve problems using data presented in a pie graph"
+    },
+    {
+      "code": "G6.Q4.11",
+      "domain": "NA",
+      "topic": "factors",
+      "app": "Y",
+      "text": "GCF by listing, prime factorisation and continuous division"
+    },
+    {
+      "code": "G6.Q4.12",
+      "domain": "NA",
+      "topic": "factors",
+      "app": "Y",
+      "text": "LCM by listing, prime factorisation and continuous division"
+    },
+    {
+      "code": "G6.Q4.13",
+      "domain": "NA",
+      "topic": "factors",
+      "app": "Y",
+      "text": "solve problems involving GCF and LCM"
+    }
+  ]
+}
