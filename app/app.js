@@ -233,6 +233,14 @@
     app.go("practice");
   };
 
+  /* The keypad stays put while the body scrolls, so with hints open the
+     answer field can sit below the visible part of the body. Bring it into
+     view as the learner types, by the least scroll that shows it. */
+  function revealAnswer() {
+    var field = root.querySelector(".am-answer-field");
+    if (field && field.scrollIntoView) field.scrollIntoView({ block: "nearest" });
+  }
+
   app.type = function (d) {
     var s = app.session;
     if (!s || s.phase !== "ask") return;
@@ -241,6 +249,7 @@
     s.typed += d;
     app.keepScroll = true;
     render();
+    revealAnswer();
   };
 
   app.backspace = function () {
@@ -249,6 +258,7 @@
     s.typed = s.typed.slice(0, -1);
     app.keepScroll = true;
     render();
+    revealAnswer();
   };
 
   app.check = function () {
