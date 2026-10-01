@@ -1,0 +1,160 @@
+{
+  "topic": "percent",
+  "pinned": [
+    { "template": "percent.markup-amount", "params": { "price": 240, "pct": 15 } }
+  ],
+  "templates": [
+    {
+      "id": "percent.markup-amount",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Find a percentage of an amount by building it from 10%",
+      "schema": "part-whole",
+      "params": {
+        "price": { "range": [120, 480], "step": 20 },
+        "pct": { "choose": [5, 10, 15, 20, 25] }
+      },
+      "answer": { "type": "integer", "value": "price * pct / 100", "prefix": "₱" },
+      "formats": [
+        { "id": "sari-sari", "prompt": "A sari-sari store marks up a {peso(price)} item by {pct}%. How much is added?" }
+      ],
+      "hints": [
+        "Find 10% of {peso(price)} first. Move the decimal one place left.",
+        "10% of {price} is {price / 10}. Build {pct}% out of that.",
+        "{pct}% is {pct / 10} lots of 10%, so {pct / 10} × {price / 10}."
+      ],
+      "steps": [
+        "10% of {peso(price)} = {peso(price / 10)}",
+        "{pct}% is {pct / 10} × 10%",
+        "{pct / 10} × {price / 10} = {answer}"
+      ],
+      "explain": "10% of {peso(price)} = {peso(price / 10)}, so {pct}% = {peso(answer)}.",
+      "distractors": [
+        { "value": "price + answer", "error": "gave-new-price", "feedback": "{peso(value)} is the new price. The question asks only for the amount added." },
+        { "value": "price * pct", "error": "forgot-per-cent", "feedback": "{peso(value)} is far too much. {pct}% means {pct} out of every 100, so divide by 100." }
+      ]
+    },
+    {
+      "id": "percent.sale-price",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Take a percentage discount off a price",
+      "schema": "multi-step",
+      "params": {
+        "price": { "range": [200, 900], "step": 50 },
+        "pct": { "choose": [10, 20, 25, 50] },
+        "off": { "value": "price * pct / 100" }
+      },
+      "answer": { "type": "decimal", "maxDecimals": 2, "value": "price - off", "prefix": "₱" },
+      "formats": [
+        { "id": "bag", "prompt": "A {peso(price)} bag is on sale at {pct}% off. What do you pay?" }
+      ],
+      "hints": [
+        "Two steps: work out the discount, then take it off the price.",
+        "{pct}% of {price} is the discount.",
+        "Discount is {peso(off)}. Subtract it from {peso(price)}."
+      ],
+      "steps": [
+        "{pct}% of {peso(price)} = {peso(off)}",
+        "{peso(price)} − {peso(off)} = {peso(answer)}",
+        "You pay {peso(answer)}"
+      ],
+      "explain": "The discount is {peso(off)}, so you pay {peso(price)} − {peso(off)} = {peso(answer)}.",
+      "distractors": [
+        { "value": "off", "error": "gave-the-discount", "feedback": "{peso(value)} is how much came off. The question asks what you actually pay." },
+        { "value": "price + off", "error": "added-the-discount", "feedback": "{peso(value)} adds the discount on. A sale takes it off." }
+      ]
+    },
+    {
+      "id": "percent.part-of-a-group",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Find 25%, 50% or 75% of a group as a fraction",
+      "schema": "part-whole",
+      "params": {
+        "total": { "range": [20, 60], "step": 4 },
+        "pct": { "choose": [25, 50, 75] }
+      },
+      "answer": { "type": "integer", "value": "total * pct / 100" },
+      "formats": [
+        { "id": "calculators", "prompt": "There are {total} learners in a class. {pct}% brought a calculator. How many is that?" }
+      ],
+      "hints": [
+        "Per cent means out of a hundred.",
+        "{pct}% is the same as {pct == 25 ? 'one quarter' : pct == 50 ? 'one half' : 'three quarters'}.",
+        "So take {pct == 50 ? 'half' : pct == 25 ? 'a quarter' : 'three quarters'} of {total}."
+      ],
+      "steps": [
+        "1% of {total} = {total / 100}",
+        "{pct} × {total / 100} = {answer}",
+        "{answer} learners"
+      ],
+      "explain": "{pct}% of {total} = {answer} learners.",
+      "distractors": [
+        { "value": "total * 100 / pct", "error": "divided-by-the-per-cent", "feedback": "{value} is more than the {total} in the class. You want part of the {total}, so the answer is smaller than {total}." },
+        { "value": "total - answer", "error": "gave-the-rest", "feedback": "{value} is the learners who did not bring one." }
+      ]
+    },
+    {
+      "id": "percent.what-per-cent",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Express a part of a whole as a percentage",
+      "schema": "part-whole",
+      "params": {
+        "whole": { "choose": [20, 25, 40, 50] },
+        "frac": { "choose": [0.2, 0.4, 0.6, 0.8] },
+        "part": { "value": "round(whole * frac)" }
+      },
+      "answer": { "type": "choice", "value": "round(part / whole * 100)", "label": "{value}%" },
+      "formats": [
+        { "id": "quiz", "prompt": "{part} of {whole} questions were correct. What per cent is that?" }
+      ],
+      "hints": [
+        "A per cent is a fraction out of a hundred.",
+        "Write it as {part} over {whole} first.",
+        "Scale {whole} up to 100: multiply both numbers by {100 / whole}."
+      ],
+      "steps": [
+        "{part} ÷ {whole} = {part / whole}",
+        "{part / whole} × 100 = {answer}",
+        "{answer}%"
+      ],
+      "explain": "{part} ÷ {whole} = {part / whole}, which is {answer}%.",
+      "distractors": [
+        { "value": "part", "error": "gave-the-count", "feedback": "{value}% is the count of correct answers, not the per cent. Divide by the total first, then scale to 100." },
+        { "value": "100 - answer", "error": "gave-the-rest", "feedback": "{value}% is the per cent that were wrong." },
+        { "value": "round(answer / 2)", "error": "halved", "feedback": "{value}% is half the right per cent. Scale {part} out of {whole} all the way up to 100." }
+      ]
+    },
+    {
+      "id": "percent.add-a-service-charge",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Add a percentage charge to a base amount",
+      "schema": "multi-step",
+      "params": {
+        "base": { "range": [150, 600], "step": 50 }
+      },
+      "answer": { "type": "decimal", "maxDecimals": 2, "value": "round(base * 1.12, 2)", "prefix": "₱" },
+      "formats": [
+        { "id": "repair", "prompt": "A repair costs {peso(base)} plus 12% service. What is the total?" }
+      ],
+      "hints": [
+        "The total is the base plus the service charge.",
+        "10% of {base} is {base / 10}; 2% is a fifth of that.",
+        "Service is {peso(base * 0.12)}. Add it to {peso(base)}."
+      ],
+      "steps": [
+        "10% of {peso(base)} = {peso(base / 10)}",
+        "2% of {peso(base)} = {peso(base * 0.02)}",
+        "{peso(base)} + {peso(base * 0.12)} = {peso(answer)}"
+      ],
+      "explain": "12% of {peso(base)} is {peso(base * 0.12)}, so the total is {peso(answer)}.",
+      "distractors": [
+        { "value": "base * 0.12", "error": "gave-the-service-only", "feedback": "{peso(value)} is only the service charge. The question asks for the base plus the service." },
+        { "value": "base + 12", "error": "added-12-pesos", "feedback": "{peso(value)} adds ₱12, but the service is 12% of {peso(base)}, not ₱12." }
+      ]
+    }
+  ]
+}

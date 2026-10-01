@@ -104,5 +104,17 @@ const writers = walk("")
 check("every non-app page that writes saved progress refuses to run off localhost",
   writers.filter((f) => !/location\.hostname/.test(read(f))).map((f) => "no localhost guard: " + f));
 
+/* 9. content.js fetches every pack's manifest and each topic file it lists
+      on launch. One that is not precached means no questions without signal,
+      and nothing fails until a learner opens the app offline. */
+const packFiles = [];
+for (const pack of fs.readdirSync(path.join(ROOT, "content/packs"), { withFileTypes: true }).filter((d) => d.isDirectory())) {
+  const dir = `content/packs/${pack.name}/`;
+  packFiles.push(dir + "manifest.json");
+  for (const t of JSON.parse(read(dir + "manifest.json")).topics) packFiles.push(dir + t.file);
+}
+check("every question pack file is precached",
+  packFiles.filter((f) => !precached.has(f)).map((f) => "not precached: " + f));
+
 console.log(failed ? `\n${failed} invariant(s) violated` : "\nall invariants hold");
 process.exit(failed ? 1 : 0);

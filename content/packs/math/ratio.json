@@ -1,0 +1,170 @@
+{
+  "topic": "ratio",
+  "pinned": [
+    { "template": "ratio.price-for-more-kilos", "params": { "perKilo": 150, "have": 3, "extra": 2 } }
+  ],
+  "templates": [
+    {
+      "id": "ratio.price-for-more-kilos",
+      "competency": "G6.Q2.7",
+      "domain": "NA",
+      "construct": "Scale a price through the unit rate",
+      "schema": "rate",
+      "params": {
+        "perKilo": { "range": [90, 180], "step": 10 },
+        "have": { "choose": [3, 4] },
+        "extra": { "range": [1, 3] },
+        "want": { "value": "have + extra" },
+        "total": { "value": "perKilo * have" }
+      },
+      "answer": { "type": "choice", "value": "perKilo * want", "label": "{peso(value)}", "prefix": "₱" },
+      "formats": [
+        { "id": "fish", "prompt": "Aling Rosa sells {have} kilos of fish for {peso(total)}. At the same rate, what do {want} kilos cost?" }
+      ],
+      "hints": [
+        "Find the price of one kilo first.",
+        "{peso(total)} ÷ {have} gives the price per kilo.",
+        "One kilo is {peso(perKilo)}. Now multiply by {want}."
+      ],
+      "steps": [
+        "{have} kilos = {peso(total)}, so 1 kilo = {peso(perKilo)}",
+        "{want} × {peso(perKilo)} = {peso(answer)}",
+        "{want} kilos cost {peso(answer)}"
+      ],
+      "explain": "{have} kilos = {peso(total)}, so 1 kilo = {peso(perKilo)}. {want} × {peso(perKilo)} = {peso(answer)}.",
+      "fallback": "Find the price of one kilo first: {total} ÷ {have}. Then multiply by {want}.",
+      "distractors": [
+        { "value": "total", "error": "gave-the-known-price", "feedback": "{peso(value)} is what the {have} kilos cost. The question asks about {want} kilos." },
+        { "value": "perKilo * (want + 1)", "error": "one-kilo-too-many", "feedback": "{peso(value)} is the price of {want + 1} kilos, one more than asked." },
+        { "value": "round(total * 1.5)", "error": "estimated-the-scale", "feedback": "{peso(value)} is {peso(total)} and half again, which is an estimate. Find one kilo first, then multiply by {want}." }
+      ]
+    },
+    {
+      "id": "ratio.rate-times-quantity",
+      "competency": "G6.Q2.7",
+      "domain": "NA",
+      "construct": "Multiply a rate per kilo by a number of kilos",
+      "schema": "rate",
+      "params": {
+        "perKilo": { "range": [60, 120], "step": 5 },
+        "kilos": { "range": [8, 15] },
+        "base": { "value": "kilos >= 10 ? 10 : 5" },
+        "rest": { "value": "kilos - base" }
+      },
+      "answer": { "type": "integer", "value": "perKilo * kilos", "prefix": "₱" },
+      "formats": [
+        { "id": "fisherman", "prompt": "A fisherman sells {kilos} kilos at {peso(perKilo)} a kilo. How much does he collect?" }
+      ],
+      "hints": [
+        "The rate is per kilo, so multiply it by how many kilos.",
+        "Break {kilos} into {base} and {rest}.",
+        "{base} × {perKilo} = {base * perKilo}, and {rest} × {perKilo} = {rest * perKilo}."
+      ],
+      "steps": [
+        "{base} × {peso(perKilo)} = {peso(base * perKilo)}",
+        "{rest} × {peso(perKilo)} = {peso(rest * perKilo)}",
+        "{peso(base * perKilo)} + {peso(rest * perKilo)} = {peso(answer)}"
+      ],
+      "explain": "{kilos} × {peso(perKilo)} = {peso(answer)}.",
+      "distractors": [
+        { "value": "perKilo", "error": "price-of-one-kilo", "feedback": "{peso(value)} is the price of one kilo. He sold {kilos} of them." },
+        { "value": "perKilo + kilos", "error": "added-instead-of-multiplied", "feedback": "{peso(value)} adds the price and the kilos. Each kilo costs {peso(perKilo)}, so multiply." }
+      ]
+    },
+    {
+      "id": "ratio.scale-a-recipe",
+      "competency": "G6.Q2.7",
+      "domain": "NA",
+      "construct": "Scale a quantity by the same factor as the group",
+      "schema": "multiplicative-compare",
+      "params": {
+        "cups": { "range": [2, 4] },
+        "people": { "range": [4, 6] },
+        "scale": { "range": [2, 3] }
+      },
+      "answer": { "type": "integer", "value": "cups * scale" },
+      "formats": [
+        { "id": "rice", "prompt": "A recipe uses {cups} cups of rice for {people} people. How many cups for {people * scale} people?" }
+      ],
+      "hints": [
+        "How many times bigger is the new group?",
+        "{people * scale} ÷ {people} = {scale}, so it is {scale} times the recipe.",
+        "Multiply the rice by the same {scale}."
+      ],
+      "steps": [
+        "{people * scale} ÷ {people} = {scale}",
+        "{scale} × {cups} = {answer}",
+        "{answer} cups"
+      ],
+      "explain": "The group is {scale} times bigger, so the rice is too: {scale} × {cups} = {answer} cups.",
+      "distractors": [
+        { "value": "cups + people * scale - people", "error": "added-the-difference", "feedback": "{value} adds the extra people as extra cups. The rice grows by the same factor as the group, not by the difference." },
+        { "value": "cups", "error": "gave-the-original", "feedback": "{value} cups is the recipe for {people}. The group is now {people * scale}." }
+      ]
+    },
+    {
+      "id": "ratio.distance-from-speed",
+      "competency": "G6.Q2.7",
+      "domain": "NA",
+      "construct": "Multiply speed by time to find distance",
+      "schema": "rate",
+      "params": {
+        "speed": { "range": [30, 60], "step": 5 },
+        "hours": { "range": [2, 5] }
+      },
+      "answer": { "type": "choice", "value": "speed * hours", "label": "{value} km" },
+      "formats": [
+        { "id": "bus", "prompt": "A bus travels at {speed} km per hour for {hours} hours. How far does it go?" }
+      ],
+      "hints": [
+        "Per hour tells you the distance covered each hour.",
+        "That same distance happens {hours} times.",
+        "{speed} × {hours} is the whole trip."
+      ],
+      "steps": [
+        "Each hour: {speed} km",
+        "{hours} hours: {hours} × {speed}",
+        "{answer} km"
+      ],
+      "explain": "{speed} km/h × {hours} h = {answer} km.",
+      "distractors": [
+        { "value": "speed + hours", "error": "added-speed-and-time", "feedback": "{value} km adds speed and time. They multiply here; adding them mixes two different units." },
+        { "value": "speed", "error": "gave-the-speed", "feedback": "{value} km is one hour's distance. The bus travels for {hours} hours." },
+        { "value": "round(speed * hours * 1.5)", "error": "overestimated", "feedback": "{value} km is half as far again as the bus goes. Multiply {speed} by {hours}." }
+      ]
+    },
+    {
+      "id": "ratio.share-in-a-ratio",
+      "competency": "G6.Q2.4",
+      "domain": "NA",
+      "construct": "Share an amount in a given ratio",
+      "schema": "part-whole",
+      "params": {
+        "a": { "range": [2, 5] },
+        "b": { "range": [2, 5] },
+        "unit": { "range": [20, 60], "step": 10 },
+        "total": { "value": "(a + b) * unit" }
+      },
+      "answer": { "type": "integer", "value": "a * unit", "prefix": "₱" },
+      "formats": [
+        { "id": "money", "prompt": "{peso(total)} is shared in the ratio {a}:{b}. How much is the {a} part?" }
+      ],
+      "hints": [
+        "The ratio {a}:{b} splits the money into {a + b} equal parts.",
+        "{peso(total)} ÷ {a + b} gives one part.",
+        "One part is {peso(unit)}. The {a} share is {a} of them."
+      ],
+      "steps": [
+        "{a} + {b} = {a + b} parts",
+        "{total} ÷ {a + b} = {unit} per part",
+        "{a} × {unit} = {answer}"
+      ],
+      "explain": "There are {a + b} parts of {peso(unit)}, so the {a} share is {peso(answer)}.",
+      "distractors": [
+        { "value": "unit", "error": "gave-one-part", "feedback": "{peso(value)} is one part. The {a} share is {a} of those parts." },
+        { "value": "total / a", "error": "divided-by-one-side", "feedback": "{peso(value)} divides by {a}. Divide by the total number of parts, {a + b}, not by one side of the ratio." },
+        { "value": "b * unit", "error": "gave-the-other-part", "feedback": "{peso(value)} is the {b} part. The question asks for the {a} part." }
+      ]
+    }
+  ]
+}

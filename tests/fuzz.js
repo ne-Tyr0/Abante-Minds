@@ -1,20 +1,31 @@
 /* Generator fuzz test.
    The app is offline: a bad generated question reaches every learner who draws
-   it, and nothing can hotfix an installed phone until it next syncs. So every
-   template is driven across thousands of seeds and checked for properties that
-   must hold for any question it can ever produce.
+   it, and nothing can hotfix an installed phone until it next syncs. So whole
+   sessions are built for every topic at every tier, across thousands of seeds,
+   and every question is checked for properties that must hold for any question
+   the packs can ever produce.
 
    Run:  node tests/fuzz.js        Exits 1 on any violation. */
 "use strict";
 const fs = require("fs");
 const path = require("path");
 
-// app/content.js is a browser IIFE that hangs its API off window.AM
+// app/content.js is a browser IIFE that hangs its API off window.AM; the
+// pack it would fetch is read from disk and installed the same way.
 const ROOT = path.join(__dirname, "..");
+const read = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
 global.window = global;
 global.AM = {};
-new Function(fs.readFileSync(path.join(ROOT, "app/content.js"), "utf8")).call(global);
+new Function(read("app/content.js")).call(global);
 const C = global.AM.content;
+const PACK = "content/packs/math/";
+const manifest = JSON.parse(read(PACK + "manifest.json"));
+C.use(manifest, manifest.topics.map((t) => JSON.parse(read(PACK + t.file))));
+
+// The keypad's own length limit, read from app.js so the two cannot drift.
+const keypad = read("app/app.js").match(/s\.typed\.length >= (\d+)/);
+if (!keypad) { console.log("FAIL could not find the keypad length limit in app/app.js"); process.exit(1); }
+const KEYPAD_MAX = Number(keypad[1]);
 
 const FAILURES = {};
 function fail(rule, q, detail) {
@@ -27,19 +38,23 @@ const ugly = (s) => /\d+\.\d{3,}/.test(s);
 // A negative RESULT ("= -60"). A subtraction sign in "500 - 170" is not one.
 const negative = (s) => /=\s*[-\u2212]\s?\d/.test(s);
 
-const SEEDS = 4000;
+const SEEDS = 1000;
+const TIERS = [1, 2, 3, 4];
 let total = 0;
 
 for (const topic of C.TOPICS) {
-  for (let seed = 0; seed < SEEDS; seed++) {
-    for (const q of C.buildSession(topic.key, 10, 1, seed)) {
+  for (const tier of TIERS) for (let seed = 0; seed < SEEDS; seed++) {
+    for (const q of C.buildSession(topic.key, 10, tier, seed)) {
       total++;
 
-      // 1. the answer must be a number the keypad can type: no minus key exists
+      // 1. the answer must be a number the keypad can type: no minus key, at
+      //    most four decimal places, and no longer than the keypad allows
       if (!Number.isFinite(q.answer)) fail("answer is not finite", q, String(q.answer));
       else if (q.answer < 0) fail("answer is negative", q, String(q.answer));
-      else if (Math.abs(q.answer * 100 - Math.round(q.answer * 100)) > 1e-9)
-        fail("answer needs more than 2 decimal places", q, String(q.answer));
+      else if (Math.abs(q.answer * 1e4 - Math.round(q.answer * 1e4)) > 1e-6)
+        fail("answer needs more than 4 decimal places", q, String(q.answer));
+      else if (q.type === "compute" && C.engine.fmt(q.answerExact).length > KEYPAD_MAX)
+        fail("answer is longer than the keypad allows", q, C.engine.fmt(q.answerExact));
 
       // 2. the scaffold must be complete
       if (!q.hints || q.hints.length !== 3) fail("not exactly 3 hints", q, String(q.hints && q.hints.length));
@@ -65,11 +80,27 @@ for (const topic of C.TOPICS) {
       // 5. the checker must accept the answer it generated
       const given = q.type === "choice" ? q.answerIndex : String(q.answer);
       if (!C.isCorrect(q, given)) fail("own answer rejected by checker", q, String(given));
+
+      // 6. entering a named mistake must bring back that mistake's feedback,
+      //    and no named mistake may be the right answer
+      const markedRight = [], undiagnosed = [], unfilled = [];
+      for (const d of q.distractors) {
+        const entry = q.type === "choice"
+          ? q.choiceValues.findIndex((v) => C.engine.eq(v, d.exact))
+          : C.engine.fmt(d.exact);
+        const got = C.diagnose(q, entry);
+        if (got.correct) markedRight.push(d.error);
+        else if (got.error !== d.error || got.feedback !== d.feedback) undiagnosed.push(d.error + " -> " + got.error);
+        if (!d.feedback || /[{}]/.test(d.feedback)) unfilled.push(String(d.feedback));
+      }
+      if (markedRight.length) fail("a named mistake is marked right", q, markedRight.join(", "));
+      if (undiagnosed.length) fail("a named mistake is not diagnosed", q, undiagnosed.join(", "));
+      if (unfilled.length) fail("mistake feedback is empty or unfilled", q, unfilled.join(" | "));
     }
   }
 }
 
-console.log(`fuzzed ${total.toLocaleString()} questions across ${C.TOPICS.length} topics, ${SEEDS} seeds each`);
+console.log(`fuzzed ${total.toLocaleString()} questions across ${C.TOPICS.length} topics, tiers ${TIERS.join("-")}, ${SEEDS} seeds each`);
 
 const rules = Object.keys(FAILURES);
 if (!rules.length) {

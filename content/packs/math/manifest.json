@@ -1,0 +1,13 @@
+{
+  "$comment": "Maths subtest pack. Each topic file holds that topic's question templates. See content/packs/README.md for the format. 'placeholder' marks topics from the earlier Grade 9 framing, to be replaced by the TABLE-OF-SPECIFICATIONS.md topics in Phase 2.",
+  "subtest": "math",
+  "version": "0.1.0",
+  "placeholder": true,
+  "fallbackFeedback": "Start from the first step below.",
+  "topics": [
+    { "key": "money", "label": "Change and money", "icon": "coins", "colorKey": 1, "file": "money.json" },
+    { "key": "percent", "label": "Percentages", "icon": "percent", "colorKey": 2, "file": "percent.json" },
+    { "key": "ratio", "label": "Ratio and rate", "icon": "scales", "colorKey": 3, "file": "ratio.json" },
+    { "key": "measure", "label": "Measurement", "icon": "ruler", "colorKey": 4, "file": "measure.json" }
+  ]
+}

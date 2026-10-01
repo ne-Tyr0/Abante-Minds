@@ -32,6 +32,12 @@ jobs:
       - name: Repository invariants
         run: node tests/invariants.js
 
+      - name: Question engine
+        run: node tests/engine.js
+
+      - name: Question packs are valid
+        run: node tests/validate-packs.js
+
       - name: Question-generator fuzz
         run: node tests/fuzz.js
 
