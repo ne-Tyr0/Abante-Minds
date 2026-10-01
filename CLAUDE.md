@@ -122,6 +122,14 @@ placeholder strings in `poc/`.
 Change `CACHE` in `sw.js` on every release. Installed phones keep the old precache list
 until `sw.js` itself changes.
 
+Hosted at **https://ne-tyr0.github.io/Abante-Minds/**, built from `main` at the repo root.
+
+**Never delete `.nojekyll`.** GitHub Pages runs Jekyll by default, and Jekyll silently drops
+every path beginning with an underscore — which is the whole of `_ds/`. Without that file the
+site builds and returns 200 for `index.html` while every design-system token 404s, so the app
+loads completely unstyled. It is an empty file at the repo root and it is the only thing
+keeping the vendored design system on the live site.
+
 ## Gotchas
 
 - **Do not reintroduce a sync indicator without a real request behind it.** The app once
