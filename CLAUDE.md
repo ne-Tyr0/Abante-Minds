@@ -111,7 +111,7 @@ Settled with the project owner. Build on them; don't reopen them.
    decimals, exponents, π-expressions, unit-bearing answers. Blocking for most NCE content.
    **Not negatives** — signed numbers are Grade 7 in MATATAG and absent from the blueprint.
 6. **Attempt log**: timestamps, seeds, latency, hint depth, pack version.
-7. **Enable GitHub Pages** from `main`.
+7. ~~**Enable GitHub Pages**.~~ **Done** — live at https://ne-tyr0.github.io/Abante-Minds/.
 8. **Test on a real low-end Android** through the Pages URL. A plain-HTTP LAN address can't
    register the service worker, so install and offline only work on the HTTPS URL.
 9. ~~**CI**.~~ **Done** — `.github/workflows/ci.yml` runs the fuzz, the codec proof,
@@ -165,5 +165,10 @@ keeping the vendored design system on the live site.
   is this folder before committing.
 - `.claude/worktrees/abante-minds-screens-9c5311/` is a stale copy of the code from an
   earlier session, attached to that home-directory repo. It is gitignored. Don't edit it.
+- **Service workers can't be tested in the Claude desktop browser pane against a dev server
+  started from a shell.** The page loads, but the pane never delivers the worker's script
+  request to the server, so registration fails with *An unknown error occurred when fetching
+  the script*. That is not an app bug: the live site registers and precaches all 24 files.
+  Check offline behaviour on https://ne-tyr0.github.io/Abante-Minds/ or in a normal browser.
 - The service worker serves from cache first. During development use `devserver.py`, or
   clear site data, or an edit will look as if it did nothing.
