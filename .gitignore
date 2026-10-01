@@ -10,3 +10,8 @@ __pycache__/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Overview PDF builder output: regenerable, and the PDF is not to be sent
+tools/overview-pdf/shots/
+tools/overview-pdf/overview.html
+tools/overview-pdf/*.pdf
