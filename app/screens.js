@@ -48,35 +48,10 @@
     }, el("div.body-sm", { style: { color: "var(--ink-900)" } }, "Offline. Practice is saved on this phone."));
   }
 
-  function syncBanner(s) {
-    return el("div", {
-      role: "status",
-      style: {
-        flex: "none", background: "var(--brand-blue-100)",
-        padding: "12px " + gutter() + "px",
-        display: "flex", flexDirection: "column", gap: "var(--space-2)"
-      }
-    },
-      el("span.am-sync-pending", { style: { display: "flex", gap: 10, alignItems: "center", color: "var(--brand-blue-600)" } },
-        icon("retry", 20),
-        el("span.body-sm", { style: { color: "var(--ink-900)" } },
-          "Back online. Sending " + s.pendingAnswers + " answer" + (s.pendingAnswers === 1 ? "" : "s") + ".")),
-      el("span", { style: { display: "block", height: 6, borderRadius: "var(--radius-pill)", background: "var(--surface-200)", overflow: "hidden" } },
-        el("span", {
-          style: {
-            display: "block", height: "100%", borderRadius: "var(--radius-pill)",
-            background: "var(--brand-blue-600)",
-            width: Math.round(store.syncRatio() * 100) + "%",
-            transition: "width var(--dur-base) var(--ease-out)"
-          }
-        }))
-    );
-  }
-
-  function connectionBanner(s) {
-    if (!store.isOnline()) return offlineBanner();
-    if (store.isSyncing()) return syncBanner(s);
-    return null;
+  /* Offline is the only connection state worth a banner. There is no sync banner
+     because there is no sync — see the note at the top of store.js. */
+  function connectionBanner() {
+    return store.isOnline() ? null : offlineBanner();
   }
 
   /* ---------- 1 · Splash with install hint ---------- */
@@ -406,11 +381,9 @@
           el("span.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
             !store.isOnline()
               ? "All four topics are downloaded. 60 questions ready without signal."
-              : store.isSyncing()
-                ? "Yesterday’s offline session is included. Nothing was lost."
-                : s.lastSession
-                  ? "Last session: " + s.lastSession.topicLabel.toLowerCase() + ", " + s.lastSession.correct + " of " + s.lastSession.attempted + " correct."
-                  : "Pick up where you left off."),
+              : s.lastSession
+                ? "Last session: " + s.lastSession.topicLabel.toLowerCase() + ", " + s.lastSession.correct + " of " + s.lastSession.attempted + " correct."
+                : "Pick up where you left off."),
           desktop ? el("span", { style: { display: "flex", gap: "var(--space-3)", marginTop: "var(--space-2)", flexWrap: "wrap" } },
             AM.Button({ label: continueLabel(lastTopic), onClick: function () { app.startPractice(s.lastTopic); } }),
             AM.Button({ label: "Pick another topic", variant: "ghost", onClick: function () { app.go("topics"); } })
@@ -464,7 +437,7 @@
 
     return {
       nav: "home",
-      banner: connectionBanner(s),
+      banner: connectionBanner(),
       railFooter: el("span.am-rail-note", {
         style: { background: "var(--brand-blue-100)", color: "var(--brand-blue-600)" }
       }, icon("streak", 22), el("span.label", { style: { color: "var(--ink-900)" } },
@@ -521,7 +494,7 @@
 
     return {
       nav: "practice", bottomNav: false,
-      banner: connectionBanner(s),
+      banner: connectionBanner(),
       back: function () { app.go("home", "back"); },
       body: column([
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
@@ -723,13 +696,6 @@
           s.tierProgress + " of " + store.TIER_TARGET));
     }
 
-    function offlineNote() {
-      if (!offline || s.pendingAnswers === 0) return null;
-      return el("div", { style: { padding: "12px " + gutter() + "px 0" } },
-        el("div.body-sm", { style: { color: "var(--ink-600)" } },
-          s.pendingAnswers + " answer" + (s.pendingAnswers === 1 ? "" : "s") + " held on this phone"));
-    }
-
     /* ----- actions ----- */
     function checkButton() {
       return AM.Button({
@@ -843,8 +809,7 @@
         (ses.phase === "ask" && ses.showHints) ? answerArea() : null,
         verdict(),
         explanation(),
-        streakChip(),
-        offlineNote()
+        streakChip()
       ]),
       belowFold: el("div", null,
         hintsUsedCard(),
@@ -922,7 +887,7 @@
 
     return {
       nav: "practice", bottomNav: false,
-      banner: connectionBanner(s),
+      banner: connectionBanner(),
       body: column([
         el("div", { style: { padding: "24px " + gutter() + "px 0" } },
           el("div.heading-lg", null, "Session done"),
@@ -985,7 +950,7 @@
 
     return {
       nav: "profile",
-      banner: connectionBanner(s),
+      banner: connectionBanner(),
       body: column([
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.ProfileCard({

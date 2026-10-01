@@ -311,7 +311,6 @@
     };
     app.scratch.result = result;
     store.set({ lastSession: { topicLabel: s.topicLabel, correct: s.correct, attempted: s.attempted } });
-    if (store.isOnline()) store.startSync();
     app.session = null;
     app.go("summary");
   }
@@ -366,7 +365,6 @@
     else if (!s.profile) app.route = "setup";
     else app.route = "home";
     render();
-    if (store.isOnline()) store.startSync();
 
     if ("serviceWorker" in navigator && location.protocol !== "file:") {
       navigator.serviceWorker.register("sw.js").catch(function () { /* offline still works from cache-less reloads */ });

@@ -1,8 +1,9 @@
 /* Abante Minds — learner state.
-   Everything lives on the phone. A session runs to the end with no signal, and
-   answers queue locally until there is one; nothing in here ever blocks on the
-   network. localStorage is wrapped because a locked-down school browser can
-   throw on the first read, and losing progress is better than a white screen. */
+   Everything lives on the phone and stays there. There is no endpoint and no request:
+   a session runs to the end with or without signal, and progress leaves the device
+   only when the learner exports it. localStorage is wrapped because a locked-down
+   school browser can throw on the first read, and losing progress is better than a
+   white screen. */
 (function () {
   "use strict";
 
@@ -48,7 +49,6 @@
       week: [false, false, false, false, false, false, false],
       resetToday: false,
       totalCorrect: 0,
-      pendingAnswers: 0,
       recoveryRequested: false,
       lastSession: null
     };
@@ -73,10 +73,10 @@
 
   var state = read();
   var listeners = [];
+  /* Connectivity is tracked only so the UI can say "offline" honestly. Nothing is ever
+     sent: there is no endpoint, and progress leaves the phone only when the learner
+     exports it. Do not reintroduce a sync indicator without a real request behind it. */
   var online = navigator.onLine !== false;
-  var syncing = false;
-  var syncRatio = 0;
-  var syncTimer = null;
 
   function emit() { listeners.forEach(function (fn) { fn(state); }); }
   function commit() { write(state); emit(); }
@@ -134,8 +134,6 @@
     rollDay();
     markPractice();
 
-    if (!online) state.pendingAnswers += 1;
-
     if (!correct) {
       state.recoveryRun = 0;
       commit();
@@ -168,36 +166,12 @@
     return { tieredUp: tieredUp };
   }
 
-  /* ---------- sync ----------
-     Reported, never a gate. The learner can start the next session while it
-     finishes; nothing waits on the bar reaching the end. */
-  function startSync() {
-    if (syncing || !online || state.pendingAnswers === 0) return;
-    syncing = true;
-    syncRatio = 0;
-    emit();
-    var total = state.pendingAnswers;
-    var sent = 0;
-    syncTimer = window.setInterval(function () {
-      sent += Math.max(1, Math.ceil(total / 6));
-      syncRatio = Math.min(1, sent / total);
-      if (syncRatio >= 1) {
-        window.clearInterval(syncTimer);
-        syncTimer = null;
-        syncing = false;
-        state.pendingAnswers = 0;
-        commit();
-      } else {
-        emit();
-      }
-    }, 450);
-  }
-
+  /* ---------- connectivity ----------
+     Observed, never acted on. Losing signal changes nothing about what the app does;
+     it only changes what the app says. */
   function setOnline(next) {
     if (online === next) return;
     online = next;
-    if (online) startSync();
-    else if (syncTimer) { window.clearInterval(syncTimer); syncTimer = null; syncing = false; }
     emit();
   }
 
@@ -264,9 +238,6 @@
     today: today,
 
     isOnline: function () { return online; },
-    isSyncing: function () { return syncing; },
-    syncRatio: function () { return syncRatio; },
-    startSync: startSync,
     /* Exposed so the offline screens are reachable without pulling the plug:
        AM.store.setOffline(true) in the console, or load the app with #offline. */
     setOffline: function (v) { setOnline(!v); }
