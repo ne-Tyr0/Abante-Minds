@@ -24,18 +24,28 @@ html, body {
 .am-root[data-gold="true"],
 .am-root[data-gold="true"] .am-frame { background: var(--celebration-gold-500); }
 
+/* Exactly the screen's height, so the body scrolls inside the frame and the
+   keypad, the bottom action and the nav stay put. With only a minimum height,
+   a screen taller than the phone grew the page and pushed them off the
+   bottom. */
 .am-frame {
   flex: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;
-  min-height: 100dvh;
+  height: 100dvh;
   background: var(--surface-100);
 }
 
 .am-slot-body {
   flex: 1;
-  min-height: 0;
+  /* The floor: never squeezed below this. On a phone too short for the body
+     and the anchored slots together (hints open above the keypad on a
+     360x640 phone, or any phone in landscape) the whole page scrolls instead,
+     so nothing is read through a sliver. 200px shows a two-line question and
+     its first hint, and stays under the 220px a plain practice question takes
+     on that phone, so that screen still fits without scrolling. */
+  min-height: 200px;
   overflow-y: auto;
   /* The screen entrance slides in from 24px to the right. Without this the
      travel counts as overflow and flashes a scrollbar on every transition. */
@@ -175,7 +185,6 @@ html, body {
 }
 
 @media (min-width: 1280px) {
-  .am-frame { min-height: 100dvh; }
   /* The cap moves off the column and onto the cards, so the extra width can
      become a second column instead of a longer line. */
   .am-column { max-width: none; }
@@ -187,11 +196,4 @@ html, body {
    it sits beside the field instead of under it. */
 @media (min-width: 1280px) {
   .am-keypad button { font-size: 22px; }
-}
-
-/* ---------- print / very short viewports ----------
-   A 5-inch phone in landscape should still reach the bottom action, so the
-   body scrolls rather than the page. */
-@media (max-height: 560px) {
-  .am-slot-body { overflow-y: auto; }
 }
