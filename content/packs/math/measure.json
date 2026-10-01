@@ -1,0 +1,163 @@
+{
+  "topic": "measure",
+  "pinned": [],
+  "templates": [
+    {
+      "id": "measure.rectangle-perimeter",
+      "competency": "G6.Q3.8",
+      "domain": "MG",
+      "construct": "Perimeter of a rectangle from its sides",
+      "schema": "combine",
+      "params": {
+        "w": { "range": [3, 12] },
+        "h": { "range": [3, 12] }
+      },
+      "answer": { "type": "integer", "value": "2 * (w + h)" },
+      "formats": [
+        { "id": "garden", "prompt": "A garden plot is {w} m by {h} m. What is the perimeter in metres?" }
+      ],
+      "hints": [
+        "Perimeter is the distance all the way around.",
+        "There are two sides of {w} m and two of {h} m.",
+        "Add one of each first: {w} + {h} = {w + h}, then double it."
+      ],
+      "steps": [
+        "{w} + {h} = {w + h}",
+        "2 × {w + h} = {answer}",
+        "{answer} metres"
+      ],
+      "explain": "2 × ({w} + {h}) = {answer} m.",
+      "distractors": [
+        { "value": "w * h", "error": "gave-the-area", "feedback": "{value} is the area. Perimeter adds the four sides instead of multiplying two of them." },
+        { "value": "w + h", "error": "added-two-sides", "feedback": "{value} m is only two of the sides. A rectangle has four." }
+      ]
+    },
+    {
+      "id": "measure.rectangle-area",
+      "competency": "G6.Q3.8",
+      "domain": "MG",
+      "construct": "Area of a rectangle as rows of unit squares",
+      "schema": "equal-groups",
+      "params": {
+        "w": { "range": [3, 12] },
+        "h": { "range": [3, 12] }
+      },
+      "answer": { "type": "integer", "value": "w * h" },
+      "formats": [
+        { "id": "floor", "prompt": "A floor is {w} m by {h} m. What is its area in square metres?" }
+      ],
+      "hints": [
+        "Area counts the squares that fit inside.",
+        "Each row holds {w} squares.",
+        "There are {h} rows of {w}."
+      ],
+      "steps": [
+        "One row: {w} squares",
+        "{h} rows: {h} × {w}",
+        "{answer} square metres"
+      ],
+      "explain": "{w} × {h} = {answer} m².",
+      "distractors": [
+        { "value": "2 * (w + h)", "error": "gave-the-perimeter", "feedback": "{value} is the perimeter. Area multiplies the two sides." },
+        { "value": "w + h", "error": "added-the-sides", "feedback": "{value} adds the two sides. Area multiplies them." }
+      ]
+    },
+    {
+      "id": "measure.convert-to-smaller-unit",
+      "competency": "G6.Q3.2",
+      "domain": "MG",
+      "construct": "Convert to a smaller metric unit by multiplying",
+      "schema": "equal-groups",
+      "params": {
+        "nM": { "range": [2, 9] },
+        "nKg": { "range": [2, 9] },
+        "nL": { "range": [2, 9] },
+        "kind": { "choose": ["m", "kg", "L"] },
+        "to": { "value": "kind == 'm' ? 'cm' : kind == 'kg' ? 'g' : 'mL'" },
+        "factor": { "value": "kind == 'm' ? 100 : 1000" },
+        "n": { "value": "kind == 'm' ? nM : kind == 'kg' ? nKg : nL" }
+      },
+      "answer": { "type": "integer", "value": "n * factor" },
+      "formats": [
+        { "id": "how-many", "prompt": "How many {to} are in {n} {kind}?" }
+      ],
+      "hints": [
+        "One {kind} is {factor} {to}.",
+        "Going to a smaller unit makes the number bigger.",
+        "So multiply {n} by {factor}."
+      ],
+      "steps": [
+        "1 {kind} = {factor} {to}",
+        "{n} × {factor} = {answer}",
+        "{answer} {to}"
+      ],
+      "explain": "{n} {kind} × {factor} = {answer} {to}.",
+      "distractors": [
+        { "value": "n / factor", "error": "divided-instead-of-multiplied", "feedback": "{value} divides. Going to a smaller unit makes the number bigger, so multiply." },
+        { "value": "n * 10", "error": "used-the-wrong-factor", "feedback": "{value} multiplies by 10. One {kind} is {factor} {to}." }
+      ]
+    },
+    {
+      "id": "measure.box-volume",
+      "competency": "G6.Q3.3",
+      "domain": "MG",
+      "construct": "Volume of a rectangular prism as layers of cubes",
+      "schema": "equal-groups",
+      "params": {
+        "l": { "range": [2, 6] },
+        "w": { "range": [2, 6] },
+        "h": { "range": [2, 5] }
+      },
+      "answer": { "type": "choice", "value": "l * w * h", "label": "{value} cm³" },
+      "formats": [
+        { "id": "box", "prompt": "A box is {l} cm by {w} cm by {h} cm. What is its volume?" }
+      ],
+      "hints": [
+        "Volume counts the little cubes that fill the box.",
+        "One layer holds {l} × {w} = {l * w} cubes.",
+        "The box is {h} layers deep."
+      ],
+      "steps": [
+        "One layer: {l} × {w} = {l * w}",
+        "{h} layers: {l * w} × {h}",
+        "{answer} cm³"
+      ],
+      "explain": "{l} × {w} × {h} = {answer} cm³.",
+      "distractors": [
+        { "value": "l + w + h", "error": "added-the-sides", "feedback": "{value} cm³ adds the sides. Volume multiplies all three; adding them gives a length, not a space." },
+        { "value": "l * w", "error": "gave-one-layer", "feedback": "{value} cm³ is one layer. The box is {h} layers deep." },
+        { "value": "2 * (l * w + w * h + l * h)", "error": "gave-surface-area", "feedback": "{value} is the surface area, the outside of the box. Volume is what fills it." }
+      ]
+    },
+    {
+      "id": "measure.minutes-to-whole-hours",
+      "competency": "G5.Q1.3",
+      "domain": "MG",
+      "construct": "Whole hours in a number of minutes",
+      "schema": "equal-groups",
+      "params": {
+        "minutes": { "range": [70, 200], "step": 5 },
+        "rem": { "value": "minutes % 60" }
+      },
+      "answer": { "type": "integer", "value": "floor(minutes / 60)" },
+      "formats": [
+        { "id": "whole-hours", "prompt": "{minutes} minutes is how many whole hours?" }
+      ],
+      "hints": [
+        "One hour is 60 minutes.",
+        "How many 60s fit inside {minutes}?",
+        "{answer} × 60 = {answer * 60}, with {rem} minutes left over."
+      ],
+      "steps": [
+        "1 hour = 60 minutes",
+        "{minutes} ÷ 60 = {answer} remainder {rem}",
+        "{answer} whole hours"
+      ],
+      "explain": "{minutes} ÷ 60 = {answer} hours and {rem} minutes, so {answer} whole hours.",
+      "distractors": [
+        { "value": "answer + 1", "error": "rounded-up", "feedback": "Count whole hours only. The {rem} leftover minutes do not make another hour." },
+        { "value": "minutes", "error": "gave-the-minutes", "feedback": "{value} is the minutes. One hour is 60 of them." }
+      ]
+    }
+  ]
+}

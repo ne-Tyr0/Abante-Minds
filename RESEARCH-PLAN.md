@@ -113,13 +113,21 @@ templates is an afternoon, migrating 300 is a project.
    `_ds/` stays untouched. CI now fails any shipped file containing a third-party URL.
    This matters more once telemetry exists: the network story has to be exactly one
    honest request.
-6. **JSON content packs, with the research schema designed in from the start.** Per item
-   template: stable id, **subtest**, topic, MATATAG competency code, content domain,
-   construct, **problem-schema type**, tier number ranges, **answer type** (integer,
-   negative, fraction, decimal, exponent, choice, visual), distractor **error codes**,
-   hints, worked steps, pack version. Build it for rendering only and all 300 items get
-   re-authored later; omit `subtest` or hardcode a numeric answer type and the other three
-   subtests become a retrofit.
+6. **JSON content packs, with the research schema designed in from the start.** **Done
+   2026-10-01** — `content/packs/math/`, read by `app/content.js`, authoring guide in
+   `content/packs/README.md`. Per template: stable id, MATATAG competency code, content
+   domain, construct, **problem-schema type**, number ranges per tier, **answer type** from
+   the blueprint's fourteen, distractors each with an **error code** and its own feedback,
+   three hints, three worked steps; the manifest carries the **subtest** and the pack
+   version. Every generated question carries its template id, competency, domain, schema,
+   answer type, subtest and pack version, plus the tier, seed and format it was drawn with.
+
+   At the owner's direction a template is a question *type* rather than a fixed item: it
+   draws fresh numbers and can present the same problem in several formats, so there is no
+   bank of answers to memorise. `tests/validate-packs.js` gates every pack in CI. The
+   migration was proved against the old JavaScript bank: 96,123 of 100,000 seeded
+   questions came out identical, and every one of the other 3,877 was a multiple-choice
+   item the old bank had padded with an invented option, which the engine now draws again.
 7. **Rebuild answer input.** Fractions, mixed numbers, decimals to 4 places, repeating
    decimals, exponents, π-expressions and unit-bearing answers. The current numeric keypad
    cannot express most NCE answers. Prerequisite for Phase 2.
@@ -136,19 +144,23 @@ templates is an afternoon, migrating 300 is a project.
    ms, hint depth (0–3), steps viewed, ordinal in session, pack version, app version,
    condition flags.
 
-   Because `content.js` is deterministic (`rng(seed)` / `buildSession(topic, n, tier, seed)`),
-   `{template id, seed, tier}` reconstructs the exact item. The export carries no question
-   text and no PII, yet the full stimulus set is re-derivable. Half this plumbing already
-   exists and is discarded: `app/app.js:174` tracks `hintsRevealed`, `:182` tracks
-   `startedAt`, and only a rounded minute count survives the session.
+   Because the engine is deterministic, `{template id, tier, seed}` plus the pack version
+   reconstructs the exact item (`AM.content.generate`), and every question already carries
+   those fields. A pinned item has no seed: its numbers are fixed in the pack, so log its
+   position in the pack's pinned list. The export carries no question text and no PII, yet
+   the full stimulus set is re-derivable. Half this plumbing already exists and is
+   discarded: the session in `app.startPractice` tracks `hintsRevealed` and `startedAt`,
+   and only a rounded minute count survives it. The error code of a diagnosed mistake is
+   in `session.diagnosis` and is discarded too.
 9. **Local profiles, replacing PIN auth.** Already planned. Now research-critical: siblings
    share phones, and a participant's data must not contain a sibling's attempts.
 10. **GitHub Pages from `main`** — **done**, live at https://ne-tyr0.github.io/Abante-Minds/.
     Still to do: test on a real low-end Android via that HTTPS URL.
-11. **CI**: **done** for `tests/fuzz.js`, `poc/progress-code.js`, `tests/invariants.js` and
-    `tests/cache-bump.js` (`.github/workflows/ci.yml`). Still to add: the **pack
-    validator**, which enforces the schema, checks every answer is expressible in the
-    keypad, and rejects an item whose distractors lack error codes.
+11. **CI**: **done** (`.github/workflows/ci.yml`): `tests/engine.js`, the **pack validator**
+    `tests/validate-packs.js`, `tests/fuzz.js`, `poc/progress-code.js`,
+    `tests/invariants.js` and `tests/cache-bump.js`. The validator enforces the schema,
+    refuses answer types the keypad cannot take yet, checks every answer fits the keypad,
+    and rejects a distractor without an error code.
 
 ## Phase 2 — Content, rebuilt to the blueprint
 
@@ -162,7 +174,9 @@ templates is an afternoon, migrating 300 is a project.
     combine, compare for additive; equal-groups, rate, multiplicative comparison for the
     rest — and the app can report *this learner handles change problems but fails compare
     problems carrying identical arithmetic*. A real diagnostic for the learner, and a
-    finding almost nothing in Philippine maths-app research reports. Costs one schema field.
+    finding almost nothing in Philippine maths-app research reports. The schema field
+    exists in every template since item 6; the varied structures and the per-schema
+    report are what remain.
 14. **Timed mode and exam simulation.** The real exam is timed and competitive at an 84.50%
     mean. Speed is part of the construct, so latency becomes a learner-facing feature, not
     only a research variable.

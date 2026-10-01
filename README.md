@@ -53,7 +53,8 @@ components it imports are reimplemented natively in `app/ui.js`.
 | `index.html` | Shell. Loads the design system, then the app |
 | `app/icons.js` | The 22-glyph Phosphor Bold subset from the design system |
 | `app/ui.js` | The design system components as DOM builders, plus the patterns the system deliberately left out (answer tile, keypad, tier ladder, nav) |
-| `app/content.js` | The question bank |
+| `app/content.js` | The question engine |
+| `content/packs/` | The questions, as JSON |
 | `app/store.js` | Learner state: tier, streak, per-topic progress |
 | `app/screens.js` | The twenty screens |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
@@ -80,14 +81,23 @@ deliberately not built: the app sends nothing, so there is nothing to report as 
 | 16 | `summary` |
 | 20 | `profile` |
 
-### The question bank
+### The questions
 
-Eighty hand-written items would be exhausted in a week, so each topic is a set of
-parameterised templates. The numbers change per question and the three hints and three
-worked steps are derived from the same numbers, so every question arrives with a real
-scaffold rather than generic advice. The items the document prints verbatim — the ₱240
-markup, the three kilos of fish for ₱450, the ₱63 loaf paid with ₱100 — are seeded at the
-front of their topic, so a fresh install opens on exactly the screens in the spec.
+Eighty hand-written items would be exhausted in a week, and a fixed bank can be memorised,
+so each topic is a set of question types, kept as data in `content/packs/`. A type draws
+fresh numbers for every question, scaled to the learner's tier, and can present the same
+problem in more than one format. The three hints and three worked steps are derived from
+the same numbers, so every question arrives with a real scaffold rather than generic
+advice.
+
+Each type also names the mistakes it expects. A wrong answer that matches one gets that
+mistake's own explanation; any other wrong answer is told plainly to start from the first
+step, rather than given a guess about what went wrong.
+
+The items the document prints verbatim — the ₱240 markup, the three kilos of fish for
+₱450, the ₱63 loaf paid with ₱100 — are pinned at the front of their topic, so a fresh
+install opens on exactly the screens in the spec. Writing a pack:
+`content/packs/README.md`.
 
 ### Progression
 
@@ -150,19 +160,30 @@ the bottom nav turns into a left rail and the keypad moves beside the answer fie
 ## Tests
 
 ```bash
+node tests/engine.js
+node tests/validate-packs.js
 node tests/fuzz.js
 node tests/invariants.js
 ```
 
-Drives every question template across 4,000 seeds per topic, 160,000 questions in all, and
-fails if any can produce a negative answer, an incomplete scaffold, a hint with an
-unfollowable number, a broken multiple choice, or an answer the checker rejects. The app is
-offline, so a bad question cannot be hotfixed on a phone that has already installed it;
-this is the guard.
+`tests/engine.js` pins the engine's behaviour to small examples: exact arithmetic, the
+expression language and its limits, formats, tiers, constraints, and how a wrong answer is
+diagnosed.
+
+`tests/validate-packs.js` checks every pack against its schema and the blueprint, then
+generates every template at every tier and checks what a learner would be shown.
+
+`tests/fuzz.js` builds whole sessions for every topic at every tier, 160,000 questions in
+all, and fails if any can produce a negative answer or one too long for the keypad, an
+incomplete scaffold, a hint with an unfollowable number, a broken multiple choice, an
+answer the checker rejects, or a named mistake that does not bring back its own feedback.
+The app is offline, so a bad question cannot be hotfixed on a phone that has already
+installed it; these are the guard.
 
 `tests/invariants.js` checks the repository rules that would otherwise fail silently: every
-precached path exists, everything the page loads is precached, `.nojekyll` is present, and
-no shipped file contains a third-party URL. Both run in CI on every pull request.
+precached path exists, everything the page loads is precached, every question-pack file is
+precached, `.nojekyll` is present, and no shipped file contains a third-party URL. All of
+them run in CI on every pull request.
 
 `poc/` holds proofs for features that are designed but not built, the progress code and the
 language ladder. They are not loaded by the app.

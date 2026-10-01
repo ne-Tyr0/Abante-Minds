@@ -170,6 +170,7 @@
       phase: "ask",
       typed: "",
       picked: null,
+      diagnosis: null,
       showHints: false,
       hintsRevealed: 0,
       stepsRevealed: 1,
@@ -191,7 +192,7 @@
       topicLabel: topic.label,
       colorKey: topic.colorKey,
       questions: result.missed.slice(),
-      index: 0, phase: "ask", typed: "", picked: null,
+      index: 0, phase: "ask", typed: "", picked: null, diagnosis: null,
       showHints: false, hintsRevealed: 0, stepsRevealed: 1,
       run: 0, correct: 0, attempted: 0, missed: [],
       demoteSeen: true, pendingTierUp: false, startedAt: Date.now()
@@ -225,7 +226,10 @@
     if (q.type === "choice" && given === null) return;
     if (q.type === "compute" && !s.typed) return;
 
-    var right = C.isCorrect(q, given);
+    /* A wrong answer that matches a mistake the template expects gets that
+       mistake's explanation; any other gets the honest fallback. */
+    s.diagnosis = C.diagnose(q, given);
+    var right = s.diagnosis.correct;
     s.phase = right ? "correct" : "wrong";
     s.demoteSeen = true;
 
@@ -260,6 +264,7 @@
     s.phase = "ask";
     s.typed = "";
     s.picked = null;
+    s.diagnosis = null;
     render();
   };
 
@@ -286,6 +291,7 @@
     s.phase = "ask";
     s.typed = "";
     s.picked = null;
+    s.diagnosis = null;
     s.showHints = false;
     s.hintsRevealed = 0;
     s.stepsRevealed = 1;
@@ -357,18 +363,29 @@
     }
   });
 
+  /* The questions are data (content/packs/), so the first screen waits for
+     the pack. From the precache that is a few milliseconds. The service worker
+     registers first, so even a launch that cannot load the pack leaves it
+     installing for next time. Loading starts inside a promise so that any
+     failure, even a content.js from an older deploy with no load(), lands on
+     the retry screen rather than a blank one. */
   function boot() {
     buildShell();
-    var s = store.get();
-    if (!s.installed && !s.signedIn) app.route = "splash";
-    else if (!s.signedIn) app.route = "signin";
-    else if (!s.profile) app.route = "setup";
-    else app.route = "home";
-    render();
-
     if ("serviceWorker" in navigator && location.protocol !== "file:") {
       navigator.serviceWorker.register("sw.js").catch(function () { /* offline still works from cache-less reloads */ });
     }
+    Promise.resolve().then(function () { return C.load(); }).then(function () {
+      var s = store.get();
+      if (!s.installed && !s.signedIn) app.route = "splash";
+      else if (!s.signedIn) app.route = "signin";
+      else if (!s.profile) app.route = "setup";
+      else app.route = "home";
+      render();
+    }, function (err) {
+      app.loadError = err; /* for anyone debugging from the console */
+      app.route = "loadFailed";
+      render();
+    });
   }
 
   AM.app = app;

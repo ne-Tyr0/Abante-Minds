@@ -1,0 +1,164 @@
+{
+  "topic": "money",
+  "pinned": [
+    { "template": "money.change-from-bill", "params": { "price": 63, "bill": 100 } }
+  ],
+  "templates": [
+    {
+      "id": "money.change-from-bill",
+      "competency": "G5.Q2.10",
+      "domain": "NA",
+      "construct": "Subtract a price from a bill to find the change",
+      "schema": "change",
+      "params": {
+        "price": { "range": [23, 89] },
+        "bill": { "choose": [100, 200, 500] },
+        "toTen": { "value": "ceil(price / 10) * 10 - price" }
+      },
+      "answer": { "type": "integer", "value": "bill - price", "prefix": "₱" },
+      "formats": [
+        { "id": "bread", "prompt": "Ana buys bread for {peso(price)} and pays with a {peso(bill)} bill. How much change should she get?" }
+      ],
+      "hints": [
+        "Change is what is left of the {peso(bill)} after the {peso(price)} is taken out.",
+        "Count up instead of borrowing. From {price}, how many pesos reach the next ten?",
+        "That is {toTen} to reach {price + toTen}. Now count from {price + toTen} up to {bill}."
+      ],
+      "steps": [
+        "{price} + {toTen} = {price + toTen}",
+        "{price + toTen} + {bill - price - toTen} = {bill}",
+        "{toTen} + {bill - price - toTen} = {answer}"
+      ],
+      "explain": "{peso(bill)} − {peso(price)} = {peso(answer)}.",
+      "distractors": [
+        { "value": "bill + price", "error": "added-instead-of-subtracted", "feedback": "{peso(value)} is the bill and the price added together. Change is what is left once the price is taken away." },
+        { "value": "price", "error": "gave-the-price", "feedback": "{peso(value)} is what the bread costs. The question asks what comes back from the {peso(bill)}." }
+      ]
+    },
+    {
+      "id": "money.unit-price-times-count",
+      "competency": "G5.Q3.11",
+      "domain": "NA",
+      "construct": "Multiply a unit price by a quantity",
+      "schema": "equal-groups",
+      "params": {
+        "each": { "range": [7, 24] },
+        "n": { "range": [4, 9] },
+        "item": { "choose": ["eggs", "pandesal", "sachets of coffee", "bananas"] }
+      },
+      "answer": { "type": "integer", "value": "each * n", "prefix": "₱" },
+      "formats": [
+        { "id": "store", "prompt": "A sari-sari store sells {item} at {peso(each)} each. What do {n} cost?" }
+      ],
+      "hints": [
+        "Same price {n} times over — that is multiplication.",
+        "Split it: {n} × {each} is {n} × {each - each % 10} plus {n} × {each % 10}.",
+        "{n} × {each - each % 10} = {n * (each - each % 10)}, and {n} × {each % 10} = {n * (each % 10)}."
+      ],
+      "steps": [
+        "{n} × {each - each % 10} = {n * (each - each % 10)}",
+        "{n} × {each % 10} = {n * (each % 10)}",
+        "{n * (each - each % 10)} + {n * (each % 10)} = {answer}"
+      ],
+      "explain": "{n} × {peso(each)} = {peso(answer)}.",
+      "distractors": [
+        { "value": "each", "error": "price-of-one", "feedback": "{peso(value)} is the price of one. All {n} cost {n} × {peso(each)}." },
+        { "value": "each + n", "error": "added-instead-of-multiplied", "feedback": "{peso(value)} adds the price and the count. Each of the {n} costs {peso(each)}, so multiply." }
+      ]
+    },
+    {
+      "id": "money.fare-times-riders",
+      "competency": "G5.Q3.11",
+      "domain": "NA",
+      "construct": "Multiply a fare by a number of passengers",
+      "schema": "equal-groups",
+      "params": {
+        "fare": { "range": [11, 18] },
+        "riders": { "range": [3, 6] }
+      },
+      "answer": { "type": "integer", "value": "fare * riders", "prefix": "₱" },
+      "formats": [
+        { "id": "jeepney", "prompt": "A jeepney fare is {peso(fare)}. What do {riders} passengers pay?" }
+      ],
+      "hints": [
+        "Each passenger pays the same fare, so this is {riders} lots of {fare}.",
+        "Round {fare} up to {fare + (10 - fare % 10)} if it helps, then take the extra back off.",
+        "{riders} × 10 = {riders * 10}, and {riders} × {fare - 10} = {riders * (fare - 10)}."
+      ],
+      "steps": [
+        "{riders} × 10 = {riders * 10}",
+        "{riders} × {fare - 10} = {riders * (fare - 10)}",
+        "{riders * 10} + {riders * (fare - 10)} = {answer}"
+      ],
+      "explain": "{riders} × {peso(fare)} = {peso(answer)}.",
+      "distractors": [
+        { "value": "fare", "error": "fare-for-one", "feedback": "{peso(value)} is the fare for one. The question asks what all {riders} pay together." },
+        { "value": "fare + riders", "error": "added-instead-of-multiplied", "feedback": "{peso(value)} adds the fare and the number of passengers. Each of the {riders} pays {peso(fare)}, so multiply." }
+      ]
+    },
+    {
+      "id": "money.share-a-bill",
+      "competency": "G5.Q4.1",
+      "domain": "NA",
+      "construct": "Divide a total equally among people",
+      "schema": "equal-groups",
+      "params": {
+        "share": { "range": [45, 120], "step": 5 },
+        "people": { "choose": [2, 4, 5] },
+        "total": { "value": "share * people" }
+      },
+      "answer": { "type": "integer", "value": "share", "prefix": "₱" },
+      "formats": [
+        { "id": "friends", "prompt": "{people} friends share a {peso(total)} order equally. What does each one pay?" }
+      ],
+      "hints": [
+        "Equal shares means dividing the total by {people}.",
+        "Halve it first if {people} is even — halving twice is dividing by four.",
+        "{total} ÷ {people} lands on a whole number of pesos here."
+      ],
+      "steps": [
+        "Total is {peso(total)}",
+        "Shared between {people}",
+        "{total} ÷ {people} = {answer}"
+      ],
+      "explain": "{peso(total)} ÷ {people} = {peso(answer)} each.",
+      "distractors": [
+        { "value": "total", "error": "gave-the-total", "feedback": "{peso(value)} is the whole bill. Each person pays only their share of it." },
+        { "value": "total * people", "error": "multiplied-instead-of-divided", "feedback": "{peso(value)} multiplies by {people}. Sharing equally divides the total." }
+      ]
+    },
+    {
+      "id": "money.what-is-left",
+      "competency": "G5.Q2.10",
+      "domain": "NA",
+      "construct": "Subtract two purchases from a budget",
+      "schema": "multi-step",
+      "params": {
+        "start": { "choose": [300, 500, 1000] },
+        "budget": { "value": "floor(start * 0.8)" },
+        "a": { "range": [80, "min(190, budget - 60)"], "step": 5 },
+        "b": { "range": [60, "min(150, budget - a)"], "step": 5 }
+      },
+      "answer": { "type": "choice", "value": "start - a - b", "label": "{peso(value)}", "prefix": "₱" },
+      "formats": [
+        { "id": "rice-and-fish", "prompt": "Mila has {peso(start)}. She spends {peso(a)} on rice and {peso(b)} on fish. How much is left?" }
+      ],
+      "hints": [
+        "Two things came out of the same {peso(start)}.",
+        "Add the two amounts she spent before you subtract.",
+        "{a} + {b} = {a + b}. Take that off {start}."
+      ],
+      "steps": [
+        "{a} + {b} = {a + b}",
+        "{start} − {a + b} = {answer}",
+        "She has {peso(answer)} left"
+      ],
+      "explain": "{peso(a)} + {peso(b)} = {peso(a + b)}, and {peso(start)} − {peso(a + b)} = {peso(answer)}.",
+      "distractors": [
+        { "value": "start - a", "error": "subtracted-one-purchase", "feedback": "{peso(value)} takes away only the rice. Both purchases come out of the same money." },
+        { "value": "a + b", "error": "gave-amount-spent", "feedback": "{peso(value)} is what she spent. The question asks what is left of the {peso(start)}." },
+        { "value": "start - a + b", "error": "added-second-purchase", "feedback": "{peso(value)} takes the rice away but adds the fish back on. Both purchases come out of the same money." }
+      ]
+    }
+  ]
+}

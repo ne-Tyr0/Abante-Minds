@@ -248,6 +248,27 @@
     };
   };
 
+  /* ---------- Questions did not load ----------
+     The question pack is precached with the app, so this shows when the very
+     first visit lost signal before it finished, when the phone cleared the
+     site's storage, or when a broken pack reached the site (CI validates every
+     pack to keep that from happening). No glyph: the icon set has none for
+     offline, and the design says to state it in words. */
+  screens.loadFailed = function () {
+    return {
+      nav: null,
+      body: el("div", {
+        style: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "var(--space-4)", padding: "32px 28px" }
+      },
+        el("div.heading-md", null, "The questions did not load"),
+        el("div.body", { style: { color: "var(--ink-600)", textAlign: "center", textWrap: "pretty" } },
+          "Connect to the internet once and try again. After that, practice works with no signal.")
+      ),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 28px" } },
+        AM.Button({ label: "Try again", fullWidth: true, onClick: function () { window.location.reload(); } }))
+    };
+  };
+
   /* ---------- 4 · First-run profile setup ----------
      Skill hues do the colour-picking work; the chosen swatch takes an ink-900
      edge rather than a tick. */
@@ -639,7 +660,8 @@
         ));
     }
 
-    /* Correct explains how it works; wrong names the specific mistake and
+    /* Correct explains how it works. Wrong names the mistake when the answer
+       matches one the template expects, says so plainly when it does not, and
        reveals one worked step, with the rest still locked. */
     function explanation() {
       if (ses.phase === "correct") {
@@ -649,7 +671,7 @@
       }
       if (ses.phase === "wrong") {
         var block = el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
-          el("div.body", { style: { textWrap: "pretty" } }, q.missExplain),
+          el("div.body", { style: { textWrap: "pretty" } }, (ses.diagnosis && ses.diagnosis.feedback) || q.missExplain),
           sectionLabel("Step " + ses.stepsRevealed + " of " + q.steps.length));
         var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } });
         q.steps.forEach(function (step, i) {

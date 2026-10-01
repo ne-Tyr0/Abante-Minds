@@ -25,6 +25,8 @@ Two consequences that are easy to forget:
 
 ```bash
 python devserver.py            # static server with no-store caching; also prints a LAN URL
+node tests/engine.js           # question-engine unit tests; exits 1 on any failure
+node tests/validate-packs.js   # every question pack against the schema and the blueprint
 node tests/fuzz.js             # 160,000 generated questions; exits 1 on any violation
 node poc/progress-code.js      # proves the backup-code codec; exits 1 if a claim fails
 node tests/invariants.js       # repo rules that fail silently at runtime; exits 1 on any
@@ -36,15 +38,19 @@ all but the cache-bump check run again on every push to it. A push to `main` dep
 the live site, so work goes on a branch, through a pull request, and merges only when CI is
 green.
 
-Run `tests/fuzz.js` before committing any change to `app/content.js`. It has caught two
-shipped bugs: a question whose answer was negative (the keypad has no minus key, so it was
-unanswerable) and a hint telling learners to "break 9 into 10 and -1".
+Run `tests/engine.js`, `tests/validate-packs.js` and `tests/fuzz.js` before committing any
+change to `app/content.js` or `content/packs/`. The fuzz has caught two shipped bugs: a
+question whose answer was negative (the keypad has no minus key, so it was unanswerable)
+and a hint telling learners to "break 9 into 10 and -1". Testing the validator caught a
+third before it shipped: a pinned item on a template with more than one format crashed.
 
 ## Layout
 
 | Path | What |
 |---|---|
-| `app/content.js` | Question generators: 4 topics x 5 templates. **The current four topics are placeholders** from the Grade 9 framing; see `RESEARCH-PLAN.md`. Hints and worked steps are derived from each question's own numbers |
+| `app/content.js` | The question engine: installs a pack, draws numbers, renders questions, checks answers and names mistakes. Expressions are parsed, never `eval`'d, and computed in exact fractions. No questions live in code |
+| `content/packs/<subtest>/` | The questions, as JSON: `manifest.json` plus one file per topic. **The current four maths topics are placeholders** from the Grade 9 framing; see `RESEARCH-PLAN.md`. How to write one: `content/packs/README.md` |
+| `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
 | `app/store.js` | All learner state, in `localStorage` |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
@@ -105,9 +111,10 @@ Settled with the project owner. Build on them; don't reopen them.
    `@font-face` rules in `app/fonts.css`, and `index.html` now lists the `_ds` token files
    individually, skipping `tokens/fonts.css`. `_ds/` is untouched. **The app now makes no
    third-party request at all.**
-4. **JSON content packs**, with the research schema and four-subtest shape designed in from
-   the start. Do this while there are only 20 templates — migrating 20 is an afternoon,
-   migrating 300 is a project.
+4. ~~**JSON content packs**.~~ **Done** — `content/packs/math/`, read by `app/content.js`.
+   A template is a question *type*: fresh numbers per tier, one or more formats, and named
+   mistakes that each carry their own feedback, so there is no fixed bank to memorise.
+   `tests/validate-packs.js` gates every pack. Authoring guide: `content/packs/README.md`.
 5. **Rebuild answer input**: fractions, mixed numbers, decimals to 4 places, repeating
    decimals, exponents, π-expressions, unit-bearing answers. Blocking for most NCE content.
    **Not negatives** — signed numbers are Grade 7 in MATATAG and absent from the blueprint.
@@ -115,9 +122,9 @@ Settled with the project owner. Build on them; don't reopen them.
 7. ~~**Enable GitHub Pages**.~~ **Done** — live at https://ne-tyr0.github.io/Abante-Minds/.
 8. **Test on a real low-end Android** through the Pages URL. A plain-HTTP LAN address can't
    register the service worker, so install and offline only work on the HTTPS URL.
-9. ~~**CI**.~~ **Done** — `.github/workflows/ci.yml` runs the fuzz, the codec proof,
-   `tests/invariants.js` and, on pull requests, `tests/cache-bump.js`. **Add the pack
-   validator to it when content packs land.**
+9. ~~**CI**.~~ **Done** — `.github/workflows/ci.yml` runs the engine tests, the pack
+   validator, the fuzz, the codec proof, `tests/invariants.js` and, on pull requests,
+   `tests/cache-bump.js`.
 
 Then the content rebuild (Phase 2), research instrumentation (Phase 3) and citability
 (Phase 4), all in `RESEARCH-PLAN.md`.
@@ -130,7 +137,8 @@ placeholder strings in `poc/`.
 
 Change `CACHE` in `sw.js` whenever a precached file changes. Installed phones keep the old
 copies until `sw.js` itself changes. CI enforces this on pull requests
-(`tests/cache-bump.js`).
+(`tests/cache-bump.js`). The question packs are precached too, so a pack edit needs the
+bump, and a new pack file must be added to `SHELL` (`tests/invariants.js` fails if not).
 
 Hosted at **https://ne-tyr0.github.io/Abante-Minds/**, built from `main` at the repo root.
 
@@ -151,10 +159,12 @@ keeping the vendored design system on the live site.
   `latin`, so both Lexend files are preloaded. π (U+03C0) is in neither subset and will fall
   back to a system face — it is needed by the blueprint's `circles` topic. See the note in
   `app/fonts.css`.
-- **The keypad is numeric-only.** Any item whose answer is a fraction, mixed number,
-  exponent, π-expression or unit-bearing value is currently unanswerable — which is most of
-  the blueprint. `tests/fuzz.js` guards this; it is also why answer input has to be rebuilt
-  before most NCE content can be authored.
+- **The keypad is numeric-only**: seven characters, one decimal point. Any item whose
+  answer is a fraction, mixed number, exponent, π-expression or unit-bearing value is
+  currently unanswerable — which is most of the blueprint. The validator refuses those
+  answer types until answer input is rebuilt, and it and the fuzz check every typed answer
+  fits the keypad, reading the length limit from `app/app.js`. This is why answer input has
+  to be rebuilt before most NCE content can be authored.
 - **`factors` and `circles` are not taught before the exam.** GCF and LCM are Grade 6
   Quarter 4; area of a circle likewise. The exam is 30 January, about four weeks into
   Term 3. For these topics the app **teaches**, and cannot assume a classroom went first.
@@ -169,7 +179,9 @@ keeping the vendored design system on the live site.
 - **Service workers can't be tested in the Claude desktop browser pane against a dev server
   started from a shell.** The page loads, but the pane never delivers the worker's script
   request to the server, so registration fails with *An unknown error occurred when fetching
-  the script*. That is not an app bug: the live site registers and precaches all 24 files.
+  the script*. That is not an app bug: the live site registers and precaches all 29 files.
   Check offline behaviour on https://ne-tyr0.github.io/Abante-Minds/ or in a normal browser.
+  A server started through the pane's own preview tool does register: on 2026-10-01 it
+  precached all 29 files and served the pack with the server's copy removed.
 - The service worker serves from cache first. During development use `devserver.py`, or
   clear site data, or an edit will look as if it did nothing.
