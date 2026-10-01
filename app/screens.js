@@ -352,7 +352,7 @@
     var headline = first
       ? el("div", { style: { padding: "24px " + gutter() + "px 0" } },
           el("div.heading-lg", null, "Hello, " + ((s.profile && s.profile.name.split(" ")[0]) || "there")),
-          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, "Grade 9 · NCE math practice"))
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, "Grade 6 · NCE math practice"))
       : el("div", {
           style: { padding: "24px " + gutter() + "px 0", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-3)" }
         },
@@ -955,7 +955,7 @@
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.ProfileCard({
             name: p.name, greeting: "",
-            school: p.school + " · Grade 9 · Tier " + s.tier,
+            school: p.school + " · Grade 6 · Tier " + s.tier,
             colorKey: p.colorKey, iconKey: p.iconKey,
             style: { maxWidth: "none", width: "100%" }
           })),

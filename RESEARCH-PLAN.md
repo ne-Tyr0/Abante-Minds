@@ -1,7 +1,7 @@
 # Abante Minds — research capability and content plan
 
-Status: draft for owner review, 2026-10-01. Supersedes the "Next, in order" section of
-`CLAUDE.md` once accepted. Nothing here is built yet.
+Status: accepted 2026-10-01. `CLAUDE.md` points here as the ordered plan. Items marked
+**Done** are built; nothing else is.
 
 ## The pivot
 
@@ -78,9 +78,8 @@ Confirmed with the owner on 2026-10-01:
 
 ## Phase 0 — Decide and record. No feature code.
 
-1. **Rewrite `CLAUDE.md`** for the Grade 6 / PSHS NCE pivot: the learner, the four
-   subtests, the reversed telemetry decision, the new topic scope. Until this lands, every
-   future session builds against stale assumptions.
+1. **Rewrite `CLAUDE.md`** for the Grade 6 / PSHS NCE pivot. **Done 2026-10-01** — the
+   learner, the four subtests, the reversed telemetry decision and the new topic scope.
 2. **Build the table of specifications.** **Done 2026-10-01** — `TABLE-OF-SPECIFICATIONS.md`
    and `content/blueprint.json`: 101 competencies across Grades 5 and 6, 13 topics, 143
    templates targeted, validated for internal consistency. Three findings fed back into
@@ -95,21 +94,24 @@ Confirmed with the owner on 2026-10-01:
    revise them once attempt data exists. This is the spine of the content rebuild, the item
    spec table, the content-validity evidence and the research instrument. Everything
    downstream depends on getting it right, so it goes first.
-3. **Delete the fake sync.** `app/store.js` `startSync()` animates a progress bar and
-   zeroes `pendingAnswers`; there is no `fetch` anywhere in `app/`. A teacher watching that
-   bar will believe data was sent. It cannot survive into a context where the app is cited.
+3. **Delete the fake sync.** **Done 2026-10-01** — `startSync()` animated a progress bar
+   and zeroed `pendingAnswers` with no request behind it, so a teacher watching it would
+   have believed data was sent. It and the sync banner are gone.
 4. **Correct the teacher-facing overview PDF**: "nothing leaves the phone unless you choose
-   to share it."
+   to share it." **Held 2026-10-01**: the existing PDF also predates the Grade 6 retarget, so
+   it must not be sent. It is rebuilt once Phase 2 content exists, so its screenshots show
+   items pitched at this audience rather than the placeholders.
 
 ## Phase 1 — Foundation
 
 Unblocks everything else. Do not start Phase 2 content before this is done: migrating 20
 templates is an afternoon, migrating 300 is a project.
 
-5. **Self-host the fonts.** Already specified in `CLAUDE.md`. Lexend and Baloo 2 into
-   `assets/fonts/`, `@font-face` in the app's own CSS, token files loaded individually in
-   `index.html` so `_ds/` stays untouched. Matters more now: once telemetry exists, the
-   network story has to be exactly one honest request.
+5. **Self-host the fonts.** **Done 2026-10-01** — Lexend and Baloo 2 in `assets/fonts/`,
+   `@font-face` in `app/fonts.css`, token files loaded individually in `index.html` so
+   `_ds/` stays untouched. CI now fails any shipped file containing a third-party URL.
+   This matters more once telemetry exists: the network story has to be exactly one
+   honest request.
 6. **JSON content packs, with the research schema designed in from the start.** Per item
    template: stable id, **subtest**, topic, MATATAG competency code, content domain,
    construct, **problem-schema type**, tier number ranges, **answer type** (integer,
@@ -140,9 +142,11 @@ templates is an afternoon, migrating 300 is a project.
    `startedAt`, and only a rounded minute count survives the session.
 9. **Local profiles, replacing PIN auth.** Already planned. Now research-critical: siblings
    share phones, and a participant's data must not contain a sibling's attempts.
-10. **GitHub Pages from `main`**, then test on a real low-end Android via the HTTPS URL.
-11. **CI**: `tests/fuzz.js`, `poc/progress-code.js`, and a new **pack validator** on every
-    push. The validator enforces the schema, checks every answer is expressible in the
+10. **GitHub Pages from `main`** — **done**, live at https://ne-tyr0.github.io/Abante-Minds/.
+    Still to do: test on a real low-end Android via that HTTPS URL.
+11. **CI**: **done** for `tests/fuzz.js`, `poc/progress-code.js`, `tests/invariants.js` and
+    `tests/cache-bump.js` (`.github/workflows/ci.yml`). Still to add: the **pack
+    validator**, which enforces the schema, checks every answer is expressible in the
     keypad, and rejects an item whose distractors lack error codes.
 
 ## Phase 2 — Content, rebuilt to the blueprint

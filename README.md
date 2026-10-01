@@ -5,6 +5,12 @@ NCE math practice that works offline. This is an implementation of
 design document imported from the claude.ai design project *Abante Minds system overview* —
 built on that project's own design system, imported unchanged.
 
+**Target:** Grade 6 learners sitting the Philippine Science High School National
+Competitive Examination (NCE) on 30 January 2027. The four topics below are placeholders
+from an earlier Grade 9 framing; their replacement is specified in
+`TABLE-OF-SPECIFICATIONS.md`. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and
+the plan.
+
 Open `index.html` through any static server. There is no build step.
 
 ```bash
@@ -48,7 +54,7 @@ components it imports are reimplemented natively in `app/ui.js`.
 | `app/icons.js` | The 22-glyph Phosphor Bold subset from the design system |
 | `app/ui.js` | The design system components as DOM builders, plus the patterns the system deliberately left out (answer tile, keypad, tier ladder, nav) |
 | `app/content.js` | The question bank |
-| `app/store.js` | Learner state: tier, streak, per-topic progress, the offline queue |
+| `app/store.js` | Learner state: tier, streak, per-topic progress |
 | `app/screens.js` | The twenty screens |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
 | `app/app.css` | Shell layout and the three width rules |
@@ -58,7 +64,8 @@ components it imports are reimplemented natively in `app/ui.js`.
 
 The document draws twenty frames. Several of them are one screen in two states — home is
 drawn four times because it has a first-run state, a returning state, an offline banner and
-a sync banner — so the twenty frames land on eleven routes:
+a sync banner — so the twenty frames land on eleven routes. Frame 19, the sync banner, is
+deliberately not built: the app sends nothing, so there is nothing to report as syncing.
 
 | Frames | Route |
 | --- | --- |
@@ -66,7 +73,7 @@ a sync banner — so the twenty frames land on eleven routes:
 | 2 | `signin` |
 | 3 / 3b | `recover`, `recoverSent` |
 | 4 | `setup` |
-| 5, 6, 17, 19 | `home` |
+| 5, 6, 17 | `home` |
 | 7, 8 | `topics` |
 | 9, 10, 11, 12, 13, 15, 18 | `practice` |
 | 14 | `tierup` |
@@ -93,9 +100,8 @@ front of their topic, so a fresh install opens on exactly the screens in the spe
 ### Offline
 
 The service worker precaches the shell and serves it stale-while-revalidate, so a cold
-start with no signal still opens the app. Answers given offline are held on the phone and
-counted immediately — tiers move whether or not there is signal — and the sync is reported
-when the signal returns, never used as a gate.
+start with no signal still opens the app. Answers given offline count immediately, so tiers
+move whether or not there is signal. Nothing is sent anywhere, so there is nothing to sync.
 
 Learner state lives in `localStorage` and never leaves the device.
 
