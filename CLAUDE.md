@@ -51,6 +51,7 @@ unanswerable) and a hint telling learners to "break 9 into 10 and -1".
 | `app/ui.js` | Design-system components as DOM builders |
 | `_ds/`, `motion/` | Vendored design system and motion layer. Do not edit; they come from the design project |
 | `poc/` | Proofs for features not yet built. Not shipped, not loaded by the app |
+| `tools/overview-pdf/` | Builds the teacher overview PDF from real screenshots. Its copy predates the retarget, so `build.py` refuses to run until it is rewritten |
 | `abante-minds-claude-design/` | Original design kit; source of the brand mark |
 | `RESEARCH-PLAN.md` | The ordered build plan: content rebuild, research instrumentation, citability. Read it before starting anything below |
 

@@ -88,5 +88,21 @@ check("index.html does not load the design system's CDN font import",
 check("sw.js declares a CACHE version",
   /var CACHE = "[^"]+";/.test(swSrc) ? [] : ['no `var CACHE = "...";` line in sw.js']);
 
+/* 8. Everything in the repo is published, so any page other than the app that
+      writes saved progress must refuse to run off localhost. The screenshot
+      harness seeds a demo learner; opened on the live site, it would wipe a
+      real one. */
+const walk = (dir) =>
+  fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true }).flatMap((e) => {
+    const rel = dir ? `${dir}/${e.name}` : e.name;
+    if (e.isDirectory()) return /^(?:\.git|\.claude|node_modules)$/.test(e.name) ? [] : walk(rel);
+    return e.name.endsWith(".html") ? [rel] : [];
+  });
+const writers = walk("")
+  .filter((f) => f !== "index.html")
+  .filter((f) => /localStorage\.(?:setItem|removeItem|clear)\b/.test(read(f)));
+check("every non-app page that writes saved progress refuses to run off localhost",
+  writers.filter((f) => !/location\.hostname/.test(read(f))).map((f) => "no localhost guard: " + f));
+
 console.log(failed ? `\n${failed} invariant(s) violated` : "\nall invariants hold");
 process.exit(failed ? 1 : 0);

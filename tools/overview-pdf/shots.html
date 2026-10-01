@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<!-- Screenshot harness for the overview PDF. Not part of the app.
+
+     Seeds a demo learner, drives the real app in an iframe (same origin, so it
+     can reach AM directly) and holds it on one screen so headless Chrome can
+     photograph it. Used by capture.py:  shots.html?screen=home
+
+     It writes the demo learner over this origin's saved progress. Everything in
+     the repo is published to GitHub Pages, so it refuses to run anywhere except
+     a local dev server; opened on the live site, it would wipe a real learner. -->
+<html>
+<head>
+<meta charset="utf-8">
+<title>Abante Minds screenshot harness</title>
+<style>
+  html, body { margin: 0; padding: 0; background: #ffffff; font-family: system-ui, sans-serif; }
+  #frame { width: 390px; height: 844px; border: 0; display: block; }
+  #refuse { padding: 24px; max-width: 32em; line-height: 1.5; }
+</style>
+</head>
+<body>
+<script>
+"use strict";
+
+var LOCAL = /^(?:localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+
+if (!LOCAL) {
+  document.title = "REFUSED";
+  document.body.innerHTML =
+    '<p id="refuse">This screenshot harness only runs on a local dev server. ' +
+    "It replaces the saved progress on whatever site it is opened on, so it " +
+    "has done nothing here.</p>";
+} else {
+  run();
+}
+
+function run() {
+  var SCREEN = new URLSearchParams(location.search).get("screen") || "home";
+
+  /* Dated today. A fixed date goes stale: once it is more than a day old the
+     app reads it as a missed day, demotes the learner, and every screenshot
+     shows the demotion card instead of the screen asked for. */
+  var now = new Date();
+  var today = now.getFullYear() + "-" +
+    String(now.getMonth() + 1).padStart(2, "0") + "-" +
+    String(now.getDate()).padStart(2, "0");
+
+  var LEARNER = {
+    version: 1, installed: true, signedIn: true,
+    profile: { name: "Ligaya Mendoza", school: "Poblacion, Pilar",
+               colorKey: 2, iconKey: "triangle", username: "ligaya.m" },
+    tier: 2, tierProgress: 12, demoted: false, recoveryRun: 0,
+    topics: { money: 18, percent: 12, ratio: 5, measure: 0 },
+    lastTopic: "percent", streakDays: 4,
+    lastActiveDay: today, lastRolledDay: today,
+    week: [true, true, true, true, false, false, false],
+    resetToday: false, totalCorrect: 35,
+    lastSession: { topicLabel: "Percentages", correct: 7, attempted: 10 }
+  };
+
+  var frame = document.createElement("iframe");
+  frame.id = "frame";
+  frame.src = "../../index.html";
+  document.body.appendChild(frame);
+
+  /* Seed before the app reads its state, then reload so it boots with the
+     demo learner. */
+  frame.addEventListener("load", function once() {
+    frame.removeEventListener("load", once);
+    try {
+      frame.contentWindow.localStorage.setItem("abante-minds/v1", JSON.stringify(LEARNER));
+    } catch (e) {
+      document.title = "SEED-FAILED";
+      return;
+    }
+    frame.addEventListener("load", function () { drive(SCREEN); });
+    frame.contentWindow.location.reload();
+  });
+
+  function drive(screen) {
+    var w = frame.contentWindow;
+    var AM = w.AM;
+    if (!AM) { document.title = "NO-APP"; return; }
+
+    /* The design document's canonical question, shown mid-session so the
+       header reads 3/10 and the feedback actually fits the answer given. */
+    function canonicalAt(topic, i) {
+      AM.app.startPractice(topic);
+      var s = AM.app.session;
+      for (var n = 0; n < i; n++) s.questions[n].__scored = true;
+      s.questions[i] = s.questions[0];
+      s.index = i;
+      return s;
+    }
+
+    var s;
+    switch (screen) {
+      case "splash":
+        w.localStorage.clear();
+        AM.app.go("splash");
+        break;
+      case "home":
+        AM.app.go("home");
+        break;
+      case "topics":
+        AM.app.scratch.pickedTopic = "percent";
+        AM.app.go("topics");
+        break;
+      case "practice":
+        s = canonicalAt("percent", 3); s.typed = "36"; AM.app.go("practice");
+        break;
+      case "hint":
+        s = canonicalAt("percent", 3); s.showHints = true; s.hintsRevealed = 1; AM.app.go("practice");
+        break;
+      case "correct":
+        s = canonicalAt("percent", 3); s.typed = "36"; AM.app.go("practice"); AM.app.check();
+        break;
+      case "wrong":
+        s = canonicalAt("percent", 3); s.typed = "276"; AM.app.go("practice"); AM.app.check();
+        break;
+      case "tierup":
+        AM.store.set({ tier: 3, tierProgress: 0 });
+        AM.app.startPractice("percent");
+        AM.app.session.topicLabel = "Percentages";
+        AM.app.go("tierup");
+        break;
+      case "summary":
+        AM.app.startPractice("percent");
+        AM.app.scratch.result = {
+          topicKey: "percent", topicLabel: "Percentages", colorKey: 2,
+          attempted: 10, correct: 7, missed: AM.app.session.questions.slice(0, 3), minutes: 9
+        };
+        AM.app.session = null;
+        AM.app.go("summary");
+        break;
+      case "profile":
+        AM.app.go("profile");
+        break;
+      case "offline":
+        AM.store.setOffline(true);
+        AM.app.go("home");
+        break;
+      default:
+        document.title = "UNKNOWN-SCREEN";
+        return;
+    }
+    document.title = "READY-" + screen;
+  }
+}
+</script>
+</body>
+</html>
