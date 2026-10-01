@@ -136,7 +136,13 @@
     },
     function (r) {
       var start = pick(r, [300, 500, 1000]);
-      var a = between(r, 80, 190, 5), b = between(r, 60, 150, 5);
+      /* The two purchases have to leave something behind. Drawing them
+         independently let 185 + 140 overrun a 300 budget, which produced a
+         negative answer the keypad cannot even express -- there is no minus
+         key, so the question became unanswerable. Spend at most 80% of it. */
+      var budget = Math.floor(start * 0.8);
+      var a = between(r, 80, Math.min(190, budget - 60), 5);
+      var b = between(r, 60, Math.min(150, budget - a), 5);
       var ans = start - a - b;
       var w = choicesFrom(ans, [start - a, a + b, start - a + b], peso);
       return {
@@ -296,19 +302,23 @@
     function (r) {
       var perKilo = between(r, 60, 120, 5), kilos = between(r, 8, 15);
       var ans = perKilo * kilos;
+      /* Decompose towards a round number the learner can hold. Splitting at a
+         fixed 10 told anyone with 8 or 9 kilos to "break 9 into 10 and -1",
+         which is worse than no hint at all. */
+      var base = kilos >= 10 ? 10 : 5, rest = kilos - base;
       return {
         type: "compute", unit: P,
         prompt: "A fisherman sells " + kilos + " kilos at " + peso(perKilo) + " a kilo. How much does he collect?",
         answer: ans,
         hints: [
           "The rate is per kilo, so multiply it by how many kilos.",
-          "Break " + kilos + " into 10 and " + (kilos - 10) + ".",
-          "10 × " + perKilo + " = " + (10 * perKilo) + ", and " + (kilos - 10) + " × " + perKilo + " = " + ((kilos - 10) * perKilo) + "."
+          "Break " + kilos + " into " + base + " and " + rest + ".",
+          base + " × " + perKilo + " = " + (base * perKilo) + ", and " + rest + " × " + perKilo + " = " + (rest * perKilo) + "."
         ],
         steps: [
-          "10 × " + peso(perKilo) + " = " + peso(10 * perKilo),
-          (kilos - 10) + " × " + peso(perKilo) + " = " + peso((kilos - 10) * perKilo),
-          peso(10 * perKilo) + " + " + peso((kilos - 10) * perKilo) + " = " + peso(ans)
+          base + " × " + peso(perKilo) + " = " + peso(base * perKilo),
+          rest + " × " + peso(perKilo) + " = " + peso(rest * perKilo),
+          peso(base * perKilo) + " + " + peso(rest * perKilo) + " = " + peso(ans)
         ],
         explain: kilos + " × " + peso(perKilo) + " = " + peso(ans) + ".",
         missExplain: "That is the price of one kilo. He sold " + kilos + " of them."
