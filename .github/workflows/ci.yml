@@ -1,0 +1,43 @@
+name: CI
+
+# A push to main deploys to GitHub Pages, so nothing reaches main untested:
+# pull requests run every check, and main is checked again after each merge.
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # the cache-bump check diffs against the base branch
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: JavaScript parses
+        run: |
+          for f in app/*.js sw.js motion/*.js tests/*.js poc/*.js; do
+            node --check "$f" || exit 1
+          done
+
+      - name: Repository invariants
+        run: node tests/invariants.js
+
+      - name: Question-generator fuzz
+        run: node tests/fuzz.js
+
+      - name: Progress-code proof
+        run: node poc/progress-code.js
+
+      - name: CACHE bumped when a precached file changes
+        if: github.event_name == 'pull_request'
+        run: node tests/cache-bump.js origin/${{ github.base_ref }}

@@ -27,7 +27,14 @@ Two consequences that are easy to forget:
 python devserver.py            # static server with no-store caching; also prints a LAN URL
 node tests/fuzz.js             # 160,000 generated questions; exits 1 on any violation
 node poc/progress-code.js      # proves the backup-code codec; exits 1 if a claim fails
+node tests/invariants.js       # repo rules that fail silently at runtime; exits 1 on any
+node tests/cache-bump.js main  # did a precached file change without a CACHE bump?
 ```
+
+All of these run in CI (`.github/workflows/ci.yml`) on every pull request to `main`, and
+all but the cache-bump check run again on every push to it. A push to `main` deploys to
+the live site, so work goes on a branch, through a pull request, and merges only when CI is
+green.
 
 Run `tests/fuzz.js` before committing any change to `app/content.js`. It has caught two
 shipped bugs: a question whose answer was negative (the keypad has no minus key, so it was
@@ -107,8 +114,9 @@ Settled with the project owner. Build on them; don't reopen them.
 7. **Enable GitHub Pages** from `main`.
 8. **Test on a real low-end Android** through the Pages URL. A plain-HTTP LAN address can't
    register the service worker, so install and offline only work on the HTTPS URL.
-9. **CI**: a GitHub Action running `tests/fuzz.js`, `poc/progress-code.js` and the new pack
-   validator on every push.
+9. ~~**CI**.~~ **Done** — `.github/workflows/ci.yml` runs the fuzz, the codec proof,
+   `tests/invariants.js` and, on pull requests, `tests/cache-bump.js`. **Add the pack
+   validator to it when content packs land.**
 
 Then the content rebuild (Phase 2), research instrumentation (Phase 3) and citability
 (Phase 4), all in `RESEARCH-PLAN.md`.
@@ -119,8 +127,9 @@ placeholder strings in `poc/`.
 
 ## Releasing
 
-Change `CACHE` in `sw.js` on every release. Installed phones keep the old precache list
-until `sw.js` itself changes.
+Change `CACHE` in `sw.js` whenever a precached file changes. Installed phones keep the old
+copies until `sw.js` itself changes. CI enforces this on pull requests
+(`tests/cache-bump.js`).
 
 Hosted at **https://ne-tyr0.github.io/Abante-Minds/**, built from `main` at the repo root.
 

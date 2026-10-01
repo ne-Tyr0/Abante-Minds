@@ -145,6 +145,7 @@ the bottom nav turns into a left rail and the keypad moves beside the answer fie
 
 ```bash
 node tests/fuzz.js
+node tests/invariants.js
 ```
 
 Drives every question template across 4,000 seeds per topic, 160,000 questions in all, and
@@ -152,6 +153,10 @@ fails if any can produce a negative answer, an incomplete scaffold, a hint with 
 unfollowable number, a broken multiple choice, or an answer the checker rejects. The app is
 offline, so a bad question cannot be hotfixed on a phone that has already installed it;
 this is the guard.
+
+`tests/invariants.js` checks the repository rules that would otherwise fail silently: every
+precached path exists, everything the page loads is precached, `.nojekyll` is present, and
+no shipped file contains a third-party URL. Both run in CI on every pull request.
 
 `poc/` holds proofs for features that are designed but not built, the progress code and the
 language ladder. They are not loaded by the app.
