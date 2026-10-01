@@ -141,6 +141,21 @@ a longer line. Tap targets stay at 48 everywhere. The bottom-anchored action is 
 thumb-reach rule, so it survives on tablet and becomes an inline action on desktop, where
 the bottom nav turns into a left rail and the keypad moves beside the answer field.
 
+## Tests
+
+```bash
+node tests/fuzz.js
+```
+
+Drives every question template across 4,000 seeds per topic, 160,000 questions in all, and
+fails if any can produce a negative answer, an incomplete scaffold, a hint with an
+unfollowable number, a broken multiple choice, or an answer the checker rejects. The app is
+offline, so a bad question cannot be hotfixed on a phone that has already installed it;
+this is the guard.
+
+`poc/` holds proofs for features that are designed but not built, the progress code and the
+language ladder. They are not loaded by the app.
+
 ## Notes for reviewing
 
 - The offline screens respond to real connectivity. To reach them without pulling the
