@@ -136,21 +136,54 @@
   };
 
   /* ---------- install ----------
-     Uses the real beforeinstallprompt when the browser offers one; otherwise
-     the hint has still done its job and the app carries on. */
+     The browser decides when it can install in one tap, and says so with
+     beforeinstallprompt, which only fires while the app is not installed.
+     Where it never fires (iPhone Safari, some Android browsers) the offer
+     opens a screen with the steps instead. `installed` is set only on
+     evidence: the browser reporting the install, or the app running from the
+     home screen. Tapping a button is not evidence. */
+  function standalone() {
+    return (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) ||
+      window.navigator.standalone === true;
+  }
+
   window.addEventListener("beforeinstallprompt", function (e) {
     e.preventDefault();
     app.deferredInstall = e;
+    /* Only offered while not installed, so an earlier install has since been removed. */
+    if (store.get().installed) store.set({ installed: false });
   });
 
-  app.install = function (done) {
-    if (!app.deferredInstall) { done(); return; }
-    var e = app.deferredInstall;
+  window.addEventListener("appinstalled", function () {
     app.deferredInstall = null;
+    store.set({ installed: true });
+  });
+
+  /* Whether to offer installing at all. A plain-HTTP address cannot install,
+     so the offer is not made there. */
+  app.canOfferInstall = function () {
+    return !!window.isSecureContext && !standalone() && !store.get().installed;
+  };
+
+  /* One tap where the browser allows it, otherwise the steps. `next` is where
+     to go afterwards: the splash moves on to sign-in, other screens stay put. */
+  app.offerInstall = function (next) {
+    var e = app.deferredInstall;
+    if (!e) {
+      app.scratch.install = { from: app.route, next: next || null };
+      app.go("installSteps");
+      return;
+    }
+    app.deferredInstall = null; /* a prompt can be shown once per event */
     e.prompt();
+    function after(choice) {
+      if (choice && choice.outcome === "accepted") store.set({ installed: true });
+      if (next) app.go(next);
+      else { app.keepScroll = true; render(); }
+    }
     var outcome = e.userChoice;
-    if (outcome && outcome.then) outcome.then(function () { done(); }, function () { done(); });
-    else done();
+    if (outcome && outcome.then) outcome.then(after, function () { after(null); });
+    else after(null);
   };
 
   /* ---------- practice loop ---------- */
@@ -368,13 +401,17 @@
      registers first, so even a launch that cannot load the pack leaves it
      installing for next time. Loading starts inside a promise so that any
      failure, even a content.js from an older deploy with no load(), lands on
-     the retry screen rather than a blank one. */
+     the retry screen rather than a blank one. `app.ready` settles once the
+     first screen is up, for anything that drives the app from outside. */
   function boot() {
     buildShell();
+    /* Opened from the home screen, so it is installed, whatever this
+       storage says. On iPhone it may not be the storage Safari uses. */
+    if (standalone() && !store.get().installed) store.set({ installed: true });
     if ("serviceWorker" in navigator && location.protocol !== "file:") {
       navigator.serviceWorker.register("sw.js").catch(function () { /* offline still works from cache-less reloads */ });
     }
-    Promise.resolve().then(function () { return C.load(); }).then(function () {
+    app.ready = Promise.resolve().then(function () { return C.load(); }).then(function () {
       var s = store.get();
       if (!s.installed && !s.signedIn) app.route = "splash";
       else if (!s.signedIn) app.route = "signin";

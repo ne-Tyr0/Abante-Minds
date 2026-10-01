@@ -96,6 +96,9 @@ Settled with the project owner. Build on them; don't reopen them.
   one-question override that never changes the tier. Maths vocabulary is never translated.
   Tagalog and Cebuano first. Structure in `poc/language-ladder.js`.
 - **Hosting is GitHub Pages.**
+- **Adding to the home screen is on offer at any time until installed**: on the splash,
+  as a Home card whose "Not now" removes it for good, and as a button on Profile that
+  stays. Where the browser cannot install in one tap, the offer shows the steps instead.
 
 ## Next, in order
 
@@ -185,3 +188,10 @@ keeping the vendored design system on the live site.
   precached all 29 files and served the pack with the server's copy removed.
 - The service worker serves from cache first. During development use `devserver.py`, or
   clear site data, or an edit will look as if it did nothing.
+- **On iPhone, a home-screen web app is expected to keep its own storage, apart from
+  Safari's.** If so, progress made in a Safari tab does not follow the learner into the
+  installed app, which starts fresh. Not yet confirmed on a real iPhone. The progress code
+  (`poc/progress-code.js`) is the bridge once it is built.
+- **Anything that drives the app from outside waits for `AM.app.ready`.** The first screen
+  waits for the question pack, so driving the app sooner gets overwritten when it lands.
+  `tools/overview-pdf/shots.html` does this.

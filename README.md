@@ -81,6 +81,10 @@ deliberately not built: the app sends nothing, so there is nothing to report as 
 | 16 | `summary` |
 | 20 | `profile` |
 
+Two routes are not in the document: `installSteps`, which shows how to add the app to the
+home screen in a browser that cannot do it in one tap, and `loadFailed`, shown if the
+question pack cannot load.
+
 ### The questions
 
 Eighty hand-written items would be exhausted in a week, and a fixed bank can be memorised,
@@ -114,6 +118,17 @@ start with no signal still opens the app. Answers given offline count immediatel
 move whether or not there is signal. Nothing is sent anywhere, so there is nothing to sync.
 
 Learner state lives in `localStorage` and never leaves the device.
+
+### Adding to the home screen
+
+The splash offers it first. After sign-in it stays on offer: a card on Home, which "Not
+now" (the corner ×) removes for good, and a button on Profile that stays until the app is
+installed. Where the browser can install in one tap it does; where it cannot, such as
+iPhone Safari, the offer opens three short steps for that browser.
+
+The app counts as installed only on evidence: the browser reporting the install, or the
+app running from the home screen. Tapping the button is not evidence, and a removed
+install is noticed when the browser offers to install again.
 
 ## Testing on a phone
 
@@ -193,5 +208,7 @@ language ladder. They are not loaded by the app.
 - The offline screens respond to real connectivity. To reach them without pulling the
   plug, load the app with `#offline`, or run `AM.store.setOffline(true)` in the console.
 - `AM.store.reset()` clears the learner and returns the app to the splash screen.
+- `AM.store.set({ installed: false, installCardDismissed: false })` brings the install
+  offer back on Home and Profile.
 - On desktop the answer field also takes the hardware keyboard: digits, `.`, backspace,
   and Enter to check.

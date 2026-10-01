@@ -35,3 +35,7 @@ goes missing.
 
 The close-up boxes in `capture.py` and the page layout in `build.py` were tuned against the
 current screens. When a screen's layout changes, check both.
+
+The harness takes `&w=360&h=640` to render a smaller phone; it defaults to 390x844, which is
+what `capture.py` uses. It also has three screens the PDF does not use, for reviewing the
+install offer: `home-install`, `profile-install` and `install-steps`.

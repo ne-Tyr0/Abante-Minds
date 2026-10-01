@@ -33,7 +33,8 @@
   function blank() {
     return {
       version: 1,
-      installed: false,
+      installed: false,            /* set only on evidence: the browser reporting an install, or running from the home screen */
+      installCardDismissed: false, /* "Not now" on the Home card; Profile keeps offering it */
       signedIn: false,
       profile: null,               /* {name, school, colorKey, iconKey, username} */
       tier: 1,
