@@ -1,3 +1,4 @@
 # Let git normalise text, and never let it touch the brand assets.
 * text=auto
 *.png binary
+*.woff2 binary

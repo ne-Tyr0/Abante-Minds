@@ -21,6 +21,18 @@ from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 
 
 class NoCacheHandler(SimpleHTTPRequestHandler):
+    # Python's mimetypes table predates woff2, so the self-hosted faces would go
+    # out as application/octet-stream. Fonts still render -- @font-face trusts
+    # format("woff2") over the header -- but the typed <link rel="preload"> in
+    # index.html is dropped, which is exactly the thing worth testing locally.
+    # GitHub Pages sends font/woff2 already; this only makes dev match it.
+    extensions_map = {
+        **SimpleHTTPRequestHandler.extensions_map,
+        ".woff2": "font/woff2",
+        ".woff": "font/woff",
+        ".webmanifest": "application/manifest+json",
+    }
+
     def end_headers(self):
         self.send_header("Cache-Control", "no-store, must-revalidate")
         self.send_header("Pragma", "no-cache")

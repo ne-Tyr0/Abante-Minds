@@ -10,8 +10,25 @@
 <link rel="icon" href="assets/abante-minds-mark.png">
 <link rel="apple-touch-icon" href="assets/abante-minds-mark.png">
 
-<!-- The design system, imported from the claude.ai design project unchanged. -->
-<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/styles.css">
+<!-- Lexend, the reading and UI face. Both of its subsets are preloaded: ₱ (U+20B1)
+     sits in latin-ext, not latin, and it appears in most money questions, so
+     without this the peso sign swaps in a beat after the words around it. Baloo 2
+     is Reward-mode only and can wait. crossorigin is required on a font preload
+     even same-origin, or the file is fetched twice. -->
+<link rel="preload" href="assets/fonts/lexend-latin.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="preload" href="assets/fonts/lexend-latin-ext.woff2" as="font" type="font/woff2" crossorigin>
+
+<!-- The design system, imported from the claude.ai design project unchanged.
+     Its token files are listed individually instead of via styles.css so that
+     tokens/fonts.css — which pulls both faces from Google's CDN — can be
+     skipped in favour of app/fonts.css. The _ds/ folder itself is untouched;
+     the order below is exactly the order styles.css imports in. -->
+<link rel="stylesheet" href="app/fonts.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/colors.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/typography.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/depth.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/foundations/press.css">
 <link rel="stylesheet" href="motion/motion.css">
 <link rel="stylesheet" href="app/app.css">
 </head>

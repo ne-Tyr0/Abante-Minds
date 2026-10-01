@@ -4,13 +4,18 @@
    lives in localStorage and never leaves the phone. */
 "use strict";
 
-var CACHE = "abante-minds-v1";
+var CACHE = "abante-minds-v2";
 
 var SHELL = [
   "./",
   "index.html",
   "manifest.webmanifest",
   "app/app.css",
+  "app/fonts.css",
+  "assets/fonts/lexend-latin.woff2",
+  "assets/fonts/lexend-latin-ext.woff2",
+  "assets/fonts/baloo2-latin.woff2",
+  "assets/fonts/baloo2-latin-ext.woff2",
   "app/icons.js",
   "app/ui.js",
   "app/content.js",
@@ -21,8 +26,9 @@ var SHELL = [
   "motion/motion.js",
   "assets/abante-minds-mark.png",
   "assets/abante-minds-maskable.png",
-  "_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/styles.css",
-  "_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/fonts.css",
+  /* styles.css and tokens/fonts.css are deliberately absent: index.html lists the
+     token files individually and loads app/fonts.css instead, so the CDN import in
+     tokens/fonts.css is never reached. */
   "_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/colors.css",
   "_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/typography.css",
   "_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/spacing.css",
@@ -70,8 +76,10 @@ self.addEventListener("fetch", function (event) {
     return;
   }
 
-  var isFontCdn = url.hostname === "fonts.googleapis.com" || url.hostname === "fonts.gstatic.com";
-  if (!sameOrigin && !isFontCdn) return;
+  /* Same-origin only. The font CDN used to be allowed through here; the faces are
+     self-hosted now, so there is nothing third-party left to cache and no reason to
+     let a cross-origin request past. */
+  if (!sameOrigin) return;
 
   /* Stale-while-revalidate: the cached copy answers straight away, which is
      what a 2019 budget Android on no signal needs, and the network copy
@@ -79,9 +87,7 @@ self.addEventListener("fetch", function (event) {
   event.respondWith(
     caches.match(req).then(function (hit) {
       var network = fetch(req).then(function (res) {
-        /* The font CDN answers opaque; cache it anyway so the second launch
-           has the real faces without signal. */
-        if (res && (res.ok || res.type === "opaque")) {
+        if (res && res.ok) {
           var copy = res.clone();
           caches.open(CACHE).then(function (cache) { cache.put(req, copy).catch(function () {}); });
         }
