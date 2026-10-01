@@ -72,18 +72,106 @@
           display: "flex", flexDirection: "column", gap: "var(--space-3)"
         }
       },
-        el("div.body", { style: { textWrap: "pretty" } }, "Add Abante Minds to your home screen. It keeps working when there is no signal."),
-        AM.Button({
-          label: "Add to home screen", fullWidth: true,
-          onClick: function () {
-            app.install(function () {
-              store.set({ installed: true });
-              app.go("signin");
-            });
-          }
-        }),
-        AM.Button({ label: "Not now", variant: "ghost", fullWidth: true, onClick: function () { app.go("signin"); } })
+        app.canOfferInstall()
+          ? [
+              el("div.body", { style: { textWrap: "pretty" } }, INSTALL_PITCH),
+              AM.Button({ label: "Add to home screen", fullWidth: true, onClick: function () { app.offerInstall("signin"); } }),
+              AM.Button({ label: "Not now", variant: "ghost", fullWidth: true, onClick: function () { app.go("signin"); } })
+            ]
+          : AM.Button({ label: "Get started", fullWidth: true, onClick: function () { app.go("signin"); } })
       )
+    };
+  };
+
+  /* ---------- Add to home screen, anytime ----------
+     The splash makes the offer first. After sign-in it lives on Profile for
+     good, and on Home until the learner says "Not now" there. Both disappear
+     once the app is installed. */
+  var INSTALL_PITCH = "Add Abante Minds to your home screen. It keeps working when there is no signal.";
+
+  /* Ghost, not amber: the practice action keeps the one primary on Home.
+     The corner x is the "Not now", with a full 48px target. */
+  function installCard(app) {
+    return AM.Card({ style: { gap: "var(--space-3)" } },
+      el("div", { style: { display: "flex", gap: "var(--space-3)", alignItems: "flex-start" } },
+        el("span", {
+          style: {
+            flex: "none", width: 40, height: 40, marginTop: 4, borderRadius: "50%", background: "var(--brand-blue-100)",
+            color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
+          }
+        }, icon("home", 22)),
+        el("div.body", { style: { flex: 1, textWrap: "pretty", paddingTop: 4 } }, INSTALL_PITCH),
+        el("button.am-reset.am-dismiss", {
+          type: "button", "aria-label": "Not now", title: "Not now",
+          onClick: function () { store.set({ installCardDismissed: true }); },
+          style: {
+            flex: "none", width: "var(--tap-button)", height: "var(--tap-button)", margin: "-8px -8px 0 0",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "var(--ink-600)", background: "none", border: 0, cursor: "pointer", padding: 0
+          }
+        }, icon("x", 20))),
+      AM.Button({ label: "Add to home screen", variant: "ghost", fullWidth: true, onClick: function () { app.offerInstall(); } }));
+  }
+
+  /* Which steps to show when the browser cannot install in one tap. iPadOS
+     reports itself as a Mac, so a touch screen on "MacIntel" is an iPad. */
+  function installPlatform() {
+    var ua = navigator.userAgent || "";
+    if (/iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1)) return "ios";
+    if (/Android/.test(ua)) return "android";
+    return "other";
+  }
+
+  var INSTALL_STEPS = {
+    ios: [
+      "Tap the Share button: a square with an arrow pointing up.",
+      "Scroll down and tap Add to Home Screen. If it is not there, open this page in Safari and start again.",
+      "Tap Add. Abante Minds appears with your other apps."
+    ],
+    android: [
+      "Open the browser menu: three dots or three lines, at the top or bottom of the screen.",
+      "Tap Add to Home screen, or Install app.",
+      "Confirm. Abante Minds appears with your other apps."
+    ],
+    other: [
+      "Look for an install button at the right end of the address bar.",
+      "If there is none, open the browser menu and choose Install, or Add to Home screen.",
+      "If neither is there, this browser cannot add apps. Open this page in Chrome and try again."
+    ]
+  };
+
+  screens.installSteps = function (app) {
+    var t = app.scratch.install || {};
+    function done() {
+      if (t.next) app.go(t.next);
+      else app.go(t.from || "home", "back");
+    }
+    var steps = INSTALL_STEPS[installPlatform()];
+    return {
+      nav: null,
+      back: done,
+      body: column([
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
+          el("div.heading-md", null, "Add to your home screen"),
+          el("div.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+            "This browser can't do it in one tap. Here is how.")),
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
+          steps.map(function (step, i) {
+            return AM.Card({ style: { padding: 14, flexDirection: "row", alignItems: "flex-start", gap: "var(--space-3)" } },
+              el("span.label", {
+                style: {
+                  flex: "none", width: 28, height: 28, borderRadius: "50%", background: "var(--brand-blue-100)",
+                  color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
+                }
+              }, String(i + 1)),
+              el("span.body-lg", { style: { textWrap: "pretty" } }, step));
+          })),
+        el("div.body-sm", { style: { padding: "16px " + gutter() + "px 0", color: "var(--ink-600)", textWrap: "pretty" } },
+          "Already added it? Open Abante Minds from your home screen.")
+      ]),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 20px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520 } },
+          AM.Button({ label: "Done", fullWidth: true, onClick: done })))
     };
   };
 
@@ -437,12 +525,15 @@
       el("span.body-sm", { style: { color: "var(--ink-600)" } }, "Tier 3 unlocks the badge and longer questions.")
     );
 
+    var offer = app.canOfferInstall() && !s.installCardDismissed ? installCard(app) : null;
+
     /* Tablet and desktop spend the extra width on a second card rather than on
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          progressCard, ladderCard, streakBlock)
+          offer, progressCard, ladderCard, streakBlock)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
+          offer,
           el("div.am-pair", null, progressCard, AM.Card({ style: { padding: "var(--space-6)", gap: "var(--space-3)" } }, ladderCard)),
           streakBlock,
           el("div.am-pair", null, topicCard, badgeCard));
@@ -991,8 +1082,15 @@
 
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
           sectionLabel("Progress by topic"),
-          AM.TopicBars(store.topicList()))
-      ]),
+          AM.TopicBars(store.topicList())),
+
+        /* One button, no card: it fits the space Profile had spare on a
+           390x844 phone, so the footer and nav stay on screen. */
+        app.canOfferInstall()
+          ? el("div", { style: { padding: "18px " + gutter() + "px 0" } },
+              AM.Button({ label: "Add to home screen", variant: "ghost", iconLeft: "home", fullWidth: true, onClick: function () { app.offerInstall(); } }))
+          : null
+      ], { paddingBottom: 24 }),
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 20px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
           AM.Button({ label: "Back to practice", fullWidth: true, onClick: function () { app.go("topics"); } }),

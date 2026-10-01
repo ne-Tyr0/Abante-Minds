@@ -35,7 +35,8 @@ if (!LOCAL) {
 }
 
 function run() {
-  var SCREEN = new URLSearchParams(location.search).get("screen") || "home";
+  var params = new URLSearchParams(location.search);
+  var SCREEN = params.get("screen") || "home";
 
   /* Dated today. A fixed date goes stale: once it is more than a day old the
      app reads it as a missed day, demotes the learner, and every screenshot
@@ -60,6 +61,11 @@ function run() {
 
   var frame = document.createElement("iframe");
   frame.id = "frame";
+  /* 390x844 unless asked otherwise (&w=360&h=640), to check a smaller phone.
+     Set on the frame, not from the window: headless Chrome will not make a
+     window narrower than about 500px, whatever --window-size says. */
+  if (params.get("w")) frame.style.width = Number(params.get("w")) + "px";
+  if (params.get("h")) frame.style.height = Number(params.get("h")) + "px";
   frame.src = "../../index.html";
   document.body.appendChild(frame);
 
@@ -73,7 +79,13 @@ function run() {
       document.title = "SEED-FAILED";
       return;
     }
-    frame.addEventListener("load", function () { drive(SCREEN); });
+    /* The app's first screen waits for the question pack, so drive it only
+       once that screen is up; driving it sooner gets overwritten. */
+    frame.addEventListener("load", function () {
+      var app = frame.contentWindow.AM && frame.contentWindow.AM.app;
+      if (!app || !app.ready) { document.title = "NO-APP"; return; }
+      app.ready.then(function () { drive(SCREEN); });
+    });
     frame.contentWindow.location.reload();
   });
 
@@ -139,6 +151,22 @@ function run() {
       case "offline":
         AM.store.setOffline(true);
         AM.app.go("home");
+        break;
+      /* Not in the PDF: the install offer, for review. The demo learner is
+         seeded as installed, so these switch that off first. */
+      case "home-install":
+        AM.store.set({ installed: false, installCardDismissed: false });
+        AM.app.go("home");
+        break;
+      case "profile-install":
+        AM.store.set({ installed: false });
+        AM.app.go("profile");
+        break;
+      case "install-steps":
+        AM.store.set({ installed: false });
+        AM.app.go("profile");
+        AM.app.deferredInstall = null; /* no one-tap prompt, so the offer opens the steps */
+        AM.app.offerInstall();
         break;
       default:
         document.title = "UNKNOWN-SCREEN";
