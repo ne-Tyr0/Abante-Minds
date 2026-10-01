@@ -172,6 +172,11 @@ a longer line. Tap targets stay at 48 everywhere. The bottom-anchored action is 
 thumb-reach rule, so it survives on tablet and becomes an inline action on desktop, where
 the bottom nav turns into a left rail and the keypad moves beside the answer field.
 
+Content scrolls inside the screen, between the status bar and the anchored keypad, action
+and nav, so those never move under a thumb. The content never shrinks below 200px; only on
+a phone too short for that, such as a 360x640 phone with hints open, does the whole page
+scroll.
+
 ## Tests
 
 ```bash
