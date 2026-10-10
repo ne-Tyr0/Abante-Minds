@@ -1,0 +1,675 @@
+{
+  "topic": "equivalents",
+  "levels": [
+    {
+      "id": "halves-quarters-tenths",
+      "title": "Halves, quarters and tenths",
+      "kind": "facts",
+      "templates": [
+        "equivalents.halves-quarters-tenths-decimal",
+        "equivalents.halves-quarters-tenths-percent",
+        "equivalents.halves-quarters-tenths-fraction"
+      ],
+      "lesson": [
+        {
+          "title": "Three ways to write it",
+          "body": "1/2, 0.5 and 50% are the same amount: half. 1/4 is 0.25 or 25%, and 3/4 is 0.75 or 75%. Tenths are one decimal place: 3/10 is 0.3 or 30%."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "equivalents.halves-quarters-tenths-percent",
+            "params": {
+              "k": 3
+            }
+          }
+        },
+        {
+          "title": "Per cent means out of 100",
+          "body": "To change a decimal to a per cent, multiply by 100: 0.75 is 75%. To go back, divide by 100."
+        }
+      ]
+    },
+    {
+      "id": "fifths",
+      "title": "Fifths, twentieths and fiftieths",
+      "kind": "facts",
+      "templates": [
+        "equivalents.fifths-decimal",
+        "equivalents.fifths-percent",
+        "equivalents.fifths-fraction"
+      ],
+      "lesson": [
+        {
+          "title": "Fifths are twentieths of 100",
+          "body": "1/5 is 20 out of 100: 0.2 or 20%. So 2/5 is 40%, 3/5 is 60% and 4/5 is 80%."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "equivalents.fifths-decimal",
+            "params": {
+              "k": 3
+            }
+          }
+        },
+        {
+          "title": "The small ones",
+          "body": "1/20 is 5%, 1/25 is 4% and 1/50 is 2%: each is that many hundredths. 3/20 is three lots of 5%: 15%."
+        }
+      ]
+    },
+    {
+      "id": "eighths",
+      "title": "Eighths",
+      "kind": "facts",
+      "templates": [
+        "equivalents.eighths-decimal",
+        "equivalents.eighths-percent",
+        "equivalents.eighths-fraction"
+      ],
+      "lesson": [
+        {
+          "title": "Half of a quarter",
+          "body": "1/8 is half of 1/4: half of 0.25 is 0.125, or 12.5%. Then 3/8 is 0.375, 5/8 is 0.625 and 7/8 is 0.875."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "equivalents.eighths-percent",
+            "params": {
+              "k": 2
+            }
+          }
+        },
+        {
+          "title": "Check with halves",
+          "body": "5/8 is a little more than 1/2, so its per cent must be a little more than 50%: 62.5%."
+        }
+      ]
+    },
+    {
+      "id": "all",
+      "title": "All of them",
+      "kind": "review"
+    }
+  ],
+  "templates": [
+    {
+      "id": "equivalents.halves-quarters-tenths-decimal",
+      "domain": "NA",
+      "construct": "Recall a fraction as a decimal",
+      "schema": "part-whole",
+      "params": {
+        "k": {
+          "choose": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        "n": {
+          "value": "pick(k, 1, 1, 3, 1, 3, 7, 9)"
+        },
+        "d": {
+          "value": "pick(k, 2, 4, 4, 10, 10, 10, 10)"
+        },
+        "m": {
+          "value": "pick(k, 5, 25, 25, 1, 1, 1, 1)"
+        },
+        "p": {
+          "value": "pick(k, 10, 100, 100, 10, 10, 10, 10)"
+        }
+      },
+      "answer": {
+        "type": "decimal",
+        "value": "n / d",
+        "maxDecimals": 3
+      },
+      "formats": [
+        {
+          "id": "decimal",
+          "prompt": "{n}/{d} as a decimal = ?"
+        }
+      ],
+      "hints": [
+        "{n}/{d} means {n} ÷ {d}.",
+        "{m == 1 ? 'The bottom is already 10, so these are tenths.' : 'Make the bottom 10, 100 or 1000: multiply the top and the bottom by the same number.'}",
+        "That is {n * m} {p == 10 ? (n * m == 1 ? 'tenth' : 'tenths') : (p == 100 ? 'hundredths' : 'thousandths')}: write it as a decimal."
+      ],
+      "steps": [
+        "{n}/{d} is {n * m} {p == 10 ? (n * m == 1 ? 'tenth' : 'tenths') : (p == 100 ? 'hundredths' : 'thousandths')}",
+        "{p == 10 ? 'Tenths: one place after the point' : (p == 100 ? 'Hundredths: two places after the point' : 'Thousandths: three places after the point')}",
+        "= {answer}"
+      ],
+      "explain": "{n}/{d} = {n} ÷ {d} = {answer}.",
+      "distractors": [
+        {
+          "value": "n * 100 / d",
+          "error": "gave-the-per-cent",
+          "feedback": "{value} is {n}/{d} as a per cent. As a decimal it is {value} ÷ 100."
+        },
+        {
+          "value": "n + d / (d < 10 ? 10 : 100)",
+          "error": "wrote-the-digits-with-a-point",
+          "feedback": "{d < 10 ? fmt(value) : fixed(value, 2)} just puts a point between {n} and {d}. {n}/{d} is {n} ÷ {d}, which is less than 1."
+        }
+      ]
+    },
+    {
+      "id": "equivalents.halves-quarters-tenths-percent",
+      "domain": "NA",
+      "construct": "Recall a fraction as a per cent",
+      "schema": "part-whole",
+      "params": {
+        "k": {
+          "choose": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        "n": {
+          "value": "pick(k, 1, 1, 3, 1, 3, 7, 9)"
+        },
+        "d": {
+          "value": "pick(k, 2, 4, 4, 10, 10, 10, 10)"
+        },
+        "m": {
+          "value": "pick(k, 5, 25, 25, 1, 1, 1, 1)"
+        },
+        "p": {
+          "value": "pick(k, 10, 100, 100, 10, 10, 10, 10)"
+        }
+      },
+      "answer": {
+        "type": "percent",
+        "value": "n * 100 / d",
+        "maxDecimals": 1
+      },
+      "formats": [
+        {
+          "id": "percent",
+          "prompt": "{n}/{d} = ?%"
+        }
+      ],
+      "hints": [
+        "Per cent means out of 100.",
+        "{n}/{d} as a decimal is {fmt(n / d)}.",
+        "× 100: {fmt(n / d)} × 100 = ?"
+      ],
+      "steps": [
+        "{n}/{d} = {fmt(n / d)}",
+        "{fmt(n / d)} × 100",
+        "= {answer}%"
+      ],
+      "explain": "{n}/{d} = {fmt(n / d)} = {answer}%.",
+      "distractors": [
+        {
+          "value": "n / d",
+          "error": "gave-the-decimal",
+          "feedback": "{value} is the decimal. A per cent is out of 100: × 100."
+        },
+        {
+          "value": "n * 10 / d",
+          "error": "times-ten-not-a-hundred",
+          "feedback": "{value} is {fmt(n / d)} × 10. A per cent is out of 100: {fmt(n / d)} × 100."
+        }
+      ]
+    },
+    {
+      "id": "equivalents.halves-quarters-tenths-fraction",
+      "domain": "NA",
+      "construct": "Recall a per cent as a fraction in lowest terms",
+      "schema": "part-whole",
+      "params": {
+        "k": {
+          "choose": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7
+          ]
+        },
+        "n": {
+          "value": "pick(k, 1, 1, 3, 1, 3, 7, 9)"
+        },
+        "d": {
+          "value": "pick(k, 2, 4, 4, 10, 10, 10, 10)"
+        },
+        "m": {
+          "value": "pick(k, 5, 25, 25, 1, 1, 1, 1)"
+        },
+        "p": {
+          "value": "pick(k, 10, 100, 100, 10, 10, 10, 10)"
+        }
+      },
+      "answer": {
+        "type": "fraction",
+        "value": "n / d"
+      },
+      "formats": [
+        {
+          "id": "fraction",
+          "prompt": "{n * 100 / d}% as a fraction in lowest terms = ?"
+        }
+      ],
+      "hints": [
+        "Per cent means out of 100.",
+        "{n * 100 / d}% = {n * 100 / d}/100.",
+        "Simplify: divide the top and bottom by the same number."
+      ],
+      "steps": [
+        "{n * 100 / d}% = {n * 100 / d}/100",
+        "Simplify",
+        "= {frac(answer)}"
+      ],
+      "explain": "{n * 100 / d}% = {n * 100 / d}/100 = {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "d / (n * 100)",
+          "error": "one-over-the-per-cent",
+          "feedback": "{frac(value)} puts the per cent on the bottom. {n * 100 / d}% means {n * 100 / d} out of 100."
+        },
+        {
+          "value": "d / n",
+          "error": "turned-it-upside-down",
+          "feedback": "{frac(value)} is upside down. A part of the whole is less than 1: {frac(answer)}."
+        }
+      ]
+    },
+    {
+      "id": "equivalents.fifths-decimal",
+      "domain": "NA",
+      "construct": "Recall a fraction as a decimal",
+      "schema": "part-whole",
+      "params": {
+        "k": {
+          "choose": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        "n": {
+          "value": "pick(k, 1, 2, 3, 4, 1, 3, 1, 1)"
+        },
+        "d": {
+          "value": "pick(k, 5, 5, 5, 5, 20, 20, 25, 50)"
+        },
+        "m": {
+          "value": "pick(k, 2, 2, 2, 2, 5, 5, 4, 2)"
+        },
+        "p": {
+          "value": "pick(k, 10, 10, 10, 10, 100, 100, 100, 100)"
+        }
+      },
+      "answer": {
+        "type": "decimal",
+        "value": "n / d",
+        "maxDecimals": 3
+      },
+      "formats": [
+        {
+          "id": "decimal",
+          "prompt": "{n}/{d} as a decimal = ?"
+        }
+      ],
+      "hints": [
+        "{n}/{d} means {n} ÷ {d}.",
+        "{m == 1 ? 'The bottom is already 10, so these are tenths.' : 'Make the bottom 10, 100 or 1000: multiply the top and the bottom by the same number.'}",
+        "That is {n * m} {p == 10 ? (n * m == 1 ? 'tenth' : 'tenths') : (p == 100 ? 'hundredths' : 'thousandths')}: write it as a decimal."
+      ],
+      "steps": [
+        "{n}/{d} is {n * m} {p == 10 ? (n * m == 1 ? 'tenth' : 'tenths') : (p == 100 ? 'hundredths' : 'thousandths')}",
+        "{p == 10 ? 'Tenths: one place after the point' : (p == 100 ? 'Hundredths: two places after the point' : 'Thousandths: three places after the point')}",
+        "= {answer}"
+      ],
+      "explain": "{n}/{d} = {n} ÷ {d} = {answer}.",
+      "distractors": [
+        {
+          "value": "n * 100 / d",
+          "error": "gave-the-per-cent",
+          "feedback": "{value} is {n}/{d} as a per cent. As a decimal it is {value} ÷ 100."
+        },
+        {
+          "value": "n + d / (d < 10 ? 10 : 100)",
+          "error": "wrote-the-digits-with-a-point",
+          "feedback": "{d < 10 ? fmt(value) : fixed(value, 2)} just puts a point between {n} and {d}. {n}/{d} is {n} ÷ {d}, which is less than 1."
+        }
+      ]
+    },
+    {
+      "id": "equivalents.fifths-percent",
+      "domain": "NA",
+      "construct": "Recall a fraction as a per cent",
+      "schema": "part-whole",
+      "params": {
+        "k": {
+          "choose": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        "n": {
+          "value": "pick(k, 1, 2, 3, 4, 1, 3, 1, 1)"
+        },
+        "d": {
+          "value": "pick(k, 5, 5, 5, 5, 20, 20, 25, 50)"
+        },
+        "m": {
+          "value": "pick(k, 2, 2, 2, 2, 5, 5, 4, 2)"
+        },
+        "p": {
+          "value": "pick(k, 10, 10, 10, 10, 100, 100, 100, 100)"
+        }
+      },
+      "answer": {
+        "type": "percent",
+        "value": "n * 100 / d",
+        "maxDecimals": 1
+      },
+      "formats": [
+        {
+          "id": "percent",
+          "prompt": "{n}/{d} = ?%"
+        }
+      ],
+      "hints": [
+        "Per cent means out of 100.",
+        "{n}/{d} as a decimal is {fmt(n / d)}.",
+        "× 100: {fmt(n / d)} × 100 = ?"
+      ],
+      "steps": [
+        "{n}/{d} = {fmt(n / d)}",
+        "{fmt(n / d)} × 100",
+        "= {answer}%"
+      ],
+      "explain": "{n}/{d} = {fmt(n / d)} = {answer}%.",
+      "distractors": [
+        {
+          "value": "n / d",
+          "error": "gave-the-decimal",
+          "feedback": "{value} is the decimal. A per cent is out of 100: × 100."
+        },
+        {
+          "value": "n * 10 / d",
+          "error": "times-ten-not-a-hundred",
+          "feedback": "{value} is {fmt(n / d)} × 10. A per cent is out of 100: {fmt(n / d)} × 100."
+        }
+      ]
+    },
+    {
+      "id": "equivalents.fifths-fraction",
+      "domain": "NA",
+      "construct": "Recall a per cent as a fraction in lowest terms",
+      "schema": "part-whole",
+      "params": {
+        "k": {
+          "choose": [
+            1,
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8
+          ]
+        },
+        "n": {
+          "value": "pick(k, 1, 2, 3, 4, 1, 3, 1, 1)"
+        },
+        "d": {
+          "value": "pick(k, 5, 5, 5, 5, 20, 20, 25, 50)"
+        },
+        "m": {
+          "value": "pick(k, 2, 2, 2, 2, 5, 5, 4, 2)"
+        },
+        "p": {
+          "value": "pick(k, 10, 10, 10, 10, 100, 100, 100, 100)"
+        }
+      },
+      "answer": {
+        "type": "fraction",
+        "value": "n / d"
+      },
+      "formats": [
+        {
+          "id": "fraction",
+          "prompt": "{n * 100 / d}% as a fraction in lowest terms = ?"
+        }
+      ],
+      "hints": [
+        "Per cent means out of 100.",
+        "{n * 100 / d}% = {n * 100 / d}/100.",
+        "Simplify: divide the top and bottom by the same number."
+      ],
+      "steps": [
+        "{n * 100 / d}% = {n * 100 / d}/100",
+        "Simplify",
+        "= {frac(answer)}"
+      ],
+      "explain": "{n * 100 / d}% = {n * 100 / d}/100 = {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "d / (n * 100)",
+          "error": "one-over-the-per-cent",
+          "feedback": "{frac(value)} puts the per cent on the bottom. {n * 100 / d}% means {n * 100 / d} out of 100."
+        },
+        {
+          "value": "d / n",
+          "error": "turned-it-upside-down",
+          "feedback": "{frac(value)} is upside down. A part of the whole is less than 1: {frac(answer)}."
+        }
+      ]
+    },
+    {
+      "id": "equivalents.eighths-decimal",
+      "domain": "NA",
+      "construct": "Recall a fraction as a decimal",
+      "schema": "part-whole",
+      "params": {
+        "k": {
+          "choose": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "n": {
+          "value": "pick(k, 1, 3, 5, 7)"
+        },
+        "d": {
+          "value": "pick(k, 8, 8, 8, 8)"
+        },
+        "m": {
+          "value": "pick(k, 125, 125, 125, 125)"
+        },
+        "p": {
+          "value": "pick(k, 1000, 1000, 1000, 1000)"
+        }
+      },
+      "answer": {
+        "type": "decimal",
+        "value": "n / d",
+        "maxDecimals": 3
+      },
+      "formats": [
+        {
+          "id": "decimal",
+          "prompt": "{n}/{d} as a decimal = ?"
+        }
+      ],
+      "hints": [
+        "{n}/{d} means {n} ÷ {d}.",
+        "{m == 1 ? 'The bottom is already 10, so these are tenths.' : 'Make the bottom 10, 100 or 1000: multiply the top and the bottom by the same number.'}",
+        "That is {n * m} {p == 10 ? (n * m == 1 ? 'tenth' : 'tenths') : (p == 100 ? 'hundredths' : 'thousandths')}: write it as a decimal."
+      ],
+      "steps": [
+        "{n}/{d} is {n * m} {p == 10 ? (n * m == 1 ? 'tenth' : 'tenths') : (p == 100 ? 'hundredths' : 'thousandths')}",
+        "{p == 10 ? 'Tenths: one place after the point' : (p == 100 ? 'Hundredths: two places after the point' : 'Thousandths: three places after the point')}",
+        "= {answer}"
+      ],
+      "explain": "{n}/{d} = {n} ÷ {d} = {answer}.",
+      "distractors": [
+        {
+          "value": "n * 100 / d",
+          "error": "gave-the-per-cent",
+          "feedback": "{value} is {n}/{d} as a per cent. As a decimal it is {value} ÷ 100."
+        },
+        {
+          "value": "n + d / (d < 10 ? 10 : 100)",
+          "error": "wrote-the-digits-with-a-point",
+          "feedback": "{d < 10 ? fmt(value) : fixed(value, 2)} just puts a point between {n} and {d}. {n}/{d} is {n} ÷ {d}, which is less than 1."
+        }
+      ]
+    },
+    {
+      "id": "equivalents.eighths-percent",
+      "domain": "NA",
+      "construct": "Recall a fraction as a per cent",
+      "schema": "part-whole",
+      "params": {
+        "k": {
+          "choose": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "n": {
+          "value": "pick(k, 1, 3, 5, 7)"
+        },
+        "d": {
+          "value": "pick(k, 8, 8, 8, 8)"
+        },
+        "m": {
+          "value": "pick(k, 125, 125, 125, 125)"
+        },
+        "p": {
+          "value": "pick(k, 1000, 1000, 1000, 1000)"
+        }
+      },
+      "answer": {
+        "type": "percent",
+        "value": "n * 100 / d",
+        "maxDecimals": 1
+      },
+      "formats": [
+        {
+          "id": "percent",
+          "prompt": "{n}/{d} = ?%"
+        }
+      ],
+      "hints": [
+        "Per cent means out of 100.",
+        "{n}/{d} as a decimal is {fmt(n / d)}.",
+        "× 100: {fmt(n / d)} × 100 = ?"
+      ],
+      "steps": [
+        "{n}/{d} = {fmt(n / d)}",
+        "{fmt(n / d)} × 100",
+        "= {answer}%"
+      ],
+      "explain": "{n}/{d} = {fmt(n / d)} = {answer}%.",
+      "distractors": [
+        {
+          "value": "n / d",
+          "error": "gave-the-decimal",
+          "feedback": "{value} is the decimal. A per cent is out of 100: × 100."
+        },
+        {
+          "value": "n * 10 / d",
+          "error": "times-ten-not-a-hundred",
+          "feedback": "{value} is {fmt(n / d)} × 10. A per cent is out of 100: {fmt(n / d)} × 100."
+        }
+      ]
+    },
+    {
+      "id": "equivalents.eighths-fraction",
+      "domain": "NA",
+      "construct": "Recall a per cent as a fraction in lowest terms",
+      "schema": "part-whole",
+      "params": {
+        "k": {
+          "choose": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        "n": {
+          "value": "pick(k, 1, 3, 5, 7)"
+        },
+        "d": {
+          "value": "pick(k, 8, 8, 8, 8)"
+        },
+        "m": {
+          "value": "pick(k, 125, 125, 125, 125)"
+        },
+        "p": {
+          "value": "pick(k, 1000, 1000, 1000, 1000)"
+        }
+      },
+      "answer": {
+        "type": "fraction",
+        "value": "n / d"
+      },
+      "formats": [
+        {
+          "id": "fraction",
+          "prompt": "{n * 100 / d}% as a fraction in lowest terms = ?"
+        }
+      ],
+      "hints": [
+        "Per cent means out of 100.",
+        "{n * 100 / d}% = {n * 100 / d}/100.",
+        "Simplify: divide the top and bottom by the same number."
+      ],
+      "steps": [
+        "{n * 100 / d}% = {n * 100 / d}/100",
+        "Simplify",
+        "= {frac(answer)}"
+      ],
+      "explain": "{n * 100 / d}% = {n * 100 / d}/100 = {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "d / (n * 100)",
+          "error": "one-over-the-per-cent",
+          "feedback": "{frac(value)} puts the per cent on the bottom. {n * 100 / d}% means {n * 100 / d} out of 100."
+        },
+        {
+          "value": "d / n",
+          "error": "turned-it-upside-down",
+          "feedback": "{frac(value)} is upside down. A part of the whole is less than 1: {frac(answer)}."
+        }
+      ]
+    }
+  ]
+}

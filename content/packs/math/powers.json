@@ -1,0 +1,472 @@
+{
+  "topic": "powers",
+  "levels": [
+    {
+      "id": "squares-to-10",
+      "title": "Squares to 10 × 10",
+      "kind": "facts",
+      "templates": [
+        "powers.square-small",
+        "powers.root-small"
+      ],
+      "lesson": [
+        {
+          "title": "Square numbers",
+          "body": "A square number is a number times itself: 7 squared, written 7², is 7 × 7 = 49. It is the number of dots in a square 7 dots wide and 7 dots tall."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "powers.square-small",
+            "params": {
+              "x": 7
+            },
+            "format": "power"
+          }
+        },
+        {
+          "title": "Not times 2",
+          "body": "The small 2 in 7² is not a times 2. 7² is 7 × 7 = 49, not 7 × 2 = 14."
+        }
+      ]
+    },
+    {
+      "id": "squares-to-15",
+      "title": "Squares to 15 × 15",
+      "kind": "facts",
+      "templates": [
+        "powers.square-teens",
+        "powers.root-teens"
+      ],
+      "lesson": [
+        {
+          "title": "Split off the ten",
+          "body": "13 × 13 is 13 × 10 and 13 × 3: 130 + 39 = 169. Splitting off the ten works for every square from 11 to 19."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "powers.square-teens",
+            "params": {
+              "x": 13
+            },
+            "format": "power"
+          }
+        },
+        {
+          "title": "Ones digits",
+          "body": "A square ends in the same digit as its ones digit squared: 14² ends in 6, like 4² = 16. Use it to check: 14² = 196."
+        }
+      ]
+    },
+    {
+      "id": "cubes",
+      "title": "Cubes",
+      "kind": "facts",
+      "templates": [
+        "powers.cube",
+        "powers.cube-root"
+      ],
+      "lesson": [
+        {
+          "title": "Cube numbers",
+          "body": "A cube number is a number times itself three times: 4 cubed, written 4³, is 4 × 4 × 4 = 64. It is the number of small cubes in a big cube 4 wide, 4 deep and 4 tall."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "powers.cube",
+            "params": {
+              "x": 4
+            },
+            "format": "power"
+          }
+        },
+        {
+          "title": "Square first",
+          "body": "Work out a cube by squaring first: 5³ = 5 × 5 × 5 = 25 × 5 = 125. And 10³ = 1000, the litre's 1000 cubic centimetres."
+        }
+      ]
+    },
+    {
+      "id": "all",
+      "title": "All of them",
+      "kind": "review"
+    }
+  ],
+  "templates": [
+    {
+      "id": "powers.square-small",
+      "domain": "NA",
+      "construct": "Recall a square number",
+      "schema": "equal-groups",
+      "params": {
+        "x": {
+          "choose": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ]
+        }
+      },
+      "answer": {
+        "type": "integer",
+        "value": "x * x"
+      },
+      "formats": [
+        {
+          "id": "power",
+          "prompt": "{x}{sup(2)} = ?"
+        },
+        {
+          "id": "times",
+          "prompt": "{x} × {x} = ?"
+        },
+        {
+          "id": "words",
+          "prompt": "What is {x} squared?"
+        }
+      ],
+      "hints": [
+        "Squared means a number times itself: {x} × {x}.",
+        "Think of {x} rows of {x}.",
+        "{x} × {x} = ?"
+      ],
+      "steps": [
+        "{x}{sup(2)} means {x} × {x}",
+        "{x} rows of {x}",
+        "{x} × {x} = {answer}"
+      ],
+      "explain": "{x}{sup(2)} = {x} × {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "2 * x",
+          "error": "doubled-instead",
+          "feedback": "{value} is {x} × 2. Squared means {x} × {x}."
+        },
+        {
+          "value": "x * (x + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {x + 1}, one {x} too many. Squared is {x} × {x}."
+        },
+        {
+          "value": "x * (x - 1)",
+          "error": "one-group-too-few",
+          "feedback": "{value} is {x} × {x - 1}, one {x} too few. Squared is {x} × {x}."
+        }
+      ]
+    },
+    {
+      "id": "powers.root-small",
+      "domain": "NA",
+      "construct": "Recall which number a square number is the square of",
+      "schema": "work-backwards",
+      "params": {
+        "x": {
+          "choose": [
+            2,
+            3,
+            4,
+            5,
+            6,
+            7,
+            8,
+            9,
+            10
+          ]
+        },
+        "n": {
+          "value": "x * x"
+        }
+      },
+      "answer": {
+        "type": "integer",
+        "value": "x"
+      },
+      "formats": [
+        {
+          "id": "times-itself",
+          "prompt": "Which number times itself makes {n}?"
+        },
+        {
+          "id": "missing",
+          "prompt": "? × ? = {n}, with the same number twice. What is it?"
+        }
+      ],
+      "hints": [
+        "Think of the square numbers you know.",
+        "{x - 1} × {x - 1} = {(x - 1) * (x - 1)}, which is less than {n}.",
+        "Try one more: {x} × {x}."
+      ],
+      "steps": [
+        "Which number times itself makes {n}?",
+        "{x} × {x} = {n}",
+        "So the number is {answer}"
+      ],
+      "explain": "{x} × {x} = {n}, so the number is {answer}.",
+      "distractors": [
+        {
+          "value": "n / 2",
+          "error": "halved-it",
+          "feedback": "{fmt(value)} is half of {n}. {fmt(value)} × {fmt(value)} is far more: find the number that times itself makes {n}."
+        },
+        {
+          "value": "x + 1",
+          "error": "one-too-big",
+          "feedback": "{value} × {value} = {value * value}, more than {n}."
+        },
+        {
+          "value": "x - 1",
+          "error": "one-too-small",
+          "feedback": "{value} × {value} = {value * value}, less than {n}."
+        }
+      ]
+    },
+    {
+      "id": "powers.square-teens",
+      "domain": "NA",
+      "construct": "Recall a square number",
+      "schema": "equal-groups",
+      "params": {
+        "x": {
+          "choose": [
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        }
+      },
+      "answer": {
+        "type": "integer",
+        "value": "x * x"
+      },
+      "formats": [
+        {
+          "id": "power",
+          "prompt": "{x}{sup(2)} = ?"
+        },
+        {
+          "id": "times",
+          "prompt": "{x} × {x} = ?"
+        },
+        {
+          "id": "words",
+          "prompt": "What is {x} squared?"
+        }
+      ],
+      "hints": [
+        "Split {x} into 10 and {x - 10}: {x} × {x} = {x} × 10 + {x} × {x - 10}.",
+        "{x} × 10 = {x * 10}.",
+        "{x} × {x - 10} = {x * (x - 10)}, so {x * 10} + {x * (x - 10)} = ?"
+      ],
+      "steps": [
+        "{x} × 10 = {x * 10}",
+        "{x} × {x - 10} = {x * (x - 10)}",
+        "{x * 10} + {x * (x - 10)} = {answer}"
+      ],
+      "explain": "{x} × {x} = {x} × 10 + {x} × {x - 10} = {x * 10} + {x * (x - 10)} = {answer}.",
+      "distractors": [
+        {
+          "value": "2 * x",
+          "error": "doubled-instead",
+          "feedback": "{value} is {x} × 2. Squared means {x} × {x}."
+        },
+        {
+          "value": "x * (x + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {x + 1}, one {x} too many. Squared is {x} × {x}."
+        },
+        {
+          "value": "x * (x - 1)",
+          "error": "one-group-too-few",
+          "feedback": "{value} is {x} × {x - 1}, one {x} too few. Squared is {x} × {x}."
+        }
+      ]
+    },
+    {
+      "id": "powers.root-teens",
+      "domain": "NA",
+      "construct": "Recall which number a square number is the square of",
+      "schema": "work-backwards",
+      "params": {
+        "x": {
+          "choose": [
+            11,
+            12,
+            13,
+            14,
+            15
+          ]
+        },
+        "n": {
+          "value": "x * x"
+        }
+      },
+      "answer": {
+        "type": "integer",
+        "value": "x"
+      },
+      "formats": [
+        {
+          "id": "times-itself",
+          "prompt": "Which number times itself makes {n}?"
+        },
+        {
+          "id": "missing",
+          "prompt": "? × ? = {n}, with the same number twice. What is it?"
+        }
+      ],
+      "hints": [
+        "Think of the square numbers you know.",
+        "{x - 1} × {x - 1} = {(x - 1) * (x - 1)}, which is less than {n}.",
+        "Try one more: {x} × {x}."
+      ],
+      "steps": [
+        "Which number times itself makes {n}?",
+        "{x} × {x} = {n}",
+        "So the number is {answer}"
+      ],
+      "explain": "{x} × {x} = {n}, so the number is {answer}.",
+      "distractors": [
+        {
+          "value": "n / 2",
+          "error": "halved-it",
+          "feedback": "{fmt(value)} is half of {n}. {fmt(value)} × {fmt(value)} is far more: find the number that times itself makes {n}."
+        },
+        {
+          "value": "x + 1",
+          "error": "one-too-big",
+          "feedback": "{value} × {value} = {value * value}, more than {n}."
+        },
+        {
+          "value": "x - 1",
+          "error": "one-too-small",
+          "feedback": "{value} × {value} = {value * value}, less than {n}."
+        }
+      ]
+    },
+    {
+      "id": "powers.cube",
+      "domain": "NA",
+      "construct": "Recall a cube number",
+      "schema": "equal-groups",
+      "params": {
+        "x": {
+          "choose": [
+            2,
+            3,
+            4,
+            5,
+            10
+          ]
+        }
+      },
+      "answer": {
+        "type": "integer",
+        "value": "x * x * x"
+      },
+      "formats": [
+        {
+          "id": "power",
+          "prompt": "{x}{sup(3)} = ?"
+        },
+        {
+          "id": "times",
+          "prompt": "{x} × {x} × {x} = ?"
+        },
+        {
+          "id": "words",
+          "prompt": "What is {x} cubed?"
+        }
+      ],
+      "hints": [
+        "Cubed means three {x}s multiplied: {x} × {x} × {x}.",
+        "{x} × {x} = {x * x}.",
+        "{x * x} × {x} = ?"
+      ],
+      "steps": [
+        "{x}{sup(3)} = {x} × {x} × {x}",
+        "{x} × {x} = {x * x}",
+        "{x * x} × {x} = {answer}"
+      ],
+      "explain": "{x} × {x} × {x} = {x * x} × {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "3 * x",
+          "error": "times-three",
+          "feedback": "{value} is {x} × 3. Cubed means {x} × {x} × {x}."
+        },
+        {
+          "value": "x * x",
+          "error": "squared-instead",
+          "feedback": "{value} is {x} squared, two {x}s. Cubed is three: {x} × {x} × {x}."
+        }
+      ]
+    },
+    {
+      "id": "powers.cube-root",
+      "domain": "NA",
+      "construct": "Recall which number a cube number is the cube of",
+      "schema": "work-backwards",
+      "params": {
+        "x": {
+          "choose": [
+            2,
+            3,
+            4,
+            5,
+            10
+          ]
+        },
+        "n": {
+          "value": "x * x * x"
+        }
+      },
+      "answer": {
+        "type": "integer",
+        "value": "x"
+      },
+      "formats": [
+        {
+          "id": "cubed",
+          "prompt": "Which number cubed makes {n}?"
+        },
+        {
+          "id": "missing",
+          "prompt": "? × ? × ? = {n}, with the same number three times. What is it?"
+        }
+      ],
+      "hints": [
+        "Think of the cube numbers you know: 8, 27, 64, 125, 1000.",
+        "Cubed means the number times itself, times itself again.",
+        "Try {x}: {x} × {x} × {x} = ?"
+      ],
+      "steps": [
+        "Which number cubed makes {n}?",
+        "{x} × {x} × {x} = {n}",
+        "So the number is {answer}"
+      ],
+      "explain": "{x} × {x} × {x} = {n}, so the number is {answer}.",
+      "distractors": [
+        {
+          "value": "n / 3",
+          "error": "divided-by-three",
+          "feedback": "{fmt(value)} is {n} ÷ 3. Cubed is not times 3: find the number that times itself three times makes {n}."
+        },
+        {
+          "value": "x + 1",
+          "error": "one-too-big",
+          "feedback": "{value} × {value} × {value} = {value * value * value}, more than {n}."
+        }
+      ]
+    }
+  ]
+}

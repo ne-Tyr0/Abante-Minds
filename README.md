@@ -144,6 +144,12 @@ every topic, so a learner can work without a calculator. Written so far:
   adding, taking away, times and divide; letters for numbers (4n = 24); two-step
   equations undone in reverse; number machines and tables; and number patterns, up to
   the 100th number.
+- **Fractions and per cents**: 57 facts in three groups (halves, quarters and tenths;
+  fifths, twentieths and fiftieths; eighths): each fraction as a decimal and as a per cent,
+  and each per cent back as a fraction in lowest terms, so 3/4, 0.75 and 75% are the same
+  thing at a glance.
+- **Squares and cubes**: 38 facts: the squares to 15 × 15, the cubes of 2 to 5 and 10, and
+  the other way round (which number times itself makes 169?).
 
 The facts topics each have a review level of all their facts.
 
