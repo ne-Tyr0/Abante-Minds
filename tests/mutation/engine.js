@@ -89,7 +89,19 @@ const M = [
   ["hidden slice read out", "        return s.name + \" \" + (s.hidden ? \"not labelled\" : s.label);", "        return s.name + \" \" + s.label;"],
   ["two series not called double", "(c.series.length > 1 && c.kind !== \"table\" ? \"double \" : \"\")", "\"\""],
   ["lesson drops the chart", "chart: q.chart || null,", "chart: null,"],
-  ["degree sign spaced", "(spec.unit === \"°\" ? \"\" : \" \") + spec.unit", "\" \" + spec.unit"]
+  ["degree sign spaced", "(spec.unit === \"°\" ? \"\" : \" \") + spec.unit", "\" \" + spec.unit"],
+  // clock times
+  ["noon called 12:00 p.m.", "    if (n === 720) return \"12:00 noon\";\n", ""],
+  ["midnight called 12:00 a.m.", "    if (n === 0) return \"12:00 midnight\";\n", ""],
+  ["clock12 shows 0 for 12", "(h % 12 === 0 ? 12 : h % 12)", "(h % 12)"],
+  ["clock drops the leading zero", "    return (h < 10 ? \"0\" : \"\") + h + \":\"", "    return h + \":\""],
+  ["hm says 1 hours", "(h === 1 ? \" hour\" : \" hours\")", "\" hours\""],
+  ["clock past midnight", "    if (t.n < 0 || t.n >= DAY) throw", "    if (t.n < 0) throw"],
+  ["hour 24 read", "if (!m || +m[1] > 23 || +m[2] > 59) return null;", "if (!m || +m[1] > 24 || +m[2] > 59) return null;"],
+  ["60 minutes read", "if (!m || +m[1] > 23 || +m[2] > 59) return null;", "if (!m || +m[1] > 23 || +m[2] > 60) return null;"],
+  ["time typed read as a number", "value = q.entry === \"time\" ? readTime(given) : readTyped(given);", "value = readTyped(given);"],
+  ["time answer written as a number", "    if (kind === \"time\") return clockText(x);\n", ""],
+  ["time answers past midnight", "    if (spec.type === \"integer\") return isInt(x);\n    if (kind === \"time\") return isInt(x) && x.n < DAY;", "    if (spec.type === \"integer\") return isInt(x);\n    if (kind === \"time\") return isInt(x);"]
 ];
 
 let caught = 0;

@@ -294,8 +294,8 @@
   /* A fraction has no decimal point, so its keypad trades the point for a
      Next key that moves from box to box. */
   function Keypad(o) {
-    var fraction = o.kind === "fraction" || o.kind === "mixed";
-    var keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", fraction ? "Next" : ".", "0", "Delete"];
+    var boxes = o.kind === "fraction" || o.kind === "mixed" || o.kind === "time";
+    var keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", boxes ? "Next" : ".", "0", "Delete"];
     var grid = el("div.am-keypad", {
       style: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "var(--space-2)" }
     });
@@ -323,7 +323,7 @@
      for a mixed number. Each box is a full tap target and the one being typed
      into carries the caret and the blue edge. A prefix (the peso sign) sits
      before the answer and a suffix (%, a unit, pi) after it. */
-  var BOX_NAMES = { whole: "Whole number", num: "Numerator", den: "Denominator" };
+  var BOX_NAMES = { whole: "Whole number", num: "Numerator", den: "Denominator", hour: "Hours", minute: "Minutes" };
 
   function AnswerField(o) {
     var e = o.entry;
@@ -369,6 +369,25 @@
           color: "var(--ink-900)", cursor: "pointer"
         }
       }, value, on ? caret() : null);
+    }
+
+    /* A clock time reads across: hours, a colon, minutes. */
+    if (e.kind === "time") {
+      return el("div.am-answer-field", {
+        role: "group",
+        "aria-label": "Your answer: " + (active ? AM.entry.text(e) : "empty"),
+        style: {
+          border: "2px solid " + (active ? "var(--brand-blue-600)" : "var(--line-200)"),
+          borderRadius: "var(--radius-sm)", background: "var(--surface-200)",
+          display: "flex", alignItems: "center", gap: "var(--space-2)",
+          padding: "var(--space-2) " + (o.tall ? "20px" : "var(--space-4)")
+        }
+      },
+        box("hour"),
+        el("span.heading-lg", { "aria-hidden": "true", style: { color: "var(--ink-900)" } }, ":"),
+        box("minute"),
+        affix(o.suffix)
+      );
     }
 
     var stacked = el("span", { style: { display: "inline-flex", flexDirection: "column", alignItems: "stretch", gap: 4 } },

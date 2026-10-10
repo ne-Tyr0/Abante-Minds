@@ -1,9 +1,9 @@
 /* Abante Minds — answer entry.
    What the learner has typed so far, held as boxes: one box for a number, a
-   numerator over a denominator for a fraction, and a whole number beside the
-   two for a mixed number. These are plain functions over a small state
-   object, so the keypad, a hardware keyboard and the tests all go through the
-   same rules. The engine (content.js) reads the finished text; this file only
+   numerator over a denominator for a fraction, a whole number beside the
+   two for a mixed number, and hours then minutes for a clock time. These are
+   plain functions over a small state object, so the keypad, a hardware
+   keyboard and the tests all go through the same rules. The engine (content.js) reads the finished text; this file only
    decides what each key does. */
 (function () {
   "use strict";
@@ -13,10 +13,12 @@
   var BOXES = {
     number: ["value"],
     fraction: ["num", "den"],
-    mixed: ["whole", "num", "den"]
+    mixed: ["whole", "num", "den"],
+    time: ["hour", "minute"]
   };
   var NUMBER_MAX = 7; /* characters across the field */
   var BOX_MAX = 3;    /* digits in a fraction box */
+  var CLOCK_MAX = 2;  /* digits of hours, and of minutes */
 
   function create(kind) {
     var boxes = BOXES[kind];
@@ -42,10 +44,19 @@
     } else if (!/^[0-9]$/.test(key)) {
       return e;
     }
-    if (cur.length >= (e.kind === "number" ? NUMBER_MAX : BOX_MAX)) return e;
+    if (cur.length >= (e.kind === "number" ? NUMBER_MAX : e.kind === "time" ? CLOCK_MAX : BOX_MAX)) return e;
+    if (e.kind === "time" && !onTheClock(e.box, cur + key)) return e;
     var n = copy(e);
     n.parts[n.box] = cur + key;
+    /* Two digits of hours are all there can be, so the minutes come next. */
+    if (n.kind === "time" && n.box === "hour" && n.parts.hour.length === CLOCK_MAX) n.box = "minute";
     return n;
+  }
+
+  /* A clock time can only be a real one: hours up to 23, and minutes up to
+     59, so a first digit of minutes above 5 is refused. */
+  function onTheClock(box, digits) {
+    return box === "hour" ? +digits <= 23 : digits.length === CLOCK_MAX || +digits <= 5;
   }
 
   /* Delete the last character of the box in use. In an empty box, step back
@@ -59,7 +70,8 @@
     return n;
   }
 
-  /* Move to the next box: whole, then numerator, then denominator. */
+  /* Move to the next box: whole, then numerator, then denominator; hours,
+     then minutes. */
   function next(e) {
     var boxes = BOXES[e.kind], i = boxes.indexOf(e.box);
     if (i < 0 || i === boxes.length - 1) return e;
@@ -81,19 +93,22 @@
 
   /* Ready to check: a number with at least one digit; a fraction with both
      boxes filled; a mixed number with its fraction filled, or only a whole
-     number, which is an answer the checker can judge. */
+     number, which is an answer the checker can judge; a time with its hours
+     and both digits of its minutes. */
   function complete(e) {
     var p = e.parts;
     if (e.kind === "number") return /\d/.test(p.value);
+    if (e.kind === "time") return !!p.hour && p.minute.length === CLOCK_MAX;
     if (e.kind === "fraction") return !!(p.num && p.den);
     if (p.num && p.den) return true;
     return !!p.whole && !p.num && !p.den;
   }
 
-  /* The entry as the checker reads it: 36.5, 3/4, 2 3/4, or 2. */
+  /* The entry as the checker reads it: 36.5, 3/4, 2 3/4, 2, or 14:05. */
   function text(e) {
     var p = e.parts;
     if (e.kind === "number") return p.value;
+    if (e.kind === "time") return p.hour + ":" + p.minute;
     var fraction = p.num + "/" + p.den;
     if (e.kind === "fraction") return fraction;
     if (!p.num && !p.den) return p.whole;
@@ -101,7 +116,7 @@
   }
 
   AM.entry = {
-    BOXES: BOXES, NUMBER_MAX: NUMBER_MAX, BOX_MAX: BOX_MAX,
+    BOXES: BOXES, NUMBER_MAX: NUMBER_MAX, BOX_MAX: BOX_MAX, CLOCK_MAX: CLOCK_MAX,
     create: create, press: press, del: del, next: next, focus: focus,
     isEmpty: isEmpty, complete: complete, text: text
   };

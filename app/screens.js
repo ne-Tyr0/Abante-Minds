@@ -1215,7 +1215,9 @@
       if (q.type === "compute") {
         left.appendChild(answerField(true));
         if (ses.phase === "ask") left.appendChild(el("div.body-sm", { style: { color: "var(--ink-600)" } },
-          q.entry === "number" ? "Type on the keyboard or use the keypad." : "Type on the keyboard or use the keypad. / or space moves to the next box."));
+          q.entry === "number" ? "Type on the keyboard or use the keypad."
+            : q.entry === "time" ? "Type on the keyboard or use the keypad. : or space moves to the minutes."
+            : "Type on the keyboard or use the keypad. / or space moves to the next box."));
       }
       if (ses.phase === "ask") {
         left.appendChild(el("div", { style: { display: "flex", gap: "var(--space-3)", marginTop: "var(--space-2)" } },

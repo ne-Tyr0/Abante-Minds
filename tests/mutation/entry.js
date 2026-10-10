@@ -14,12 +14,18 @@ const WORK = process.argv[3] || fs.mkdtempSync(path.join(os.tmpdir(), "am-mutant
 const SRC = fs.readFileSync(path.join(REPO, "app/entry.js"), "utf8").split("\r\n").join("\n");
 const M = [
   ["decimal point in a fraction box", 'if (e.kind !== "number" || cur.indexOf(".") > -1) return e;', 'if (cur.indexOf(".") > -1) return e;'],
-  ["no box length limit", 'if (cur.length >= (e.kind === "number" ? NUMBER_MAX : BOX_MAX)) return e;', 'if (cur.length >= NUMBER_MAX) return e;'],
+  ["no box length limit", 'if (cur.length >= (e.kind === "number" ? NUMBER_MAX : e.kind === "time" ? CLOCK_MAX : BOX_MAX)) return e;', 'if (cur.length >= NUMBER_MAX) return e;'],
   ["delete does not step back", "    if (i > 0) n.box = boxes[i - 1];", ""],
   ["next runs past the last box", "    if (i < 0 || i === boxes.length - 1) return e;", "    if (i < 0) return e;"],
   ["mixed needs a whole number to check", "    if (p.num && p.den) return true;", "    if (p.whole && p.num && p.den) return true;"],
   ["empty whole leaves a stray space", "    return p.whole ? p.whole + \" \" + fraction : fraction;", "    return p.whole + \" \" + fraction;"],
-  ["state changed in place", "    var n = copy(e);\n    n.parts[n.box] = cur + key;\n    return n;", "    e.parts[e.box] = cur + key;\n    return e;"]
+  ["hour 24 allowed", "return box === \"hour\" ? +digits <= 23 :", "return box === \"hour\" ? +digits <= 29 :"],
+  ["70 minutes allowed", ": digits.length === CLOCK_MAX || +digits <= 5;", ": digits.length === CLOCK_MAX || +digits <= 9;"],
+  ["no move to the minutes", "    if (n.kind === \"time\" && n.box === \"hour\" && n.parts.hour.length === CLOCK_MAX) n.box = \"minute\";\n", ""],
+  ["minutes take three digits", "e.kind === \"time\" ? CLOCK_MAX : BOX_MAX", "BOX_MAX"],
+  ["time complete with one digit of minutes", "    if (e.kind === \"time\") return !!p.hour && p.minute.length === CLOCK_MAX;", "    if (e.kind === \"time\") return !!p.hour && !!p.minute;"],
+  ["time without its colon", "    if (e.kind === \"time\") return p.hour + \":\" + p.minute;", "    if (e.kind === \"time\") return p.hour + p.minute;"],
+  ["state changed in place", "    var n = copy(e);\n    n.parts[n.box] = cur + key;\n    /* Two digits", "    var n = e;\n    n.parts[n.box] = cur + key;\n    /* Two digits"]
 ];
 fs.mkdirSync(path.join(WORK, "app"), { recursive: true });
 fs.mkdirSync(path.join(WORK, "tests"), { recursive: true });

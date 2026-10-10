@@ -48,6 +48,9 @@ const signed = (s) => /(^|[\s(])[-\u2212]\d/.test(s);
 // "a 8 m ribbon", "a 11 m rectangle": a number read with a vowel sound
 // (eight, eleven, eighteen, eighty, eight hundred) takes "an".
 const article = (s) => /(^|[\s(])[Aa] (8|11(?!\d)|18(?!\d))/.test(s);
+// "closes at 9:30 p.m.." : two full stops where a sentence ends on an
+// abbreviation. Three in a row is an ellipsis and is left alone.
+const stops = (s) => /(^|[^.])\.\.(?!\.)/.test(s);
 
 const SEEDS = 600;
 const TIERS = [1, 2, 3, 4];
@@ -107,6 +110,8 @@ function check(q) {
     fail("answer needs more than 4 decimal places", q, String(q.answer));
   else if (q.entry === "number" && q.answerText.length > KEYPAD_MAX)
     fail("answer is longer than the keypad allows", q, q.answerText);
+  else if (q.entry === "time" && !(Number.isInteger(q.answer) && q.answer < 1440 && /^\d\d:\d\d$/.test(q.answerText)))
+    fail("time answer is not a time on the clock", q, q.answerText);
   else if ((q.entry === "fraction" || q.entry === "mixed") &&
            (Number.isInteger(q.answer) || q.answerText.split(/[ /]/).some((p) => p.length > global.AM.entry.BOX_MAX)))
     fail("fraction answer does not fit its boxes", q, q.answerText);
@@ -127,7 +132,9 @@ function check(q) {
   for (const s of [q.prompt, q.explain, ...(q.hints || []), ...(q.steps || []), ...q.distractors.map((d) => d.feedback), ...chart]) {
     if (signed(s)) fail("a negative number in the words", q, s);
     if (article(s)) fail("'a' before a number read with a vowel sound", q, s);
+    if (stops(s)) fail("two full stops in a row", q, s);
   }
+  for (const s of q.choices || []) if (stops(s)) fail("two full stops in a row", q, s);
 
   // 4. multiple choice must be answerable
   if (q.type === "choice") {
@@ -151,6 +158,7 @@ function check(q) {
       ? q.choiceValues.findIndex((v) => C.engine.eq(v, d.exact))
       : q.entry === "fraction" ? C.engine.frac(d.exact)
       : q.entry === "mixed" ? C.engine.mixed(d.exact)
+      : q.entry === "time" ? C.engine.clock(d.exact)
       : C.engine.fmt(d.exact);
     const got = C.diagnose(q, entry);
     if (got.correct) markedRight.push(d.error);

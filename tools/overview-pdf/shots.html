@@ -138,11 +138,12 @@ function run() {
       text.split("").forEach(function (k) { if (k === ">") AM.app.nextBox(); else AM.app.type(k); });
     }
 
-    /* One item of the data topic on the practice screen, with its chart:
-       typed (or picked) and, when asked, checked. */
-    function dataItem(level, id, params, given, check) {
-      AM.store.markLessonSeen("data", level);
-      AM.app.startLevel("data", level);
+    /* One item of a topic on the practice screen: typed (or picked) and,
+       when asked, checked. */
+    function dataItem(level, id, params, given, check) { topicItem("data", level, id, params, given, check); }
+    function topicItem(topic, level, id, params, given, check) {
+      AM.store.markLessonSeen(topic, level);
+      AM.app.startLevel(topic, level);
       var ds = AM.app.session;
       ds.questions[0] = AM.content.instance(id, 1, params);
       ds.entry = ds.questions[0].entry ? AM.entry.create(ds.questions[0].entry) : null;
@@ -349,6 +350,19 @@ function run() {
         break;
       case "data-table":
         dataItem("problems", "data.table-difference", { u1: 5, v1: 25, u2: 6, v2: 5, u3: 25, v3: 28, u4: 0, v4: 30, w: 2 }, "0.5");
+        break;
+      /* Not in the PDF: the time topic's clock-time answers, for review. */
+      case "time-entry":
+        topicItem("time", "24-hour", "time.to-24", { h: 15, m: 45 }, "15");
+        break;
+      case "time-correct":
+        topicItem("time", "start-and-end", "time.end-time", { s: 890, d: 105 }, "1635", true);
+        break;
+      case "time-wrong":
+        topicItem("time", "time-zones", "time.zone-convert", { p: 5, t: 900 }, "1900", true);
+        break;
+      case "time-choice":
+        topicItem("time", "how-long", "time.store-hours", { s: 510, e: 1290 }, 1, true);
         break;
       default:
         document.title = "UNKNOWN-SCREEN";
