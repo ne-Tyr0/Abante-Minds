@@ -58,7 +58,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/content.js` | The question engine: installs a pack, draws numbers, renders questions and their charts, checks answers and names mistakes. Expressions are parsed, never `eval`'d, and computed in exact fractions. No questions live in code |
 | `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
 | `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
-| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`) and missing-number algebra (`missing.json`). How to write one: `content/packs/README.md` |
+| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
 | `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak |
 | `app/screens.js` | One builder per route |
@@ -173,9 +173,10 @@ Settled with the project owner. Build on them; don't reopen them.
 11. ~~**Write the 13 path topics**.~~ **Done** — every topic on the path is written and covers
     all of its practicable competencies: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability and
     transformations.
-12. ~~**Basics**.~~ **Done** — five topics beside the path: adding and subtracting (158
+12. ~~**Basics**.~~ **Done** — seven topics beside the path: adding and subtracting (158
     facts and two practice levels), the times tables (180 facts), mental math (six
-    practice levels), pen-and-paper methods (four) and missing-number algebra (six).
+    practice levels), pen-and-paper methods (four), missing-number algebra (six),
+    fraction, decimal and per cent equivalents (57 facts) and squares and cubes (38 facts).
 
 Then research instrumentation (Phase 3) and citability (Phase 4), in `RESEARCH-PLAN.md`.
 

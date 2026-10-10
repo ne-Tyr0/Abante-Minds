@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.17.0",
+  "version": "1.18.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
@@ -29,6 +29,8 @@
     { "key": "times", "label": "Times tables", "icon": "streak", "colorKey": 3, "file": "times.json" },
     { "key": "mental", "label": "Mental math", "icon": "hint", "colorKey": 4, "file": "mental.json" },
     { "key": "written", "label": "Pen and paper", "icon": "lesson", "colorKey": 2, "file": "written.json" },
-    { "key": "missing", "label": "Missing numbers", "icon": "scales", "colorKey": 3, "file": "missing.json" }
+    { "key": "missing", "label": "Missing numbers", "icon": "scales", "colorKey": 3, "file": "missing.json" },
+    { "key": "equivalents", "label": "Fractions and per cents", "icon": "percent", "colorKey": 2, "file": "equivalents.json" },
+    { "key": "powers", "label": "Squares and cubes", "icon": "star", "colorKey": 1, "file": "powers.json" }
   ]
 }
