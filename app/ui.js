@@ -609,6 +609,158 @@
     return el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)", width: "100%", maxWidth: 480 } }, table, legend);
   }
 
+  /* ---------- Chart ----------
+     The graph or table that comes with a question; content.js works out its
+     numbers (renderChart). A graph is SVG in a fixed 320-wide box that scales
+     with the column, so a phone and a desktop see the same picture, and its
+     accessible name is the whole data in words. A table is a real table.
+     Two series differ in more than colour: the second is striped in a bar
+     graph and dashed with square points in a line graph. A pie's slices carry
+     their labels, and the key beside it lists them clockwise from the top. */
+  var SVG_NS = "http://www.w3.org/2000/svg";
+  var SERIES_INK = ["var(--brand-blue-600)", "var(--skill-4-600)"];
+  var SLICE_INK = ["var(--brand-blue-600)", "var(--skill-4-600)", "var(--skill-2-600)",
+    "var(--skill-3-600)", "var(--skill-1-600)", "var(--ink-600)"];
+  var chartCount = 0;
+
+  function svg(tag, attrs, kids) {
+    var node = document.createElementNS(SVG_NS, tag);
+    Object.keys(attrs || {}).forEach(function (k) { node.setAttribute(k, attrs[k]); });
+    (kids || []).forEach(function (k) {
+      if (k) node.appendChild(typeof k === "string" ? document.createTextNode(k) : k);
+    });
+    return node;
+  }
+  function label(x, y, text, o) {
+    o = o || {};
+    return svg("text", {
+      x: x, y: y, "text-anchor": o.anchor || "start", "font-size": o.size || 11,
+      style: "fill: " + (o.ink || "var(--ink-600)") + (o.bold ? "; font-weight: 700" : "")
+    }, [text]);
+  }
+  function seriesFill(si, id) { return si ? "url(#" + id + ")" : SERIES_INK[0]; }
+  /* A sample of a series, for the key: a swatch of a bar, or a stretch of
+     line with its point. */
+  function seriesMark(kind, si, id) {
+    if (kind === "bar") {
+      return svg("svg", { width: 16, height: 16, viewBox: "0 0 16 16", "aria-hidden": "true" },
+        [svg("rect", { x: 1, y: 1, width: 14, height: 14, style: "fill: " + seriesFill(si, id) })]);
+    }
+    return svg("svg", { width: 28, height: 16, viewBox: "0 0 28 16", "aria-hidden": "true" }, [
+      svg("line", { x1: 1, x2: 27, y1: 8, y2: 8, style: "stroke: " + SERIES_INK[si] + "; stroke-width: 2.5" + (si ? "; stroke-dasharray: 6 4" : "") }),
+      si ? svg("rect", { x: 10, y: 4, width: 8, height: 8, style: "fill: " + SERIES_INK[1] })
+        : svg("circle", { cx: 14, cy: 8, r: 4.5, style: "fill: " + SERIES_INK[0] })
+    ]);
+  }
+  function keyItem(mark, text) {
+    return el("span.caption", { style: { display: "inline-flex", alignItems: "center", gap: 6, color: "var(--ink-900)" } }, mark, text);
+  }
+
+  function axisChart(c, id) {
+    var W = 320, H = 204, T = 24, B = 22, R = 8;
+    var longest = Math.max.apply(null, c.ticks.map(function (k) { return k.label.length; }));
+    var L = Math.round(longest * 6.6 + 12);
+    var plotW = W - L - R, plotH = H - T - B, n = c.categories.length, gw = plotW / n;
+    function y(v) { return T + plotH - (v / c.top) * plotH; }
+    function x(i) { return L + gw * (i + 0.5); }
+    var root = svg("svg", { viewBox: "0 0 " + W + " " + H, width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    root.style.overflow = "visible";
+    root.appendChild(svg("defs", {}, [svg("pattern", { id: id, width: 6, height: 6, patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" }, [
+      svg("rect", { width: 6, height: 6, style: "fill: " + SERIES_INK[1] }),
+      svg("line", { x1: 1, y1: 0, x2: 1, y2: 6, style: "stroke: var(--surface-200); stroke-width: 2; stroke-opacity: 0.6" })
+    ])]));
+    root.appendChild(label(0, 12, c.axis));
+    c.ticks.forEach(function (k) {
+      root.appendChild(svg("line", { x1: L, x2: W - R, y1: y(k.value), y2: y(k.value), style: "stroke: var(--surface-300); stroke-width: 1" }));
+      root.appendChild(label(L - 6, y(k.value) + 4, k.label, { anchor: "end" }));
+    });
+    var two = c.series.length > 1;
+    if (c.kind === "bar") {
+      var bw = two ? Math.min(gw * 0.34, 26) : Math.min(gw * 0.5, 36);
+      c.series.forEach(function (s, si) {
+        s.values.forEach(function (v, i) {
+          if (v <= 0) return;
+          var left = two ? x(i) - bw + si * bw : x(i) - bw / 2;
+          root.appendChild(svg("rect", { x: left, y: y(v), width: bw, height: y(0) - y(v), style: "fill: " + seriesFill(si, id) }));
+        });
+      });
+    } else {
+      c.series.forEach(function (s, si) {
+        var pts = s.values.map(function (v, i) { return [x(i), y(v)]; });
+        root.appendChild(svg("polyline", {
+          points: pts.map(function (p) { return p[0] + "," + p[1]; }).join(" "),
+          style: "fill: none; stroke: " + SERIES_INK[si] + "; stroke-width: 2.5; stroke-linejoin: round" + (si ? "; stroke-dasharray: 6 4" : "")
+        }));
+        pts.forEach(function (p) {
+          root.appendChild(si
+            ? svg("rect", { x: p[0] - 4, y: p[1] - 4, width: 8, height: 8, style: "fill: " + SERIES_INK[1] })
+            : svg("circle", { cx: p[0], cy: p[1], r: 4.5, style: "fill: " + SERIES_INK[0] }));
+        });
+      });
+    }
+    root.appendChild(svg("line", { x1: L, x2: L, y1: T - 6, y2: y(0), style: "stroke: var(--line-200); stroke-width: 1.5" }));
+    root.appendChild(svg("line", { x1: L, x2: W - R, y1: y(0), y2: y(0), style: "stroke: var(--line-200); stroke-width: 1.5" }));
+    c.categories.forEach(function (cat, i) { root.appendChild(label(x(i), H - 6, cat, { anchor: "middle", ink: "var(--ink-900)" })); });
+    var key = two ? el("div", { style: { display: "flex", gap: "var(--space-4)", flexWrap: "wrap", justifyContent: "center" } },
+      c.series.map(function (s, si) { return keyItem(seriesMark(c.kind, si, id), s.name); })) : null;
+    return [root, key];
+  }
+
+  function pieChart(c) {
+    var r = 96, cx = 100, cy = 100, total = 0, a = -Math.PI / 2;
+    c.slices.forEach(function (s) { total += s.value; });
+    var root = svg("svg", { viewBox: "0 0 200 200", width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    root.style.maxWidth = "190px";
+    root.style.margin = "0 auto";
+    function at(angle, radius) { return (cx + radius * Math.cos(angle)).toFixed(2) + " " + (cy + radius * Math.sin(angle)).toFixed(2); }
+    c.slices.forEach(function (s, i) {
+      var sweep = s.value / total * 2 * Math.PI, end = a + sweep, mid = a + sweep / 2;
+      root.appendChild(svg("path", {
+        d: "M" + cx + " " + cy + " L" + at(a, r) + " A" + r + " " + r + " 0 " + (sweep > Math.PI ? 1 : 0) + " 1 " + at(end, r) + " Z",
+        style: "fill: " + SLICE_INK[i] + "; stroke: var(--surface-200); stroke-width: 2; stroke-linejoin: round"
+      }));
+      var p = at(mid, r * 0.62).split(" ");
+      root.appendChild(label(p[0], +p[1] + 5, s.hidden ? "?" : s.label, { anchor: "middle", size: 14, bold: true, ink: "var(--ink-inverse)" }));
+      a = end;
+    });
+    var key = el("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))", gap: "var(--space-2) var(--space-4)" } },
+      c.slices.map(function (s, i) {
+        return keyItem(svg("svg", { width: 16, height: 16, viewBox: "0 0 16 16", "aria-hidden": "true" },
+          [svg("rect", { x: 1, y: 1, width: 14, height: 14, rx: 3, style: "fill: " + SLICE_INK[i] })]),
+          s.name + " " + (s.hidden ? "?" : s.label));
+      }));
+    return [root, key];
+  }
+
+  function tableChart(c) {
+    var cell = { padding: "8px 10px", borderBottom: "1px solid var(--surface-300)", textAlign: "right" };
+    function first(o) { var s = {}; Object.keys(cell).forEach(function (k) { s[k] = cell[k]; }); s.textAlign = "left"; Object.keys(o || {}).forEach(function (k) { s[k] = o[k]; }); return s; }
+    var head = el("tr", null, el("th.label", { scope: "col", style: first({ color: "var(--ink-600)" }) }, c.axis),
+      c.series.map(function (s) { return el("th.label", { scope: "col", style: { padding: cell.padding, borderBottom: "2px solid var(--line-200)", textAlign: "right", color: "var(--ink-600)" } }, s.name); }));
+    head.firstChild.style.borderBottom = "2px solid var(--line-200)";
+    var rows = c.categories.map(function (cat, i) {
+      return el("tr", null, el("th.body", { scope: "row", style: first({ fontWeight: 500 }) }, cat),
+        c.series.map(function (s) { return el("td.body", { style: cell }, s.labels[i]); }));
+    });
+    return el("table", { style: { borderCollapse: "collapse", width: "100%", fontVariantNumeric: "tabular-nums" } },
+      el("caption.label", { style: { captionSide: "top", textAlign: "left", paddingBottom: 8, color: "var(--ink-900)" } }, c.title),
+      el("thead", null, head), el("tbody", null, rows));
+  }
+
+  function Chart(c) {
+    var box = {
+      background: "var(--surface-200)", borderRadius: "var(--radius-md)", boxShadow: "inset 0 0 0 1px var(--surface-300)",
+      padding: "var(--space-3)", display: "flex", flexDirection: "column", gap: "var(--space-3)",
+      width: "100%", maxWidth: 480, boxSizing: "border-box", margin: 0
+    };
+    if (c.kind === "table") return el("div.am-chart", { style: box }, tableChart(c));
+    var parts = c.kind === "pie" ? pieChart(c) : axisChart(c, "am-chart-" + (++chartCount));
+    return el("figure.am-chart", { role: "img", "aria-label": c.text, style: box },
+      el("div.label", { "aria-hidden": "true", style: { color: "var(--ink-900)" } }, c.title), parts);
+  }
+
   /* A pill that states a fact — streak, level, topic. Never an action. */
   function Chip(o) {
     return el("span.caption", {
@@ -645,4 +797,5 @@
   AM.Card = Card;
   AM.Chip = Chip;
   AM.FactGrid = FactGrid;
+  AM.Chart = Chart;
 })();

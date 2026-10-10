@@ -31,6 +31,8 @@ const lvl = (j, id) => j.levels.find((l) => l.id === id);
 const D = "decimals.json", M = "manifest.json", TT = "times.json";
 const ttpl = (j, id) => j.templates.find((t) => t.id === "times." + id);
 const PIECES = { template: "decimals.how-many-pieces", params: { vi: 25, t: 30, p: 45 } };
+const DA = "data.json";
+const chart = (j, id) => j.templates.find((t) => t.id === "data." + id).chart;
 const pin = (j, p) => { j.pinned = [Object.assign({}, PIECES, p, { params: Object.assign({}, PIECES.params, p && p.params) })]; };
 
 const MUTANTS = [
@@ -185,11 +187,40 @@ const MUTANTS = [
   ["Basics not a list", M, (j) => { j.basics = {}; }, "basics must be a list"],
   ["Basics file for another topic", TT, (j) => { j.topic = "time"; }, "file says topic 'time'"],
   ["Basics file unknown field", TT, (j) => { j.pinned = []; }, "unknown field 'pinned'"],
+  // charts
+  ["chart unknown field", DA, (j) => { chart(j, "read-bar").colour = 1; }, "chart has an unknown field 'colour'"],
+  ["chart of an unknown kind", DA, (j) => { chart(j, "read-bar").kind = "scatter"; }, "chart kind is one of bar, line, pie, table"],
+  ["chart that states the answer", DA, (j) => { chart(j, "read-bar").title = "{answer}"; }, "chart title {answer} uses 'answer'"],
+  ["pie with an axis", DA, (j) => { chart(j, "pie-angle").axis = "Pupils"; }, "a pie graph has no axis"],
+  ["pie in an unknown unit", DA, (j) => { chart(j, "pie-angle").unit = "deg"; }, "a pie graph's unit is % or °"],
+  ["pie of one slice", DA, (j) => { const c = chart(j, "pie-angle"); c.slices = c.slices.slice(0, 1); }, "a pie graph has 2 to 6 slices"],
+  ["series short of a value", DA, (j) => { chart(j, "read-bar").series[0].values.pop(); }, "series 0 needs one value per category"],
+  ["graph with three series", DA, (j) => { const s = chart(j, "read-bar").series; s.push(s[0]); }, "a bar has 1 to 2 series"],
+  ["table with a step", DA, (j) => { chart(j, "table-difference").step = "1"; }, "a table has no step"],
+  ["graph with no step", DA, (j) => { delete chart(j, "read-bar").step; }, "chart step must be an expression"],
+  ["graph of one category", DA, (j) => { const c = chart(j, "read-bar"); c.categories = c.categories.slice(0, 1); }, "a chart has 2 to 8 categories"],
+  ["value between gridlines", DA, (j) => { chart(j, "read-bar").step = "st * 3"; }, "so it cannot be read"],
+  ["too many gridlines", DA, (j) => { chart(j, "read-bar").step = "st / 2"; }, "steps up its side; it needs 2 to 10"],
+  ["negative value", DA, (j) => { chart(j, "read-bar").series[0].values[0] = "0 - a1"; }, "has the value -"],
+  ["categories too long to fit", DA, (j) => { chart(j, "read-bar").categories[0] = "The long rainy month"; }, "categories do not fit"],
+  ["two categories the same", DA, (j) => { const c = chart(j, "read-line"); c.categories[1] = c.categories[0]; }, "names two categories the same"],
+  ["two series the same", DA, (j) => { const s = chart(j, "read-bar").series; s[1].name = s[0].name; }, "names two series the same"],
+  ["series name too long", DA, (j) => { chart(j, "read-bar").series[0].name = "The Grade 5 pupils of Rizal"; }, "is longer than 16 characters"],
+  ["chart title too long", DA, (j) => { chart(j, "table-difference").title = "The price of a kilo of well-milled rice at two stores"; }, "title is longer than 48 characters"],
+  ["pie that is not one whole", DA, (j) => { chart(j, "pie-angle").slices[3].value = "p4 + 5"; }, "not 100%"],
+  ["pie slice too thin to label", DA, (j) => { j.templates.find((t) => t.id === "data.pie-angle").params.p1.range = [5, 35]; }, "too thin to label"],
+  ["pie slice in parts of a per cent", DA, (j) => { const c = chart(j, "pie-angle"); c.slices[0].value = "p1 + 0.5"; c.slices[3].value = "p4 - 0.5"; }, "not a whole number"],
+  ["pie with two hidden slices", DA, (j) => { chart(j, "pie-missing").slices[0].hidden = "sl != 1"; }, "hides more than one slice"],
+  ["two slices the same", DA, (j) => { const s = chart(j, "pie-angle").slices; s[1].name = s[0].name; }, "names two slices the same"],
+  ["slice name too long", DA, (j) => { chart(j, "pie-percent").slices[0].name = "Science and Health"; }, "slice name 'Science and Health' is longer than 16"],
+  ["slice with an unknown field", DA, (j) => { chart(j, "pie-angle").slices[0].colour = "red"; }, "slice 0 has an unknown field 'colour'"],
+  ["chart label using an unknown name", DA, (j) => { chart(j, "table-difference").label = "{peso(price)}"; }, "chart label {peso(price)} uses 'price'"],
   // controls: these must pass
   ["control: pinned item, two formats, none named", D, (j) => { pin(j); }, null],
   ["control: a fourth format", D, (j) => { const f = j.templates[0].formats; f.push(Object.assign({}, f[0], { id: "fourth" })); }, null],
   ["control: a percent answer with places", D, (j) => { const a = tpl(j, "change-money").answer; a.type = "percent"; delete a.prefix; }, null],
-  ["control: a smaller grid", TT, (j) => { j.grid.to = 10; }, null]
+  ["control: a smaller grid", TT, (j) => { j.grid.to = 10; }, null],
+  ["control: a table with a third column", DA, (j) => { chart(j, "table-difference").series.push({ name: "Store C", values: ["a1", "b1", "a2", "b2"] }); }, null]
 ];
 
 /* MUTANT=<part of a name> runs only the matching mutants. */

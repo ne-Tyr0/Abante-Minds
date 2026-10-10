@@ -1,0 +1,1313 @@
+{
+  "topic": "data",
+  "levels": [
+    {
+      "id": "reading",
+      "title": "Choosing and reading graphs",
+      "templates": ["data.which-graph", "data.read-bar", "data.read-line"],
+      "lesson": [
+        {
+          "title": "Which graph?",
+          "body": "A bar graph compares amounts in categories. A line graph shows how an amount changes over time. A pie graph shows how one whole is split into parts. A double bar or double line graph shows two sets at once, with a key to tell them apart."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "data.read-bar",
+            "format": "read",
+            "params": {
+              "ctx": 1,
+              "a1": 6,
+              "a2": 8,
+              "a3": 5,
+              "a4": 7,
+              "b1": 4,
+              "b2": 9,
+              "b3": 7,
+              "b4": 10,
+              "sr": 2,
+              "m": 3
+            }
+          }
+        },
+        {
+          "title": "Reading a value",
+          "body": "Find the category along the bottom. Then follow the top of the bar, or the point on the line, across to the numbers on the side. Every bar and point here sits on a gridline, so you can read it exactly."
+        }
+      ]
+    },
+    {
+      "id": "comparing",
+      "title": "Comparing and adding",
+      "templates": ["data.bar-difference", "data.line-change", "data.bar-total"],
+      "lesson": [
+        {
+          "title": "How many more?",
+          "body": "To compare two bars, take the shorter from the taller. How many more is a difference, never a sum."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "data.bar-difference",
+            "format": "more",
+            "params": {"ctx": 3, "a1": 9, "a2": 4, "a3": 6, "a4": 3, "b1": 5, "b2": 8, "b3": 6, "b4": 4, "m": 2}
+          }
+        },
+        {
+          "title": "Change on a line",
+          "body": "When a line goes up from one point to the next, the amount increased; when it goes down, it decreased. The size of the change is the difference between the two points."
+        }
+      ]
+    },
+    {
+      "id": "conclusions",
+      "title": "Drawing conclusions",
+      "templates": ["data.most-difference", "data.trend", "data.average"],
+      "lesson": [
+        {
+          "title": "Look at the whole graph",
+          "body": "A conclusion comes from the whole graph, not one bar. Where is the gap between the two sets biggest? Does the line rise all the way, or turn?"
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "data.average",
+            "format": "average",
+            "params": {"ctx": 1, "a1": 6, "a2": 4, "a3": 8, "a4": 5, "mean": 6}
+          }
+        },
+        {
+          "title": "The average",
+          "body": "The average is the total shared equally: add all the values, then divide by how many there are. Five days with a total of 150 is 150 ÷ 5 = 30 a day."
+        }
+      ]
+    },
+    {
+      "id": "pie-graphs",
+      "title": "Pie graphs",
+      "templates": ["data.pie-missing", "data.pie-angle", "data.pie-percent", "data.pie-fraction"],
+      "lesson": [
+        {
+          "title": "One whole",
+          "body": "A pie graph is one whole. Its percents add up to 100%, and the angles at its centre add up to 360°."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "data.pie-angle",
+            "format": "angle",
+            "params": {"ctx": 2, "p1": 15, "p2": 20, "p3": 25, "sl": 4}
+          }
+        },
+        {
+          "title": "Percent and angle",
+          "body": "1% of the circle is 360° ÷ 100 = 3.6°. So 25% is 25 × 3.6 = 90°, and an angle of 72° is 72 ÷ 3.6 = 20%."
+        }
+      ]
+    },
+    {
+      "id": "problems",
+      "title": "Graph and table problems",
+      "templates": ["data.pie-amount", "data.pie-count", "data.table-difference", "data.table-average"],
+      "lesson": [
+        {
+          "title": "What a slice stands for",
+          "body": "A slice stands for its part of the whole amount. A 30% slice of ₱500 is 30 × ₱5 = ₱150; a 90° slice of 40 pupils is 90/360 = 1/4 of them, 10 pupils."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "data.pie-amount",
+            "format": "amount",
+            "params": {"ctx": 1, "p1": 20, "p2": 15, "p3": 25, "sl": 4, "amt": 500}
+          }
+        },
+        {
+          "title": "Tables",
+          "body": "A table gives exact values in rows and columns, as many websites and news reports do. Find the row, then the column, and the value is where they meet."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "data.which-graph",
+      "competency": "G5.Q3.2",
+      "domain": "DP",
+      "construct": "Choose the graph that suits a data set",
+      "schema": "compare",
+      "params": {"s": {"range": [1, 10]}, "g": {"value": "floor((s + 1) / 2)"}},
+      "answer": {
+        "type": "choice",
+        "value": "g",
+        "label": "{pick(value, 'A bar graph', 'A double bar graph', 'A line graph', 'A double line graph', 'A pie graph')}",
+        "order": "size"
+      },
+      "formats": [
+        {
+          "id": "situation",
+          "prompt": "Which graph would show this data best: {pick(s, 'the heights of the five tallest mountains in the Philippines', 'the prices of a kilo of rice, pork, fish and sugar', 'how many boys and how many girls are in each of four sections', 'the scores of Team A and Team B in each of five subjects of a quiz bee', 'the mass of a baby, measured on the first day of every month for a year', 'the temperature in Baguio, taken every hour from 6 a.m. to 6 p.m.', 'the monthly sales of two stores from January to June', 'the temperatures in Manila and in Baguio, taken every hour from 6 a.m. to 6 p.m.', 'how a family divides its monthly income among food, rent, bills and savings', 'what part of a whole class chose each of four favourite fruits')}?"
+        }
+      ],
+      "hints": [
+        "Is the data about time passing, about categories, or about parts of one whole?",
+        "Is there one set of data, or two to compare?",
+        "{g == 5 ? 'Nothing here changes over time, so it is not a line graph.' : 'These amounts are not parts of one whole, so it is not a pie graph.'}"
+      ],
+      "steps": [
+        "The data is {pick(g, 'one set of amounts in categories', 'two sets of amounts in the same categories', 'one amount changing over time', 'two amounts changing over the same times', 'the parts of one whole')}",
+        "{pick(g, 'A bar graph compares amounts in a few categories', 'A double bar graph compares two sets of amounts, category by category', 'A line graph shows how one amount changes over time', 'A double line graph shows how two amounts change over the same times', 'A pie graph shows how one whole is split into parts')}",
+        "So: {pick(g, 'a bar graph', 'a double bar graph', 'a line graph', 'a double line graph', 'a pie graph')}"
+      ],
+      "explain": "The data is {pick(g, 'one set of amounts in categories', 'two sets of amounts in the same categories', 'one amount changing over time', 'two amounts changing over the same times', 'the parts of one whole')}, so {pick(g, 'a bar graph', 'a double bar graph', 'a line graph', 'a double line graph', 'a pie graph')} shows it best.",
+      "distractors": [
+        {
+          "value": "g == 1 ? 2 : (g == 2 ? 1 : (g == 3 ? 4 : (g == 4 ? 3 : 2)))",
+          "error": "one-set-or-two",
+          "feedback": "{pick(value, 'A bar graph compares amounts in a few categories.', 'A double bar graph compares two sets of amounts, category by category.', 'A line graph shows how one amount changes over time.', 'A double line graph shows how two amounts change over the same times.', 'A pie graph shows how one whole is split into parts.')} This data is {pick(g, 'one set of amounts in categories', 'two sets of amounts in the same categories', 'one amount changing over time', 'two amounts changing over the same times', 'the parts of one whole')}, so {pick(g, 'a bar graph', 'a double bar graph', 'a line graph', 'a double line graph', 'a pie graph')} fits best."
+        },
+        {
+          "value": "g == 1 ? 3 : (g == 2 ? 4 : (g == 3 ? 1 : (g == 4 ? 2 : 3)))",
+          "error": "time-or-categories",
+          "feedback": "{pick(value, 'A bar graph compares amounts in a few categories.', 'A double bar graph compares two sets of amounts, category by category.', 'A line graph shows how one amount changes over time.', 'A double line graph shows how two amounts change over the same times.', 'A pie graph shows how one whole is split into parts.')} This data is {pick(g, 'one set of amounts in categories', 'two sets of amounts in the same categories', 'one amount changing over time', 'two amounts changing over the same times', 'the parts of one whole')}, so {pick(g, 'a bar graph', 'a double bar graph', 'a line graph', 'a double line graph', 'a pie graph')} fits best."
+        },
+        {
+          "value": "g == 5 ? 1 : 5",
+          "error": "parts-or-amounts",
+          "feedback": "{pick(value, 'A bar graph compares amounts in a few categories.', 'A double bar graph compares two sets of amounts, category by category.', 'A line graph shows how one amount changes over time.', 'A double line graph shows how two amounts change over the same times.', 'A pie graph shows how one whole is split into parts.')} This data is {pick(g, 'one set of amounts in categories', 'two sets of amounts in the same categories', 'one amount changing over time', 'two amounts changing over the same times', 'the parts of one whole')}, so {pick(g, 'a bar graph', 'a double bar graph', 'a line graph', 'a double line graph', 'a pie graph')} fits best."
+        }
+      ]
+    },
+    {
+      "id": "data.read-bar",
+      "competency": "G5.Q3.4",
+      "domain": "DP",
+      "construct": "Read one value from a double bar graph",
+      "schema": "compare",
+      "params": {
+        "ctx": {"range": [1, 3]},
+        "st": {"value": "ctx == 1 ? 5 : 2"},
+        "a1": {"range": [1, 10]},
+        "a2": {"range": [1, 10]},
+        "a3": {"range": [1, 10]},
+        "a4": {"range": [1, 10]},
+        "b1": {"range": [1, 10]},
+        "b2": {"range": [1, 10]},
+        "b3": {"range": [1, 10]},
+        "b4": {"range": [1, 10]},
+        "sr": {"range": [1, 2]},
+        "m": {"range": [1, 4]},
+        "x1": {"value": "(sr == 1 ? a1 : b1) * st"},
+        "y1": {"value": "(sr == 1 ? b1 : a1) * st"},
+        "x2": {"value": "(sr == 1 ? a2 : b2) * st"},
+        "y2": {"value": "(sr == 1 ? b2 : a2) * st"},
+        "x3": {"value": "(sr == 1 ? a3 : b3) * st"},
+        "y3": {"value": "(sr == 1 ? b3 : a3) * st"},
+        "x4": {"value": "(sr == 1 ? a4 : b4) * st"},
+        "y4": {"value": "(sr == 1 ? b4 : a4) * st"}
+      },
+      "where": ["max(a1, a2, a3, a4, b1, b2, b3, b4) >= 4"],
+      "chart": {
+        "kind": "bar",
+        "title": "{(ctx == 1 ? 'Books borrowed' : (ctx == 2 ? 'Mangoes sold' : 'Favourite sports'))}",
+        "axis": "{(ctx == 1 ? 'Books' : (ctx == 2 ? 'Kilograms' : 'Pupils'))}",
+        "step": "st",
+        "categories": [
+          "{(ctx == 1 ? 'Jun' : (ctx == 2 ? 'Mon' : 'Basketball'))}",
+          "{(ctx == 1 ? 'Jul' : (ctx == 2 ? 'Tue' : 'Volleyball'))}",
+          "{(ctx == 1 ? 'Aug' : (ctx == 2 ? 'Wed' : 'Swimming'))}",
+          "{(ctx == 1 ? 'Sep' : (ctx == 2 ? 'Thu' : 'Chess'))}"
+        ],
+        "series": [
+          {
+            "name": "{(ctx == 1 ? 'Grade 5' : (ctx == 2 ? 'Aling Rosa' : 'Boys'))}",
+            "values": ["a1 * st", "a2 * st", "a3 * st", "a4 * st"]
+          },
+          {
+            "name": "{(ctx == 1 ? 'Grade 6' : (ctx == 2 ? 'Mang Ben' : 'Girls'))}",
+            "values": ["b1 * st", "b2 * st", "b3 * st", "b4 * st"]
+          }
+        ]
+      },
+      "answer": {"type": "integer", "value": "pick(m, x1, x2, x3, x4)"},
+      "formats": [
+        {
+          "id": "read",
+          "prompt": "{(ctx == 1 ? 'The graph shows the books Grade 5 and Grade 6 borrowed from the library.' : (ctx == 2 ? 'The graph shows the kilograms of mangoes Aling Rosa and Mang Ben sold.' : 'The graph shows the favourite sports of the boys and girls in Grade 6.'))} {(ctx == 1 ? 'How many books did' : (ctx == 2 ? 'How many kilograms of mangoes did' : 'How many of the'))} {(ctx == 1 ? pick(sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(sr, 'Aling Rosa', 'Mang Ben') : pick(sr, 'boys', 'girls')))} {(ctx == 1 ? 'borrow in' : (ctx == 2 ? 'sell on' : 'chose'))} {(ctx == 1 ? pick(m, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(m, 'basketball', 'volleyball', 'swimming', 'chess')))}?"
+        }
+      ],
+      "hints": [
+        "Find {(ctx == 1 ? pick(m, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(m, 'basketball', 'volleyball', 'swimming', 'chess')))} along the bottom of the graph.",
+        "The bar for {(ctx == 1 ? pick(sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(sr, 'Aling Rosa', 'Mang Ben') : pick(sr, 'Boys', 'Girls')))} is the {pick(sr, 'plain', 'striped')} one, on the {pick(sr, 'left', 'right')} of each pair.",
+        "Follow the top of that bar across to the numbers on the side."
+      ],
+      "steps": [
+        "{(ctx == 1 ? pick(m, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(m, 'basketball', 'volleyball', 'swimming', 'chess')))}: find it along the bottom",
+        "{(ctx == 1 ? pick(sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(sr, 'Aling Rosa', 'Mang Ben') : pick(sr, 'Boys', 'Girls')))}: the {pick(sr, 'left', 'right')} bar",
+        "Its top is level with {answer}"
+      ],
+      "explain": "The {pick(sr, 'left', 'right')} bar above {(ctx == 1 ? pick(m, 'Jun', 'Jul', 'Aug', 'Sep') : (ctx == 2 ? pick(m, 'Mon', 'Tue', 'Wed', 'Thu') : pick(m, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} reaches {answer}.",
+      "distractors": [
+        {
+          "value": "pick(m, y1, y2, y3, y4)",
+          "error": "read-the-other-bar",
+          "feedback": "{value} is the bar for {(ctx == 1 ? pick(3 - sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(3 - sr, 'Aling Rosa', 'Mang Ben') : pick(3 - sr, 'Boys', 'Girls')))}. The bar for {(ctx == 1 ? pick(sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(sr, 'Aling Rosa', 'Mang Ben') : pick(sr, 'Boys', 'Girls')))} is the {pick(sr, 'left', 'right')} one in each pair."
+        },
+        {
+          "value": "pick(m % 4 + 1, x1, x2, x3, x4)",
+          "error": "read-another-group",
+          "feedback": "{value} is the bar for {(ctx == 1 ? pick(m % 4 + 1, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(m % 4 + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(m % 4 + 1, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))}. Find {(ctx == 1 ? pick(m, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(m, 'basketball', 'volleyball', 'swimming', 'chess')))} along the bottom first."
+        }
+      ]
+    },
+    {
+      "id": "data.read-line",
+      "competency": "G5.Q3.4",
+      "domain": "DP",
+      "construct": "Read one value from a double line graph",
+      "schema": "compare",
+      "params": {
+        "ctx": {"range": [1, 3]},
+        "st": {"value": "ctx == 1 ? 10 : (ctx == 2 ? 2 : 1)"},
+        "a1": {"range": [1, 10]},
+        "a2": {"range": [1, 10]},
+        "a3": {"range": [1, 10]},
+        "a4": {"range": [1, 10]},
+        "a5": {"range": [1, 10]},
+        "b1": {"range": [1, 10]},
+        "b2": {"range": [1, 10]},
+        "b3": {"range": [1, 10]},
+        "b4": {"range": [1, 10]},
+        "b5": {"range": [1, 10]},
+        "sr": {"range": [1, 2]},
+        "m": {"range": [1, 5]},
+        "x1": {"value": "(sr == 1 ? a1 : b1) * st"},
+        "y1": {"value": "(sr == 1 ? b1 : a1) * st"},
+        "x2": {"value": "(sr == 1 ? a2 : b2) * st"},
+        "y2": {"value": "(sr == 1 ? b2 : a2) * st"},
+        "x3": {"value": "(sr == 1 ? a3 : b3) * st"},
+        "y3": {"value": "(sr == 1 ? b3 : a3) * st"},
+        "x4": {"value": "(sr == 1 ? a4 : b4) * st"},
+        "y4": {"value": "(sr == 1 ? b4 : a4) * st"},
+        "x5": {"value": "(sr == 1 ? a5 : b5) * st"},
+        "y5": {"value": "(sr == 1 ? b5 : a5) * st"}
+      },
+      "where": ["max(a1, a2, a3, a4, a5, b1, b2, b3, b4, b5) >= 4"],
+      "chart": {
+        "kind": "line",
+        "title": "{(ctx == 1 ? 'Bags of rice sold' : (ctx == 2 ? 'Jeepney trips' : 'Pupils absent'))}",
+        "axis": "{(ctx == 1 ? 'Bags' : (ctx == 2 ? 'Trips' : 'Pupils'))}",
+        "step": "st",
+        "categories": [
+          "{(ctx == 1 ? 'Jan' : (ctx == 2 ? 'Mon' : 'Mon'))}",
+          "{(ctx == 1 ? 'Feb' : (ctx == 2 ? 'Tue' : 'Tue'))}",
+          "{(ctx == 1 ? 'Mar' : (ctx == 2 ? 'Wed' : 'Wed'))}",
+          "{(ctx == 1 ? 'Apr' : (ctx == 2 ? 'Thu' : 'Thu'))}",
+          "{(ctx == 1 ? 'May' : (ctx == 2 ? 'Fri' : 'Fri'))}"
+        ],
+        "series": [
+          {
+            "name": "{(ctx == 1 ? 'Store A' : (ctx == 2 ? 'Mang Tony' : 'Grade 5'))}",
+            "values": ["a1 * st", "a2 * st", "a3 * st", "a4 * st", "a5 * st"]
+          },
+          {
+            "name": "{(ctx == 1 ? 'Store B' : (ctx == 2 ? 'Mang Rudy' : 'Grade 6'))}",
+            "values": ["b1 * st", "b2 * st", "b3 * st", "b4 * st", "b5 * st"]
+          }
+        ]
+      },
+      "answer": {"type": "integer", "value": "pick(m, x1, x2, x3, x4, x5)"},
+      "formats": [
+        {
+          "id": "read",
+          "prompt": "{(ctx == 1 ? 'The graph shows the bags of rice two stores sold each month.' : (ctx == 2 ? 'The graph shows the trips two jeepney drivers made each day.' : 'The graph shows how many Grade 5 and Grade 6 pupils were absent each day.'))} {(ctx == 1 ? 'How many bags of rice did' : (ctx == 2 ? 'How many trips did' : 'How many'))} {(ctx == 1 ? pick(sr, 'Store A', 'Store B') : (ctx == 2 ? pick(sr, 'Mang Tony', 'Mang Rudy') : pick(sr, 'Grade 5', 'Grade 6')))} {(ctx == 1 ? 'sell in' : (ctx == 2 ? 'make on' : 'pupils were absent on'))} {(ctx == 1 ? pick(m, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}?"
+        }
+      ],
+      "hints": [
+        "Find {(ctx == 1 ? pick(m, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))} along the bottom of the graph.",
+        "The line for {(ctx == 1 ? pick(sr, 'Store A', 'Store B') : (ctx == 2 ? pick(sr, 'Mang Tony', 'Mang Rudy') : pick(sr, 'Grade 5', 'Grade 6')))} is the {pick(sr, 'solid line with round points', 'dashed line with square points')}.",
+        "Follow its point for {(ctx == 1 ? pick(m, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))} across to the numbers on the side."
+      ],
+      "steps": [
+        "{(ctx == 1 ? pick(m, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}: find it along the bottom",
+        "{(ctx == 1 ? pick(sr, 'Store A', 'Store B') : (ctx == 2 ? pick(sr, 'Mang Tony', 'Mang Rudy') : pick(sr, 'Grade 5', 'Grade 6')))}: the {pick(sr, 'solid line with round points', 'dashed line with square points')}",
+        "The point is level with {answer}"
+      ],
+      "explain": "The point for {(ctx == 1 ? pick(sr, 'Store A', 'Store B') : (ctx == 2 ? pick(sr, 'Mang Tony', 'Mang Rudy') : pick(sr, 'Grade 5', 'Grade 6')))} above {(ctx == 1 ? pick(m, 'Jan', 'Feb', 'Mar', 'Apr', 'May') : (ctx == 2 ? pick(m, 'Mon', 'Tue', 'Wed', 'Thu', 'Fri') : pick(m, 'Mon', 'Tue', 'Wed', 'Thu', 'Fri')))} is level with {answer}.",
+      "distractors": [
+        {
+          "value": "pick(m, y1, y2, y3, y4, y5)",
+          "error": "read-the-other-line",
+          "feedback": "{value} is on the line for {(ctx == 1 ? pick(3 - sr, 'Store A', 'Store B') : (ctx == 2 ? pick(3 - sr, 'Mang Tony', 'Mang Rudy') : pick(3 - sr, 'Grade 5', 'Grade 6')))}. The line for {(ctx == 1 ? pick(sr, 'Store A', 'Store B') : (ctx == 2 ? pick(sr, 'Mang Tony', 'Mang Rudy') : pick(sr, 'Grade 5', 'Grade 6')))} is the {pick(sr, 'solid line with round points', 'dashed line with square points')}."
+        },
+        {
+          "value": "pick(m % 5 + 1, x1, x2, x3, x4, x5)",
+          "error": "read-another-point",
+          "feedback": "{value} is the point for {(ctx == 1 ? pick(m % 5 + 1, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m % 5 + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m % 5 + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}. Find {(ctx == 1 ? pick(m, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))} along the bottom first."
+        }
+      ]
+    },
+    {
+      "id": "data.bar-difference",
+      "competency": "G5.Q3.4",
+      "domain": "DP",
+      "construct": "Find how many more from a double bar graph",
+      "schema": "compare",
+      "params": {
+        "ctx": {"range": [1, 3]},
+        "st": {"value": "ctx == 1 ? 5 : 2"},
+        "a1": {"range": [1, 10]},
+        "a2": {"range": [1, 10]},
+        "a3": {"range": [1, 10]},
+        "a4": {"range": [1, 10]},
+        "b1": {"range": [1, 10]},
+        "b2": {"range": [1, 10]},
+        "b3": {"range": [1, 10]},
+        "b4": {"range": [1, 10]},
+        "m": {"range": [1, 4]},
+        "hi": {"value": "(pick(m, a1, a2, a3, a4) > pick(m, b1, b2, b3, b4) ? 1 : 2)"},
+        "big": {"value": "max(pick(m, a1, a2, a3, a4), pick(m, b1, b2, b3, b4)) * st"},
+        "small": {"value": "min(pick(m, a1, a2, a3, a4), pick(m, b1, b2, b3, b4)) * st"}
+      },
+      "where": ["pick(m, a1, a2, a3, a4) != pick(m, b1, b2, b3, b4)", "max(a1, a2, a3, a4, b1, b2, b3, b4) >= 4"],
+      "chart": {
+        "kind": "bar",
+        "title": "{(ctx == 1 ? 'Books borrowed' : (ctx == 2 ? 'Mangoes sold' : 'Favourite sports'))}",
+        "axis": "{(ctx == 1 ? 'Books' : (ctx == 2 ? 'Kilograms' : 'Pupils'))}",
+        "step": "st",
+        "categories": [
+          "{(ctx == 1 ? 'Jun' : (ctx == 2 ? 'Mon' : 'Basketball'))}",
+          "{(ctx == 1 ? 'Jul' : (ctx == 2 ? 'Tue' : 'Volleyball'))}",
+          "{(ctx == 1 ? 'Aug' : (ctx == 2 ? 'Wed' : 'Swimming'))}",
+          "{(ctx == 1 ? 'Sep' : (ctx == 2 ? 'Thu' : 'Chess'))}"
+        ],
+        "series": [
+          {
+            "name": "{(ctx == 1 ? 'Grade 5' : (ctx == 2 ? 'Aling Rosa' : 'Boys'))}",
+            "values": ["a1 * st", "a2 * st", "a3 * st", "a4 * st"]
+          },
+          {
+            "name": "{(ctx == 1 ? 'Grade 6' : (ctx == 2 ? 'Mang Ben' : 'Girls'))}",
+            "values": ["b1 * st", "b2 * st", "b3 * st", "b4 * st"]
+          }
+        ]
+      },
+      "answer": {"type": "integer", "value": "big - small"},
+      "formats": [
+        {
+          "id": "more",
+          "prompt": "{(ctx == 1 ? 'The graph shows the books Grade 5 and Grade 6 borrowed from the library.' : (ctx == 2 ? 'The graph shows the kilograms of mangoes Aling Rosa and Mang Ben sold.' : 'The graph shows the favourite sports of the boys and girls in Grade 6.'))} {(ctx == 1 ? 'How many more books did' : (ctx == 2 ? 'How many more kilograms of mangoes did' : 'How many more'))} {(ctx == 1 ? pick(hi, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(hi, 'Aling Rosa', 'Mang Ben') : pick(hi, 'boys', 'girls')))}{(ctx == 1 ? ' borrow' : (ctx == 2 ? ' sell' : ''))} than {(ctx == 1 ? pick(3 - hi, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(3 - hi, 'Aling Rosa', 'Mang Ben') : pick(3 - hi, 'boys', 'girls')))}{(ctx == 1 ? ' in' : (ctx == 2 ? ' on' : ' chose'))} {(ctx == 1 ? pick(m, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(m, 'basketball', 'volleyball', 'swimming', 'chess')))}?"
+        }
+      ],
+      "hints": [
+        "Find the two bars for {(ctx == 1 ? pick(m, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(m, 'basketball', 'volleyball', 'swimming', 'chess')))}.",
+        "{(ctx == 1 ? pick(hi, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(hi, 'Aling Rosa', 'Mang Ben') : pick(hi, 'Boys', 'Girls')))}: {big}. {(ctx == 1 ? pick(3 - hi, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(3 - hi, 'Aling Rosa', 'Mang Ben') : pick(3 - hi, 'Boys', 'Girls')))}: {small}.",
+        "How many more is a difference: {big} − {small}."
+      ],
+      "steps": [
+        "{(ctx == 1 ? pick(hi, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(hi, 'Aling Rosa', 'Mang Ben') : pick(hi, 'Boys', 'Girls')))}: {big}",
+        "{(ctx == 1 ? pick(3 - hi, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(3 - hi, 'Aling Rosa', 'Mang Ben') : pick(3 - hi, 'Boys', 'Girls')))}: {small}",
+        "{big} − {small} = {answer}"
+      ],
+      "explain": "{big} − {small} = {answer}.",
+      "distractors": [
+        {
+          "value": "big + small",
+          "error": "added-the-bars",
+          "feedback": "{value} is the two bars added. How many more means the difference: take the shorter bar from the taller."
+        },
+        {
+          "value": "big",
+          "error": "gave-the-taller-bar",
+          "feedback": "{value} is the height of the taller bar. Take the shorter bar, {small}, away from it."
+        }
+      ]
+    },
+    {
+      "id": "data.line-change",
+      "competency": "G5.Q3.4",
+      "domain": "DP",
+      "construct": "Find the change between two points of a line graph",
+      "schema": "change",
+      "params": {
+        "ctx": {"range": [1, 3]},
+        "st": {"value": "ctx == 1 ? 10 : (ctx == 2 ? 2 : 1)"},
+        "a1": {"range": [1, 10]},
+        "a2": {"range": [1, 10]},
+        "a3": {"range": [1, 10]},
+        "a4": {"range": [1, 10]},
+        "a5": {"range": [1, 10]},
+        "b1": {"range": [1, 10]},
+        "b2": {"range": [1, 10]},
+        "b3": {"range": [1, 10]},
+        "b4": {"range": [1, 10]},
+        "b5": {"range": [1, 10]},
+        "sr": {"range": [1, 2]},
+        "m": {"range": [1, 4]},
+        "x1": {"value": "(sr == 1 ? a1 : b1) * st"},
+        "y1": {"value": "(sr == 1 ? b1 : a1) * st"},
+        "x2": {"value": "(sr == 1 ? a2 : b2) * st"},
+        "y2": {"value": "(sr == 1 ? b2 : a2) * st"},
+        "x3": {"value": "(sr == 1 ? a3 : b3) * st"},
+        "y3": {"value": "(sr == 1 ? b3 : a3) * st"},
+        "x4": {"value": "(sr == 1 ? a4 : b4) * st"},
+        "y4": {"value": "(sr == 1 ? b4 : a4) * st"},
+        "x5": {"value": "(sr == 1 ? a5 : b5) * st"},
+        "y5": {"value": "(sr == 1 ? b5 : a5) * st"},
+        "v1": {"value": "pick(m, x1, x2, x3, x4, x5)"},
+        "v2": {"value": "pick(m + 1, x1, x2, x3, x4, x5)"}
+      },
+      "where": ["v1 != v2", "max(a1, a2, a3, a4, a5, b1, b2, b3, b4, b5) >= 4"],
+      "chart": {
+        "kind": "line",
+        "title": "{(ctx == 1 ? 'Bags of rice sold' : (ctx == 2 ? 'Jeepney trips' : 'Pupils absent'))}",
+        "axis": "{(ctx == 1 ? 'Bags' : (ctx == 2 ? 'Trips' : 'Pupils'))}",
+        "step": "st",
+        "categories": [
+          "{(ctx == 1 ? 'Jan' : (ctx == 2 ? 'Mon' : 'Mon'))}",
+          "{(ctx == 1 ? 'Feb' : (ctx == 2 ? 'Tue' : 'Tue'))}",
+          "{(ctx == 1 ? 'Mar' : (ctx == 2 ? 'Wed' : 'Wed'))}",
+          "{(ctx == 1 ? 'Apr' : (ctx == 2 ? 'Thu' : 'Thu'))}",
+          "{(ctx == 1 ? 'May' : (ctx == 2 ? 'Fri' : 'Fri'))}"
+        ],
+        "series": [
+          {
+            "name": "{(ctx == 1 ? 'Store A' : (ctx == 2 ? 'Mang Tony' : 'Grade 5'))}",
+            "values": ["a1 * st", "a2 * st", "a3 * st", "a4 * st", "a5 * st"]
+          },
+          {
+            "name": "{(ctx == 1 ? 'Store B' : (ctx == 2 ? 'Mang Rudy' : 'Grade 6'))}",
+            "values": ["b1 * st", "b2 * st", "b3 * st", "b4 * st", "b5 * st"]
+          }
+        ]
+      },
+      "answer": {"type": "integer", "value": "abs(v2 - v1)"},
+      "formats": [
+        {
+          "id": "change",
+          "prompt": "{(ctx == 1 ? 'The graph shows the bags of rice two stores sold each month.' : (ctx == 2 ? 'The graph shows the trips two jeepney drivers made each day.' : 'The graph shows how many Grade 5 and Grade 6 pupils were absent each day.'))} How much did the line for {(ctx == 1 ? pick(sr, 'Store A', 'Store B') : (ctx == 2 ? pick(sr, 'Mang Tony', 'Mang Rudy') : pick(sr, 'Grade 5', 'Grade 6')))} go {v2 > v1 ? 'up' : 'down'} from {(ctx == 1 ? pick(m, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))} to {(ctx == 1 ? pick(m + 1, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}?"
+        }
+      ],
+      "hints": [
+        "Read the line for {(ctx == 1 ? pick(sr, 'Store A', 'Store B') : (ctx == 2 ? pick(sr, 'Mang Tony', 'Mang Rudy') : pick(sr, 'Grade 5', 'Grade 6')))} at {(ctx == 1 ? pick(m, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))} and at {(ctx == 1 ? pick(m + 1, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}.",
+        "{(ctx == 1 ? pick(m, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}: {v1}. {(ctx == 1 ? pick(m + 1, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}: {v2}.",
+        "The change is the difference: {max(v1, v2)} − {min(v1, v2)}."
+      ],
+      "steps": [
+        "{(ctx == 1 ? pick(m, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}: {v1}",
+        "{(ctx == 1 ? pick(m + 1, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}: {v2}",
+        "{max(v1, v2)} − {min(v1, v2)} = {answer}"
+      ],
+      "explain": "From {v1} to {v2} it went {v2 > v1 ? 'up' : 'down'} by {answer}.",
+      "distractors": [
+        {
+          "value": "v2",
+          "error": "gave-the-later-value",
+          "feedback": "{value} is the value for {(ctx == 1 ? pick(m + 1, 'January', 'February', 'March', 'April', 'May') : (ctx == 2 ? pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday') : pick(m + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday')))}. The question asks how much it changed from {v1}."
+        },
+        {
+          "value": "abs(pick(m + 1, y1, y2, y3, y4, y5) - pick(m, y1, y2, y3, y4, y5))",
+          "error": "read-the-other-line",
+          "feedback": "{value} is the change on the line for {(ctx == 1 ? pick(3 - sr, 'Store A', 'Store B') : (ctx == 2 ? pick(3 - sr, 'Mang Tony', 'Mang Rudy') : pick(3 - sr, 'Grade 5', 'Grade 6')))}. The line for {(ctx == 1 ? pick(sr, 'Store A', 'Store B') : (ctx == 2 ? pick(sr, 'Mang Tony', 'Mang Rudy') : pick(sr, 'Grade 5', 'Grade 6')))} is the {pick(sr, 'solid line with round points', 'dashed line with square points')}."
+        }
+      ]
+    },
+    {
+      "id": "data.bar-total",
+      "competency": "G5.Q3.6",
+      "domain": "DP",
+      "construct": "Add the values of one series of a double bar graph",
+      "schema": "combine",
+      "params": {
+        "ctx": {"range": [1, 3]},
+        "st": {"value": "ctx == 1 ? 5 : 2"},
+        "a1": {"range": [1, 10]},
+        "a2": {"range": [1, 10]},
+        "a3": {"range": [1, 10]},
+        "a4": {"range": [1, 10]},
+        "b1": {"range": [1, 10]},
+        "b2": {"range": [1, 10]},
+        "b3": {"range": [1, 10]},
+        "b4": {"range": [1, 10]},
+        "sr": {"range": [1, 2]},
+        "x1": {"value": "(sr == 1 ? a1 : b1) * st"},
+        "y1": {"value": "(sr == 1 ? b1 : a1) * st"},
+        "x2": {"value": "(sr == 1 ? a2 : b2) * st"},
+        "y2": {"value": "(sr == 1 ? b2 : a2) * st"},
+        "x3": {"value": "(sr == 1 ? a3 : b3) * st"},
+        "y3": {"value": "(sr == 1 ? b3 : a3) * st"},
+        "x4": {"value": "(sr == 1 ? a4 : b4) * st"},
+        "y4": {"value": "(sr == 1 ? b4 : a4) * st"}
+      },
+      "where": ["max(a1, a2, a3, a4, b1, b2, b3, b4) >= 4"],
+      "chart": {
+        "kind": "bar",
+        "title": "{(ctx == 1 ? 'Books borrowed' : (ctx == 2 ? 'Mangoes sold' : 'Favourite sports'))}",
+        "axis": "{(ctx == 1 ? 'Books' : (ctx == 2 ? 'Kilograms' : 'Pupils'))}",
+        "step": "st",
+        "categories": [
+          "{(ctx == 1 ? 'Jun' : (ctx == 2 ? 'Mon' : 'Basketball'))}",
+          "{(ctx == 1 ? 'Jul' : (ctx == 2 ? 'Tue' : 'Volleyball'))}",
+          "{(ctx == 1 ? 'Aug' : (ctx == 2 ? 'Wed' : 'Swimming'))}",
+          "{(ctx == 1 ? 'Sep' : (ctx == 2 ? 'Thu' : 'Chess'))}"
+        ],
+        "series": [
+          {
+            "name": "{(ctx == 1 ? 'Grade 5' : (ctx == 2 ? 'Aling Rosa' : 'Boys'))}",
+            "values": ["a1 * st", "a2 * st", "a3 * st", "a4 * st"]
+          },
+          {
+            "name": "{(ctx == 1 ? 'Grade 6' : (ctx == 2 ? 'Mang Ben' : 'Girls'))}",
+            "values": ["b1 * st", "b2 * st", "b3 * st", "b4 * st"]
+          }
+        ]
+      },
+      "answer": {"type": "integer", "value": "x1 + x2 + x3 + x4"},
+      "formats": [
+        {
+          "id": "total",
+          "prompt": "{(ctx == 1 ? 'The graph shows the books Grade 5 and Grade 6 borrowed from the library.' : (ctx == 2 ? 'The graph shows the kilograms of mangoes Aling Rosa and Mang Ben sold.' : 'The graph shows the favourite sports of the boys and girls in Grade 6.'))} {(ctx == 1 ? 'How many books did' : (ctx == 2 ? 'How many kilograms of mangoes did' : 'Each pupil chose one of the four sports. How many'))} {(ctx == 1 ? pick(sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(sr, 'Aling Rosa', 'Mang Ben') : pick(sr, 'boys', 'girls')))}{(ctx == 1 ? ' borrow in the four months altogether?' : (ctx == 2 ? ' sell from Monday to Thursday?' : ' were asked?'))}"
+        }
+      ],
+      "hints": [
+        "Read all four bars for {(ctx == 1 ? pick(sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(sr, 'Aling Rosa', 'Mang Ben') : pick(sr, 'Boys', 'Girls')))}: the {pick(sr, 'plain', 'striped')} ones.",
+        "They are {x1}, {x2}, {x3} and {x4}.",
+        "Add them: {x1} + {x2} + {x3} + {x4}."
+      ],
+      "steps": [
+        "{(ctx == 1 ? pick(sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(sr, 'Aling Rosa', 'Mang Ben') : pick(sr, 'Boys', 'Girls')))}: {x1}, {x2}, {x3}, {x4}",
+        "{x1} + {x2} = {x1 + x2}",
+        "{x1 + x2} + {x3} + {x4} = {answer}"
+      ],
+      "explain": "{x1} + {x2} + {x3} + {x4} = {answer}.",
+      "distractors": [
+        {
+          "value": "x1 + x2 + x3",
+          "error": "left-one-out",
+          "feedback": "{value} leaves out {(ctx == 1 ? pick(4, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(4, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(4, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))}. Add all four bars for {(ctx == 1 ? pick(sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(sr, 'Aling Rosa', 'Mang Ben') : pick(sr, 'Boys', 'Girls')))}."
+        },
+        {
+          "value": "x1 + x2 + x3 + x4 + y1 + y2 + y3 + y4",
+          "error": "added-both-series",
+          "feedback": "{value} adds the bars for both {(ctx == 1 ? pick(1, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(1, 'Aling Rosa', 'Mang Ben') : pick(1, 'Boys', 'Girls')))} and {(ctx == 1 ? pick(2, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(2, 'Aling Rosa', 'Mang Ben') : pick(2, 'Boys', 'Girls')))}. Add only the bars for {(ctx == 1 ? pick(sr, 'Grade 5', 'Grade 6') : (ctx == 2 ? pick(sr, 'Aling Rosa', 'Mang Ben') : pick(sr, 'Boys', 'Girls')))}."
+        }
+      ]
+    },
+    {
+      "id": "data.most-difference",
+      "competency": "G5.Q3.5",
+      "domain": "DP",
+      "construct": "Find where two series of a double bar graph differ most",
+      "schema": "compare",
+      "params": {
+        "ctx": {"range": [1, 3]},
+        "st": {"value": "ctx == 1 ? 5 : 2"},
+        "k": {"range": [1, 4]},
+        "e1": {"range": [1, 3]},
+        "e2": {"range": [1, 3]},
+        "e3": {"range": [1, 3]},
+        "e4": {"range": [1, 3]},
+        "w": {"range": [1, 3]},
+        "dk": {"value": "max(k == 1 ? 0 : e1, k == 2 ? 0 : e2, k == 3 ? 0 : e3, k == 4 ? 0 : e4) + w"},
+        "d1": {"value": "k == 1 ? dk : e1"},
+        "d2": {"value": "k == 2 ? dk : e2"},
+        "d3": {"value": "k == 3 ? dk : e3"},
+        "d4": {"value": "k == 4 ? dk : e4"},
+        "p1": {"range": [1, "10 - d1"]},
+        "p2": {"range": [1, "10 - d2"]},
+        "p3": {"range": [1, "10 - d3"]},
+        "p4": {"range": [1, "10 - d4"]},
+        "s1": {"range": [0, 1]},
+        "s2": {"range": [0, 1]},
+        "s3": {"range": [0, 1]},
+        "s4": {"range": [0, 1]},
+        "a1": {"value": "p1 + s1 * d1"},
+        "b1": {"value": "p1 + (1 - s1) * d1"},
+        "a2": {"value": "p2 + s2 * d2"},
+        "b2": {"value": "p2 + (1 - s2) * d2"},
+        "a3": {"value": "p3 + s3 * d3"},
+        "b3": {"value": "p3 + (1 - s3) * d3"},
+        "a4": {"value": "p4 + s4 * d4"},
+        "b4": {"value": "p4 + (1 - s4) * d4"}
+      },
+      "chart": {
+        "kind": "bar",
+        "title": "{(ctx == 1 ? 'Books borrowed' : (ctx == 2 ? 'Mangoes sold' : 'Favourite sports'))}",
+        "axis": "{(ctx == 1 ? 'Books' : (ctx == 2 ? 'Kilograms' : 'Pupils'))}",
+        "step": "st",
+        "categories": [
+          "{(ctx == 1 ? 'Jun' : (ctx == 2 ? 'Mon' : 'Basketball'))}",
+          "{(ctx == 1 ? 'Jul' : (ctx == 2 ? 'Tue' : 'Volleyball'))}",
+          "{(ctx == 1 ? 'Aug' : (ctx == 2 ? 'Wed' : 'Swimming'))}",
+          "{(ctx == 1 ? 'Sep' : (ctx == 2 ? 'Thu' : 'Chess'))}"
+        ],
+        "series": [
+          {
+            "name": "{(ctx == 1 ? 'Grade 5' : (ctx == 2 ? 'Aling Rosa' : 'Boys'))}",
+            "values": ["a1 * st", "a2 * st", "a3 * st", "a4 * st"]
+          },
+          {
+            "name": "{(ctx == 1 ? 'Grade 6' : (ctx == 2 ? 'Mang Ben' : 'Girls'))}",
+            "values": ["b1 * st", "b2 * st", "b3 * st", "b4 * st"]
+          }
+        ]
+      },
+      "answer": {
+        "type": "choice",
+        "value": "k",
+        "label": "{(ctx == 1 ? pick(value, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(value, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(value, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))}",
+        "order": "size"
+      },
+      "formats": [
+        {
+          "id": "most",
+          "prompt": "{(ctx == 1 ? 'The graph shows the books Grade 5 and Grade 6 borrowed from the library.' : (ctx == 2 ? 'The graph shows the kilograms of mangoes Aling Rosa and Mang Ben sold.' : 'The graph shows the favourite sports of the boys and girls in Grade 6.'))} {(ctx == 1 ? 'In which month was the difference between the two grades greatest?' : (ctx == 2 ? 'On which day was the difference between the two sellers greatest?' : 'For which sport was the difference between the boys and the girls greatest?'))}"
+        }
+      ],
+      "hints": [
+        "In each pair, compare the two bars.",
+        "The difference is the gap between the tops of the two bars.",
+        "Not {(ctx == 1 ? pick(k % 4 + 1, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(k % 4 + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(k % 4 + 1, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))}: the gap there is only {pick(k % 4 + 1, d1, d2, d3, d4) * st}."
+      ],
+      "steps": [
+        "Gaps: {(ctx == 1 ? pick(1, 'Jun', 'Jul', 'Aug', 'Sep') : (ctx == 2 ? pick(1, 'Mon', 'Tue', 'Wed', 'Thu') : pick(1, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} {pick(1, d1, d2, d3, d4) * st}, {(ctx == 1 ? pick(2, 'Jun', 'Jul', 'Aug', 'Sep') : (ctx == 2 ? pick(2, 'Mon', 'Tue', 'Wed', 'Thu') : pick(2, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} {pick(2, d1, d2, d3, d4) * st}, {(ctx == 1 ? pick(3, 'Jun', 'Jul', 'Aug', 'Sep') : (ctx == 2 ? pick(3, 'Mon', 'Tue', 'Wed', 'Thu') : pick(3, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} {pick(3, d1, d2, d3, d4) * st}, {(ctx == 1 ? pick(4, 'Jun', 'Jul', 'Aug', 'Sep') : (ctx == 2 ? pick(4, 'Mon', 'Tue', 'Wed', 'Thu') : pick(4, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} {pick(4, d1, d2, d3, d4) * st}",
+        "The greatest is {pick(k, d1, d2, d3, d4) * st}",
+        "So: {(ctx == 1 ? pick(k, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(k, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(k, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))}"
+      ],
+      "explain": "The greatest gap is {pick(k, d1, d2, d3, d4) * st}, for {(ctx == 1 ? pick(k, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(k, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(k, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))}.",
+      "distractors": [
+        {
+          "value": "k % 4 + 1",
+          "error": "picked-a-smaller-gap",
+          "feedback": "For {(ctx == 1 ? pick(value, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(value, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(value, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} the gap is only {pick(value, d1, d2, d3, d4) * st}; for {(ctx == 1 ? pick(k, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(k, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(k, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} it is {pick(k, d1, d2, d3, d4) * st}."
+        },
+        {
+          "value": "(k + 1) % 4 + 1",
+          "error": "picked-another-smaller-gap",
+          "feedback": "For {(ctx == 1 ? pick(value, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(value, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(value, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} the gap is only {pick(value, d1, d2, d3, d4) * st}; for {(ctx == 1 ? pick(k, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(k, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(k, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} it is {pick(k, d1, d2, d3, d4) * st}."
+        },
+        {
+          "value": "(k + 2) % 4 + 1",
+          "error": "picked-a-third-smaller-gap",
+          "feedback": "For {(ctx == 1 ? pick(value, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(value, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(value, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} the gap is only {pick(value, d1, d2, d3, d4) * st}; for {(ctx == 1 ? pick(k, 'June', 'July', 'August', 'September') : (ctx == 2 ? pick(k, 'Monday', 'Tuesday', 'Wednesday', 'Thursday') : pick(k, 'Basketball', 'Volleyball', 'Swimming', 'Chess')))} it is {pick(k, d1, d2, d3, d4) * st}."
+        }
+      ]
+    },
+    {
+      "id": "data.trend",
+      "competency": "G5.Q3.5",
+      "domain": "DP",
+      "construct": "Describe the trend of a line graph",
+      "schema": "change",
+      "params": {
+        "ctx": {"range": [1, 2]},
+        "st": {"value": "ctx == 1 ? 10 : 1"},
+        "tr": {"range": [1, 4]},
+        "u1": {"range": [1, 2]},
+        "u2": {"range": [1, 2]},
+        "u3": {"range": [1, 2]},
+        "u4": {"range": [1, 2]},
+        "b": {"range": [1, 10]},
+        "v1": {"value": "b"},
+        "v2": {"value": "v1 + (tr == 1 || tr == 3 ? u1 : 0 - u1)"},
+        "v3": {"value": "v2 + (tr == 1 || tr == 3 ? u2 : 0 - u2)"},
+        "v4": {"value": "v3 + (tr == 1 || tr == 4 ? u3 : 0 - u3)"},
+        "v5": {"value": "v4 + (tr == 1 || tr == 4 ? u4 : 0 - u4)"}
+      },
+      "where": ["min(v1, v2, v3, v4, v5) >= 1", "max(v1, v2, v3, v4, v5) <= 10"],
+      "chart": {
+        "kind": "line",
+        "title": "{(ctx == 1 ? 'Price of tomatoes' : 'Pupils absent')}",
+        "axis": "{(ctx == 1 ? 'Price per kilo' : 'Pupils')}",
+        "step": "st",
+        "label": "{ctx == 1 ? peso(value) : fmt(value)}",
+        "categories": [
+          "{(ctx == 1 ? 'Jan' : 'Mon')}",
+          "{(ctx == 1 ? 'Feb' : 'Tue')}",
+          "{(ctx == 1 ? 'Mar' : 'Wed')}",
+          "{(ctx == 1 ? 'Apr' : 'Thu')}",
+          "{(ctx == 1 ? 'May' : 'Fri')}"
+        ],
+        "series": [
+          {
+            "name": "{(ctx == 1 ? 'Price' : 'Absent')}",
+            "values": ["v1 * st", "v2 * st", "v3 * st", "v4 * st", "v5 * st"]
+          }
+        ]
+      },
+      "answer": {
+        "type": "choice",
+        "value": "tr",
+        "label": "{pick(value, 'It rose all the way.', 'It fell all the way.', 'It rose, then fell.', 'It fell, then rose.')}",
+        "order": "size"
+      },
+      "formats": [
+        {
+          "id": "trend",
+          "prompt": "{(ctx == 1 ? 'The graph shows the price of a kilo of tomatoes from January to May. Which sentence describes the price?' : 'The graph shows how many pupils were absent each day from Monday to Friday. Which sentence describes the number absent?')}"
+        }
+      ],
+      "hints": [
+        "Read the points from left to right.",
+        "Compare the first half, {(ctx == 1 ? 'January to March' : 'Monday to Wednesday')}, then the second half.",
+        "{tr <= 2 ? 'The line never changes direction.' : 'The line changes direction once.'}"
+      ],
+      "steps": [
+        "Left to right: {ctx == 1 ? peso(v1 * st) : fmt(v1 * st)}, {ctx == 1 ? peso(v2 * st) : fmt(v2 * st)}, {ctx == 1 ? peso(v3 * st) : fmt(v3 * st)}, {ctx == 1 ? peso(v4 * st) : fmt(v4 * st)}, {ctx == 1 ? peso(v5 * st) : fmt(v5 * st)}",
+        "{(ctx == 1 ? 'January to March' : 'Monday to Wednesday')}: {tr == 1 || tr == 3 ? 'up' : 'down'}; {(ctx == 1 ? 'March to May' : 'Wednesday to Friday')}: {tr == 1 || tr == 4 ? 'up' : 'down'}",
+        "So: {pick(tr, 'it rose all the way.', 'it fell all the way.', 'it rose, then fell.', 'it fell, then rose.')}"
+      ],
+      "explain": "Left to right the values are {ctx == 1 ? peso(v1 * st) : fmt(v1 * st)}, {ctx == 1 ? peso(v2 * st) : fmt(v2 * st)}, {ctx == 1 ? peso(v3 * st) : fmt(v3 * st)}, {ctx == 1 ? peso(v4 * st) : fmt(v4 * st)}, {ctx == 1 ? peso(v5 * st) : fmt(v5 * st)}. {pick(tr, 'It rose all the way.', 'It fell all the way.', 'It rose, then fell.', 'It fell, then rose.')}",
+      "distractors": [
+        {
+          "value": "tr == 1 ? 2 : (tr == 2 ? 1 : (tr == 3 ? 4 : 3))",
+          "error": "read-the-direction-backwards",
+          "feedback": "It did not {pick(value, 'rise all the way', 'fall all the way', 'rise, then fall', 'fall, then rise')}. The values go {ctx == 1 ? peso(v1 * st) : fmt(v1 * st)}, {ctx == 1 ? peso(v2 * st) : fmt(v2 * st)}, {ctx == 1 ? peso(v3 * st) : fmt(v3 * st)}, {ctx == 1 ? peso(v4 * st) : fmt(v4 * st)}, {ctx == 1 ? peso(v5 * st) : fmt(v5 * st)}: {tr == 1 || tr == 3 ? 'up' : 'down'} from {(ctx == 1 ? 'January to March' : 'Monday to Wednesday')}, then {tr == 1 || tr == 4 ? 'up' : 'down'} to {(ctx == 1 ? 'May' : 'Friday')}."
+        },
+        {
+          "value": "tr == 1 ? 3 : (tr == 2 ? 4 : (tr == 3 ? 1 : 2))",
+          "error": "missed-or-added-a-turn",
+          "feedback": "It did not {pick(value, 'rise all the way', 'fall all the way', 'rise, then fall', 'fall, then rise')}. The values go {ctx == 1 ? peso(v1 * st) : fmt(v1 * st)}, {ctx == 1 ? peso(v2 * st) : fmt(v2 * st)}, {ctx == 1 ? peso(v3 * st) : fmt(v3 * st)}, {ctx == 1 ? peso(v4 * st) : fmt(v4 * st)}, {ctx == 1 ? peso(v5 * st) : fmt(v5 * st)}: {tr == 1 || tr == 3 ? 'up' : 'down'} from {(ctx == 1 ? 'January to March' : 'Monday to Wednesday')}, then {tr == 1 || tr == 4 ? 'up' : 'down'} to {(ctx == 1 ? 'May' : 'Friday')}."
+        },
+        {
+          "value": "tr == 1 ? 4 : (tr == 2 ? 3 : (tr == 3 ? 2 : 1))",
+          "error": "misread-both-halves",
+          "feedback": "It did not {pick(value, 'rise all the way', 'fall all the way', 'rise, then fall', 'fall, then rise')}. The values go {ctx == 1 ? peso(v1 * st) : fmt(v1 * st)}, {ctx == 1 ? peso(v2 * st) : fmt(v2 * st)}, {ctx == 1 ? peso(v3 * st) : fmt(v3 * st)}, {ctx == 1 ? peso(v4 * st) : fmt(v4 * st)}, {ctx == 1 ? peso(v5 * st) : fmt(v5 * st)}: {tr == 1 || tr == 3 ? 'up' : 'down'} from {(ctx == 1 ? 'January to March' : 'Monday to Wednesday')}, then {tr == 1 || tr == 4 ? 'up' : 'down'} to {(ctx == 1 ? 'May' : 'Friday')}."
+        }
+      ]
+    },
+    {
+      "id": "data.average",
+      "competency": "G5.Q3.6",
+      "domain": "DP",
+      "construct": "Find the average of the values in a bar graph",
+      "schema": "multi-step",
+      "params": {
+        "ctx": {"range": [1, 2]},
+        "st": {"value": "ctx == 1 ? 5 : 2"},
+        "a1": {"range": [1, 10]},
+        "a2": {"range": [1, 10]},
+        "a3": {"range": [1, 10]},
+        "a4": {"range": [1, 10]},
+        "mean": {"range": [4, 7]},
+        "a5": {"value": "5 * mean - a1 - a2 - a3 - a4"},
+        "sum": {"value": "5 * mean * st"}
+      },
+      "where": ["a5 >= 1", "a5 <= 10"],
+      "chart": {
+        "kind": "bar",
+        "title": "{(ctx == 1 ? 'Glasses of juice sold' : 'Library visitors')}",
+        "axis": "{(ctx == 1 ? 'Glasses' : 'Visitors')}",
+        "step": "st",
+        "categories": [
+          "{(ctx == 1 ? 'Mon' : 'Mon')}",
+          "{(ctx == 1 ? 'Tue' : 'Tue')}",
+          "{(ctx == 1 ? 'Wed' : 'Wed')}",
+          "{(ctx == 1 ? 'Thu' : 'Thu')}",
+          "{(ctx == 1 ? 'Fri' : 'Fri')}"
+        ],
+        "series": [
+          {
+            "name": "{(ctx == 1 ? 'Glasses' : 'Visitors')}",
+            "values": ["a1 * st", "a2 * st", "a3 * st", "a4 * st", "a5 * st"]
+          }
+        ]
+      },
+      "answer": {"type": "integer", "value": "mean * st"},
+      "formats": [
+        {
+          "id": "average",
+          "prompt": "{(ctx == 1 ? 'The graph shows the glasses of calamansi juice a canteen sold each day. What was the average number sold per day?' : 'The graph shows how many pupils visited the library each day. What was the average number of visitors per day?')}"
+        }
+      ],
+      "hints": [
+        "The average is the total shared equally over the 5 days.",
+        "Total: {a1 * st} + {a2 * st} + {a3 * st} + {a4 * st} + {a5 * st} = {sum}.",
+        "{sum} ÷ 5 = ?"
+      ],
+      "steps": [
+        "Values: {a1 * st}, {a2 * st}, {a3 * st}, {a4 * st}, {a5 * st}",
+        "Total = {sum}",
+        "{sum} ÷ 5 = {answer}"
+      ],
+      "explain": "The total is {sum}, and {sum} ÷ 5 = {answer} a day.",
+      "distractors": [
+        {
+          "value": "sum",
+          "error": "gave-the-total",
+          "feedback": "{value} is the total for the whole week. Share it equally over the 5 days."
+        },
+        {
+          "value": "sum / 4",
+          "error": "divided-by-four",
+          "feedback": "{value} is the total divided by 4, but there are 5 days."
+        }
+      ]
+    },
+    {
+      "id": "data.pie-missing",
+      "competency": "G6.Q4.7",
+      "domain": "DP",
+      "construct": "Find the unlabelled slice of a pie graph",
+      "schema": "part-whole",
+      "params": {
+        "ctx": {"range": [1, 3]},
+        "p1": {"range": [10, 35], "step": 5},
+        "p2": {"range": [10, 35], "step": 5},
+        "p3": {"range": [10, 30], "step": 5},
+        "p4": {"value": "100 - p1 - p2 - p3"},
+        "sl": {"range": [1, 4]},
+        "p": {"value": "pick(sl, p1, p2, p3, p4)"}
+      },
+      "where": ["p4 >= 10"],
+      "chart": {
+        "kind": "pie",
+        "title": "{(ctx == 1 ? 'A weekly allowance' : (ctx == 2 ? 'Favourite fruits' : 'A class fund'))}",
+        "unit": "%",
+        "slices": [
+          {
+            "name": "{(ctx == 1 ? 'Fare' : (ctx == 2 ? 'Banana' : 'Prizes'))}",
+            "value": "p1",
+            "hidden": "sl == 1"
+          },
+          {
+            "name": "{(ctx == 1 ? 'School things' : (ctx == 2 ? 'Apple' : 'Decorations'))}",
+            "value": "p2",
+            "hidden": "sl == 2"
+          },
+          {
+            "name": "{(ctx == 1 ? 'Savings' : (ctx == 2 ? 'Pineapple' : 'Cleaning'))}",
+            "value": "p3",
+            "hidden": "sl == 3"
+          },
+          {
+            "name": "{(ctx == 1 ? 'Food' : (ctx == 2 ? 'Mango' : 'Snacks'))}",
+            "value": "p4",
+            "hidden": "sl == 4"
+          }
+        ]
+      },
+      "answer": {"type": "percent", "value": "p"},
+      "formats": [
+        {
+          "id": "missing",
+          "prompt": "{(ctx == 1 ? 'The pie graph shows how a weekly allowance is spent.' : (ctx == 2 ? 'The pie graph shows the favourite fruits of a Grade 6 class.' : 'The pie graph shows how a class fund was spent.'))} The {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : (ctx == 2 ? pick(sl, 'banana', 'apple', 'pineapple', 'mango') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks')))} slice has lost its label. {(ctx == 1 ? 'What percent of the allowance goes to' : (ctx == 2 ? 'What percent of the pupils chose' : 'What percent of the class fund went to'))} {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : (ctx == 2 ? pick(sl, 'banana', 'apple', 'pineapple', 'mango') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks')))}?"
+        }
+      ],
+      "hints": ["The whole pie is 100%.", "The labelled slices add up to {100 - p}%.", "100% − {100 - p}% = ?"],
+      "steps": ["Whole pie = 100%", "Labelled slices: {100 - p}%", "100 − {100 - p} = {answer}%"],
+      "explain": "The labelled slices make {100 - p}%, so {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : (ctx == 2 ? pick(sl, 'banana', 'apple', 'pineapple', 'mango') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks')))} is 100% − {100 - p}% = {answer}%.",
+      "distractors": [
+        {
+          "value": "100 - p",
+          "error": "gave-the-labelled-total",
+          "feedback": "{value}% is the labelled slices together. The {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : (ctx == 2 ? pick(sl, 'banana', 'apple', 'pineapple', 'mango') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks')))} slice is what is left of 100%."
+        },
+        {
+          "value": "360 - (100 - p)",
+          "error": "took-it-from-360",
+          "feedback": "{value}% takes the labelled slices from 360. This pie is labelled in percents, so the whole is 100%."
+        }
+      ]
+    },
+    {
+      "id": "data.pie-angle",
+      "competency": "G6.Q4.5",
+      "domain": "DP",
+      "construct": "Find the angle of a slice from its percent",
+      "schema": "part-whole",
+      "params": {
+        "ctx": {"range": [1, 3]},
+        "p1": {"range": [10, 35], "step": 5},
+        "p2": {"range": [10, 35], "step": 5},
+        "p3": {"range": [10, 30], "step": 5},
+        "p4": {"value": "100 - p1 - p2 - p3"},
+        "sl": {"range": [1, 4]},
+        "p": {"value": "pick(sl, p1, p2, p3, p4)"}
+      },
+      "where": ["p4 >= 10"],
+      "chart": {
+        "kind": "pie",
+        "title": "{(ctx == 1 ? 'A weekly allowance' : (ctx == 2 ? 'Favourite fruits' : 'A class fund'))}",
+        "unit": "%",
+        "slices": [
+          {"name": "{(ctx == 1 ? 'Fare' : (ctx == 2 ? 'Banana' : 'Prizes'))}", "value": "p1"},
+          {"name": "{(ctx == 1 ? 'School things' : (ctx == 2 ? 'Apple' : 'Decorations'))}", "value": "p2"},
+          {"name": "{(ctx == 1 ? 'Savings' : (ctx == 2 ? 'Pineapple' : 'Cleaning'))}", "value": "p3"},
+          {"name": "{(ctx == 1 ? 'Food' : (ctx == 2 ? 'Mango' : 'Snacks'))}", "value": "p4"}
+        ]
+      },
+      "answer": {"type": "unit", "value": "p * 18 / 5", "unit": "°"},
+      "formats": [
+        {
+          "id": "angle",
+          "prompt": "{(ctx == 1 ? 'The pie graph shows how a weekly allowance is spent.' : (ctx == 2 ? 'The pie graph shows the favourite fruits of a Grade 6 class.' : 'The pie graph shows how a class fund was spent.'))} What is the angle at the centre of the {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : (ctx == 2 ? pick(sl, 'banana', 'apple', 'pineapple', 'mango') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks')))} slice?"
+        }
+      ],
+      "hints": ["The whole circle is 360°, and the whole pie is 100%.", "So 1% is 360° ÷ 100 = 3.6°.", "{p} × 3.6 = ?"],
+      "steps": ["100% is 360°", "1% is 3.6°", "{p} × 3.6 = {answer}°"],
+      "explain": "{p}% of 360° is {p} × 3.6 = {answer}°.",
+      "distractors": [
+        {
+          "value": "p",
+          "error": "gave-the-percent",
+          "feedback": "{value}° is the percent, not the angle. Each 1% of the pie is 3.6°."
+        },
+        {
+          "value": "360 - p * 18 / 5",
+          "error": "gave-the-rest-of-the-circle",
+          "feedback": "{value}° is the rest of the circle. The {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : (ctx == 2 ? pick(sl, 'banana', 'apple', 'pineapple', 'mango') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks')))} slice is {p}% of 360°."
+        }
+      ]
+    },
+    {
+      "id": "data.pie-fraction",
+      "competency": "G6.Q4.9",
+      "domain": "DP",
+      "construct": "Read a slice of a pie graph as a fraction of the whole",
+      "schema": "part-whole",
+      "params": {
+        "ctx": {"range": [1, 3]},
+        "p1": {"range": [10, 35], "step": 5},
+        "p2": {"range": [10, 35], "step": 5},
+        "p3": {"range": [10, 30], "step": 5},
+        "p4": {"value": "100 - p1 - p2 - p3"},
+        "sl": {"range": [1, 4]},
+        "p": {"value": "pick(sl, p1, p2, p3, p4)"}
+      },
+      "where": ["p4 >= 10"],
+      "chart": {
+        "kind": "pie",
+        "title": "{(ctx == 1 ? 'A weekly allowance' : (ctx == 2 ? 'Favourite fruits' : 'A class fund'))}",
+        "unit": "%",
+        "slices": [
+          {"name": "{(ctx == 1 ? 'Fare' : (ctx == 2 ? 'Banana' : 'Prizes'))}", "value": "p1"},
+          {"name": "{(ctx == 1 ? 'School things' : (ctx == 2 ? 'Apple' : 'Decorations'))}", "value": "p2"},
+          {"name": "{(ctx == 1 ? 'Savings' : (ctx == 2 ? 'Pineapple' : 'Cleaning'))}", "value": "p3"},
+          {"name": "{(ctx == 1 ? 'Food' : (ctx == 2 ? 'Mango' : 'Snacks'))}", "value": "p4"}
+        ]
+      },
+      "answer": {"type": "fraction", "value": "p / 100"},
+      "formats": [
+        {
+          "id": "fraction",
+          "prompt": "{(ctx == 1 ? 'The pie graph shows how a weekly allowance is spent.' : (ctx == 2 ? 'The pie graph shows the favourite fruits of a Grade 6 class.' : 'The pie graph shows how a class fund was spent.'))} {(ctx == 1 ? 'What fraction of the allowance goes to' : (ctx == 2 ? 'What fraction of the pupils chose' : 'What fraction of the class fund went to'))} {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : (ctx == 2 ? pick(sl, 'banana', 'apple', 'pineapple', 'mango') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks')))}? Give it in lowest terms."
+        }
+      ],
+      "hints": ["A percent is out of 100.", "{p}% = {p}/100.", "Divide the top and the bottom by {gcd(p, 100)}."],
+      "steps": ["{p}% = {p}/100", "÷ {gcd(p, 100)} top and bottom", "= {frac(answer)}"],
+      "explain": "{p}% = {p}/100 = {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "(100 - p) / 100",
+          "error": "fraction-of-the-rest",
+          "feedback": "{frac(value)} is the rest of the pie. The {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : (ctx == 2 ? pick(sl, 'banana', 'apple', 'pineapple', 'mango') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks')))} slice is {p}%: {p} out of 100."
+        },
+        {
+          "value": "p / 360",
+          "error": "put-it-over-360",
+          "feedback": "{frac(value)} puts {p} over 360. The slice is labelled in percents, so it is {p} out of 100."
+        }
+      ]
+    },
+    {
+      "id": "data.pie-amount",
+      "competency": "G6.Q4.10",
+      "domain": "DP",
+      "construct": "Find the amount a slice of a pie graph stands for",
+      "schema": "part-whole",
+      "params": {
+        "ctx": {"choose": [1, 3]},
+        "p1": {"range": [10, 35], "step": 5},
+        "p2": {"range": [10, 35], "step": 5},
+        "p3": {"range": [10, 30], "step": 5},
+        "p4": {"value": "100 - p1 - p2 - p3"},
+        "sl": {"range": [1, 4]},
+        "p": {"value": "pick(sl, p1, p2, p3, p4)"},
+        "amt": {"choose": [200, 300, 400, 500, 600, 800, 1000]}
+      },
+      "where": ["p4 >= 10"],
+      "chart": {
+        "kind": "pie",
+        "title": "{(ctx == 1 ? 'A weekly allowance' : 'A class fund')}",
+        "unit": "%",
+        "slices": [
+          {"name": "{(ctx == 1 ? 'Fare' : 'Prizes')}", "value": "p1"},
+          {"name": "{(ctx == 1 ? 'School things' : 'Decorations')}", "value": "p2"},
+          {"name": "{(ctx == 1 ? 'Savings' : 'Cleaning')}", "value": "p3"},
+          {"name": "{(ctx == 1 ? 'Food' : 'Snacks')}", "value": "p4"}
+        ]
+      },
+      "answer": {"type": "integer", "value": "amt * p / 100", "prefix": "₱"},
+      "formats": [
+        {
+          "id": "amount",
+          "prompt": "{(ctx == 1 ? 'The pie graph shows how a weekly allowance is spent.' : 'The pie graph shows how a class fund was spent.')} {(ctx == 1 ? 'The allowance is' : 'The class fund was')} ₱{amt}{(ctx == 1 ? ' a week.' : '.')} How much {(ctx == 1 ? 'goes' : 'went')} to {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks'))}?"
+        }
+      ],
+      "hints": [
+        "The {(ctx == 1 ? pick(sl, 'fare', 'school things', 'savings', 'food') : pick(sl, 'prizes', 'decorations', 'cleaning', 'snacks'))} slice is {p}%.",
+        "1% of ₱{amt} is ₱{amt / 100}.",
+        "{p} × ₱{amt / 100} = ?"
+      ],
+      "steps": [
+        "{(ctx == 1 ? pick(sl, 'Fare', 'School things', 'Savings', 'Food') : pick(sl, 'Prizes', 'Decorations', 'Cleaning', 'Snacks'))}: {p}%",
+        "1% of ₱{amt} = ₱{amt / 100}",
+        "{p} × ₱{amt / 100} = ₱{answer}"
+      ],
+      "explain": "{p}% of ₱{amt} = ₱{answer}.",
+      "distractors": [
+        {
+          "value": "amt - amt * p / 100",
+          "error": "gave-the-rest",
+          "feedback": "₱{value} is what the other slices take. Find {p}% of ₱{amt}."
+        },
+        {
+          "value": "p",
+          "error": "gave-the-percent",
+          "feedback": "{value} is the percent. Find {p}% of ₱{amt}."
+        }
+      ]
+    },
+    {
+      "id": "data.pie-percent",
+      "competency": "G6.Q4.5",
+      "domain": "DP",
+      "construct": "Find the percent a slice stands for from its angle",
+      "schema": "part-whole",
+      "params": {
+        "ctx": {"range": [1, 2]},
+        "d1": {"range": [36, 108], "step": 18},
+        "d2": {"range": [36, 108], "step": 18},
+        "d3": {"range": [36, 108], "step": 18},
+        "d4": {"value": "360 - d1 - d2 - d3"},
+        "sl": {"range": [1, 4]},
+        "d": {"value": "pick(sl, d1, d2, d3, d4)"}
+      },
+      "chart": {
+        "kind": "pie",
+        "title": "{(ctx == 1 ? 'Favourite subjects' : 'Getting to school')}",
+        "unit": "°",
+        "slices": [
+          {"name": "{(ctx == 1 ? 'Science' : 'Car')}", "value": "d1"},
+          {"name": "{(ctx == 1 ? 'English' : 'Tricycle')}", "value": "d2"},
+          {"name": "{(ctx == 1 ? 'Filipino' : 'Jeepney')}", "value": "d3"},
+          {"name": "{(ctx == 1 ? 'Math' : 'Walk')}", "value": "d4"}
+        ]
+      },
+      "answer": {"type": "percent", "value": "d * 5 / 18"},
+      "formats": [
+        {
+          "id": "percent",
+          "prompt": "{(ctx == 1 ? 'The pie graph shows the favourite subjects of the Grade 6 pupils.' : 'The pie graph shows how the pupils of a school get to school.')} What percent of the pupils {(ctx == 1 ? pick(sl, 'chose Science', 'chose English', 'chose Filipino', 'chose Math') : pick(sl, 'go by car', 'go by tricycle', 'go by jeepney', 'walk'))}?"
+        }
+      ],
+      "hints": ["The whole circle, 360°, is 100% of the pupils.", "So 1% is 3.6°.", "{d} ÷ 3.6 = ?"],
+      "steps": [
+        "{(ctx == 1 ? pick(sl, 'Science', 'English', 'Filipino', 'Math') : pick(sl, 'Car', 'Tricycle', 'Jeepney', 'Walk'))}: {d}°",
+        "1% is 360° ÷ 100 = 3.6°",
+        "{d} ÷ 3.6 = {answer}%"
+      ],
+      "explain": "{d}° out of 360° is {d} ÷ 3.6 = {answer}%.",
+      "distractors": [
+        {
+          "value": "d",
+          "error": "gave-the-angle",
+          "feedback": "{value} is the angle in degrees. Change it to a percent: divide by 3.6."
+        },
+        {
+          "value": "d / 360",
+          "error": "left-it-as-a-fraction",
+          "feedback": "{value} is the slice as a part of 1. A percent is out of 100: multiply by 100."
+        }
+      ]
+    },
+    {
+      "id": "data.pie-count",
+      "competency": "G6.Q4.10",
+      "domain": "DP",
+      "construct": "Find how many a slice of a pie graph stands for",
+      "schema": "part-whole",
+      "params": {
+        "ctx": {"range": [1, 2]},
+        "d1": {"range": [36, 108], "step": 18},
+        "d2": {"range": [36, 108], "step": 18},
+        "d3": {"range": [36, 108], "step": 18},
+        "d4": {"value": "360 - d1 - d2 - d3"},
+        "sl": {"range": [1, 4]},
+        "d": {"value": "pick(sl, d1, d2, d3, d4)"},
+        "n": {"choose": [20, 40, 60, 80, 120, 200]}
+      },
+      "chart": {
+        "kind": "pie",
+        "title": "{(ctx == 1 ? 'Favourite subjects' : 'Getting to school')}",
+        "unit": "°",
+        "slices": [
+          {"name": "{(ctx == 1 ? 'Science' : 'Car')}", "value": "d1"},
+          {"name": "{(ctx == 1 ? 'English' : 'Tricycle')}", "value": "d2"},
+          {"name": "{(ctx == 1 ? 'Filipino' : 'Jeepney')}", "value": "d3"},
+          {"name": "{(ctx == 1 ? 'Math' : 'Walk')}", "value": "d4"}
+        ]
+      },
+      "answer": {"type": "integer", "value": "n * d / 360"},
+      "formats": [
+        {
+          "id": "count",
+          "prompt": "{(ctx == 1 ? 'The pie graph shows the favourite subjects of the Grade 6 pupils.' : 'The pie graph shows how the pupils of a school get to school.')} {n} pupils were asked. How many {(ctx == 1 ? pick(sl, 'chose Science', 'chose English', 'chose Filipino', 'chose Math') : pick(sl, 'go by car', 'go by tricycle', 'go by jeepney', 'walk'))}?"
+        }
+      ],
+      "hints": [
+        "The {(ctx == 1 ? pick(sl, 'Science', 'English', 'Filipino', 'Math') : pick(sl, 'Car', 'Tricycle', 'Jeepney', 'Walk'))} slice is {d}° of the 360° circle.",
+        "{d}/360 = {frac(d / 360)} of the pupils.",
+        "{frac(d / 360)} of {n} = ?"
+      ],
+      "steps": [
+        "{(ctx == 1 ? pick(sl, 'Science', 'English', 'Filipino', 'Math') : pick(sl, 'Car', 'Tricycle', 'Jeepney', 'Walk'))}: {d}° of 360°",
+        "= {frac(d / 360)} of the pupils",
+        "{frac(d / 360)} × {n} = {answer}"
+      ],
+      "explain": "{d}° is {frac(d / 360)} of the circle, and {frac(d / 360)} of {n} is {answer}.",
+      "distractors": [
+        {
+          "value": "d",
+          "error": "gave-the-angle",
+          "feedback": "{value} is the angle of the slice. Find that part of the {n} pupils."
+        },
+        {
+          "value": "n * d / 100",
+          "error": "used-the-angle-as-a-percent",
+          "feedback": "{value} takes {d}% of {n}. But {d} is an angle out of 360°, not a percent."
+        }
+      ]
+    },
+    {
+      "id": "data.table-difference",
+      "competency": "G6.Q4.8",
+      "domain": "DP",
+      "construct": "Compare two values in a table from a website",
+      "schema": "compare",
+      "params": {
+        "u1": {"range": [0, 30]},
+        "v1": {"range": [0, 30]},
+        "u2": {"range": [0, 30]},
+        "v2": {"range": [0, 30]},
+        "u3": {"range": [0, 30]},
+        "v3": {"range": [0, 30]},
+        "u4": {"range": [0, 30]},
+        "v4": {"range": [0, 30]},
+        "a1": {"value": "40 + u1 / 2"},
+        "b1": {"value": "40 + v1 / 2"},
+        "a2": {"value": "40 + u2 / 2"},
+        "b2": {"value": "40 + v2 / 2"},
+        "a3": {"value": "40 + u3 / 2"},
+        "b3": {"value": "40 + v3 / 2"},
+        "a4": {"value": "40 + u4 / 2"},
+        "b4": {"value": "40 + v4 / 2"},
+        "w": {"range": [1, 4]}
+      },
+      "where": ["pick(w, a1, a2, a3, a4) != pick(w, b1, b2, b3, b4)"],
+      "chart": {
+        "kind": "table",
+        "title": "Price of a kilo of rice",
+        "axis": "Week",
+        "label": "₱{fixed(value, 2)}",
+        "categories": ["Week 1", "Week 2", "Week 3", "Week 4"],
+        "series": [
+          {"name": "Store A", "values": ["a1", "a2", "a3", "a4"]},
+          {"name": "Store B", "values": ["b1", "b2", "b3", "b4"]}
+        ]
+      },
+      "answer": {
+        "type": "decimal",
+        "value": "abs(pick(w, a1, a2, a3, a4) - pick(w, b1, b2, b3, b4))",
+        "maxDecimals": 2,
+        "prefix": "₱"
+      },
+      "formats": [
+        {
+          "id": "rice",
+          "prompt": "A website lists the price of a kilo of rice at two stores each week. In Week {w}, how much cheaper was it at {(pick(w, a1, a2, a3, a4) < pick(w, b1, b2, b3, b4) ? 'Store A' : 'Store B')} than at {(pick(w, a1, a2, a3, a4) < pick(w, b1, b2, b3, b4) ? 'Store B' : 'Store A')}?"
+        }
+      ],
+      "hints": [
+        "Find the row for Week {w}.",
+        "Store A: ₱{fixed(pick(w, a1, a2, a3, a4), 2)}. Store B: ₱{fixed(pick(w, b1, b2, b3, b4), 2)}.",
+        "How much cheaper is a difference: take the lower price from the higher."
+      ],
+      "steps": [
+        "Week {w}: Store A ₱{fixed(pick(w, a1, a2, a3, a4), 2)}, Store B ₱{fixed(pick(w, b1, b2, b3, b4), 2)}",
+        "₱{fixed(max(pick(w, a1, a2, a3, a4), pick(w, b1, b2, b3, b4)), 2)} − ₱{fixed(min(pick(w, a1, a2, a3, a4), pick(w, b1, b2, b3, b4)), 2)}",
+        "= {peso(answer)}"
+      ],
+      "explain": "₱{fixed(max(pick(w, a1, a2, a3, a4), pick(w, b1, b2, b3, b4)), 2)} − ₱{fixed(min(pick(w, a1, a2, a3, a4), pick(w, b1, b2, b3, b4)), 2)} = {peso(answer)}.",
+      "distractors": [
+        {
+          "value": "abs(pick(w % 4 + 1, a1, a2, a3, a4) - pick(w % 4 + 1, b1, b2, b3, b4))",
+          "error": "read-another-week",
+          "feedback": "{peso(value)} is the difference in Week {w % 4 + 1}. Use the row for Week {w}."
+        },
+        {
+          "value": "min(pick(w, a1, a2, a3, a4), pick(w, b1, b2, b3, b4))",
+          "error": "gave-a-price",
+          "feedback": "₱{fixed(value, 2)} is the price at {(pick(w, a1, a2, a3, a4) < pick(w, b1, b2, b3, b4) ? 'Store A' : 'Store B')}. Find how much less it is than at {(pick(w, a1, a2, a3, a4) < pick(w, b1, b2, b3, b4) ? 'Store B' : 'Store A')}."
+        }
+      ]
+    },
+    {
+      "id": "data.table-average",
+      "competency": "G6.Q4.8",
+      "domain": "DP",
+      "construct": "Find the average of the values in a table",
+      "schema": "multi-step",
+      "params": {
+        "k1": {"range": [12, 48]},
+        "k2": {"range": [12, 48]},
+        "k3": {"range": [12, 48]},
+        "k4": {"range": [12, 48]},
+        "mean": {"range": [20, 40]},
+        "k5": {"value": "5 * mean - k1 - k2 - k3 - k4"},
+        "t1": {"value": "k1 * 10"},
+        "t2": {"value": "k2 * 10"},
+        "t3": {"value": "k3 * 10"},
+        "t4": {"value": "k4 * 10"},
+        "t5": {"value": "k5 * 10"},
+        "sum": {"value": "50 * mean"}
+      },
+      "where": ["k5 >= 10", "k5 <= 50"],
+      "chart": {
+        "kind": "table",
+        "title": "Visits to a school website",
+        "axis": "Day",
+        "label": "{fmt(value)}",
+        "categories": ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"],
+        "series": [{"name": "Visits", "values": ["t1", "t2", "t3", "t4", "t5"]}]
+      },
+      "answer": {"type": "integer", "value": "10 * mean"},
+      "formats": [
+        {
+          "id": "visits",
+          "prompt": "A school website shows how many visits its page had each day. What was the average number of visits per day?"
+        }
+      ],
+      "hints": [
+        "The average is the total shared equally over the 5 days.",
+        "Total: {t1} + {t2} + {t3} + {t4} + {t5} = {sum}.",
+        "{sum} ÷ 5 = ?"
+      ],
+      "steps": ["Values: {t1}, {t2}, {t3}, {t4}, {t5}", "Total = {sum}", "{sum} ÷ 5 = {answer}"],
+      "explain": "The total is {sum}, and {sum} ÷ 5 = {answer} visits a day.",
+      "distractors": [
+        {
+          "value": "sum",
+          "error": "gave-the-total",
+          "feedback": "{value} is the total for the 5 days. Share it equally over the days."
+        },
+        {
+          "value": "sum / 4",
+          "error": "divided-by-four",
+          "feedback": "{value} is the total divided by 4, but there are 5 days."
+        }
+      ]
+    }
+  ]
+}

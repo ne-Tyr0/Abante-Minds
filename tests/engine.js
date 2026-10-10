@@ -597,5 +597,80 @@ test("use() refuses Basics that cannot work", () => {
   C.use(PACK.manifest, PACK.files);
 });
 
+/* ---------- charts ---------- */
+
+test("pick: one of a list by its place", () => {
+  assert.strictEqual(ev("pick(2, 'June', 'July', 'August')"), "July");
+  assert.strictEqual(show("pick(3, 10, 20, 30)"), "30");
+  throws(() => ev("pick(0, 'a', 'b')"), /no item 0/);
+  throws(() => ev("pick(3, 'a', 'b')"), /no item 3/);
+  throws(() => ev("pick(1.5, 'a', 'b')"), /whole number/);
+  assert.ok(E.RESERVED.includes("pick"), "a param cannot be named pick");
+});
+
+const CHARTS = {
+  manifest: Object.assign({}, PACK.manifest, { topics: [{ key: "c", label: "Charts", icon: "star", colorKey: 1, file: "c.json" }] }),
+  files: [{
+    topic: "c",
+    levels: [{ id: "all", title: "All", templates: ["c.bar", "c.pie", "c.table", "c.flat", "c.angle"], lesson: [
+      { title: "Bars", body: "Read across." },
+      { title: "Worked example", example: { template: "c.bar", params: { a: 7, b: 3 } } }] }],
+    templates: [
+      T("c.bar", { chart: { kind: "bar", title: "Books {a}", axis: "Books", step: "5", label: "{fmt(value)} bk", categories: ["Jun", "Jul"],
+        series: [{ name: "Grade 5", values: ["a * 5", "b * 5"] }, { name: "Grade 6", values: ["b * 5", "b * 5 + 3"] }] } }),
+      T("c.pie", { chart: { kind: "pie", title: "Fruits", unit: "%", slices: [
+        { name: "Mango", value: "a * 10" }, { name: "Banana", value: "100 - a * 10", hidden: "a > 5" }] } }),
+      T("c.table", { chart: { kind: "table", title: "Prices", axis: "Week", label: "{peso(value)}",
+        categories: ["Week 1", "Week 2"], series: [{ name: "Store A", values: ["a", "b + 0.5"] }] } }),
+      T("c.flat", { chart: { kind: "line", title: "Flat", axis: "Units", step: "a - a", categories: ["A", "B"], series: [{ name: "S", values: ["a", "b"] }] } }),
+      T("c.angle", { answer: { type: "unit", unit: "°", value: "a * 18" } })
+    ]
+  }]
+};
+test("charts: a bar graph's values, gridlines and words", () => {
+  C.use(CHARTS.manifest, CHARTS.files);
+  const c = C.instance("c.bar", 1, { a: 7, b: 3 }).chart;
+  assert.deepStrictEqual(c.series.map((s) => s.values), [[35, 15], [15, 18]]);
+  assert.deepStrictEqual(c.series[0].labels, ["35 bk", "15 bk"]);
+  assert.deepStrictEqual([c.kind, c.title, c.axis, c.step, c.top], ["bar", "Books 7", "Books", 5, 35]);
+  assert.deepStrictEqual(c.ticks.map((k) => k.value), [0, 5, 10, 15, 20, 25, 30, 35]);
+  assert.strictEqual(c.ticks[7].label, "35 bk");
+  assert.strictEqual(c.text, "Double bar graph: Books 7 (Books). Grade 5: Jun 35 bk, Jul 15 bk. Grade 6: Jun 15 bk, Jul 18 bk.");
+  /* The top gridline is the first at or above the highest value. */
+  assert.strictEqual(C.instance("c.bar", 1, { a: 3, b: 4 }).chart.top, 25);
+  throws(() => C.instance("c.flat", 1, { a: 3, b: 4 }), /step must be more than 0/);
+  C.use(PACK.manifest, PACK.files);
+});
+test("charts: a pie's slices, one of them unlabelled", () => {
+  C.use(CHARTS.manifest, CHARTS.files);
+  const hid = C.instance("c.pie", 1, { a: 7, b: 3 }).chart;
+  assert.deepStrictEqual(hid.slices, [{ name: "Mango", value: 70, label: "70%", hidden: false }, { name: "Banana", value: 30, label: "30%", hidden: true }]);
+  assert.strictEqual(hid.text, "Pie graph: Fruits. Clockwise from the top: Mango 70%, Banana not labelled.");
+  assert.strictEqual(C.instance("c.pie", 1, { a: 3, b: 3 }).chart.slices[1].hidden, false);
+  C.use(PACK.manifest, PACK.files);
+});
+test("charts: a table reads row by row, with no gridlines", () => {
+  C.use(CHARTS.manifest, CHARTS.files);
+  const t = C.instance("c.table", 1, { a: 4, b: 6 }).chart;
+  assert.deepStrictEqual(t.series[0].labels, ["₱4", "₱6.50"]);
+  assert.strictEqual(t.text, "Table: Prices (Week). Week 1: Store A ₱4. Week 2: Store A ₱6.50.");
+  assert.ok(!("ticks" in t) && !("step" in t));
+  C.use(PACK.manifest, PACK.files);
+});
+test("charts: only a template with one gets one, in practice and in its lesson", () => {
+  C.use(CHARTS.manifest, CHARTS.files);
+  assert.ok(!("chart" in C.instance("c.angle", 1, { a: 4, b: 2 })));
+  const cards = C.lesson("c", "all");
+  assert.strictEqual(cards[1].chart.title, "Books 7");
+  assert.ok(!("chart" in cards[0]));
+  C.use(PACK.manifest, PACK.files);
+  assert.ok(!("chart" in C.generate("t.formats", 1, 3)));
+});
+test("a degree sign sits against its number; other units take a space", () => {
+  C.use(CHARTS.manifest, CHARTS.files);
+  assert.strictEqual(C.instance("c.angle", 1, { a: 4, b: 2 }).suffix, "°");
+  C.use(PACK.manifest, PACK.files);
+});
+
 console.log(failed ? `\n${failed} failed` : "\nok: engine behaves as specified");
 process.exit(failed ? 1 : 0);

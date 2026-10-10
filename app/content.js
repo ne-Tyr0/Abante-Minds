@@ -198,6 +198,14 @@
     return String(x.n).split("").map(function (d) { return SUPERSCRIPT.charAt(+d); }).join("");
   };
 
+  /* One of a list by its place, counting from 1: pick(2, 'June', 'July') is
+     'July'. For naming the month or the slice a question is about. */
+  FUNCS.pick = function (i) {
+    i = int(i);
+    if (i.n < 1 || i.n >= arguments.length) throw ContentError("pick() has no item " + i.n);
+    return arguments[i.n];
+  };
+
   var RESERVED = { "true": true, "false": true, answer: true, value: true };
   Object.keys(FUNCS).forEach(function (k) { RESERVED[k] = true; });
 
@@ -483,6 +491,7 @@
       missExplain: interpolate(t.fallback || pack.fallbackFeedback, scope),
       distractors: distractors
     };
+    if (t.chart) q.chart = renderChart(t.chart, scope);
     if (q.type === "choice") {
       var values = [answer].concat(distractors.map(function (d) { return d.exact; }));
       values.sort(cmp);
@@ -499,6 +508,68 @@
       q.answerIndex = values.findIndex(function (v) { return eq(v, answer); });
     }
     return q;
+  }
+
+  /* ---------- charts ----------
+     A template can come with a graph or a table. The template says what to
+     draw in terms of its numbers; the engine works the numbers out here and
+     the screen draws them (AM.Chart in ui.js). The data is also written out
+     in words, for a screen reader, so the picture is never the only way to
+     read the question. A bar or line graph's values sit on its gridlines, so
+     each can be read exactly; a pie graph's slices are labelled. */
+  var CHART_NAMES = { bar: "bar graph", line: "line graph", pie: "pie graph", table: "table" };
+  function chartLabel(spec, scope, v) {
+    var ls = within(scope);
+    ls.value = v;
+    return interpolate(spec.label || "{fmt(value)}", ls);
+  }
+  function renderChart(spec, scope) {
+    var c = { kind: spec.kind, title: interpolate(spec.title, scope) };
+    if (spec.kind === "pie") {
+      c.unit = spec.unit;
+      c.slices = spec.slices.map(function (s) {
+        var v = num(evalExpr(s.value, scope));
+        return {
+          name: interpolate(s.name, scope), value: toNumber(v), label: fmt(v) + spec.unit,
+          hidden: s.hidden === undefined ? false : bool(evalExpr(s.hidden, scope))
+        };
+      });
+      c.text = "Pie graph: " + c.title + ". Clockwise from the top: " + c.slices.map(function (s) {
+        return s.name + " " + (s.hidden ? "not labelled" : s.label);
+      }).join(", ") + ".";
+      return c;
+    }
+    c.axis = interpolate(spec.axis, scope);
+    c.categories = spec.categories.map(function (x) { return interpolate(x, scope); });
+    var high = Q(0);
+    c.series = spec.series.map(function (s) {
+      var exact = s.values.map(function (v) { return num(evalExpr(v, scope)); });
+      exact.forEach(function (v) { if (cmp(v, high) > 0) high = v; });
+      return {
+        name: interpolate(s.name, scope),
+        values: exact.map(toNumber),
+        labels: exact.map(function (v) { return chartLabel(spec, scope, v); })
+      };
+    });
+    if (spec.kind !== "table") {
+      var step = num(evalExpr(spec.step, scope));
+      if (step.n <= 0) throw ContentError("a chart's step must be more than 0");
+      var top = mul(FUNCS.max(Q(1), rceil(div(high, step))), step);
+      c.step = toNumber(step);
+      c.top = toNumber(top);
+      c.ticks = [];
+      for (var v = Q(0); cmp(v, top) <= 0; v = add(v, step)) c.ticks.push({ value: toNumber(v), label: chartLabel(spec, scope, v) });
+    }
+    var name = (c.series.length > 1 && c.kind !== "table" ? "double " : "") + CHART_NAMES[c.kind];
+    var rows = c.kind === "table"
+      ? c.categories.map(function (cat, i) {
+          return cat + ": " + c.series.map(function (s) { return s.name + " " + s.labels[i]; }).join(", ");
+        })
+      : c.series.map(function (s) {
+          return s.name + ": " + c.categories.map(function (cat, i) { return cat + " " + s.labels[i]; }).join(", ");
+        });
+    c.text = name.charAt(0).toUpperCase() + name.slice(1) + ": " + c.title + " (" + c.axis + "). " + rows.join(". ") + ".";
+    return c;
   }
 
   function shuffle(list, r) {
@@ -521,7 +592,8 @@
   function suffixFor(spec) {
     if (spec.type === "percent") return "%";
     if (spec.type === "pi-expression") return "π";
-    if (spec.type === "unit") return " " + spec.unit;
+    /* A degree sign sits against its number, 72°; other units take a space. */
+    if (spec.type === "unit") return (spec.unit === "°" ? "" : " ") + spec.unit;
     return "";
   }
 
@@ -784,7 +856,7 @@
       var q = instanceFrom(template(card.example.template), PACK, 1, card.example.params, card.example.format);
       return {
         kind: "example", title: card.title || "Worked example",
-        prompt: q.prompt, steps: q.steps, explain: q.explain,
+        prompt: q.prompt, chart: q.chart || null, steps: q.steps, explain: q.explain,
         /* Money shows as money (₱149.50), however the learner would type it. */
         answer: q.type === "choice" ? q.choices[q.answerIndex]
           : q.unit === PESO ? peso(q.answerExact) : q.unit + q.answerText + q.suffix

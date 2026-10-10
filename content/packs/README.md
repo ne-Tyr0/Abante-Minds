@@ -16,7 +16,7 @@ content/packs/<subtest>/
   <topic>.json       one file per written topic: its levels, lessons, templates
 ```
 
-Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `area`, `solids`, `circles` and `probability` are
+Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `area`, `solids`, `circles`, `data` and `probability` are
 written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
 topics: `add-subtract`, `times`, `mental`, `written` and `missing` are written.
 
@@ -189,6 +189,7 @@ both being 56, and then neither can be named: leave one out.
 | `fallback` | Optional: replaces the manifest's `fallbackFeedback` for this template |
 | `distractors` | The mistakes the template expects, below |
 | `grid` | Basics facts only: `true` puts the template's facts on the topic's grid. Above |
+| `chart` | Optional: a bar graph, line graph, pie graph or table shown with the question, drawn from its numbers. Below |
 
 ### Params
 
@@ -256,6 +257,43 @@ A question picks one at random. Ids are kebab-case and unique within the templat
 format can carry its own `hints`, `steps` or `explain`; anything it leaves out comes from
 the template.
 
+### Charts
+
+A question can come with a graph or a table, drawn from the template's own numbers.
+
+```json
+"chart": {
+  "kind": "bar", "title": "Books borrowed", "axis": "Books", "step": "5",
+  "categories": ["Jun", "Jul", "Aug", "Sep"],
+  "series": [
+    { "name": "Grade 5", "values": ["a1 * 5", "a2 * 5", "a3 * 5", "a4 * 5"] },
+    { "name": "Grade 6", "values": ["b1 * 5", "b2 * 5", "b3 * 5", "b4 * 5"] }
+  ]
+}
+```
+
+| Kind | Fields |
+|---|---|
+| `bar`, `line` | `title`; `axis`, the label up the side; `step`, the gap between gridlines; 2 to 8 `categories` along the bottom; 1 or 2 `series`, each a `name` and one value per category. Two series make a double graph with a key. Optional `label` for the numbers, such as `"{peso(value)}"` |
+| `pie` | `title`; `unit`, `%` (the slices make 100) or `°` (they make 360); 2 to 6 `slices`, each a `name`, a `value`, and optionally `hidden`, a true/false expression that leaves that slice unlabelled for a question that asks for it |
+| `table` | `title`; `axis`, the heading over the row names; 2 to 8 `categories`, the rows; 1 to 3 `series`, the columns; optional `label` |
+
+The chart is part of the question, so like the prompt it may use the params but never
+`answer`. The validator draws every chart and holds it to what a phone can show:
+
+- Every value of a bar or line graph sits on a gridline, so it can be read exactly, and
+  there are 2 to 10 gridline steps up the side.
+- The category names fit along the bottom: their number times the longest name's length
+  is at most 40 (4 names of up to 10 letters, 8 of up to 5).
+- A pie's slices are whole numbers that make one whole, each at least a tenth of it so its
+  label fits; at most one is hidden.
+- Names of series and slices are at most 16 characters, titles at most 48, and no two
+  are the same.
+
+The screen draws the chart (`AM.Chart` in `app/ui.js`) and gives a screen reader the
+whole data in words, so the picture is never the only way to read the question. A
+worked example in a lesson shows its chart too.
+
 ### Distractors
 
 Each is a mistake the template expects: the number it produces, a kebab-case `error` code
@@ -285,7 +323,7 @@ What each piece of text can refer to:
 
 | Text | Params | `answer` | `value` |
 |---|:-:|:-:|:-:|
-| `prompt` | yes | no, so the question can never state its answer | no |
+| `prompt`, `chart` | yes | no, so the question can never state its answer | a chart's `label`: that number |
 | `where` | yes | | |
 | `hints`, `steps`, `explain`, `fallback`, distractor `value` | yes | yes | |
 | distractor `feedback`, choice `label` | yes | yes | that option's value |
@@ -300,7 +338,7 @@ Arithmetic in exact fractions, so `0.1 + 0.2 == 0.3` is true and `round(2.345, 2
 | Numbers | `12`, `1.12`. No `1e3` notation |
 | Words | `'kg'` in single quotes |
 | Operators | `+ - * /`, `%` on whole numbers, `== != < <= > >=`, `&& \|\| !`, `a ? b : c` |
-| Functions | `floor`, `ceil`, `round(x)` or `round(x, places)` (halves round up), `abs`, `min`, `max`, `gcd`, `lcm`, `peso`, `fmt`, `frac` (3/4), `mixed` (2 3/4), `fixed(x, places)` (2.40), `words(n)` (forty-five), `pow(b, e)` (a whole exponent up to 20), `sup(n)` (²: write `{b}{sup(e)}` for 2⁵) |
+| Functions | `floor`, `ceil`, `round(x)` or `round(x, places)` (halves round up), `abs`, `min`, `max`, `gcd`, `lcm`, `peso`, `fmt`, `frac` (3/4), `mixed` (2 3/4), `fixed(x, places)` (2.40), `words(n)` (forty-five), `pow(b, e)` (a whole exponent up to 20), `sup(n)` (²: write `{b}{sup(e)}` for 2⁵), `pick(i, a, b, …)` (the i-th, counting from 1: `pick(m, 'June', 'July')`) |
 
 There is no member access, no indexing, and nothing outside the template's own values.
 Comparing a number with a word is an error. `&&` and `||` stop early, so
