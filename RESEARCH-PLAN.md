@@ -143,7 +143,10 @@ templates is an afternoon, migrating 300 is a project.
 
    `transform` additionally needs a **visual question renderer** — picture answer options
    rather than numbers. It unlocks 15 partial competencies, and it is the same renderer the
-   abstract reasoning subtest will need, so it pays for itself twice.
+   abstract reasoning subtest will need, so it pays for itself twice. **Begun 2026-10-11** —
+   questions can now carry a picture drawn from their numbers (bar, line and pie graphs and
+   tables for `data`; shapes round a point, a clock face and a mirror line for `transform`).
+   Picture answer options are still to build.
 8. **Attempt log.** Append-only, ring-buffered (~5,000 attempts). Per answer: timestamp,
    session id, topic, template id, tier, **question seed**, answer given, correct, latency
    ms, hint depth (0–3), steps viewed, ordinal in session, pack version, app version,
@@ -170,9 +173,9 @@ templates is an afternoon, migrating 300 is a project.
 ## Phase 2 — Content, rebuilt to the blueprint
 
 12. **New topic set from the table of specifications**, replacing the four placeholders.
-    **In progress** — the placeholders are gone and the path lists all 13 topics.
-    Written: `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `time`, `area`, `solids`, `circles`, `data`, `probability`, each covering all of its practicable
-    competencies; the last, `transform`, is on the path as coming soon.
+    **Done 2026-10-11** — the placeholders are gone and all 13 topics are written:
+    `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `time`, `area`, `solids`, `circles`, `data`, `probability` and `transform`, each covering all of its
+    practicable competencies.
     Target **≥10 templates per topic**. That number is driven by two independent
     constraints that happen to agree: an 8-week intervention is ~320 attempts and template
     *shapes* go stale long before parameterised numbers do; and a defensible KR-20 needs

@@ -768,6 +768,104 @@
       el("thead", null, head), el("tbody", null, rows));
   }
 
+  /* ---------- figures ----------
+     Pictures for the shape topics, drawn from the question's numbers like a
+     graph: regular shapes fitted round a point with the gap they leave, a
+     clock face, and squared paper with a mirror line. They show the
+     situation, never the answer. */
+  var TILE_INK = [["var(--brand-blue-100)", "var(--brand-blue-600)"], ["var(--skill-4-100)", "var(--skill-4-600)"]];
+
+  /* A regular polygon with one corner at the point O, its two edges from O
+     at the angles `from` and from + its angle: walk round it, turning by the
+     outside angle at each corner. */
+  function polygonAt(sides, from, size) {
+    var pts = [[0, 0]], x = 0, y = 0, dir = from;
+    for (var i = 0; i < sides - 1; i++) {
+      x += size * Math.cos(dir * Math.PI / 180);
+      y -= size * Math.sin(dir * Math.PI / 180);
+      pts.push([x, y]);
+      dir += 360 / sides;
+    }
+    return pts;
+  }
+  function reach(sides) {
+    return Math.max.apply(null, polygonAt(sides, 0, 1).map(function (p) { return Math.sqrt(p[0] * p[0] + p[1] * p[1]); }));
+  }
+
+  function tilingFigure(c) {
+    var size = 96 / Math.max.apply(null, c.shapes.map(function (s) { return reach(s.sides); }));
+    var root = svg("svg", { width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    root.style.maxWidth = "220px";
+    root.style.margin = "0 auto";
+    /* The frame fits what is drawn, so a lone shape is not lost in a corner. */
+    var drawn = [[0, 0]], at = 0, r = 34;
+    c.shapes.forEach(function (s, si) {
+      for (var k = 0; k < s.count; k++) {
+        var pts = polygonAt(s.sides, at, size);
+        drawn = drawn.concat(pts);
+        root.appendChild(svg("polygon", {
+          points: pts.map(function (p) { return p[0].toFixed(2) + "," + p[1].toFixed(2); }).join(" "),
+          style: "fill: " + TILE_INK[si][0] + "; stroke: " + TILE_INK[si][1] + "; stroke-width: 2; stroke-linejoin: round"
+        }));
+        at += s.angle;
+      }
+    });
+    for (var d = at; d <= 360; d += 5) drawn.push([r * Math.cos(d * Math.PI / 180), -r * Math.sin(d * Math.PI / 180)]);
+    var xs = drawn.map(function (p) { return p[0]; }), ys = drawn.map(function (p) { return p[1]; });
+    var x0 = Math.min.apply(null, xs) - 6, y0 = Math.min.apply(null, ys) - 6;
+    var w = Math.max.apply(null, xs) + 6 - x0, h = Math.max.apply(null, ys) + 6 - y0, side = Math.max(w, h);
+    x0 -= (side - w) / 2;
+    y0 -= (side - h) / 2;
+    root.setAttribute("viewBox", x0.toFixed(2) + " " + y0.toFixed(2) + " " + side.toFixed(2) + " " + side.toFixed(2));
+    if (c.gap > 0) {
+      var a0 = at * Math.PI / 180, a1 = 2 * Math.PI, mid = (a0 + a1) / 2;
+      root.appendChild(svg("path", {
+        d: "M0 0 L" + (r * Math.cos(a0)).toFixed(2) + " " + (-r * Math.sin(a0)).toFixed(2) +
+          " A" + r + " " + r + " 0 " + (a1 - a0 > Math.PI ? 1 : 0) + " 0 " + r + " 0 Z",
+        style: "fill: var(--skill-3-100); stroke: var(--skill-3-600); stroke-width: 1.5; stroke-dasharray: 4 3"
+      }));
+      root.appendChild(label((r * 0.62 * Math.cos(mid)).toFixed(2), (-r * 0.62 * Math.sin(mid) + 5).toFixed(2), "?",
+        { anchor: "middle", size: 14, bold: true, ink: "var(--skill-3-600)" }));
+    }
+    root.appendChild(svg("circle", { cx: 0, cy: 0, r: 3.5, style: "fill: var(--ink-900)" }));
+    return [root];
+  }
+
+  function clockFigure(c) {
+    var root = svg("svg", { viewBox: "-100 -100 200 200", width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    root.style.maxWidth = "200px";
+    root.style.margin = "0 auto";
+    root.appendChild(svg("circle", { cx: 0, cy: 0, r: 94, style: "fill: var(--surface-100); stroke: var(--ink-900); stroke-width: 3" }));
+    for (var n = 1; n <= 12; n++) {
+      var a = (n * 30 - 90) * Math.PI / 180;
+      root.appendChild(label((76 * Math.cos(a)).toFixed(2), (76 * Math.sin(a) + 6).toFixed(2), String(n),
+        { anchor: "middle", size: 17, bold: true, ink: "var(--ink-900)" }));
+    }
+    var h = (c.hand * 30 - 90) * Math.PI / 180;
+    root.appendChild(svg("line", { x1: 0, y1: 0, x2: (58 * Math.cos(h)).toFixed(2), y2: (58 * Math.sin(h)).toFixed(2),
+      style: "stroke: var(--brand-blue-600); stroke-width: 6; stroke-linecap: round" }));
+    root.appendChild(svg("circle", { cx: 0, cy: 0, r: 6, style: "fill: var(--brand-blue-600)" }));
+    return [root];
+  }
+
+  function mirrorFigure(c) {
+    /* The paper widens with the distance; the label grows with it, so it
+       reads the same size on screen. */
+    var cols = 2 * c.distance + 4, rows = 5, cell = 20, W = cols * cell, H = rows * cell, fs = Math.round(cols * 0.85);
+    var root = svg("svg", { viewBox: "-2 " + -(fs + 10) + " " + (W + 4) + " " + (H + fs + 12), width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    for (var i = 0; i <= cols; i++) root.appendChild(svg("line", { x1: i * cell, x2: i * cell, y1: 0, y2: H, style: "stroke: var(--surface-300); stroke-width: 1" }));
+    for (var j = 0; j <= rows; j++) root.appendChild(svg("line", { x1: 0, x2: W, y1: j * cell, y2: j * cell, style: "stroke: var(--surface-300); stroke-width: 1" }));
+    var mid = (cols / 2) * cell;
+    root.appendChild(svg("line", { x1: mid, x2: mid, y1: -6, y2: H + 2, style: "stroke: var(--skill-3-600); stroke-width: 3; stroke-dasharray: 8 5" }));
+    root.appendChild(label(mid, -8, "mirror line", { anchor: "middle", size: fs, ink: "var(--skill-3-600)" }));
+    var px = mid + (c.side === "left" ? -1 : 1) * c.distance * cell;
+    root.appendChild(svg("circle", { cx: px, cy: 3 * cell, r: 6, style: "fill: var(--brand-blue-600)" }));
+    return [root];
+  }
+
   function Chart(c) {
     var box = {
       background: "var(--surface-200)", borderRadius: "var(--radius-md)", boxShadow: "inset 0 0 0 1px var(--surface-300)",
@@ -775,7 +873,8 @@
       width: "100%", maxWidth: 480, boxSizing: "border-box", margin: 0
     };
     if (c.kind === "table") return el("div.am-chart", { style: box }, tableChart(c));
-    var parts = c.kind === "pie" ? pieChart(c) : axisChart(c, "am-chart-" + (++chartCount));
+    var parts = c.kind === "pie" ? pieChart(c) : c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c)
+      : c.kind === "mirror" ? mirrorFigure(c) : axisChart(c, "am-chart-" + (++chartCount));
     return el("figure.am-chart", { role: "img", "aria-label": c.text, style: box },
       el("div.label", { "aria-hidden": "true", style: { color: "var(--ink-900)" } }, c.title), parts);
   }

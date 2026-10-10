@@ -545,6 +545,47 @@
      read the question. A bar or line graph's values sit on its gridlines, so
      each can be read exactly; a pie graph's slices are labelled. */
   var CHART_NAMES = { bar: "bar graph", line: "line graph", pie: "pie graph", table: "table" };
+  /* The regular shapes a tiling picture can show: those whose angles are
+     whole degrees, named as one and as many. */
+  var SHAPE_NAMES = {
+    3: ["an equilateral triangle", "equilateral triangles"], 4: ["a square", "squares"],
+    5: ["a regular pentagon", "regular pentagons"], 6: ["a regular hexagon", "regular hexagons"],
+    8: ["a regular octagon", "regular octagons"], 9: ["a regular nonagon", "regular nonagons"],
+    10: ["a regular decagon", "regular decagons"], 12: ["a regular dodecagon", "regular dodecagons"]
+  };
+  function whole(src, scope, lo, hi, what) {
+    var v = toNumber(int(evalExpr(src, scope)));
+    if (v < lo || v > hi) throw ContentError(what + " is " + lo + " to " + hi + ", not " + v);
+    return v;
+  }
+  /* A picture: shapes round a point, a clock face, or a mirror line on
+     squared paper. */
+  function renderFigure(spec, scope, c) {
+    if (spec.kind === "tiling") {
+      var used = 0;
+      c.shapes = spec.shapes.map(function (s) {
+        var sides = whole(s.sides, scope, 3, 12, "a tiling shape's sides"), count = whole(s.count, scope, 1, 12, "a tiling shape's count");
+        if (!SHAPE_NAMES[sides]) throw ContentError("a tiling picture cannot show a regular shape of " + sides + " sides");
+        var angle = (sides - 2) * 180 / sides;
+        used += count * angle;
+        return { sides: sides, count: count, angle: angle, name: count === 1 ? SHAPE_NAMES[sides][0] : count + " " + SHAPE_NAMES[sides][1] };
+      });
+      if (used > 360) throw ContentError("the shapes round the point overlap: " + used + "°");
+      c.gap = 360 - used;
+      c.text = "Picture: " + c.shapes.map(function (s) { return s.name; }).join(" and ") + " round a point, " +
+        (c.gap ? "with a gap left" : "with no gap") + ".";
+    } else if (spec.kind === "clock") {
+      c.hand = whole(spec.hand, scope, 1, 12, "a clock hand");
+      c.text = "Picture: a clock face, with its hand pointing to " + c.hand + ".";
+    } else {
+      c.distance = whole(spec.distance, scope, 1, 10, "the distance from the mirror line");
+      c.side = evalExpr(spec.side, scope);
+      if (c.side !== "left" && c.side !== "right") throw ContentError("a point is to the left or the right of the mirror line");
+      c.text = "Picture: squared paper with a mirror line, and a point " + c.distance + " square" + (c.distance === 1 ? "" : "s") +
+        " to its " + c.side + ".";
+    }
+    return c;
+  }
   function chartLabel(spec, scope, v) {
     var ls = within(scope);
     ls.value = v;
@@ -552,6 +593,7 @@
   }
   function renderChart(spec, scope) {
     var c = { kind: spec.kind, title: interpolate(spec.title, scope) };
+    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror") return renderFigure(spec, scope, c);
     if (spec.kind === "pie") {
       c.unit = spec.unit;
       c.slices = spec.slices.map(function (s) {

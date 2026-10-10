@@ -364,6 +364,19 @@ function run() {
       case "time-choice":
         topicItem("time", "how-long", "time.store-hours", { s: 510, e: 1290 }, 1, true);
         break;
+      /* Not in the PDF: the transformations topic's pictures, for review. */
+      case "transform-gap":
+        topicItem("transform", "angles-at-a-point", "transform.gap-at-a-point", { i: 1 }, "36");
+        break;
+      case "transform-fill":
+        topicItem("transform", "any-shape", "transform.fill-the-gap", { c: 1 }, "4", true);
+        break;
+      case "transform-clock":
+        topicItem("transform", "moves", "transform.clock-turn", { h: 2, q: 90 }, "11", true);
+        break;
+      case "transform-mirror":
+        topicItem("transform", "moves", "transform.mirror-distance", { d: 3, side: "left" }, "6");
+        break;
       default:
         document.title = "UNKNOWN-SCREEN";
         return;

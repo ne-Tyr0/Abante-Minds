@@ -58,8 +58,13 @@ const NUMBER_TYPES_WITH_PLACES = new Set(["decimal", "percent", "unit", "pi-expr
 let usesFractionAnswers = false;
 const FORMAT_KEYS = new Set(["id", "prompt", "hints", "steps", "explain"]);
 const DISTRACTOR_KEYS = new Set(["value", "error", "feedback"]);
-const CHART_KEYS = new Set(["kind", "title", "axis", "categories", "series", "step", "label", "unit", "slices"]);
-const CHART_KINDS = ["bar", "line", "pie", "table"];
+const CHART_KEYS = new Set(["kind", "title", "axis", "categories", "series", "step", "label", "unit", "slices",
+  "shapes", "hand", "distance", "side"]);
+const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror"];
+/* A picture takes only its own fields: the shapes round a point, the hour a
+   clock hand points to, or a point's distance and side from a mirror line. */
+const FIGURE_FIELDS = { tiling: ["shapes"], clock: ["hand"], mirror: ["distance", "side"] };
+const GRAPH_ONLY = ["axis", "categories", "series", "step", "label", "unit", "slices"];
 const PIE_TOTAL = { "%": 100, "°": 360 };
 /* What fits on a phone: the category names along a graph's bottom share its
    width, so more categories means shorter names; a graph has 2 to 10 steps
@@ -143,6 +148,20 @@ function checkChart(c, params) {
   unknownKeys(c, CHART_KEYS, "chart");
   if (!CHART_KINDS.includes(c.kind)) { fail(`chart kind is one of ${CHART_KINDS.join(", ")}`); return; }
   text(c.title, params, "chart title");
+  if (c.kind in FIGURE_FIELDS) {
+    const own = FIGURE_FIELDS[c.kind];
+    for (const k of [...GRAPH_ONLY, ...Object.values(FIGURE_FIELDS).flat()]) if (k in c && !own.includes(k)) fail(`a ${c.kind} picture has no ${k}`);
+    if (c.kind === "tiling") {
+      if (!Array.isArray(c.shapes) || c.shapes.length < 1 || c.shapes.length > 2) { fail("a tiling picture has 1 or 2 kinds of shape"); return; }
+      c.shapes.forEach((s, i) => {
+        unknownKeys(s, new Set(["sides", "count"]), `shape ${i}`);
+        expr(s.sides, params, `shape ${i} sides`);
+        expr(s.count, params, `shape ${i} count`);
+      });
+    } else for (const k of own) expr(c[k], params, `chart ${k}`);
+    return;
+  }
+  for (const k of Object.values(FIGURE_FIELDS).flat()) if (k in c) fail(`a ${c.kind} has no ${k}`);
   if (c.kind === "pie") {
     for (const k of ["axis", "categories", "series", "step", "label"]) if (k in c) fail(`a pie graph has no ${k}`);
     if (!(c.unit in PIE_TOTAL)) fail("a pie graph's unit is % or °");
@@ -477,7 +496,14 @@ function inspect(q, label) {
 function inspectChart(c, label) {
   const bad = (msg) => fail(`${label}: chart ${msg}`);
   const words = [c.title, c.text];
-  if (c.kind === "pie") {
+  if (c.kind === "tiling") {
+    if (!(c.gap >= 0)) bad(`shapes overlap round the point`);
+    words.push(...c.shapes.map((s) => s.name));
+  } else if (c.kind === "clock") {
+    if (!(Number.isInteger(c.hand) && c.hand >= 1 && c.hand <= 12)) bad(`hand points to ${c.hand}`);
+  } else if (c.kind === "mirror") {
+    if (!["left", "right"].includes(c.side)) bad(`point is to the ${c.side} of the line`);
+  } else if (c.kind === "pie") {
     words.push(...c.slices.flatMap((s) => [s.name, s.label]));
     const total = c.slices.reduce((a, s) => a + s.value, 0);
     if (Math.abs(total - PIE_TOTAL[c.unit]) > 1e-9) bad(`slices add up to ${total}${c.unit}, not ${PIE_TOTAL[c.unit]}${c.unit}`);
