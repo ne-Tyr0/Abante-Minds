@@ -180,6 +180,23 @@
     return numberWords(x.n);
   };
   FUNCS.mixed = function (x) { return mixedText(num(x)); };
+  /* A power: pow(2, 5) is 32. The exponent is a whole number, kept small so
+     the number stays exact. */
+  FUNCS.pow = function (b, e) {
+    e = int(e);
+    if (e.n < 0 || e.n > 20) throw ContentError("pow() takes a whole exponent from 0 to 20");
+    b = num(b);
+    var r = Q(1);
+    for (var i = 0; i < e.n; i++) r = mul(r, b);
+    return r;
+  };
+  /* An exponent as it is printed: "{b}{sup(e)}" shows 2⁵. */
+  var SUPERSCRIPT = "⁰¹²³⁴⁵⁶⁷⁸⁹";
+  FUNCS.sup = function (x) {
+    x = int(x);
+    if (x.n < 0) throw ContentError("sup() takes a whole number");
+    return String(x.n).split("").map(function (d) { return SUPERSCRIPT.charAt(+d); }).join("");
+  };
 
   var RESERVED = { "true": true, "false": true, answer: true, value: true };
   Object.keys(FUNCS).forEach(function (k) { RESERVED[k] = true; });

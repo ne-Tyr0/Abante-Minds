@@ -324,6 +324,16 @@ test("words and fixed", () => {
   throws(() => ev("fixed(1 / 3, 2)"), /cannot show/);
 });
 
+test("pow and sup: powers and how they are printed", () => {
+  assert.deepStrictEqual(["pow(2, 5)", "pow(10, 3)", "pow(7, 0)", "pow(1.5, 2)"].map(show), ["32", "1000", "1", "2.25"]);
+  throws(() => ev("pow(2, 21)"), /0 to 20/);
+  throws(() => ev("pow(2, 1.5)"), /whole number/);
+  assert.deepStrictEqual([ev("sup(2)"), ev("sup(3)"), ev("sup(0)"), ev("sup(10)"), ev("sup(456789)")], ["²", "³", "⁰", "¹⁰", "⁴⁵⁶⁷⁸⁹"]);
+  assert.strictEqual(E.interpolate("{b}{sup(e)} = {pow(b, e)}", Object.assign(Object.create(null), { b: E.Q(2), e: E.Q(5) })), "2⁵ = 32");
+  throws(() => ev("sup(1.5)"), /whole number/);
+  assert.ok(E.RESERVED.includes("pow") && E.RESERVED.includes("sup"), "a param cannot be named pow or sup");
+});
+
 /* ---------- fractions, mixed numbers and number suffixes ---------- */
 
 test("frac and mixed show amounts as a learner writes them", () => {
