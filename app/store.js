@@ -8,7 +8,10 @@
    Progress is a path of levels (content/packs). A level clears at CLEAR_TARGET
    answers right on the first try; a retry, or redoing a missed question after
    seeing its solution, does not count towards it. Clearing a level unlocks the
-   next one in its topic. */
+   next one in its topic.
+
+   Beside the path, the Basics track keeps each fact (7 × 8, 56 ÷ 7) on its
+   own: mastered when right and quick on MASTERY_DAYS different days. */
 (function () {
   "use strict";
 
@@ -17,6 +20,7 @@
   var VERSION = 2;
   var CLEAR_TARGET = 8;         /* first-try correct answers that clear a level */
   var SESSION_LENGTH = 10;
+  var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
 
   function today() {
     var d = new Date();
@@ -42,6 +46,7 @@
       signedIn: false,
       profile: null,               /* {name, school, colorKey, iconKey, username} */
       levels: {},                  /* "topic/level": {correct, attempts, cleared, lessonSeen} */
+      facts: {},                   /* fact key: {seen, right, miss, days, last}; days are the days it was right and quick */
       lastLevel: null,             /* {topic, level}: where the learner last practised */
       streakDays: 0,
       lastActiveDay: null,
@@ -49,7 +54,7 @@
       weekStart: null,
       week: [false, false, false, false, false, false, false],
       resetToday: false,
-      totalCorrect: 0,             /* answers right on the first try, across the path */
+      totalCorrect: 0,             /* answers right on the first try, on the path and in Basics */
       recoveryRequested: false,
       lastSession: null
     };
@@ -190,6 +195,42 @@
     return s.correct >= 6 ? 3 : s.correct >= 3 ? 2 : 1;
   }
 
+  /* ---------- Basics facts ----------
+     A fact is mastered when it has been right and quick (app/facts.js) on
+     MASTERY_DAYS different days. A miss sends it back to be learnt again,
+     mastered or not, which is what keeps the course worth repeating. A slow
+     right answer is practice, but does not count towards mastering. */
+  function factState(key) {
+    var f = state.facts[key];
+    var days = f ? f.days : [];
+    return {
+      seen: f ? f.seen : 0, right: f ? f.right : 0, miss: f ? f.miss : 0, days: days.slice(),
+      mastered: days.length >= MASTERY_DAYS, quickToday: days.indexOf(today()) > -1, last: f ? f.last : null
+    };
+  }
+
+  function recordFact(key, right, quick) {
+    rollDay();
+    markPractice();
+    var t = today();
+    var f = state.facts[key] || { seen: 0, right: 0, miss: 0, days: [], last: null };
+    var was = f.days.length >= MASTERY_DAYS;
+    f.seen += 1;
+    f.last = t;
+    if (right) {
+      f.right += 1;
+      state.totalCorrect += 1;
+      if (quick && f.days.indexOf(t) < 0) f.days = f.days.concat(t).slice(-MASTERY_DAYS);
+    } else {
+      f.miss += 1;
+      f.days = [];
+    }
+    state.facts[key] = f;
+    commit();
+    var now = f.days.length >= MASTERY_DAYS;
+    return { mastered: now && !was, lost: was && !now };
+  }
+
   /* ---------- the path, as the screens show it ---------- */
   function topicPath(t) {
     var levels = t.levels.map(function (lv, i) {
@@ -241,6 +282,41 @@
     };
   }
 
+  /* ---------- Basics, as the screens show it ----------
+     Every level is open. A facts level counts its facts mastered; a practice
+     level clears at CLEAR_TARGET as one on the path does, but opens nothing
+     and counts for nothing on the path. A review level asks every fact, so
+     it is not counted twice in the topic's totals. */
+  function sum(list, field) { return list.reduce(function (n, x) { return n + x[field]; }, 0); }
+
+  function basicsTopic(t) {
+    var levels = t.levels.map(function (lv, i) {
+      var keys = lv.kind === "practice" ? [] : AM.content.facts(t.key, lv.id);
+      var mastered = keys.filter(function (k) { return factState(k).mastered; }).length;
+      var s = levelState(t.key, lv.id);
+      return {
+        id: lv.id, title: lv.title, number: i + 1, kind: lv.kind, hasLesson: lv.hasLesson, lessonSeen: s.lessonSeen,
+        facts: keys.length, mastered: mastered,
+        correct: Math.min(s.correct, CLEAR_TARGET), target: CLEAR_TARGET, attempts: s.attempts, cleared: s.cleared,
+        unlocked: true,
+        done: lv.kind === "practice" ? s.cleared : keys.length > 0 && mastered === keys.length
+      };
+    });
+    var own = levels.filter(function (lv) { return lv.kind !== "review"; });
+    var factLevels = levels.filter(function (lv) { return lv.kind === "facts"; });
+    var practice = levels.filter(function (lv) { return lv.kind === "practice"; });
+    return {
+      key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey, ready: true, grid: t.grid, track: "basics",
+      levels: levels,
+      facts: sum(factLevels, "facts"), mastered: sum(factLevels, "mastered"),
+      cleared: practice.filter(function (lv) { return lv.cleared; }).length, practiceLevels: practice.length,
+      done: own.every(function (lv) { return lv.done; }),
+      next: own.filter(function (lv) { return !lv.done; })[0] || null
+    };
+  }
+
+  function basics() { return (AM.content.BASICS || []).map(basicsTopic); }
+
   /* ---------- connectivity ----------
      Observed, never acted on. Losing signal changes nothing about what the app does;
      it only changes what the app says. */
@@ -267,7 +343,9 @@
     ];
   }
 
-  function hasProgress() { return state.totalCorrect > 0 || Object.keys(state.levels).length > 0; }
+  function hasProgress() {
+    return state.totalCorrect > 0 || Object.keys(state.levels).length > 0 || Object.keys(state.facts).length > 0;
+  }
 
   /* Forget the learner entirely and start again at the splash screen. */
   function reset() {
@@ -279,6 +357,7 @@
   AM.store = {
     CLEAR_TARGET: CLEAR_TARGET,
     SESSION_LENGTH: SESSION_LENGTH,
+    MASTERY_DAYS: MASTERY_DAYS,
     VERSION: VERSION,
 
     get: function () { return state; },
@@ -301,6 +380,13 @@
       return t ? topicPath(t) : null;
     },
     path: path,
+    factState: factState,
+    recordFact: recordFact,
+    basics: basics,
+    basicsTopic: function (key) {
+      var t = (AM.content.BASICS || []).filter(function (x) { return x.key === key; })[0];
+      return t ? basicsTopic(t) : null;
+    },
     badges: badges,
     hasProgress: hasProgress,
     reset: reset,

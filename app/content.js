@@ -581,24 +581,33 @@
      A pack is the learner's path: its topics in the order they are met, each
      split into levels that follow its competencies. A topic not yet written
      is on the path as "coming soon", so the path shows the whole blueprint
-     from the start rather than pretending to be complete. */
+     from the start rather than pretending to be complete.
+
+     Beside the path is the Basics track: the facts and methods under every
+     topic (times tables, adding and subtracting, mental math), open at any
+     time and never counted towards the blueprint. Its topics have the same
+     files, plus two kinds of level the path does not use: "facts", practised
+     fact by fact until each is mastered, and "review", which asks every fact
+     of the topic. */
 
   var PACK = null;
   var TOPIC_BY_KEY = Object.create(null);
   var TEMPLATE_BY_ID = Object.create(null);
+  var KINDS = ["practice", "facts", "review"];
 
-  /* Installs a pack: a manifest plus one file per written topic (null for one
-     coming soon). The full schema check runs in CI (tests/validate-packs.js);
-     this only refuses a pack that could not work at all, so a broken deploy
-     fails loudly instead of quietly. */
-  function use(manifest, topicFiles) {
+  /* Installs a pack: a manifest, one file per written topic on the path
+     (null for one coming soon), and one per Basics topic. The full schema
+     check runs in CI (tests/validate-packs.js); this only refuses a pack that
+     could not work at all, so a broken deploy fails loudly instead of quietly. */
+  function use(manifest, topicFiles, basicsFiles) {
     if (!manifest || !Array.isArray(manifest.topics)) throw ContentError("manifest has no topics");
-    var topics = Object.create(null), templates = Object.create(null), list = [];
-    manifest.topics.forEach(function (meta, i) {
-      var file = topicFiles[i];
+    var topics = Object.create(null), templates = Object.create(null), list = [], basics = [];
+
+    function install(meta, file, track) {
+      if (topics[meta.key]) throw ContentError("topic key used twice: " + meta.key);
       var topic = {
-        key: meta.key, label: meta.label, icon: meta.icon, colorKey: meta.colorKey,
-        ready: !meta.comingSoon, levels: [], templates: [], pinned: []
+        key: meta.key, label: meta.label, icon: meta.icon, colorKey: meta.colorKey, track: track,
+        ready: !meta.comingSoon, levels: [], templates: [], pinned: [], grid: null
       };
       if (meta.comingSoon) {
         if (file) throw ContentError("topic '" + meta.key + "' is coming soon but has a file");
@@ -611,20 +620,40 @@
           templates[t.id] = t;
         });
         topic.levels = file.levels.map(function (lv) {
+          var where = "level '" + meta.key + "/" + lv.id + "'";
+          var kind = lv.kind || "practice";
+          if (KINDS.indexOf(kind) < 0) throw ContentError(where + " has an unknown kind '" + kind + "'");
+          if (kind !== "practice" && track !== "basics") throw ContentError(where + ": only a Basics level can be " + kind);
           var own = (lv.templates || []).map(function (id) {
-            if (!templates[id]) throw ContentError("level '" + meta.key + "/" + lv.id + "' names unknown template " + id);
+            if (!templates[id]) throw ContentError(where + " names unknown template " + id);
             return templates[id];
           });
-          if (!own.length) throw ContentError("level '" + meta.key + "/" + lv.id + "' has no templates");
-          var competencies = [];
-          own.forEach(function (t) { if (competencies.indexOf(t.competency) < 0) competencies.push(t.competency); });
-          return { id: lv.id, title: lv.title, templates: own, competencies: competencies, lesson: lv.lesson || [] };
+          if (kind === "review" && own.length) throw ContentError(where + ": a review level has no templates of its own");
+          return { id: lv.id, title: lv.title, kind: kind, templates: own, competencies: [], lesson: lv.lesson || [], facts: null };
+        });
+        topic.levels.forEach(function (lv) {
+          /* A review level asks every fact of the topic's facts levels. */
+          if (lv.kind === "review") {
+            lv.templates = topic.levels.filter(function (o) { return o.kind === "facts"; })
+              .reduce(function (all, o) { return all.concat(o.templates); }, []);
+          }
+          if (!lv.templates.length) throw ContentError("level '" + meta.key + "/" + lv.id + "' has nothing to ask");
+          lv.templates.forEach(function (t) {
+            if (t.competency && lv.competencies.indexOf(t.competency) < 0) lv.competencies.push(t.competency);
+          });
         });
         topic.templates = file.templates;
         topic.pinned = file.pinned || [];
+        topic.grid = file.grid || null;
       }
       topics[meta.key] = topic;
-      list.push(topic);
+      return topic;
+    }
+
+    manifest.topics.forEach(function (meta, i) { list.push(install(meta, topicFiles[i], "path")); });
+    (manifest.basics || []).forEach(function (meta, i) {
+      if (meta.comingSoon) throw ContentError("Basics topic '" + meta.key + "' cannot be coming soon");
+      basics.push(install(meta, (basicsFiles || [])[i], "basics"));
     });
     PACK = {
       subtest: manifest.subtest, version: manifest.version,
@@ -633,7 +662,9 @@
     };
     TOPIC_BY_KEY = topics;
     TEMPLATE_BY_ID = templates;
+    FACTS = Object.create(null);
     AM.content.TOPICS = list.map(publicTopic);
+    AM.content.BASICS = basics.map(publicTopic);
     AM.content.packVersion = PACK.version;
     AM.content.subtest = PACK.subtest;
     AM.content.examDate = PACK.examDate;
@@ -641,13 +672,17 @@
     return AM.content.TOPICS;
   }
 
-  /* What the screens and the store see of a topic: its place on the path and
-     its levels, never the templates themselves. */
+  /* What the screens and the store see of a topic: its place on the path or
+     in Basics, and its levels, never the templates themselves. */
   function publicTopic(t) {
     return {
-      key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey, ready: t.ready,
+      key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey, ready: t.ready, track: t.track,
+      grid: !!t.grid,
       levels: t.levels.map(function (lv) {
-        return { id: lv.id, title: lv.title, competencies: lv.competencies.slice(), hasLesson: lv.lesson.length > 0 };
+        return {
+          id: lv.id, title: lv.title, kind: lv.kind, competencies: lv.competencies.slice(),
+          hasLesson: lv.lesson.length > 0, factCount: lv.kind === "practice" ? 0 : factsOf(lv).length
+        };
       })
     };
   }
@@ -661,8 +696,10 @@
       });
     }
     return json(base + "manifest.json").then(function (manifest) {
-      return Promise.all(manifest.topics.map(function (t) { return t.comingSoon ? null : json(base + t.file); }))
-        .then(function (files) { return use(manifest, files); });
+      return Promise.all([
+        Promise.all(manifest.topics.map(function (t) { return t.comingSoon ? null : json(base + t.file); })),
+        Promise.all((manifest.basics || []).map(function (t) { return json(base + t.file); }))
+      ]).then(function (files) { return use(manifest, files[0], files[1]); });
     });
   }
 
@@ -738,6 +775,119 @@
     });
   }
 
+  /* ---------- facts ----------
+     A facts level is not drawn at random: its templates' params are listed
+     out, and every combination that passes the template's `where` and has a
+     usable answer is one fact, mastered on its own (app/facts.js). A fact's
+     key is its template and its drawn values, "times.x7:7,8", so progress
+     survives a reordered file, though not a change to what is asked. */
+  var FACTS = Object.create(null);  /* key -> {key, template, params} */
+
+  function factsOf(level) {
+    if (level.facts) return level.facts;
+    var keys = [];
+    level.templates.forEach(function (t) {
+      enumerate(t).forEach(function (f) {
+        if (!FACTS[f.key]) FACTS[f.key] = f;
+        if (keys.indexOf(f.key) < 0) keys.push(f.key);
+      });
+    });
+    level.facts = keys;
+    return keys;
+  }
+
+  function enumerate(t) {
+    var names = Object.keys(t.params || {}), out = [];
+    function walk(i, scope, drawn) {
+      if (i === names.length) {
+        if (!(t.where || []).every(function (c) { return bool(evalExpr(c, scope)); })) return;
+        var answer = evalExpr(t.answer.value, scope);
+        if (!validAnswer(t.answer, answer)) return;
+        if (t.answer.type === "choice") {
+          var withAnswer = within(scope);
+          withAnswer.answer = answer;
+          if (!choiceUsable(t, withAnswer)) return;
+        }
+        var params = {};
+        drawn.forEach(function (n) { params[n] = isRat(scope[n]) ? toNumber(scope[n]) : scope[n]; });
+        out.push({
+          key: t.id + ":" + drawn.map(function (n) { return isRat(scope[n]) ? fmt(scope[n]) : scope[n]; }).join(","),
+          template: t.id, params: params
+        });
+        return;
+      }
+      var name = names[i], spec = t.params[name];
+      if ("value" in spec) {
+        var s = within(scope);
+        s[name] = evalExpr(spec.value, scope);
+        walk(i + 1, s, drawn);
+        return;
+      }
+      valuesOf(t, name, spec, scope).forEach(function (v) {
+        var next = within(scope);
+        next[name] = v;
+        walk(i + 1, next, drawn.concat(name));
+      });
+    }
+    walk(0, Object.create(null), []);
+    return out;
+  }
+
+  /* Every value a param can take. A fact's numbers do not depend on how far
+     the learner has got, so tiers have no place in one. */
+  function valuesOf(t, name, spec, scope) {
+    if ("choose" in spec) return spec.choose.map(fromJSON);
+    if (!spec.range) throw ContentError(t.id + ": a fact's '" + name + "' must be a choose or a range, not tiers");
+    var lo = bound(spec.range[0], scope), hi = bound(spec.range[1], scope);
+    var step = spec.step === undefined ? Q(1) : fromJSON(spec.step);
+    var span = div(sub(hi, lo), step);
+    if (!isInt(span)) throw ContentError(t.id + ": range for '" + name + "' is not a whole number of steps");
+    var list = [];
+    for (var k = 0; k <= toNumber(span); k++) list.push(add(lo, mul(Q(k), step)));
+    return list;
+  }
+
+  function factKeys(topicKey, levelId) {
+    var level = levelOf(topicKey, levelId).level;
+    return level.kind === "practice" ? [] : factsOf(level).slice();
+  }
+
+  /* One fact as a question in the level being practised. The seed picks its
+     format, 7 × 8 or 8 × 7, so a logged fact question can be shown again. */
+  function factQuestion(topicKey, levelId, key, seed, index) {
+    var found = levelOf(topicKey, levelId);
+    if (found.level.kind === "practice" || factsOf(found.level).indexOf(key) < 0)
+      throw ContentError("level '" + topicKey + "/" + levelId + "' has no fact '" + key + "'");
+    var f = FACTS[key], t = template(f.template);
+    var format = t.formats[Math.floor(rng(seed)() * t.formats.length)];
+    var q = decorate(instanceFrom(t, PACK, 1, f.params, format.id), found.topic, found.level, index);
+    q.factKey = key;
+    q.pinned = false;
+    q.seed = seed >>> 0;
+    return q;
+  }
+
+  /* A Basics topic's grid, such as the times table: the fact each cell
+     belongs to, for the screen to colour by mastery. A template marked
+     `grid` puts each of its facts on the cells x,y and y,x. */
+  function grid(topicKey) {
+    var topic = TOPIC_BY_KEY[topicKey];
+    if (!topic || !topic.grid) return null;
+    var cells = Object.create(null);
+    topic.levels.forEach(function (lv) {
+      if (lv.kind !== "facts") return;
+      factsOf(lv).forEach(function (k) {
+        var f = FACTS[k];
+        if (!template(f.template).grid) return;
+        cells[f.params.x + "," + f.params.y] = k;
+        cells[f.params.y + "," + f.params.x] = k;
+      });
+    });
+    var g = topic.grid, values = [];
+    for (var v = g.from; v <= g.to; v++) values.push(v);
+    return { title: g.title, sign: g.sign, values: values, cells: cells };
+  }
+
   /* ---------- answers ----------
      A typed answer is read exactly: "36", "36.0" and "36." are the same, and
      anything the keypad cannot produce is ignored. A wrong answer that matches
@@ -803,6 +953,7 @@
 
   AM.content = {
     TOPICS: [],
+    BASICS: [],
     packVersion: null,
     subtest: null,
     examDate: null,
@@ -815,6 +966,14 @@
     },
     buildSession: buildSession,
     lesson: lesson,
+    facts: factKeys,
+    /* A listed fact's template and params, for checking it in every format. */
+    fact: function (key) {
+      var f = FACTS[key];
+      return f ? { key: f.key, template: f.template, params: JSON.parse(JSON.stringify(f.params)) } : undefined;
+    },
+    factQuestion: factQuestion,
+    grid: grid,
     isCorrect: isCorrect,
     diagnose: diagnose,
     generate: function (id, tier, seed) { return generateFrom(template(id), PACK, tier, seed); },

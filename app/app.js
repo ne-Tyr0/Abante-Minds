@@ -194,6 +194,24 @@
     app.go("topic");
   };
 
+  /* A Basics topic: its levels, all open, and its grid if it has one. */
+  app.openBasicsTopic = function (topicKey) {
+    app.scratch.basicsTopic = topicKey;
+    app.go("basicsTopic");
+  };
+
+  /* Back to the topic a level belongs to, on the path or in Basics. */
+  function backToTopic(topicKey) {
+    if (C.byKey(topicKey).track === "basics") {
+      app.scratch.basicsTopic = topicKey;
+      app.go("basicsTopic", "back");
+    } else {
+      app.scratch.topic = topicKey;
+      app.go("topic", "back");
+    }
+  }
+  app.backToTopic = backToTopic;
+
   /* A level opens with its lesson the first time; after that, straight to
      practice. The lesson can always be seen again from the topic screen. */
   app.startLevel = function (topicKey, levelId) {
@@ -212,7 +230,7 @@
     var l = app.scratch.lesson;
     if (!l) return;
     var page = l.page + delta;
-    if (page < 0) { app.go("topic", "back"); return; }
+    if (page < 0) { backToTopic(l.topic); return; }
     if (page >= l.cards.length) {
       store.markLessonSeen(l.topic, l.level);
       beginLevel(l.topic, l.level);
@@ -226,18 +244,25 @@
     var topic = C.byKey(topicKey);
     var index = topic.levels.findIndex(function (lv) { return lv.id === levelId; });
     var level = topic.levels[index];
-    return { topic: topic, number: index + 1, id: level.id, title: level.title, hasLesson: level.hasLesson };
+    return {
+      topic: topic, number: index + 1, id: level.id, title: level.title, hasLesson: level.hasLesson,
+      kind: level.kind, track: topic.track
+    };
   }
 
   function newSession(meta, questions, redo) {
     return {
       topicKey: meta.topic.key, topicLabel: meta.topic.label, colorKey: meta.topic.colorKey,
       levelId: meta.id, levelTitle: meta.title, levelNumber: meta.number,
+      track: meta.track, kind: meta.kind, facts: meta.kind !== "practice",
       redo: !!redo, questions: questions,
       index: 0, phase: "ask", entry: null, picked: null, diagnosis: null,
       showHints: false, hintsRevealed: 0, stepsRevealed: 1,
       run: 0, correct: 0, attempted: 0, missed: [],
-      pendingLevelUp: false, startedAt: Date.now()
+      pendingLevelUp: false, startedAt: Date.now(),
+      /* A facts round times each answer from the moment it is shown. */
+      shownAt: Date.now(), lastMs: null, lastQuick: false, lastMastered: false, lastRequeued: false,
+      quick: 0, mastered: [], seed: null
     };
   }
 
@@ -245,6 +270,7 @@
      harder as the level fills (store.tierFor). */
   function beginLevel(topicKey, levelId) {
     var meta = levelMeta(topicKey, levelId);
+    if (meta.kind !== "practice") { beginFacts(meta); return; }
     var lv = store.levelState(topicKey, levelId);
     store.rollDay();
     var questions = C.buildSession({
@@ -252,6 +278,19 @@
       tier: store.tierFor(topicKey, levelId), seed: Date.now(), pinned: lv.attempts === 0
     });
     app.session = newSession(meta, questions, false);
+    app.session.entry = freshEntry(app.session);
+    app.go("practice");
+  }
+
+  /* A Basics facts round: which facts, and in what order, is app/facts.js's
+     call from what the learner has done with each. */
+  function beginFacts(meta) {
+    store.rollDay();
+    var seed = Date.now() >>> 0;
+    var keys = AM.facts.pickRound(C.facts(meta.topic.key, meta.id), store.factState, seed);
+    var questions = keys.map(function (k, i) { return C.factQuestion(meta.topic.key, meta.id, k, seed + i, i); });
+    app.session = newSession(meta, questions, false);
+    app.session.seed = seed;
     app.session.entry = freshEntry(app.session);
     app.go("practice");
   }
@@ -316,7 +355,8 @@
       s.attempted += 1;
       if (right) s.correct += 1;
     }
-    if (s.redo) store.notePractice();
+    if (s.facts) checkFact(s, q, right);
+    else if (s.redo) store.notePractice();
     else if (store.recordAnswer(s.topicKey, s.levelId, right, firstTry).cleared) s.pendingLevelUp = true;
 
     if (right) {
@@ -325,11 +365,45 @@
       s.missed = s.missed.filter(function (m) { return m.id !== q.id; });
     } else {
       s.run = 0;
-      s.stepsRevealed = 1;
+      /* A fact's answer is shown in full: it comes back later to be tried again. */
+      s.stepsRevealed = s.facts ? q.steps.length : 1;
       if (!s.missed.some(function (m) { return m.id === q.id; })) s.missed.push(q);
     }
     render();
+    /* A right fact moves on by itself, so a round keeps its pace; the button
+       is still there, and whichever comes first wins. */
+    if (s.facts && right) {
+      var at = s.index;
+      window.setTimeout(function () {
+        if (app.session === s && s.index === at && s.phase === "correct" && app.route === "practice") app.next();
+      }, AUTO_NEXT_MS);
+    }
   };
+
+  var AUTO_NEXT_MS = 1200;
+
+  /* A fact counts towards mastery when it is right and quick; a miss sends it
+     back, and it comes back later in this round too, after its answer has
+     been shown. There is no second try at the same question. */
+  function checkFact(s, q, right) {
+    var ms = Date.now() - s.shownAt;
+    var quick = right && AM.facts.isQuick(ms, s.showHints);
+    s.lastMs = ms;
+    s.lastQuick = quick;
+    s.lastMastered = store.recordFact(q.factKey, right, quick).mastered;
+    s.lastRequeued = false;
+    if (quick) s.quick += 1;
+    if (s.lastMastered && s.mastered.indexOf(q.factKey) < 0) s.mastered.push(q.factKey);
+    if (!right) {
+      var keys = s.questions.map(function (x) { return x.factKey; });
+      var at = AM.facts.requeueAt(keys, s.index, q.factKey);
+      s.lastRequeued = at > -1;
+      if (at > -1) {
+        var n = s.questions.length;
+        s.questions.splice(at, 0, C.factQuestion(s.topicKey, s.levelId, q.factKey, s.seed + n, n));
+      }
+    }
+  }
 
   app.retry = function () {
     var s = app.session;
@@ -373,6 +447,7 @@
     s.showHints = false;
     s.hintsRevealed = 0;
     s.stepsRevealed = 1;
+    s.shownAt = Date.now();
     app.go("practice");
   }
 
@@ -386,6 +461,11 @@
       levelId: s.levelId,
       levelTitle: s.levelTitle,
       levelNumber: s.levelNumber,
+      track: s.track,
+      kind: s.kind,
+      facts: s.facts,
+      quick: s.quick,
+      masteredNow: s.mastered.length,
       redo: s.redo,
       attempted: s.attempted,
       correct: s.correct,
@@ -420,6 +500,7 @@
       if (focused && (focused.tagName === "BUTTON" || focused.tagName === "A")) return;
       if (s.phase === "ask") app.check();
       else if (s.phase === "correct") app.next();
+      else if (s.facts) app.next(); /* a missed fact has no second try, only Next */
       e.preventDefault();
       return;
     }

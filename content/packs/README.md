@@ -17,7 +17,8 @@ content/packs/<subtest>/
 ```
 
 Only `math` exists. Its path holds all 13 blueprint topics; `decimals` and `fractions` are
-written and the others are marked `comingSoon`.
+written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
+topics: `times` is written.
 
 ## Before you commit
 
@@ -64,6 +65,7 @@ this yet.
 | `formFeedback` | Required once any template takes `fraction` or `mixed` answers: the words for `not-lowest-terms`, `not-a-mixed-number` and `fraction-part-not-proper` |
 | `topics[].icon` | One of the 22 names in `app/icons.js` |
 | `topics[].colorKey` | 1 to 4, the skill hue |
+| `basics` | Optional: the Basics topics, each `{ key, label, icon, colorKey, file }`. Never `comingSoon`, and a key no topic on the path uses. Below |
 
 ## A topic: levels and lessons
 
@@ -101,6 +103,45 @@ blueprint targets for the topic.
 How hard the numbers are follows the level: tier 1 on a fresh level, tier 2 after 3
 answers right first time, tier 3 after 6, and tier 4 when reviewing a cleared level. A
 template's `tiers` ranges are how it gets harder.
+
+## Basics
+
+A Basics topic is a file like any other, with three differences: its templates have no
+`competency` (Basics are not on the blueprint; `domain` is still one of its domains), a
+level can be a `facts` level or a `review` level, and the topic can have a `grid`.
+
+```json
+{
+  "topic": "times",
+  "grid": { "title": "Times table", "sign": "×", "from": 2, "to": 12 },
+  "levels": [
+    { "id": "2-5-10", "title": "2, 5 and 10", "kind": "facts",
+      "templates": ["times.x2", "times.x5", "times.x10", "times.div2", "times.div5", "times.div10"],
+      "lesson": [ … ] },
+    { "id": "all", "title": "All the tables", "kind": "review" }
+  ],
+  "templates": [ … ]
+}
+```
+
+| Level `kind` | |
+|---|---|
+| absent | Practised like a level on the path: drawn questions, clears at 8 right first time. In Basics every level is open, and clearing one opens nothing |
+| `facts` | Practised fact by fact (`app/facts.js`). Its templates' params are listed out, every combination that passes `where` and has a usable answer is one fact, and each fact is mastered on its own: right and quick on two different days. So its params are `choose` or `range` lists, never `tiers`, and a template lists at most 200 facts |
+| `review` | Every fact of the topic's facts levels, the ones that need work first. No templates and no lesson of its own |
+
+A fact's key is its template and its drawn values, `times.x7:7,8`, and that is what a
+learner's progress is kept under. Never change what a template's params mean once it has
+shipped: rename the template instead.
+
+A template marked `"grid": true` puts each of its facts on the topic's grid, at the cells
+`x,y` and `y,x`, so it needs drawn params named `x` and `y`. The validator checks that
+every cell from `from` to `to` both ways holds a fact whose answer is `x × y` (or `x + y`
+for a `+` grid).
+
+Every named mistake must be usable on at least one fact of its template. With a single
+fact (8 × 8) two mistakes can land on the same number, 7 × 8 and one group of 8 short
+both being 56, and then neither can be named: leave one out.
 
 ## A template
 
@@ -147,6 +188,7 @@ template's `tiers` ranges are how it gets harder.
 | `explain` | Shown after a right answer |
 | `fallback` | Optional: replaces the manifest's `fallbackFeedback` for this template |
 | `distractors` | The mistakes the template expects, below |
+| `grid` | Basics facts only: `true` puts the template's facts on the topic's grid. Above |
 
 ### Params
 

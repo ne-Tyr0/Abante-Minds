@@ -1,0 +1,992 @@
+{
+  "topic": "times",
+  "grid": {"title": "Times table", "sign": "×", "from": 2, "to": 12},
+  "levels": [
+    {
+      "id": "2-5-10",
+      "title": "2, 5 and 10",
+      "kind": "facts",
+      "templates": ["times.x2", "times.x5", "times.x10", "times.div2", "times.div5", "times.div10"],
+      "lesson": [
+        {
+          "title": "Turn it round",
+          "body": "3 × 5 and 5 × 3 are the same fact: 3 groups of 5 and 5 groups of 3 are both 15. Learn one way and you know both."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "times.x5", "params": {"x": 5, "y": 7}, "format": "xy"}
+        },
+        {
+          "title": "Times and divide go together",
+          "body": "If 5 × 7 = 35, then 35 ÷ 5 = 7 and 35 ÷ 7 = 5. Every times fact gives you two divide facts."
+        }
+      ]
+    },
+    {
+      "id": "3-and-4",
+      "title": "3 and 4",
+      "kind": "facts",
+      "templates": ["times.x3", "times.x4", "times.div3", "times.div4"],
+      "lesson": [
+        {
+          "title": "Build on doubles",
+          "body": "Times 3 is double and one more group: 3 × 7 is 14 + 7 = 21. Times 4 is double, then double again: 7, 14, 28."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "times.x4", "params": {"x": 4, "y": 7}, "format": "xy"}
+        },
+        {
+          "title": "Quick is the goal",
+          "body": "A fact is mastered when you get it right in under 4 seconds on two different days. Use the strategy until the answer just comes."
+        }
+      ]
+    },
+    {
+      "id": "6-and-9",
+      "title": "6 and 9",
+      "kind": "facts",
+      "templates": ["times.x6", "times.x9", "times.div6", "times.div9"],
+      "lesson": [
+        {
+          "title": "Build from 5 and 10",
+          "body": "6 × 8 is 5 × 8 and one more 8: 40 + 8 = 48. 9 × 8 is 10 × 8 take away one 8: 80 − 8 = 72."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "times.x9", "params": {"x": 9, "y": 7}, "format": "xy"}
+        },
+        {
+          "title": "A check for nines",
+          "body": "Up to 9 × 10, the digits of a 9s answer add up to 9: 63 gives 6 + 3 = 9, and 72 gives 7 + 2 = 9."
+        }
+      ]
+    },
+    {
+      "id": "7-and-8",
+      "title": "7 and 8",
+      "kind": "facts",
+      "templates": ["times.x7", "times.x8", "times.div7", "times.div8"],
+      "lesson": [
+        {
+          "title": "Only three new facts",
+          "body": "You already know 7 and 8 times the other numbers from the tables before. The new facts are 7 × 7 = 49, 7 × 8 = 56 and 8 × 8 = 64."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "times.x7", "params": {"x": 7, "y": 8}, "format": "xy"}
+        },
+        {"title": "5, 6, 7, 8", "body": "56 = 7 × 8: the digits 5, 6, 7 and 8 run in order."}
+      ]
+    },
+    {
+      "id": "11-and-12",
+      "title": "11 and 12",
+      "kind": "facts",
+      "templates": ["times.x11", "times.x12", "times.div11", "times.div12"],
+      "lesson": [
+        {
+          "title": "Times 11",
+          "body": "11 times a number is 10 times it, then the number once more: 11 × 7 = 70 + 7 = 77."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "times.x12", "params": {"x": 12, "y": 7}, "format": "xy"}
+        },
+        {
+          "title": "Times 12",
+          "body": "12 times a number is 10 times it plus double it: 12 × 6 = 60 + 12 = 72."
+        }
+      ]
+    },
+    {"id": "all", "title": "All the tables", "kind": "review"}
+  ],
+  "templates": [
+    {
+      "id": "times.x2",
+      "domain": "NA",
+      "construct": "Recall a times fact with 2",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [2]}, "y": {"choose": [2, 3, 4, 5, 6, 7, 8, 9, 10]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": ["Times 2 is the same as doubling.", "Double {y} is {y} + {y}.", "{y} + {y} = ?"],
+      "steps": ["Times 2 means double", "Double {y} = {y} + {y}", "{y} + {y} = {answer}"],
+      "explain": "2 × {y} is double {y}: {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        }
+      ]
+    },
+    {
+      "id": "times.x5",
+      "domain": "NA",
+      "construct": "Recall a times fact with 5",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [5]}, "y": {"choose": [3, 4, 5, 6, 7, 8, 9, 10]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": ["Times 5 is half of times 10.", "10 × {y} = {10 * y}.", "Half of {10 * y} = ?"],
+      "steps": ["10 × {y} = {10 * y}", "5 is half of 10, so take half", "Half of {10 * y} = {answer}"],
+      "explain": "5 × {y} is half of 10 × {y}: half of {10 * y} is {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        },
+        {
+          "value": "(x - 1) * y",
+          "error": "used-the-table-below",
+          "feedback": "{value} is {x - 1} × {y}, from the {x - 1} times table."
+        }
+      ]
+    },
+    {
+      "id": "times.x10",
+      "domain": "NA",
+      "construct": "Recall a times fact with 10",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [10]}, "y": {"choose": [3, 4, 6, 7, 8, 9, 10]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": [
+        "Times 10 moves each digit one place to the left.",
+        "{y} ones become {y} tens.",
+        "Write {y} with a 0 after it."
+      ],
+      "steps": ["Times 10 moves each digit one place left", "{y} ones become {y} tens", "= {answer}"],
+      "explain": "10 × {y} = {answer}: {y} tens.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        },
+        {
+          "value": "(x - 1) * y",
+          "error": "used-the-table-below",
+          "feedback": "{value} is {x - 1} × {y}, from the {x - 1} times table."
+        }
+      ]
+    },
+    {
+      "id": "times.div2",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 2, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [2]}, "q": {"range": [1, 10]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.div5",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 5, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [5]}, "q": {"range": [1, 10]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.div10",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 10, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [10]}, "q": {"range": [1, 10]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.x3",
+      "domain": "NA",
+      "construct": "Recall a times fact with 3",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [3]}, "y": {"choose": [3, 4, 6, 7, 8, 9]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": ["Times 3 is double, then one more group.", "Double {y} is {2 * y}.", "{2 * y} + {y} = ?"],
+      "steps": ["Double {y}: {2 * y}", "One more {y}: {2 * y} + {y}", "= {answer}"],
+      "explain": "3 × {y} is double {y} and one more {y}: {2 * y} + {y} = {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        },
+        {
+          "value": "(x - 1) * y",
+          "error": "used-the-table-below",
+          "feedback": "{value} is {x - 1} × {y}, from the {x - 1} times table."
+        }
+      ]
+    },
+    {
+      "id": "times.x4",
+      "domain": "NA",
+      "construct": "Recall a times fact with 4",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [4]}, "y": {"choose": [4, 6, 7, 8, 9]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": ["Times 4 is double, then double again.", "Double {y} is {2 * y}.", "Double {2 * y} = ?"],
+      "steps": ["Double {y}: {2 * y}", "Double again: {2 * y} + {2 * y}", "= {answer}"],
+      "explain": "4 × {y} is double, then double again: {y}, {2 * y}, {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        },
+        {
+          "value": "(x - 1) * y",
+          "error": "used-the-table-below",
+          "feedback": "{value} is {x - 1} × {y}, from the {x - 1} times table."
+        }
+      ]
+    },
+    {
+      "id": "times.div3",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 3, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [3]}, "q": {"range": [1, 10]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.div4",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 4, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [4]}, "q": {"range": [1, 10]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.x6",
+      "domain": "NA",
+      "construct": "Recall a times fact with 6",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [6]}, "y": {"choose": [6, 7, 8, 9]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": ["Times 6 is times 5, then one more group.", "5 × {y} = {5 * y}.", "{5 * y} + {y} = ?"],
+      "steps": ["5 × {y} = {5 * y}", "One more {y}: {5 * y} + {y}", "= {answer}"],
+      "explain": "6 × {y} = 5 × {y} + {y} = {5 * y} + {y} = {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        },
+        {
+          "value": "(x - 1) * y",
+          "error": "used-the-table-below",
+          "feedback": "{value} is {x - 1} × {y}, from the {x - 1} times table."
+        }
+      ]
+    },
+    {
+      "id": "times.x9",
+      "domain": "NA",
+      "construct": "Recall a times fact with 9",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [9]}, "y": {"choose": [7, 8, 9]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": ["Times 9 is times 10, minus one group.", "10 × {y} = {10 * y}.", "{10 * y} − {y} = ?"],
+      "steps": ["10 × {y} = {10 * y}", "Take away one {y}: {10 * y} − {y}", "= {answer}"],
+      "explain": "9 × {y} = 10 × {y} − {y} = {10 * y} − {y} = {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        },
+        {
+          "value": "(x - 1) * y",
+          "error": "used-the-table-below",
+          "feedback": "{value} is {x - 1} × {y}, from the {x - 1} times table."
+        }
+      ]
+    },
+    {
+      "id": "times.div6",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 6, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [6]}, "q": {"range": [1, 10]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.div9",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 9, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [9]}, "q": {"range": [1, 10]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.x7",
+      "domain": "NA",
+      "construct": "Recall a times fact with 7",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [7]}, "y": {"choose": [7, 8]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": [
+        "Times 7 is times 5 plus times 2.",
+        "5 × {y} = {5 * y} and 2 × {y} = {2 * y}.",
+        "{5 * y} + {2 * y} = ?"
+      ],
+      "steps": ["5 × {y} = {5 * y}", "2 × {y} = {2 * y}", "{5 * y} + {2 * y} = {answer}"],
+      "explain": "7 × {y} = 5 × {y} + 2 × {y} = {5 * y} + {2 * y} = {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        },
+        {
+          "value": "(x - 1) * y",
+          "error": "used-the-table-below",
+          "feedback": "{value} is {x - 1} × {y}, from the {x - 1} times table."
+        }
+      ]
+    },
+    {
+      "id": "times.x8",
+      "domain": "NA",
+      "construct": "Recall a times fact with 8",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [8]}, "y": {"choose": [8]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": [
+        "Times 8 is double, double and double again.",
+        "{y}, then {2 * y}, then {4 * y}.",
+        "Double {4 * y} = ?"
+      ],
+      "steps": ["Double {y}: {2 * y}", "Double again: {4 * y}", "And again: {answer}"],
+      "explain": "8 × {y} is double three times: {y}, {2 * y}, {4 * y}, {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        }
+      ]
+    },
+    {
+      "id": "times.div7",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 7, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [7]}, "q": {"range": [1, 10]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.div8",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 8, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [8]}, "q": {"range": [1, 10]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.x11",
+      "domain": "NA",
+      "construct": "Recall a times fact with 11",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [11]}, "y": {"choose": [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": ["Times 11 is times 10, then one more group.", "10 × {y} = {10 * y}.", "{10 * y} + {y} = ?"],
+      "steps": ["10 × {y} = {10 * y}", "One more {y}: {10 * y} + {y}", "= {answer}"],
+      "explain": "11 × {y} = 10 × {y} + {y} = {10 * y} + {y} = {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        },
+        {
+          "value": "(x - 1) * y",
+          "error": "used-the-table-below",
+          "feedback": "{value} is {x - 1} × {y}, from the {x - 1} times table."
+        }
+      ]
+    },
+    {
+      "id": "times.x12",
+      "domain": "NA",
+      "construct": "Recall a times fact with 12",
+      "schema": "equal-groups",
+      "grid": true,
+      "params": {"x": {"choose": [12]}, "y": {"choose": [2, 3, 4, 5, 6, 7, 8, 9, 10, 12]}},
+      "answer": {"type": "integer", "value": "x * y"},
+      "formats": [{"id": "xy", "prompt": "{x} × {y} = ?"}, {"id": "yx", "prompt": "{y} × {x} = ?"}],
+      "hints": [
+        "Times 12 is times 10 plus times 2.",
+        "10 × {y} = {10 * y} and 2 × {y} = {2 * y}.",
+        "{10 * y} + {2 * y} = ?"
+      ],
+      "steps": ["10 × {y} = {10 * y}", "2 × {y} = {2 * y}", "{10 * y} + {2 * y} = {answer}"],
+      "explain": "12 × {y} = 10 × {y} + 2 × {y} = {10 * y} + {2 * y} = {answer}.",
+      "distractors": [
+        {
+          "value": "x * (y - 1)",
+          "error": "one-group-short",
+          "feedback": "{value} is {x} × {y - 1}: one group of {x} short."
+        },
+        {
+          "value": "x * (y + 1)",
+          "error": "one-group-too-many",
+          "feedback": "{value} is {x} × {y + 1}: one group of {x} too many."
+        },
+        {
+          "value": "x + y",
+          "error": "added-instead",
+          "feedback": "{value} is {x} + {y}. Times means {y} groups of {x}."
+        },
+        {
+          "value": "(x - 1) * y",
+          "error": "used-the-table-below",
+          "feedback": "{value} is {x - 1} × {y}, from the {x - 1} times table."
+        }
+      ]
+    },
+    {
+      "id": "times.div11",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 11, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [11]}, "q": {"range": [1, 12]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "times.div12",
+      "domain": "NA",
+      "construct": "Recall a divide fact by 12, from its times fact",
+      "schema": "equal-groups",
+      "params": {"x": {"choose": [12]}, "q": {"range": [1, 12]}, "n": {"value": "x * q"}},
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "divide", "prompt": "{n} ÷ {x} = ?"},
+        {
+          "id": "missing",
+          "prompt": "? × {x} = {n}",
+          "explain": "{answer} × {x} = {n}, so the missing number is {answer}."
+        },
+        {
+          "id": "how-many",
+          "prompt": "How many {x}s make {n}?",
+          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+        }
+      ],
+      "hints": [
+        "Divide undoes times: what times {x} makes {n}?",
+        "Count up in {x}s and stop at {n}.",
+        "{x} × {q > 1 ? q - 1 : 2} = {x * (q > 1 ? q - 1 : 2)}. {q > 1 ? 'One more ' : 'One fewer '}{fmt(x)} makes {n}."
+      ],
+      "steps": ["{n} ÷ {x} asks how many {x}s make {n}", "{x} × {q} = {n}", "So {n} ÷ {x} = {answer}"],
+      "explain": "{x} × {q} = {n}, so {n} ÷ {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {x} = {value * x}, which is more than {n}."
+        },
+        {
+          "value": "q > 1 ? q - 1 : -1",
+          "error": "one-too-few",
+          "feedback": "{value} × {x} = {value * x}, which is less than {n}."
+        },
+        {
+          "value": "n - x",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {x}. Divide asks how many {x}s make {n}."
+        }
+      ]
+    }
+  ]
+}

@@ -201,9 +201,10 @@ test("use() installs topics, version and subtest", () => {
   assert.strictEqual(C.examDate, "2027-01-30");
   assert.strictEqual(C.blueprintCompetencies, 94);
   assert.deepStrictEqual(C.byKey("u"), {
-    key: "u", label: "Other", icon: "star", colorKey: 2, ready: true,
-    levels: [{ id: "only", title: "Only", competencies: ["G5.Q2.10"], hasLesson: false }]
+    key: "u", label: "Other", icon: "star", colorKey: 2, ready: true, track: "path", grid: false,
+    levels: [{ id: "only", title: "Only", kind: "practice", competencies: ["G5.Q2.10"], hasLesson: false, factCount: 0 }]
   });
+  assert.deepStrictEqual(C.BASICS, []);
   assert.deepStrictEqual(C.byKey("v").levels, []);
   assert.strictEqual(C.byKey("nope"), undefined);
 });
@@ -468,6 +469,122 @@ test("choices can be fractions that repeat as decimals", () => {
   assert.deepStrictEqual(q.choices, ["1/5", "1/4", "2/7", "1/3"]);
   assert.strictEqual(q.choices[q.answerIndex], "1/3");
   assert.strictEqual(C.diagnose(q, 1).error, "one-more");
+});
+
+/* ---------- the Basics track ---------- */
+
+const BASICS = {
+  manifest: Object.assign({}, PACK.manifest, {
+    basics: [{ key: "b", label: "Facts", icon: "star", colorKey: 4, file: "b.json" }]
+  }),
+  file: (extra) => Object.assign({
+    topic: "b",
+    grid: { title: "Times table", sign: "×", from: 2, to: 4 },
+    levels: [
+      { id: "small", title: "Small", kind: "facts", templates: ["b.times", "b.share"] },
+      { id: "skill", title: "Skill", templates: ["b.skill"] },
+      { id: "all", title: "All", kind: "review" }
+    ],
+    templates: [
+      T("b.times", {
+        competency: undefined, grid: true, params: { x: { choose: [2, 3] }, y: { range: [2, 4] } }, where: ["y >= x"],
+        answer: { type: "integer", value: "x * y" },
+        formats: [{ id: "xy", prompt: "{x} × {y} = ?" }, { id: "yx", prompt: "{y} × {x} = ?" }],
+        explain: "{x} × {y} = {answer}", distractors: [{ value: "x + y", error: "added", feedback: "{value} adds." }]
+      }),
+      T("b.share", {
+        competency: undefined, params: { x: { choose: [2] }, q: { range: [1, 3] }, n: { value: "x * q" } },
+        answer: { type: "integer", value: "q" }, formats: [{ id: "div", prompt: "{n} ÷ {x} = ?" }],
+        explain: "{n} ÷ {x} = {answer}", distractors: [{ value: "q + 1", error: "one-more", feedback: "{value} is one more." }]
+      }),
+      T("b.skill", { competency: undefined })
+    ]
+  }, extra)
+};
+const SMALL = ["b.times:2,2", "b.times:2,3", "b.times:2,4", "b.times:3,3", "b.times:3,4", "b.share:2,1", "b.share:2,2", "b.share:2,3"];
+
+test("Basics topics install beside the path, never on it", () => {
+  C.use(BASICS.manifest, PACK.files, [BASICS.file()]);
+  assert.deepStrictEqual(C.TOPICS.map((t) => t.key), ["t", "u", "v"]);
+  assert.deepStrictEqual(C.BASICS.map((t) => [t.key, t.track, t.ready, t.grid]), [["b", "basics", true, true]]);
+  assert.deepStrictEqual(C.BASICS[0].levels.map((lv) => [lv.id, lv.kind, lv.factCount]),
+    [["small", "facts", 8], ["skill", "practice", 0], ["all", "review", 8]]);
+  assert.deepStrictEqual(C.byKey("b").levels.map((lv) => lv.competencies), [[], [], []], "Basics are not on the blueprint");
+});
+test("a facts level lists every fact once, in template order; review lists them all", () => {
+  C.use(BASICS.manifest, PACK.files, [BASICS.file()]);
+  assert.deepStrictEqual(C.facts("b", "small"), SMALL);
+  assert.deepStrictEqual(C.facts("b", "all"), SMALL);
+  assert.deepStrictEqual(C.facts("b", "skill"), []);
+  const list = C.facts("b", "small");
+  list.pop();
+  assert.strictEqual(C.facts("b", "small").length, 8, "a caller cannot change the level's list");
+});
+test("a fact question is that fact, in the format its seed picks", () => {
+  C.use(BASICS.manifest, PACK.files, [BASICS.file()]);
+  const q = C.factQuestion("b", "small", "b.times:3,4", 7, 5);
+  assert.strictEqual(q.answer, 12);
+  assert.strictEqual(q.factKey, "b.times:3,4");
+  assert.strictEqual(q.levelId, "small");
+  assert.strictEqual(q.id, "b-small-5");
+  assert.strictEqual(q.pinned, false);
+  assert.ok(["3 × 4 = ?", "4 × 3 = ?"].includes(q.prompt));
+  assert.deepStrictEqual(C.factQuestion("b", "small", "b.times:3,4", 7, 5), q);
+  const prompts = new Set(Array.from({ length: 40 }, (_, s) => C.factQuestion("b", "small", "b.times:3,4", s, 0).prompt));
+  assert.strictEqual(prompts.size, 2, "both formats appear across seeds");
+  assert.strictEqual(C.factQuestion("b", "all", "b.share:2,3", 1, 0).answer, 3);
+  assert.ok(C.isCorrect(q, "12"));
+  assert.strictEqual(C.diagnose(q, "7").error, "added");
+});
+test("a fact is listed once, and only with an answer a learner can give", () => {
+  const f = BASICS.file();
+  f.templates = f.templates.concat([T("b.minus", {
+    params: { x: { choose: [2, 3, 2] }, y: { range: [1, 4] } },
+    answer: { type: "integer", value: "x - y" }, formats: [{ id: "m", prompt: "{x} − {y} = ?" }],
+    explain: "{answer}", distractors: [{ value: "x + y", error: "added", feedback: "{value}" }]
+  })]);
+  f.levels = f.levels.concat([{ id: "minus", title: "Minus", kind: "facts", templates: ["b.minus"] }]);
+  C.use(BASICS.manifest, PACK.files, [f]);
+  assert.deepStrictEqual(C.facts("b", "minus"), ["b.minus:2,1", "b.minus:2,2", "b.minus:3,1", "b.minus:3,2", "b.minus:3,3"]);
+  assert.strictEqual(C.facts("b", "all").length, 8 + 5);
+  assert.deepStrictEqual(C.fact("b.minus:3,2"), { key: "b.minus:3,2", template: "b.minus", params: { x: 3, y: 2 } });
+  C.use(PACK.manifest, PACK.files);
+});
+test("factQuestion refuses a fact the level does not have", () => {
+  C.use(BASICS.manifest, PACK.files, [BASICS.file()]);
+  throws(() => C.factQuestion("b", "skill", "b.times:3,4", 1, 0), /has no fact/);
+  throws(() => C.factQuestion("b", "small", "b.times:4,4", 1, 0), /has no fact/);
+  throws(() => C.factQuestion("b", "nope", "b.times:3,4", 1, 0), /has no level/);
+});
+test("the grid puts a fact on both of its cells, and only grid templates on it", () => {
+  C.use(BASICS.manifest, PACK.files, [BASICS.file()]);
+  const g = C.grid("b");
+  assert.deepStrictEqual(g.values, [2, 3, 4]);
+  assert.strictEqual(g.sign, "×");
+  assert.strictEqual(g.cells["3,4"], "b.times:3,4");
+  assert.strictEqual(g.cells["4,3"], "b.times:3,4");
+  assert.strictEqual(g.cells["2,2"], "b.times:2,2");
+  assert.strictEqual(g.cells["4,4"], undefined);
+  assert.ok(Object.values(g.cells).every((k) => k.startsWith("b.times:")));
+  assert.strictEqual(C.grid("t"), null);
+  assert.strictEqual(C.grid("nope"), null);
+});
+test("use() refuses Basics that cannot work", () => {
+  const m = BASICS.manifest;
+  const level = (lv) => BASICS.file({ levels: [lv] });
+  throws(() => C.use(m, PACK.files, [level({ id: "x", title: "X", kind: "drill", templates: ["b.times"] })]), /unknown kind 'drill'/);
+  throws(() => C.use(m, PACK.files, [level({ id: "x", title: "X", kind: "review", templates: ["b.times"] })]), /no templates of its own/);
+  throws(() => C.use(m, PACK.files, [level({ id: "x", title: "X", kind: "review" })]), /nothing to ask/);
+  throws(() => C.use(Object.assign({}, m, { basics: [{ key: "b", comingSoon: true }] }), PACK.files, [null]), /cannot be coming soon/);
+  throws(() => C.use(Object.assign({}, m, { basics: [{ key: "u", label: "U", icon: "star", colorKey: 1, file: "u.json" }] }),
+    PACK.files, [PACK.files[1]]), /topic key used twice/);
+  throws(() => C.use(m, PACK.files, []), /missing or mislabelled/);
+  const pathFacts = Object.assign({}, PACK.files[1], { levels: [{ id: "only", title: "Only", kind: "facts", templates: ["u.only"] }] });
+  throws(() => C.use(PACK.manifest, [PACK.files[0], pathFacts, null]), /only a Basics level can be facts/);
+  const tiered = BASICS.file();
+  tiered.templates = tiered.templates.map((t) => t.id === "b.times" ? Object.assign({}, t, { params: { x: { tiers: { "1": [2, 3] } }, y: { range: [2, 4] } } }) : t);
+  throws(() => C.use(m, PACK.files, [tiered]), /must be a choose or a range, not tiers/);
+  C.use(PACK.manifest, PACK.files);
 });
 
 console.log(failed ? `\n${failed} failed` : "\nok: engine behaves as specified");

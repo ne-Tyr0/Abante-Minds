@@ -25,7 +25,21 @@ const M = [
   ["coverage counts levels, not competencies", "      coverage: reachable ? Object.keys(covered).length / reachable : 0,", "      coverage: reachable ? levelsCleared / reachable : 0,"],
   ["next ignores the level last practised", "      if (lt && lt.current) next = { topic: lt, level: lt.current };", ""],
   ["lesson seen not kept", "    s.lessonSeen = true;\n    saveLevel(topic, level, s);", "    s.lessonSeen = true;"],
-  ["topic badge for one level", "earned: p.topics.some(function (t) { return t.done; }),", "earned: p.topics.some(function (t) { return t.cleared > 0; }),"]
+  ["topic badge for one level", "earned: p.topics.some(function (t) { return t.done; }),", "earned: p.topics.some(function (t) { return t.cleared > 0; }),"],
+  // Basics facts
+  ["mastered in one day", "  var MASTERY_DAYS = 2;", "  var MASTERY_DAYS = 1;"],
+  ["slow answers count towards mastery", "      if (quick && f.days.indexOf(t) < 0) f.days", "      if (f.days.indexOf(t) < 0) f.days"],
+  ["one day counted twice", "      if (quick && f.days.indexOf(t) < 0) f.days", "      if (quick) f.days"],
+  ["days kept forever", "f.days = f.days.concat(t).slice(-MASTERY_DAYS);", "f.days = f.days.concat(t);"],
+  ["a miss keeps mastery", "      f.miss += 1;\n      f.days = [];", "      f.miss += 1;"],
+  ["mastery announced every time", "    return { mastered: now && !was, lost: was && !now };", "    return { mastered: now, lost: was && !now };"],
+  ["facts do not count as right", "      f.right += 1;\n      state.totalCorrect += 1;", "      f.right += 1;"],
+  ["facts do not keep the streak", "  function recordFact(key, right, quick) {\n    rollDay();\n    markPractice();", "  function recordFact(key, right, quick) {\n    rollDay();"],
+  ["facts are not progress", " || Object.keys(state.facts).length > 0;", ";"],
+  ["review counted twice", "    var factLevels = levels.filter(function (lv) { return lv.kind === \"facts\"; });", "    var factLevels = levels.filter(function (lv) { return lv.kind !== \"practice\"; });"],
+  ["Basics levels locked", "        unlocked: true,", "        unlocked: i === 0,"],
+  ["next ignores what is done", "      next: own.filter(function (lv) { return !lv.done; })[0] || null", "      next: own[0]"],
+  ["Basics move the path", "    var topics = AM.content.TOPICS.map(topicPath);", "    var topics = AM.content.TOPICS.concat(AM.content.BASICS).map(topicPath);"]
 ];
 
 fs.mkdirSync(path.join(WORK, "app"), { recursive: true });

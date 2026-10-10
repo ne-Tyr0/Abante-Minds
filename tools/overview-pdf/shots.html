@@ -63,6 +63,25 @@ function run() {
     lastSession: { topicLabel: "Decimals", levelTitle: "Add and subtract", correct: 7, attempted: 10 }
   };
 
+  /* Basics: the 2s mastered, the 5s and 3s part way, so the times-table grid
+     shows all three shades. */
+  var yesterday = new Date(now.getTime() - 86400000);
+  var before = yesterday.getFullYear() + "-" + String(yesterday.getMonth() + 1).padStart(2, "0") + "-" + String(yesterday.getDate()).padStart(2, "0");
+  LEARNER.facts = {};
+  [2, 3, 4, 5, 6, 7, 8, 9, 10].forEach(function (y) {
+    LEARNER.facts["times.x2:2," + y] = { seen: 3, right: 3, miss: 0, days: [before, today], last: today };
+  });
+  [3, 4, 5, 6].forEach(function (y) {
+    LEARNER.facts["times.x5:5," + y] = { seen: 2, right: 2, miss: 0, days: [before, today], last: today };
+  });
+  [7, 8, 9].forEach(function (y) {
+    LEARNER.facts["times.x5:5," + y] = { seen: 1, right: 1, miss: 0, days: [today], last: today };
+  });
+  [3, 4, 6].forEach(function (y) {
+    LEARNER.facts["times.x3:3," + y] = { seen: 1, right: 0, miss: 1, days: [], last: today };
+  });
+  LEARNER.levels["times/2-5-10"] = { correct: 0, attempts: 0, cleared: false, lessonSeen: true };
+
   var frame = document.createElement("iframe");
   frame.id = "frame";
   /* 390x844 unless asked otherwise (&w=360&h=640), to check a smaller phone.
@@ -229,6 +248,38 @@ function run() {
         AM.app.go("profile");
         AM.app.deferredInstall = null; /* no one-tap prompt, so the offer opens the steps */
         AM.app.offerInstall();
+        break;
+      /* Not in the PDF: the Basics track, for review. */
+      case "basics":
+        AM.app.go("basics");
+        break;
+      case "basics-topic":
+        AM.app.openBasicsTopic("times");
+        break;
+      case "facts":
+      case "facts-correct":
+      case "facts-wrong":
+        AM.app.startLevel("times", "2-5-10");
+        s = AM.app.session;
+        for (var k = 0; k < 3; k++) s.questions[k].__counted = true;
+        s.questions[3] = AM.content.factQuestion("times", "2-5-10", "times.x5:5,7", 2, 3);
+        s.index = 3;
+        s.entry = AM.entry.create("number");
+        s.shownAt = Date.now() - 1900;
+        AM.app.go("practice");
+        if (screen === "facts") typeIn("35");
+        /* A right fact moves on by itself after a moment; a copy of the
+           session keeps this one on screen for the picture. */
+        if (screen === "facts-correct") { typeIn("35"); AM.app.check(); AM.app.session = Object.assign({}, AM.app.session); }
+        if (screen === "facts-wrong") { typeIn("30"); AM.app.check(); }
+        break;
+      case "facts-summary":
+        AM.app.scratch.result = {
+          topicKey: "times", topicLabel: "Times tables", colorKey: 3, levelId: "2-5-10", levelTitle: "2, 5 and 10",
+          levelNumber: 1, track: "basics", kind: "facts", facts: true, quick: 15, masteredNow: 4, redo: false,
+          attempted: 21, correct: 18, missed: [], minutes: 4
+        };
+        AM.app.go("summary");
         break;
       /* Not in the PDF: the fraction and per-cent answer fields, for review. */
       case "fraction-entry":

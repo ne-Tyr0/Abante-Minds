@@ -46,9 +46,9 @@ question whose answer was negative (the keypad has no minus key, so it was unans
 and a hint telling learners to "break 9 into 10 and -1". Testing the validator caught a
 third before it shipped: a pinned item on a template with more than one format crashed.
 
-`tests/mutation/` breaks the engine, the entry rules, the progress rules and the packs one
-way at a time and requires the tests to fail: `node tests/mutation/engine.js`, `entry.js`,
-`progress.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
+`tests/mutation/` breaks the engine, the entry rules, the facts drill, the progress rules
+and the packs one way at a time and requires the tests to fail: `node tests/mutation/engine.js`,
+`entry.js`, `facts.js`, `progress.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -57,9 +57,10 @@ mutant for it, so a test that can never fail does not pass for one.
 |---|---|
 | `app/content.js` | The question engine: installs a pack, draws numbers, renders questions, checks answers and names mistakes. Expressions are parsed, never `eval`'d, and computed in exact fractions. No questions live in code |
 | `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
-| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. Written so far: decimals, fractions. How to write one: `content/packs/README.md` |
+| `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
+| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. Written so far: decimals, fractions. The manifest's `basics` lists the Basics topics; written so far: the times tables (`times.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
-| `app/store.js` | All learner state, in `localStorage`: progress level by level, the streak |
+| `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
 | `app/ui.js` | Design-system components as DOM builders |
@@ -123,6 +124,17 @@ Settled with the project owner. Build on them; don't reopen them.
 - **Fractions are typed into boxes, and their form counts.** The right amount not in
   lowest terms, or not as a mixed number where one is asked for, is named as its own
   mistake rather than marked right: NCE options are written in lowest terms.
+- **A Basics track sits beside the path** (decided 2026-10-10): the facts and methods
+  under every topic, so a learner can calculate without a calculator. Always open,
+  repeatable, never locks or unlocks the path, never counts towards blueprint coverage.
+  Scope: times tables and divide facts, adding and subtracting, mental math strategies,
+  pen-and-paper methods, and missing-number algebra.
+- **A Basics fact is mastered when it is right and quick (under 4 seconds, no hint) on two
+  different days.** A miss sends it back, mastered or not. A slow right answer is practice,
+  not mastery.
+- **Basics teach understanding first**: each group opens with strategy cards (arrays and
+  turning round, doubling, times 10 then halve, the 9s check), and the times table is
+  shown as a grid that fills in as facts are mastered.
 
 ## Next, in order
 
@@ -151,8 +163,8 @@ Settled with the project owner. Build on them; don't reopen them.
 7. ~~**Enable GitHub Pages**.~~ **Done** — live at https://ne-tyr0.github.io/Abante-Minds/.
 8. **Test on a real low-end Android** through the Pages URL. A plain-HTTP LAN address can't
    register the service worker, so install and offline only work on the HTTPS URL.
-9. ~~**CI**.~~ **Done** — `.github/workflows/ci.yml` runs the engine, entry and progress
-   tests, the pack validator, the fuzz, the codec proof, `tests/invariants.js` and, on
+9. ~~**CI**.~~ **Done** — `.github/workflows/ci.yml` runs the engine, entry, facts and
+   progress tests, the pack validator, the fuzz, the codec proof, `tests/invariants.js` and, on
    pull requests, `tests/cache-bump.js`.
 
 10. ~~**The path of levels**.~~ **Done** — replaces tiers: levels per topic, lessons,
@@ -161,6 +173,10 @@ Settled with the project owner. Build on them; don't reopen them.
     ratio, percentages, time, area, solids, circles, data, probability, transformations.
     Decimals (22 templates, 6 levels) and fractions (17 templates, 6 levels) are done.
     Each topic needs its answer input first where it uses a type not yet typeable.
+12. **Write the rest of Basics**: adding and subtracting (facts to 20, then two-digit
+    mental), mental math (×10 and ÷10, doubling and halving, splitting a number),
+    pen-and-paper methods (column adding and subtracting, long multiplication and
+    division), and missing-number algebra. The times tables are done (180 facts).
 
 Then research instrumentation (Phase 3) and citability (Phase 4), in `RESEARCH-PLAN.md`.
 
