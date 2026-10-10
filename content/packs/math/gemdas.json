@@ -1,0 +1,598 @@
+{
+  "topic": "gemdas",
+  "levels": [
+    {
+      "id": "gmdas",
+      "title": "Order of operations",
+      "templates": ["gemdas.add-times", "gemdas.take-divide", "gemdas.brackets", "gemdas.four-ops", "gemdas.shopping"],
+      "lesson": [
+        {
+          "title": "GMDAS",
+          "body": "Work out Grouping (brackets) first, then Multiplication and Division from left to right, then Addition and Subtraction from left to right."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "gemdas.add-times", "params": {"a": 5, "b": 3, "c": 4}, "format": "expression"}
+        },
+        {
+          "title": "Left to right",
+          "body": "When two operations are of the same kind, go from left to right: 20 − 5 + 3 is 15 + 3 = 18, not 20 − 8 = 12."
+        }
+      ]
+    },
+    {
+      "id": "decimals-fractions",
+      "title": "With decimals and fractions",
+      "templates": ["gemdas.decimal-ops", "gemdas.decimal-brackets", "gemdas.fraction-ops"],
+      "lesson": [
+        {
+          "title": "The same order",
+          "body": "Decimals and fractions follow the same order: brackets, then × and ÷, then + and −. 2.5 + 1.5 × 4 = 2.5 + 6 = 8.5."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "gemdas.decimal-brackets",
+            "params": {"ai": 6, "bi": 32, "ci": 12},
+            "format": "expression"
+          }
+        }
+      ]
+    },
+    {
+      "id": "exponents",
+      "title": "Exponents",
+      "templates": ["gemdas.power-value", "gemdas.to-power", "gemdas.from-power"],
+      "lesson": [
+        {
+          "title": "What an exponent means",
+          "body": "2⁵ means five 2s multiplied: 2 × 2 × 2 × 2 × 2 = 32. The small raised number is the exponent; the 2 is the base."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "gemdas.power-value", "params": {"b": 3, "e": 4}, "format": "value"}
+        },
+        {"title": "Not times", "body": "3⁴ is not 3 × 4 = 12. It is 3 × 3 × 3 × 3 = 81."}
+      ]
+    },
+    {
+      "id": "gemdas",
+      "title": "Exponents first",
+      "templates": ["gemdas.power-ops", "gemdas.power-brackets", "gemdas.power-take"],
+      "lesson": [
+        {
+          "title": "GEMDAS",
+          "body": "Exponents come straight after grouping: Grouping, Exponents, then × and ÷, then + and −."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "gemdas.power-ops", "params": {"a": 2, "b": 3, "c": 2}, "format": "expression"}
+        },
+        {
+          "title": "Brackets change it",
+          "body": "2 + 3² = 2 + 9 = 11, but (2 + 3)² = 5² = 25: the brackets come before the exponent."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "gemdas.add-times",
+      "competency": "G5.Q1.6",
+      "domain": "NA",
+      "construct": "Multiply before adding",
+      "schema": "combine",
+      "params": {
+        "a": {"tiers": {"1": [2, 20], "3": [10, 99]}},
+        "b": {"tiers": {"1": [2, 9], "3": [3, 12]}},
+        "c": {"tiers": {"1": [2, 9], "3": [3, 12]}}
+      },
+      "answer": {"type": "integer", "value": "a + b * c"},
+      "formats": [{"id": "expression", "prompt": "{a} + {b} × {c} = ?"}],
+      "hints": ["Multiply before you add.", "{b} × {c} = {b * c}.", "{a} + {b * c} = ?"],
+      "steps": ["Multiply first: {b} × {c} = {b * c}", "Then add: {a} + {b * c}", "= {answer}"],
+      "explain": "× comes before +: {a} + {b * c} = {answer}.",
+      "distractors": [
+        {
+          "value": "(a + b) * c",
+          "error": "worked-left-to-right",
+          "feedback": "{value} adds first. Multiply before you add: {b} × {c} = {b * c}, then add {a}."
+        },
+        {
+          "value": "a + b + c",
+          "error": "added-everything",
+          "feedback": "{value} adds all three. {b} × {c} means {b} times {c}."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.take-divide",
+      "competency": "G5.Q1.6",
+      "domain": "NA",
+      "construct": "Divide before taking away",
+      "schema": "change",
+      "params": {
+        "q": {"tiers": {"1": [2, 9], "3": [3, 15]}},
+        "d": {"tiers": {"1": [2, 9], "3": [3, 12]}},
+        "n": {"value": "q * d"},
+        "a": {"range": ["n + 1", "n + 30"]}
+      },
+      "where": ["a > q"],
+      "answer": {"type": "integer", "value": "a - q"},
+      "formats": [{"id": "expression", "prompt": "{a} − {n} ÷ {d} = ?"}],
+      "hints": ["Divide before you take away.", "{n} ÷ {d} = {q}.", "{a} − {q} = ?"],
+      "steps": ["Divide first: {n} ÷ {d} = {q}", "Then take away: {a} − {q}", "= {answer}"],
+      "explain": "÷ comes before −: {a} − {q} = {answer}.",
+      "distractors": [
+        {
+          "value": "a > n && (a - n) % d == 0 ? (a - n) / d : -1",
+          "error": "worked-left-to-right",
+          "feedback": "{value} takes away first. Divide before you take away: {n} ÷ {d} = {q}, then {a} − {q}."
+        },
+        {
+          "value": "a > n ? a - n : -1",
+          "error": "ignored-the-division",
+          "feedback": "{value} takes all of {n} away. Divide first: {n} ÷ {d} = {q}, then take {q} away."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.brackets",
+      "competency": "G5.Q1.6",
+      "domain": "NA",
+      "construct": "Work out brackets first",
+      "schema": "combine",
+      "params": {
+        "a": {"tiers": {"1": [2, 12], "3": [5, 30]}},
+        "b": {"tiers": {"1": [2, 12], "3": [5, 30]}},
+        "c": {"tiers": {"1": [2, 9], "3": [3, 12]}}
+      },
+      "answer": {"type": "integer", "value": "(a + b) * c"},
+      "formats": [
+        {"id": "expression", "prompt": "({a} + {b}) × {c} = ?"},
+        {"id": "turned", "prompt": "{c} × ({a} + {b}) = ?"}
+      ],
+      "hints": ["Work out the brackets first.", "{a} + {b} = {a + b}.", "{a + b} × {c} = ?"],
+      "steps": ["Brackets first: {a} + {b} = {a + b}", "Then multiply: {a + b} × {c}", "= {answer}"],
+      "explain": "Brackets first: {a + b} × {c} = {answer}.",
+      "distractors": [
+        {
+          "value": "a + b * c",
+          "error": "ignored-the-brackets",
+          "feedback": "{value} multiplies first. The brackets come first: {a} + {b} = {a + b}, then × {c}."
+        },
+        {
+          "value": "a * c + b",
+          "error": "multiplied-only-one",
+          "feedback": "{value} multiplies only {a} by {c}. The whole of ({a} + {b}) is multiplied."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.four-ops",
+      "competency": "G5.Q1.6",
+      "domain": "NA",
+      "construct": "Three or more operations: multiply and divide, then add and take away from the left",
+      "schema": "multi-step",
+      "params": {
+        "a": {"tiers": {"1": [2, 9], "3": [3, 12]}},
+        "b": {"tiers": {"1": [2, 9], "3": [3, 12]}},
+        "q": {"tiers": {"1": [2, 6], "3": [2, 9]}},
+        "d": {"tiers": {"1": [2, 5], "3": [2, 9]}},
+        "c": {"value": "q * d"},
+        "e": {"tiers": {"1": [1, 9], "3": [2, 20]}}
+      },
+      "where": ["a * b > q + e"],
+      "answer": {"type": "integer", "value": "a * b - q + e"},
+      "formats": [{"id": "expression", "prompt": "{a} × {b} − {c} ÷ {d} + {e} = ?"}],
+      "hints": [
+        "Multiply and divide first, then add and take away from left to right.",
+        "{a} × {b} = {a * b} and {c} ÷ {d} = {q}.",
+        "{a * b} − {q} + {e} = ?"
+      ],
+      "steps": [
+        "× and ÷ first: {a} × {b} = {a * b}, {c} ÷ {d} = {q}",
+        "Left to right: {a * b} − {q} = {a * b - q}",
+        "{a * b - q} + {e} = {answer}"
+      ],
+      "explain": "{a * b} − {q} + {e} = {answer}: × and ÷ first, then − and + from the left.",
+      "distractors": [
+        {
+          "value": "a * b - (q + e)",
+          "error": "added-before-taking-away",
+          "feedback": "{value} adds {q} + {e} first. Adding and taking away go from left to right: {a * b} − {q}, then + {e}."
+        },
+        {
+          "value": "(a * b - c) % d == 0 && a * b > c ? (a * b - c) / d + e : -1",
+          "error": "worked-left-to-right",
+          "feedback": "{value} takes away before dividing. Divide first: {c} ÷ {d} = {q}."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.shopping",
+      "competency": "G5.Q1.6",
+      "domain": "NA",
+      "construct": "Write and work out a shopping total with GMDAS",
+      "schema": "multi-step",
+      "params": {
+        "p": {"tiers": {"1": [5, 30], "3": [15, 99]}},
+        "n": {"tiers": {"1": [2, 6], "3": [3, 9]}},
+        "c": {"tiers": {"1": [5, 20], "3": [12, 45]}}
+      },
+      "answer": {"type": "integer", "value": "p + n * c", "prefix": "₱"},
+      "formats": [
+        {
+          "id": "notebooks",
+          "prompt": "Mila buys a pen for ₱{p} and {n} notebooks at ₱{c} each. Her total is {p} + {n} × {c}. How much does she pay?"
+        },
+        {
+          "id": "snacks",
+          "prompt": "Ben buys a drink for ₱{p} and {n} pieces of bread at ₱{c} each: {p} + {n} × {c}. How much does he spend?"
+        }
+      ],
+      "hints": ["Multiply before you add: the notebooks first.", "{n} × ₱{c} = ₱{n * c}.", "₱{p} + ₱{n * c} = ?"],
+      "steps": ["{n} × {c} = {n * c}", "{p} + {n * c}", "= {answer}"],
+      "explain": "{n} × ₱{c} = ₱{n * c}, plus ₱{p} is ₱{answer}.",
+      "distractors": [
+        {
+          "value": "(p + n) * c",
+          "error": "worked-left-to-right",
+          "feedback": "{value} adds {p} and {n} first. Multiply first: {n} × {c} = {n * c}, then add {p}."
+        },
+        {
+          "value": "p + c",
+          "error": "bought-one",
+          "feedback": "{value} pays for one only. {n} at ₱{c} each is {n} × {c}."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.decimal-ops",
+      "competency": "G5.Q4.2",
+      "domain": "NA",
+      "construct": "GMDAS with decimals: multiply before adding",
+      "schema": "combine",
+      "params": {
+        "ai": {"tiers": {"1": [11, 99], "3": [101, 999]}},
+        "bi": {"tiers": {"1": [11, 49], "3": [11, 99]}},
+        "c": {"tiers": {"1": [2, 9], "3": [3, 12]}},
+        "a": {"value": "ai / 10"},
+        "b": {"value": "bi / 10"}
+      },
+      "where": ["ai % 10 != 0", "bi % 10 != 0"],
+      "answer": {"type": "decimal", "value": "a + b * c"},
+      "formats": [{"id": "expression", "prompt": "{a} + {b} × {c} = ?"}],
+      "hints": ["Multiply before you add.", "{b} × {c} = {b * c}.", "{a} + {b * c} = ?"],
+      "steps": ["Multiply first: {b} × {c} = {b * c}", "Then add: {a} + {b * c}", "= {answer}"],
+      "explain": "× comes before +: {a} + {b * c} = {answer}.",
+      "distractors": [
+        {
+          "value": "(a + b) * c",
+          "error": "worked-left-to-right",
+          "feedback": "{value} adds first. Multiply before you add: {b} × {c} = {b * c}, then add {a}."
+        },
+        {
+          "value": "a + b + c",
+          "error": "added-everything",
+          "feedback": "{value} adds all three. {b} × {c} means {b} times {c}."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.decimal-brackets",
+      "competency": "G5.Q4.2",
+      "domain": "NA",
+      "construct": "GMDAS with decimals: brackets first",
+      "schema": "multi-step",
+      "params": {
+        "ai": {"tiers": {"1": [2, 9], "3": [11, 49]}},
+        "bi": {"tiers": {"1": [21, 99], "3": [41, 199]}},
+        "ci": {"tiers": {"1": [11, 49], "3": [11, 99]}},
+        "a": {"value": "ai / 10"},
+        "b": {"value": "bi / 10"},
+        "c": {"value": "ci / 10"}
+      },
+      "where": ["b > c", "bi % 10 != 0", "ci % 10 != 0"],
+      "answer": {"type": "decimal", "value": "a * (b - c)"},
+      "formats": [{"id": "expression", "prompt": "{a} × ({b} − {c}) = ?"}],
+      "hints": ["Work out the brackets first.", "{b} − {c} = {b - c}.", "{a} × {b - c} = ?"],
+      "steps": ["Brackets first: {b} − {c} = {b - c}", "Then multiply: {a} × {b - c}", "= {answer}"],
+      "explain": "Brackets first: {a} × {b - c} = {answer}.",
+      "distractors": [
+        {
+          "value": "a * b - c",
+          "error": "ignored-the-brackets",
+          "feedback": "{value} multiplies {a} × {b} first. The brackets come first: {b} − {c} = {b - c}."
+        },
+        {
+          "value": "b - c",
+          "error": "forgot-to-multiply",
+          "feedback": "{value} is only the brackets, {b} − {c}. Multiply it by {a} too."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.fraction-ops",
+      "competency": "G5.Q4.2",
+      "domain": "NA",
+      "construct": "GMDAS with fractions: multiply before adding",
+      "schema": "combine",
+      "params": {
+        "pb": {"choose": [2, 3, 4, 5, 6, 8]},
+        "pa": {"range": [1, "pb - 1"]},
+        "qb": {"choose": [2, 3, 4, 5, 6, 8]},
+        "qa": {"range": [1, "qb - 1"]},
+        "r": {"tiers": {"1": [2, 4], "3": [2, 6]}},
+        "p": {"value": "pa / pb"},
+        "q": {"value": "qa / qb"},
+        "s": {"value": "p + q * r"}
+      },
+      "where": ["gcd(pa, pb) == 1", "gcd(qa, qb) == 1", "floor(s) != s", "s > 1"],
+      "answer": {"type": "mixed", "value": "s"},
+      "formats": [{"id": "expression", "prompt": "{frac(p)} + {frac(q)} × {r} = ?"}],
+      "hints": [
+        "Multiply before you add.",
+        "{frac(q)} × {r} = {frac(q * r)}.",
+        "{frac(p)} + {frac(q * r)} = ? Write it as a mixed number."
+      ],
+      "steps": [
+        "Multiply first: {frac(q)} × {r} = {frac(q * r)}",
+        "Then add: {frac(p)} + {frac(q * r)} = {frac(s)}",
+        "= {mixed(answer)}"
+      ],
+      "explain": "{frac(q)} × {r} = {frac(q * r)}, and {frac(p)} + {frac(q * r)} = {mixed(answer)}.",
+      "distractors": [
+        {
+          "value": "(p + q) * r",
+          "error": "worked-left-to-right",
+          "feedback": "{mixed(value)} adds first. Multiply before you add: {frac(q)} × {r} = {frac(q * r)}."
+        },
+        {
+          "value": "p + q + r",
+          "error": "added-everything",
+          "feedback": "{mixed(value)} adds all three. {frac(q)} × {r} means {r} groups of {frac(q)}."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.power-value",
+      "competency": "G6.Q2.11",
+      "domain": "NA",
+      "construct": "Give the value of a number in exponential form",
+      "schema": "equal-groups",
+      "params": {
+        "b": {"tiers": {"1": [2, 6], "3": [2, 10]}},
+        "e": {"tiers": {"1": [2, 4], "3": [2, 5]}},
+        "v": {"value": "pow(b, e)"}
+      },
+      "where": ["v <= 100000"],
+      "answer": {"type": "integer", "value": "v"},
+      "formats": [
+        {"id": "value", "prompt": "{b}{sup(e)} = ?"},
+        {"id": "words", "prompt": "What is the value of {b}{sup(e)}?"}
+      ],
+      "hints": [
+        "{b}{sup(e)} means {words(e)} {b}s multiplied together.",
+        "{b} × {b}{e >= 3 ? ' × ' : ''}{e >= 3 ? fmt(b) : ''}{e >= 4 ? ' × ' : ''}{e >= 4 ? fmt(b) : ''}{e >= 5 ? ' × ' : ''}{e >= 5 ? fmt(b) : ''}{e >= 6 ? ' × ' : ''}{e >= 6 ? fmt(b) : ''}.",
+        "Multiply them one at a time: {b} × {b} = {b * b}, and so on."
+      ],
+      "steps": [
+        "{b}{sup(e)} = {b} × {b}{e >= 3 ? ' × ' : ''}{e >= 3 ? fmt(b) : ''}{e >= 4 ? ' × ' : ''}{e >= 4 ? fmt(b) : ''}{e >= 5 ? ' × ' : ''}{e >= 5 ? fmt(b) : ''}{e >= 6 ? ' × ' : ''}{e >= 6 ? fmt(b) : ''}",
+        "Multiply one {b} at a time",
+        "= {answer}"
+      ],
+      "explain": "{b}{sup(e)} = {b} × {b}{e >= 3 ? ' × ' : ''}{e >= 3 ? fmt(b) : ''}{e >= 4 ? ' × ' : ''}{e >= 4 ? fmt(b) : ''}{e >= 5 ? ' × ' : ''}{e >= 5 ? fmt(b) : ''}{e >= 6 ? ' × ' : ''}{e >= 6 ? fmt(b) : ''} = {answer}.",
+      "distractors": [
+        {
+          "value": "b * e",
+          "error": "multiplied-base-by-exponent",
+          "feedback": "{value} is {b} × {e}. {b}{sup(e)} means {words(e)} {b}s multiplied together: {b} × {b}{e >= 3 ? ' × ' : ''}{e >= 3 ? fmt(b) : ''}{e >= 4 ? ' × ' : ''}{e >= 4 ? fmt(b) : ''}{e >= 5 ? ' × ' : ''}{e >= 5 ? fmt(b) : ''}{e >= 6 ? ' × ' : ''}{e >= 6 ? fmt(b) : ''}."
+        },
+        {
+          "value": "pow(b, e + 1)",
+          "error": "one-factor-too-many",
+          "feedback": "{value} multiplies one {b} too many. {b}{sup(e)} has {e} of them."
+        },
+        {
+          "value": "pow(b, e - 1)",
+          "error": "one-factor-short",
+          "feedback": "{value} multiplies one {b} too few. {b}{sup(e)} has {e} of them."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.to-power",
+      "competency": "G6.Q2.10",
+      "domain": "NA",
+      "construct": "Write a repeated product in exponential form: find the exponent",
+      "schema": "equal-groups",
+      "params": {"b": {"tiers": {"1": [2, 9], "3": [2, 12]}}, "e": {"tiers": {"1": [2, 4], "3": [3, 6]}}},
+      "answer": {"type": "integer", "value": "e"},
+      "formats": [
+        {
+          "id": "power",
+          "prompt": "{b} × {b}{e >= 3 ? ' × ' : ''}{e >= 3 ? fmt(b) : ''}{e >= 4 ? ' × ' : ''}{e >= 4 ? fmt(b) : ''}{e >= 5 ? ' × ' : ''}{e >= 5 ? fmt(b) : ''}{e >= 6 ? ' × ' : ''}{e >= 6 ? fmt(b) : ''} is {b} to the power of what?"
+        },
+        {
+          "id": "exponent",
+          "prompt": "Write {b} × {b}{e >= 3 ? ' × ' : ''}{e >= 3 ? fmt(b) : ''}{e >= 4 ? ' × ' : ''}{e >= 4 ? fmt(b) : ''}{e >= 5 ? ' × ' : ''}{e >= 5 ? fmt(b) : ''}{e >= 6 ? ' × ' : ''}{e >= 6 ? fmt(b) : ''} in exponential form. What is the exponent?"
+        }
+      ],
+      "hints": [
+        "The exponent counts how many times {b} is multiplied by itself.",
+        "Count the {b}s in {b} × {b}{e >= 3 ? ' × ' : ''}{e >= 3 ? fmt(b) : ''}{e >= 4 ? ' × ' : ''}{e >= 4 ? fmt(b) : ''}{e >= 5 ? ' × ' : ''}{e >= 5 ? fmt(b) : ''}{e >= 6 ? ' × ' : ''}{e >= 6 ? fmt(b) : ''}.",
+        "There is one {b} for each place the exponent counts."
+      ],
+      "steps": ["Count the factors of {b}", "There are {e} of them", "So it is {b}{sup(e)}: the exponent is {answer}"],
+      "explain": "{b} × {b}{e >= 3 ? ' × ' : ''}{e >= 3 ? fmt(b) : ''}{e >= 4 ? ' × ' : ''}{e >= 4 ? fmt(b) : ''}{e >= 5 ? ' × ' : ''}{e >= 5 ? fmt(b) : ''}{e >= 6 ? ' × ' : ''}{e >= 6 ? fmt(b) : ''} = {b}{sup(e)}.",
+      "distractors": [
+        {
+          "value": "pow(b, e)",
+          "error": "gave-the-value",
+          "feedback": "{value} is the value. The question asks how many {b}s are multiplied: the exponent."
+        },
+        {
+          "value": "e - 1",
+          "error": "counted-the-signs",
+          "feedback": "{value} counts the × signs. Count the {b}s instead."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.from-power",
+      "competency": "G6.Q2.10",
+      "domain": "NA",
+      "construct": "Write a number as a power of a given base: find the exponent",
+      "schema": "equal-groups",
+      "params": {
+        "b": {"choose": [2, 3, 5, 10]},
+        "e": {"tiers": {"1": [2, 5], "3": [3, 6]}},
+        "v": {"value": "pow(b, e)"}
+      },
+      "where": ["v <= 1000000"],
+      "answer": {"type": "integer", "value": "e"},
+      "formats": [
+        {"id": "power", "prompt": "{v} = {b} to the power of what?"},
+        {"id": "which", "prompt": "Which power of {b} is {v}?"}
+      ],
+      "hints": [
+        "Keep multiplying by {b} until you reach {v}, and count how many {b}s you used.",
+        "{b} × {b} = {b * b}, {b * b} × {b} = {pow(b, 3)}, …",
+        "Count the {b}s that make {v}."
+      ],
+      "steps": [
+        "Multiply {b}s until you reach {v}",
+        "{v} = {b} × {b}{e >= 3 ? ' × ' : ''}{e >= 3 ? fmt(b) : ''}{e >= 4 ? ' × ' : ''}{e >= 4 ? fmt(b) : ''}{e >= 5 ? ' × ' : ''}{e >= 5 ? fmt(b) : ''}{e >= 6 ? ' × ' : ''}{e >= 6 ? fmt(b) : ''}",
+        "That is {e} of them: {v} = {b}{sup(e)}"
+      ],
+      "explain": "{v} = {b}{sup(e)}, so the exponent is {answer}.",
+      "distractors": [
+        {
+          "value": "v / b",
+          "error": "divided-once",
+          "feedback": "{value} is {v} ÷ {b}. Count how many {b}s multiply together to make {v}."
+        },
+        {
+          "value": "e - 1",
+          "error": "one-short",
+          "feedback": "{b}{sup(e - 1)} is only {pow(b, e - 1)}. One more {b} is needed to reach {v}."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.power-ops",
+      "competency": "G6.Q2.12",
+      "domain": "NA",
+      "construct": "GEMDAS: exponents before multiplying and adding",
+      "schema": "multi-step",
+      "params": {
+        "a": {"tiers": {"1": [1, 9], "3": [2, 20]}},
+        "b": {"tiers": {"1": [2, 5], "3": [2, 9]}},
+        "c": {"tiers": {"1": [2, 5], "3": [2, 9]}}
+      },
+      "answer": {"type": "integer", "value": "a + b * b * c"},
+      "formats": [{"id": "expression", "prompt": "{a} + {b}{sup(2)} × {c} = ?"}],
+      "hints": [
+        "Exponents first, then multiply, then add.",
+        "{b}{sup(2)} = {b * b}.",
+        "{b * b} × {c} = {b * b * c}. Then add {a}."
+      ],
+      "steps": [
+        "Exponent: {b}{sup(2)} = {b * b}",
+        "Multiply: {b * b} × {c} = {b * b * c}",
+        "Add: {a} + {b * b * c} = {answer}"
+      ],
+      "explain": "E, then M, then A: {a} + {b * b} × {c} = {a} + {b * b * c} = {answer}.",
+      "distractors": [
+        {
+          "value": "(a + b * b) * c",
+          "error": "added-before-multiplying",
+          "feedback": "{value} adds before multiplying. After the exponent, multiply: {b * b} × {c}, then add {a}."
+        },
+        {
+          "value": "a + b * c * b * c",
+          "error": "squared-the-product",
+          "feedback": "{value} squares {b} × {c}. The exponent belongs only to {b}."
+        },
+        {
+          "value": "a + 2 * b * c",
+          "error": "doubled-instead-of-squaring",
+          "feedback": "{value} takes {b}{sup(2)} as {b} × 2. It means {b} × {b} = {b * b}."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.power-brackets",
+      "competency": "G6.Q2.12",
+      "domain": "NA",
+      "construct": "GEMDAS: brackets before the exponent",
+      "schema": "multi-step",
+      "params": {"a": {"tiers": {"1": [1, 6], "3": [2, 12]}}, "b": {"tiers": {"1": [1, 6], "3": [2, 12]}}},
+      "answer": {"type": "integer", "value": "(a + b) * (a + b)"},
+      "formats": [{"id": "expression", "prompt": "({a} + {b}){sup(2)} = ?"}],
+      "hints": [
+        "Brackets first, then the exponent.",
+        "{a} + {b} = {a + b}.",
+        "{a + b}{sup(2)} = {a + b} × {a + b} = ?"
+      ],
+      "steps": ["Brackets: {a} + {b} = {a + b}", "Exponent: {a + b}{sup(2)} = {a + b} × {a + b}", "= {answer}"],
+      "explain": "({a} + {b}){sup(2)} = {a + b}{sup(2)} = {answer}.",
+      "distractors": [
+        {
+          "value": "a * a + b * b",
+          "error": "squared-each-number",
+          "feedback": "{value} squares {a} and {b} on their own. Add first: ({a} + {b}){sup(2)} = {a + b}{sup(2)}."
+        },
+        {
+          "value": "a + b * b",
+          "error": "ignored-the-brackets",
+          "feedback": "{value} squares only {b}. The brackets come first: {a} + {b} = {a + b}."
+        },
+        {
+          "value": "2 * (a + b)",
+          "error": "doubled-instead-of-squaring",
+          "feedback": "{value} doubles {a + b}. Squaring means {a + b} × {a + b}."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.power-take",
+      "competency": "G6.Q2.12",
+      "domain": "NA",
+      "construct": "GEMDAS: an exponent, then multiplying, then taking away",
+      "schema": "multi-step",
+      "params": {
+        "b": {"tiers": {"1": [3, 9], "3": [5, 12]}},
+        "c": {"tiers": {"1": [2, 5], "3": [2, 9]}},
+        "d": {"tiers": {"1": [2, 5], "3": [2, 9]}}
+      },
+      "where": ["b * b > c * d"],
+      "answer": {"type": "integer", "value": "b * b - c * d"},
+      "formats": [{"id": "expression", "prompt": "{b}{sup(2)} − {c} × {d} = ?"}],
+      "hints": [
+        "Exponents first, then multiply, then take away.",
+        "{b}{sup(2)} = {b * b} and {c} × {d} = {c * d}.",
+        "{b * b} − {c * d} = ?"
+      ],
+      "steps": [
+        "Exponent: {b}{sup(2)} = {b * b}",
+        "Multiply: {c} × {d} = {c * d}",
+        "Take away: {b * b} − {c * d} = {answer}"
+      ],
+      "explain": "{b}{sup(2)} − {c} × {d} = {b * b} − {c * d} = {answer}.",
+      "distractors": [
+        {
+          "value": "b * b > c ? (b * b - c) * d : -1",
+          "error": "worked-left-to-right",
+          "feedback": "{value} takes away before multiplying. Multiply first: {c} × {d} = {c * d}."
+        },
+        {
+          "value": "2 * b - c * d",
+          "error": "doubled-instead-of-squaring",
+          "feedback": "{value} takes {b}{sup(2)} as {b} × 2. It means {b} × {b} = {b * b}."
+        }
+      ]
+    }
+  ]
+}

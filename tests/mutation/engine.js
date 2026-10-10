@@ -60,6 +60,9 @@ const M = [
   ["mixed answer written as a fraction", "    if (kind === \"mixed\") return mixedText(x);", "    if (kind === \"mixed\") return fracText(x);"],
   ["choices held to keypad rules", "      if (!enterable(\"choice\", v)) return false;", "      if (!validAnswer({ type: \"decimal\" }, v)) return false;"],
   ["form mistakes get the generic fallback", "return { correct: false, error: wrongForm, feedback: q.formFeedback[wrongForm] || q.missExplain };", "return { correct: false, error: wrongForm, feedback: q.missExplain };"],
+  ["pow off by one", "    for (var i = 0; i < e.n; i++) r = mul(r, b);", "    for (var i = 1; i < e.n; i++) r = mul(r, b);"],
+  ["sup prints plain digits", "    return String(x.n).split(\"\").map(function (d) { return SUPERSCRIPT.charAt(+d); }).join(\"\");", "    return String(x.n);"],
+  ["pow without a limit", "    if (e.n < 0 || e.n > 20) throw ContentError(\"pow() takes a whole exponent from 0 to 20\");", ""],
   // Basics
   ["Basics land on the path", "      basics.push(install(meta, (basicsFiles || [])[i], \"basics\"));", "      list.push(install(meta, (basicsFiles || [])[i], \"basics\"));"],
   ["facts levels allowed on the path", "          if (kind !== \"practice\" && track !== \"basics\") throw ContentError(where + \": only a Basics level can be \" + kind);", ""],

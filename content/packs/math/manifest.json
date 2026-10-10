@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.6.0",
+  "version": "1.7.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
@@ -12,7 +12,7 @@
   "topics": [
     { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json" },
     { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "file": "fractions.json" },
-    { "key": "gemdas", "label": "Order of operations", "icon": "add", "colorKey": 3, "comingSoon": true },
+    { "key": "gemdas", "label": "Order of operations", "icon": "add", "colorKey": 3, "file": "gemdas.json" },
     { "key": "factors", "label": "Factors and primes", "icon": "star", "colorKey": 4, "comingSoon": true },
     { "key": "ratio", "label": "Ratio and proportion", "icon": "coins", "colorKey": 1, "comingSoon": true },
     { "key": "percent", "label": "Percentages", "icon": "percent", "colorKey": 2, "comingSoon": true },

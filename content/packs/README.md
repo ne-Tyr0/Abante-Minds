@@ -16,8 +16,8 @@ content/packs/<subtest>/
   <topic>.json       one file per written topic: its levels, lessons, templates
 ```
 
-Only `math` exists. Its path holds all 13 blueprint topics; `decimals` and `fractions` are
-written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
+Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions` and
+`gemdas` are written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
 topics: `add-subtract`, `times`, `mental`, `written` and `missing` are written.
 
 ## Before you commit
@@ -47,7 +47,7 @@ this yet.
   "topics": [
     { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json" },
     { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "file": "fractions.json" },
-    { "key": "gemdas", "label": "Order of operations", "icon": "add", "colorKey": 3, "comingSoon": true }
+    { "key": "factors", "label": "Factors and primes", "icon": "star", "colorKey": 4, "comingSoon": true }
   ]
 }
 ```
@@ -300,7 +300,7 @@ Arithmetic in exact fractions, so `0.1 + 0.2 == 0.3` is true and `round(2.345, 2
 | Numbers | `12`, `1.12`. No `1e3` notation |
 | Words | `'kg'` in single quotes |
 | Operators | `+ - * /`, `%` on whole numbers, `== != < <= > >=`, `&& \|\| !`, `a ? b : c` |
-| Functions | `floor`, `ceil`, `round(x)` or `round(x, places)` (halves round up), `abs`, `min`, `max`, `gcd`, `lcm`, `peso`, `fmt`, `frac` (3/4), `mixed` (2 3/4), `fixed(x, places)` (2.40), `words(n)` (forty-five) |
+| Functions | `floor`, `ceil`, `round(x)` or `round(x, places)` (halves round up), `abs`, `min`, `max`, `gcd`, `lcm`, `peso`, `fmt`, `frac` (3/4), `mixed` (2 3/4), `fixed(x, places)` (2.40), `words(n)` (forty-five), `pow(b, e)` (a whole exponent up to 20), `sup(n)` (²: write `{b}{sup(e)}` for 2⁵) |
 
 There is no member access, no indexing, and nothing outside the template's own values.
 Comparing a number with a word is an error. `&&` and `||` stop early, so

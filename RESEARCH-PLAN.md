@@ -172,7 +172,8 @@ templates is an afternoon, migrating 300 is a project.
     **In progress** — the placeholders are gone and the path lists all 13 topics.
     `decimals` is written (22 templates in 6 levels, all 20 of its competencies covered),
     and `fractions` (17 templates in 6 levels, all 8 of its practicable competencies and
-    both model-based ones); the other 11 are on the path as coming soon.
+    both model-based ones), and `gemdas` (14 templates in 4 levels, all 5 competencies);
+    the other 10 are on the path as coming soon.
     Target **≥10 templates per topic**. That number is driven by two independent
     constraints that happen to agree: an 8-week intervention is ~320 attempts and template
     *shapes* go stale long before parameterised numbers do; and a defensible KR-20 needs
