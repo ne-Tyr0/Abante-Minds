@@ -42,7 +42,7 @@
     {
       "id": "problems",
       "title": "Ratio problems",
-      "templates": ["ratio.share", "ratio.from-part", "ratio.times-larger"],
+      "templates": ["ratio.share", "ratio.from-part", "ratio.times-larger", "ratio.extra-club"],
       "lesson": [
         {
           "title": "Find one part",
@@ -550,6 +550,49 @@
           "value": "s",
           "error": "gave-the-scale",
           "feedback": "{value} km is one centimetre. The towns are {d} cm apart."
+        }
+      ]
+    },
+    {
+      "id": "ratio.extra-club",
+      "competency": "G6.Q2.4",
+      "domain": "NA",
+      "construct": "Find a quantity from a ratio and the other quantity, ignoring numbers the question does not use",
+      "schema": "excess-info",
+      "params": {
+        "b": {"range": [2, 5]},
+        "g": {"range": [2, 5]},
+        "k": {"range": [3, 9]},
+        "G": {"value": "g * k"},
+        "B": {"value": "b * k"},
+        "d": {"range": [2, 5]},
+        "fee": {"choose": [20, 25, 30, 50]}
+      },
+      "where": ["gcd(b, g) == 1", "b != g"],
+      "answer": {"type": "integer", "value": "B"},
+      "formats": [
+        {
+          "id": "club",
+          "prompt": "A chess club meets {d} times a week, and each member pays ₱{fee} a month. The ratio of boys to girls in the club is {b}:{g}. There are {G} girls. How many boys are there?"
+        }
+      ],
+      "hints": [
+        "Only the ratio and the number of girls are needed.",
+        "{g} parts are {G} girls, so 1 part is {G} ÷ {g} = {k}.",
+        "The boys are {b} parts: {b} × {k} = ?"
+      ],
+      "steps": ["1 part: {G} ÷ {g} = {k}", "Boys: {b} parts", "{b} × {k} = {answer}"],
+      "explain": "{G} girls are {g} parts, so 1 part is {k} and the boys are {b} × {k} = {answer}. The meetings and the fee were extra information.",
+      "distractors": [
+        {
+          "value": "B + G",
+          "error": "found-the-whole-club",
+          "feedback": "{value} is the whole club, boys and girls. The question asks for the boys only."
+        },
+        {
+          "value": "G * g / b",
+          "error": "turned-the-ratio-round",
+          "feedback": "{fmt(value)} uses the ratio the wrong way round. {b}:{g} is boys to girls, so the boys are {b} parts."
         }
       ]
     }

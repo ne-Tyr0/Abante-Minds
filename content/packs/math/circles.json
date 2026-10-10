@@ -23,7 +23,7 @@
     {
       "id": "circumference",
       "title": "Circumference",
-      "templates": ["circles.circumference-pi", "circles.circumference-314", "circles.wheel-227"],
+      "templates": ["circles.circumference-pi", "circles.circumference-314", "circles.wheel-227", "circles.extra-table"],
       "lesson": [
         {
           "title": "π",
@@ -561,6 +561,40 @@
           "value": "R * R + r * r",
           "error": "added-the-circles",
           "feedback": "{value}π adds the two circles. The ring is the big one with the small one taken out."
+        }
+      ]
+    },
+    {
+      "id": "circles.extra-table",
+      "competency": "G6.Q3.13",
+      "domain": "MG",
+      "construct": "Find a circumference with π = 3.14, ignoring a height",
+      "schema": "excess-info",
+      "params": {"d": {"choose": [50, 60, 80, 100, 120, 150]}, "h": {"choose": [70, 75, 80]}},
+      "answer": {"type": "unit", "value": "3.14 * d", "unit": "cm", "maxDecimals": 2},
+      "formats": [
+        {
+          "id": "table",
+          "prompt": "A round table is {d} cm across and stands {h} cm tall. Using π = 3.14, how far is it around the edge of the table?"
+        }
+      ],
+      "hints": [
+        "The distance round a circle is its circumference: π × diameter.",
+        "The height of the table is not needed.",
+        "3.14 × {d} = ?"
+      ],
+      "steps": ["Circumference = π × diameter", "Diameter: {d} cm", "3.14 × {d} = {answer} cm"],
+      "explain": "3.14 × {d} = {answer} cm. The height of the table was extra information.",
+      "distractors": [
+        {
+          "value": "3.14 * h",
+          "error": "used-the-height",
+          "feedback": "{value} cm uses the height. The distance round the edge needs the diameter, {d} cm."
+        },
+        {
+          "value": "6.28 * d",
+          "error": "used-the-diameter-as-radius",
+          "feedback": "{value} cm is 2 × π × {d}, as if {d} cm were the radius. {d} cm across is the diameter."
         }
       ]
     }

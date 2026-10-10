@@ -4,7 +4,7 @@
     {
       "id": "parallelograms-triangles",
       "title": "Parallelograms and triangles",
-      "templates": ["area.parallelogram", "area.triangle", "area.height"],
+      "templates": ["area.parallelogram", "area.triangle", "area.height", "area.extra-side"],
       "lesson": [
         {
           "title": "Base times height",
@@ -548,6 +548,41 @@
           "value": "2 * (w + h) % c == 0 ? 2 * (w + h) / c : -1",
           "error": "used-the-perimeter",
           "feedback": "{value} uses the distance around the wall. Paint covers the area: {w} × {h}."
+        }
+      ]
+    },
+    {
+      "id": "area.extra-side",
+      "competency": "G5.Q1.11",
+      "domain": "MG",
+      "construct": "Find the area of a triangle when its slanted side is given too",
+      "schema": "excess-info",
+      "params": {"b": {"range": [4, 20]}, "h": {"range": [3, 15]}, "s": {"range": ["h + 1", "h + 6"]}},
+      "where": ["b * h % 2 == 0"],
+      "answer": {"type": "unit", "value": "b * h / 2", "unit": "m²"},
+      "formats": [
+        {
+          "id": "garden",
+          "prompt": "A triangular garden has a base of {b} m and a height of {h} m. Its slanted side is {s} m long. What is its area?"
+        }
+      ],
+      "hints": [
+        "The area of a triangle uses the base and the height.",
+        "The slanted side is not the height: the {s} m is not needed.",
+        "{b} × {h} ÷ 2 = ?"
+      ],
+      "steps": ["Area = base × height ÷ 2", "{b} × {h} = {b * h}", "{b * h} ÷ 2 = {answer} m²"],
+      "explain": "{b} × {h} ÷ 2 = {answer} m². The slanted side was extra information: the height is measured straight up from the base.",
+      "distractors": [
+        {
+          "value": "b * s / 2",
+          "error": "used-the-slanted-side",
+          "feedback": "{fmt(value)} m² uses the slanted side. The height is the {h} m measured straight up from the base."
+        },
+        {
+          "value": "b * h",
+          "error": "forgot-to-halve",
+          "feedback": "{value} m² is the rectangle round the triangle. A triangle is half of it."
         }
       ]
     }

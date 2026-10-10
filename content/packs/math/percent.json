@@ -39,7 +39,7 @@
     {
       "id": "real-life",
       "title": "Per cents in real life",
-      "templates": ["percent.discount", "percent.sale-price", "percent.increase", "percent.interest"],
+      "templates": ["percent.discount", "percent.sale-price", "percent.increase", "percent.interest", "percent.extra-wallet"],
       "lesson": [
         {
           "title": "Discounts",
@@ -444,6 +444,45 @@
           "value": "P * r",
           "error": "did-not-divide-by-100",
           "feedback": "₱{value} is ₱{P} × {r}. Per cent means out of 100: divide by 100."
+        }
+      ]
+    },
+    {
+      "id": "percent.extra-wallet",
+      "competency": "G6.Q2.9",
+      "domain": "NA",
+      "construct": "Find a discount, ignoring the money the buyer has",
+      "schema": "excess-info",
+      "params": {
+        "p": {"choose": [400, 500, 600, 800, 1000, 1200, 1500]},
+        "d": {"choose": [10, 15, 20, 25, 30, 40]},
+        "w": {"choose": [1000, 2000]}
+      },
+      "where": ["w > p"],
+      "answer": {"type": "integer", "value": "p * d / 100", "prefix": "₱"},
+      "formats": [
+        {
+          "id": "shoes",
+          "prompt": "A pair of shoes costs ₱{p}, and the store gives {d}% off. There is ₱{w} in Mia's wallet. How much is the discount?"
+        }
+      ],
+      "hints": [
+        "The question asks for the discount, not what is paid.",
+        "The ₱{w} in the wallet is not needed.",
+        "{d}% of ₱{p} = ?"
+      ],
+      "steps": ["Discount: {d}% of ₱{p}", "1% of ₱{p} is ₱{p / 100}", "{d} × ₱{p / 100} = ₱{answer}"],
+      "explain": "{d}% of ₱{p} = ₱{answer}. The money in the wallet was extra information.",
+      "distractors": [
+        {
+          "value": "p - p * d / 100",
+          "error": "gave-the-sale-price",
+          "feedback": "₱{value} is the sale price. The question asks for the discount: {d}% of ₱{p}."
+        },
+        {
+          "value": "w - (p - p * d / 100)",
+          "error": "gave-the-change",
+          "feedback": "₱{value} is the change from ₱{w}. The question asks only for the discount."
         }
       ]
     }
