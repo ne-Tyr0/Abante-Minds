@@ -170,8 +170,8 @@ templates is an afternoon, migrating 300 is a project.
 
 12. **New topic set from the table of specifications**, replacing the four placeholders.
     **In progress** — the placeholders are gone and the path lists all 13 topics.
-    Written: `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `area`, `solids`, each covering all of its practicable
-    competencies; the other 5 are on the path as coming soon.
+    Written: `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `area`, `solids`, `circles`, each covering all of its practicable
+    competencies; the other 4 are on the path as coming soon.
     Target **≥10 templates per topic**. That number is driven by two independent
     constraints that happen to agree: an 8-week intervention is ~320 attempts and template
     *shapes* go stale long before parameterised numbers do; and a defensible KR-20 needs
