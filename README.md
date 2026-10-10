@@ -7,7 +7,7 @@ built on that project's own design system, imported unchanged.
 
 **Target:** Grade 6 learners sitting the Philippine Science High School National
 Competitive Examination (NCE) on 30 January 2027. The learner follows a path through the
-13 topics of `TABLE-OF-SPECIFICATIONS.md`, level by level; decimals, fractions, order of operations, factors, ratio, percentages and area are
+13 topics of `TABLE-OF-SPECIFICATIONS.md`, level by level; decimals, fractions, order of operations, factors, ratio, percentages, area and solids are
 written and the rest are on the path as coming soon. Beside the path, a Basics track drills
 the facts under every topic, starting with adding and subtracting and the times tables,
 until they come without a calculator. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and the plan.
