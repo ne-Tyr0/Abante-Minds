@@ -39,7 +39,7 @@
     {
       "id": "volume",
       "title": "Volume",
-      "templates": ["solids.cube-volume", "solids.box-volume", "solids.missing-edge", "solids.cubes-in-box"],
+      "templates": ["solids.cube-volume", "solids.box-volume", "solids.missing-edge", "solids.cubes-in-box", "solids.extra-parcel"],
       "lesson": [
         {
           "title": "Length × width × height",
@@ -711,6 +711,47 @@
           "value": "a * b * c / p",
           "error": "did-not-convert",
           "feedback": "{value} divides cm³ by litres. Change the volume to litres first: {L} L."
+        }
+      ]
+    },
+    {
+      "id": "solids.extra-parcel",
+      "competency": "G6.Q3.3",
+      "domain": "MG",
+      "construct": "Find the volume of a box, ignoring its mass and cost",
+      "schema": "excess-info",
+      "params": {
+        "l": {"range": [5, 20]},
+        "w": {"range": [3, 12]},
+        "h": {"range": [2, 10]},
+        "kg": {"choose": [1, 2, 3, 5]},
+        "fee": {"choose": [150, 180, 250]}
+      },
+      "where": ["l != w"],
+      "answer": {"type": "unit", "value": "l * w * h", "unit": "cm³"},
+      "formats": [
+        {
+          "id": "parcel",
+          "prompt": "A parcel box is {l} cm long, {w} cm wide and {h} cm tall. It weighs {kg} kg, and sending it costs ₱{fee}. What is its volume?"
+        }
+      ],
+      "hints": [
+        "Volume needs only the length, the width and the height.",
+        "The mass and the cost are not needed.",
+        "{l} × {w} × {h} = ?"
+      ],
+      "steps": ["Volume = length × width × height", "{l} × {w} = {l * w}", "{l * w} × {h} = {answer} cm³"],
+      "explain": "{l} × {w} × {h} = {answer} cm³. The mass and the cost were extra information.",
+      "distractors": [
+        {
+          "value": "l + w + h",
+          "error": "added-the-edges",
+          "feedback": "{value} adds the three edges. Volume multiplies them: {l} × {w} × {h}."
+        },
+        {
+          "value": "2 * (l * w + l * h + w * h)",
+          "error": "found-the-surface-area",
+          "feedback": "{value} is the surface area, the outside of the box. Volume is the space inside: {l} × {w} × {h}."
         }
       ]
     }

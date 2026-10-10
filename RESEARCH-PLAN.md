@@ -188,7 +188,10 @@ templates is an afternoon, migrating 300 is a project.
     problems carrying identical arithmetic*. A real diagnostic for the learner, and a
     finding almost nothing in Philippine maths-app research reports. The schema field
     exists in every template since item 6; the varied structures and the per-schema
-    report are what remain.
+    report are what remain. **Started 2026-10-11** for `excess-info`: nine topics now each
+    have a word problem carrying a number it does not need, which says so in its hints and
+    names the mistake of using it. The attempt log keeps the template id, so a per-schema
+    report can be built from it.
 14. **Timed mode and exam simulation.** The real exam is timed and competitive at an 84.50%
     mean. Speed is part of the construct, so latency becomes a learner-facing feature, not
     only a research variable.

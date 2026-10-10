@@ -47,7 +47,7 @@
     {
       "id": "gcf",
       "title": "Greatest common factor",
-      "templates": ["factors.gcf", "factors.gcf-word"],
+      "templates": ["factors.gcf", "factors.gcf-word", "factors.extra-ribbons"],
       "lesson": [
         {
           "title": "The GCF",
@@ -609,6 +609,52 @@
           "value": "g",
           "error": "gave-the-gcf",
           "feedback": "{value} is the GCF. Things that repeat meet again at the LCM."
+        }
+      ]
+    },
+    {
+      "id": "factors.extra-ribbons",
+      "competency": "G6.Q4.13",
+      "domain": "NA",
+      "construct": "Solve a GCF problem, ignoring a number the question does not use",
+      "schema": "excess-info",
+      "params": {
+        "g": {"range": [4, 12]},
+        "x": {"range": [2, 7]},
+        "y": {"range": [2, 7]},
+        "a": {"value": "g * x"},
+        "b": {"value": "g * y"},
+        "c": {"range": [25, 45]}
+      },
+      "where": ["gcd(x, y) == 1", "x != y"],
+      "answer": {"type": "integer", "value": "g"},
+      "formats": [
+        {
+          "id": "ribbons",
+          "prompt": "A class of {c} pupils has {a} red ribbons and {b} blue ribbons. The ribbons are tied into bundles, every bundle with the same number of red ribbons and the same number of blue, with none left over. What is the greatest number of bundles?"
+        }
+      ],
+      "hints": [
+        "The number of bundles must divide both {a} and {b}.",
+        "The class size, {c}, is not needed.",
+        "Find the greatest common factor of {a} and {b}."
+      ],
+      "steps": [
+        "The bundles must divide {a} and {b} exactly",
+        "The GCF of {a} and {b} is {answer}",
+        "{answer} bundles, each of {x} red and {y} blue"
+      ],
+      "explain": "The GCF of {a} and {b} is {answer}: {answer} bundles, each of {x} red and {y} blue ribbons. The class size was extra information.",
+      "distractors": [
+        {
+          "value": "lcm(a, b)",
+          "error": "found-the-lcm",
+          "feedback": "{value} is the LCM, a number both {a} and {b} divide into. The bundles need a number that divides both: the GCF."
+        },
+        {
+          "value": "c",
+          "error": "gave-the-class-size",
+          "feedback": "{value} is the number of pupils, which the question does not use. Find the GCF of {a} and {b}."
         }
       ]
     }

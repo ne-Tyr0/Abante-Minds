@@ -336,8 +336,9 @@ problems but fails *compare* problems carrying identical arithmetic.
 - **Non-routine**: `work-backwards` · `missing-middle` · `multi-step` · `excess-info`
 
 `excess-info` matters more here than in ordinary practice: a selective, timed exam rewards
-learners who can discard an irrelevant number, and nothing in the current app ever presents
-one.
+learners who can discard an irrelevant number. When this was drafted nothing in the app
+presented one; nine topics now each have an `excess-info` template (decimals, fractions,
+factors, ratio, percent, time, area, solids, circles).
 
 ## Revision triggers
 

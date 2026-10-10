@@ -23,7 +23,7 @@
     {
       "id": "how-long",
       "title": "How long?",
-      "templates": ["time.elapsed", "time.store-hours", "time.overnight"],
+      "templates": ["time.elapsed", "time.store-hours", "time.overnight", "time.extra-bus"],
       "lesson": [
         {
           "title": "Count on",
@@ -593,6 +593,54 @@
           "value": "land - off * 60",
           "error": "went-the-wrong-way",
           "feedback": "{clock(value)} goes the wrong way. {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {off > 0 ? 'ahead of' : 'behind'} Manila, so its clocks show {off > 0 ? 'a later' : 'an earlier'} time."
+        }
+      ]
+    },
+    {
+      "id": "time.extra-bus",
+      "competency": "G5.Q1.3",
+      "domain": "MG",
+      "construct": "Find a length of time, ignoring numbers that are not times",
+      "schema": "excess-info",
+      "params": {
+        "sh": {"range": [5, 15]},
+        "sm": {"range": [5, 55], "step": 5},
+        "s": {"value": "sh * 60 + sm"},
+        "d": {"range": [95, 300], "step": 5},
+        "e": {"value": "s + d"},
+        "next": {"value": "(sh + 1) * 60"},
+        "p": {"range": [20, 45]},
+        "km": {"choose": [40, 60, 80, 100]}
+      },
+      "where": ["e % 60 < sm", "e < 1440"],
+      "answer": {"type": "integer", "value": "d"},
+      "formats": [
+        {
+          "id": "bus",
+          "prompt": "A bus with {p} passengers leaves the terminal at {clock(s)} and arrives {km} km away at {clock(e)}. How many minutes does the trip take?"
+        }
+      ],
+      "hints": [
+        "Only the two times are needed: the passengers and the distance are not.",
+        "Count on from {clock(s)} to {clock(next)}: {60 - sm} minutes.",
+        "Then on to {clock(e)}: {e - next} more minutes."
+      ],
+      "steps": [
+        "{clock(s)} to {clock(next)}: {60 - sm} minutes",
+        "{clock(next)} to {clock(e)}: {e - next} minutes",
+        "{60 - sm} + {e - next} = {answer} minutes"
+      ],
+      "explain": "Count on: {60 - sm} minutes, then {e - next} more: {answer} minutes. The passengers and the distance were extra information.",
+      "distractors": [
+        {
+          "value": "(floor(e / 60) * 100 + e % 60) - (sh * 100 + sm)",
+          "error": "subtracted-like-numbers",
+          "feedback": "{value} takes {sh * 100 + sm} from {floor(e / 60) * 100 + e % 60} as if they were ordinary numbers. An hour has 60 minutes, not 100: count on from {clock(s)} instead."
+        },
+        {
+          "value": "km",
+          "error": "gave-the-distance",
+          "feedback": "{value} is the distance in kilometres. The question asks how long the trip takes: count on from {clock(s)} to {clock(e)}."
         }
       ]
     }

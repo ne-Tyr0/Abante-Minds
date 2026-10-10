@@ -24,7 +24,7 @@
     {
       "id": "multiply-in-steps",
       "title": "Multiply in steps",
-      "templates": ["fractions.spent-then-spent", "fractions.part-of-a-group", "fractions.part-of-the-total"],
+      "templates": ["fractions.spent-then-spent", "fractions.part-of-a-group", "fractions.part-of-the-total", "fractions.extra-group"],
       "lesson": [
         { "title": "Of what is left", "body": "When the second fraction is of what is left, find what is left first. Then take the second fraction of that amount, not of the amount you started with." },
         { "title": "Worked example", "example": { "template": "fractions.spent-then-spent", "params": { "b": 4, "a": 1, "d": 3, "c": 1, "k": 2 }, "format": "allowance" } },
@@ -724,6 +724,63 @@
           "feedback": "{frac(value)} is the part left to share. Divide it among the {n}." },
         { "value": "rest * n", "error": "multiplied-instead",
           "feedback": "{frac(value)} multiplies by {n}. Sharing among {n} means dividing." }
+      ]
+    },
+    {
+      "id": "fractions.extra-group",
+      "competency": "G5.Q1.9",
+      "domain": "NA",
+      "construct": "Take a fraction of part of a group, ignoring the size of the whole group",
+      "schema": "excess-info",
+      "params": {
+        "den": {"choose": [2, 3, 4, 5]},
+        "num": {"range": [1, "den - 1"]},
+        "k": {"range": [3, 8]},
+        "g": {"value": "den * k"},
+        "b": {"range": [8, 20]},
+        "n": {"value": "g + b"}
+      },
+      "answer": {"type": "integer", "value": "g * num / den"},
+      "formats": [
+        {
+          "id": "choir",
+          "prompt": "A Grade 6 class has {n} pupils, and {g} of them are girls. {num}/{den} of the girls sing in the choir. How many girls sing in the choir?",
+          "hints": [
+            "The question asks only about the girls.",
+            "So the {n} pupils in the whole class are not needed: use the {g} girls.",
+            "{num}/{den} of {g}: {g} ÷ {den} × {num} = ?"
+          ],
+          "explain": "{num}/{den} of the {g} girls is {answer}. The {n} pupils in the whole class were not needed."
+        },
+        {
+          "id": "garden",
+          "prompt": "A garden has {n} plants, and {g} of them are tomato plants. {num}/{den} of the tomato plants have flowers. How many tomato plants have flowers?",
+          "hints": [
+            "The question asks only about the tomato plants.",
+            "So the {n} plants in the whole garden are not needed: use the {g} tomato plants.",
+            "{num}/{den} of {g}: {g} ÷ {den} × {num} = ?"
+          ],
+          "explain": "{num}/{den} of the {g} tomato plants is {answer}. The {n} plants in the whole garden were not needed."
+        }
+      ],
+      "hints": [
+        "Read the question again: which group does it ask about?",
+        "Use only that group: {g}.",
+        "{num}/{den} of {g}: {g} ÷ {den} × {num} = ?"
+      ],
+      "steps": ["Only the group asked about: {g}", "{g} ÷ {den} = {k}", "{k} × {num} = {answer}"],
+      "explain": "{num}/{den} of {g} is {answer}. The {n} in all was not needed.",
+      "distractors": [
+        {
+          "value": "n * num / den",
+          "error": "used-the-whole-group",
+          "feedback": "{fmt(value)} is {num}/{den} of all {n}. The question asks only about the {g}: {num}/{den} of {g}."
+        },
+        {
+          "value": "g - g * num / den",
+          "error": "gave-the-rest",
+          "feedback": "{value} is the part that is not. The question asks for {num}/{den} of the {g}."
+        }
       ]
     }
   ]
