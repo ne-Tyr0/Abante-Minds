@@ -198,3 +198,12 @@ html, body {
 @media (min-width: 1280px) {
   .am-keypad button { font-size: 22px; }
 }
+
+/* The times table: thirteen columns on a 375px phone, so a cell is about 24px
+   and its number steps down a size to fit 144. */
+.am-fact-grid .am-fact-cell {
+  font-family: var(--font-sans);
+  font-size: 11px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}

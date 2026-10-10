@@ -560,6 +560,55 @@
     return node;
   }
 
+  /* ---------- FactGrid ----------
+     A fact table, such as the times table: the numbers along the top and
+     down the side, and in each cell its answer, shaded by how well the
+     learner knows that fact. Mastered is a solid cell in the topic's hue,
+     being learnt a light one, not yet met a plain one; the legend says so in
+     words, and so does each cell's label, so the shade is never the only
+     signal. Rows are flex rows so a screen reader reads it as a table. */
+  function FactGrid(o) {
+    var g = o.grid;
+    var hue = "var(--skill-" + o.colorKey + "-600)", light = "var(--skill-" + o.colorKey + "-100)";
+    var LOOK = {
+      mastered: { background: hue, color: "var(--ink-inverse)", fontWeight: 700 },
+      learning: { background: light, color: "var(--ink-900)" },
+      fresh: { background: "var(--surface-100)", color: "var(--ink-600)" }
+    };
+    var WORD = { mastered: "mastered", learning: "being learnt", fresh: "not yet practised" };
+    function cell(text, look, role, label) {
+      var style = { flex: "1 1 0", minWidth: 0, aspectRatio: "1", borderRadius: 4, display: "flex", alignItems: "center", justifyContent: "center" };
+      Object.keys(look || {}).forEach(function (k) { style[k] = look[k]; });
+      return el("span.am-fact-cell", { role: role, "aria-label": label || null, style: style }, text);
+    }
+    var head = el("div", { role: "row", style: { display: "flex", gap: 2 } },
+      cell(g.sign, { color: "var(--ink-600)" }, "columnheader", g.sign));
+    g.values.forEach(function (v) { head.appendChild(cell(String(v), { color: "var(--ink-600)", fontWeight: 700 }, "columnheader")); });
+    var table = el("div.am-fact-grid", { role: "table", "aria-label": g.title, style: { display: "flex", flexDirection: "column", gap: 2 } }, head);
+    g.values.forEach(function (x) {
+      var row = el("div", { role: "row", style: { display: "flex", gap: 2 } },
+        cell(String(x), { color: "var(--ink-600)", fontWeight: 700 }, "rowheader"));
+      g.values.forEach(function (y) {
+        var key = g.cells[x + "," + y];
+        var answer = g.sign === "×" ? x * y : x + y;
+        var state = key ? o.state(key) : null;
+        row.appendChild(state
+          ? cell(String(answer), LOOK[state], "cell", x + " " + g.sign + " " + y + " = " + answer + ", " + WORD[state])
+          : cell("", null, "cell", x + " " + g.sign + " " + y + ", not in this course"));
+      });
+      table.appendChild(row);
+    });
+    var legend = el("span", { style: { display: "flex", gap: "var(--space-3)", flexWrap: "wrap" } });
+    ["mastered", "learning", "fresh"].forEach(function (k) {
+      legend.appendChild(el("span.caption", { style: { display: "inline-flex", alignItems: "center", gap: 6, color: "var(--ink-600)" } },
+        el("span", { "aria-hidden": "true", style: { width: 14, height: 14, borderRadius: 4, background: LOOK[k].background, boxShadow: "inset 0 0 0 1px var(--line-200)" } }),
+        WORD[k].charAt(0).toUpperCase() + WORD[k].slice(1)));
+    });
+    /* Past phone width the cells would only grow; 480px keeps 144 readable
+       without the table taking over a desktop page. */
+    return el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)", width: "100%", maxWidth: 480 } }, table, legend);
+  }
+
   /* A pill that states a fact — streak, level, topic. Never an action. */
   function Chip(o) {
     return el("span.caption", {
@@ -595,4 +644,5 @@
   AM.SideRail = SideRail;
   AM.Card = Card;
   AM.Chip = Chip;
+  AM.FactGrid = FactGrid;
 })();

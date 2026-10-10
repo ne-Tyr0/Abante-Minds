@@ -28,7 +28,8 @@ const writeJ = (f, j) => fs.writeFileSync(P(f), JSON.stringify(j, null, 2));
 function edit(file, fn) { const j = readJ(file); fn(j); writeJ(file, j); }
 const tpl = (j, id) => j.templates.find((t) => t.id === "decimals." + id);
 const lvl = (j, id) => j.levels.find((l) => l.id === id);
-const D = "decimals.json", M = "manifest.json";
+const D = "decimals.json", M = "manifest.json", TT = "times.json";
+const ttpl = (j, id) => j.templates.find((t) => t.id === "times." + id);
 const PIECES = { template: "decimals.how-many-pieces", params: { vi: 25, t: 30, p: 45 } };
 const pin = (j, p) => { j.pinned = [Object.assign({}, PIECES, p, { params: Object.assign({}, PIECES.params, p && p.params) })]; };
 
@@ -114,7 +115,7 @@ const MUTANTS = [
   ["topic missing from the path", M, (j) => { j.topics = j.topics.filter((t) => t.key !== "transform"); }, "blueprint topic 'transform' is not on the path"],
   ["topic on the path twice", M, (j) => { j.topics.push(Object.assign({}, j.topics[1])); }, "on the path twice"],
   ["topic not in the blueprint", M, (j) => { j.topics[1].key = "money"; }, "topic 'money' is not in the blueprint"],
-  ["coming soon with a file", M, (j) => { j.topics[1].file = "fractions.json"; }, "a topic coming soon has no file yet"],
+  ["coming soon with a file", M, (j) => { j.topics.find((t) => t.comingSoon).file = "fractions.json"; }, "a topic coming soon has no file yet"],
   ["written topic without a file", M, (j) => { delete j.topics[0].file; }, "a written topic needs its file"],
   ["unknown topic field", M, (j) => { j.topics[0].colour = 1; }, "unknown field 'colour'"],
   ["fraction answers without form feedback", M, (j) => { delete j.formFeedback; }, "formFeedback is required"],
@@ -155,10 +156,40 @@ const MUTANTS = [
     j.templates = j.templates.filter((t) => !drop.includes(t.id));
     j.levels.forEach((l) => { l.templates = l.templates.filter((id) => !drop.includes(id)); });
   }, "19 templates; the blueprint targets 20"],
+  // Basics
+  ["Basics template with a competency", TT, (j) => { ttpl(j, "x2").competency = "G5.Q1.8"; }, "a Basics template has no competency"],
+  ["Basics template in no domain", TT, (j) => { ttpl(j, "x2").domain = "XX"; }, "domain XX is not one of the blueprint's domains"],
+  ["grid on a path template", D, (j) => { j.templates[0].grid = true; }, "grid is only for Basics facts"],
+  ["grid not true", TT, (j) => { ttpl(j, "x2").grid = "yes"; }, "grid is true or absent"],
+  ["grid template without a drawn y", TT, (j) => { ttpl(j, "x8").params.y = { value: "8" }; }, "needs a drawn param 'y'"],
+  ["facts level on the path", D, (j) => { j.levels[0].kind = "facts"; }, "kind is facts or review, and only in a Basics topic"],
+  ["unknown level kind", TT, (j) => { j.levels[0].kind = "drill"; }, "kind is facts or review"],
+  ["review level with templates", TT, (j) => { j.levels[5].templates = ["times.x2"]; }, "lists no templates"],
+  ["review level with a lesson", TT, (j) => { j.levels[5].lesson = j.levels[0].lesson; }, "a review level has no lesson"],
+  ["nothing to review", TT, (j) => { j.levels = [j.levels[5]]; }, "there are no facts levels to review"],
+  ["tiers in a fact", TT, (j) => { ttpl(j, "x10").params.y = { tiers: { "1": [3, 10] } }; }, "has tiers"],
+  ["grid template in a practice level", TT, (j) => { delete j.levels[3].kind; }, "is on the grid, so it belongs in a facts level"],
+  ["a grid with no grid templates", TT, (j) => { j.templates.forEach((t) => { delete t.grid; }); }, "a grid needs templates marked grid"],
+  ["grid templates with no grid", TT, (j) => { delete j.grid; }, "templates are marked grid, but the topic has no grid"],
+  ["grid sign", TT, (j) => { j.grid.sign = "x"; }, "grid sign is × or +"],
+  ["grid range backwards", TT, (j) => { j.grid.from = 5; j.grid.to = 3; }, "grid from and to are whole numbers"],
+  ["a grid cell with no fact", TT, (j) => { ttpl(j, "x12").params.y.choose = ttpl(j, "x12").params.y.choose.filter((y) => y !== 12); }, "no fact for 12 × 12"],
+  ["a grid cell with the wrong fact", TT, (j) => { ttpl(j, "x2").answer.value = "x * y + 2"; }, "whose answer is"],
+  ["a facts template with no facts", TT, (j) => { ttpl(j, "x8").where = ["y > 100"]; }, "lists no facts"],
+  ["a facts template with too many facts", TT, (j) => { ttpl(j, "x11").params.y = { range: [2, 300] }; }, "a template holds at most 200"],
+  ["a mistake no fact can use", TT, (j) => { ttpl(j, "x8").distractors.push({ value: "x * y", error: "the-answer", feedback: "{value}" }); }, "was never usable on any of its 1 facts"],
+  ["Basics key of a path topic", M, (j) => { j.basics[0].key = "decimals"; }, "has the key of a topic on the path"],
+  ["Basics topic listed twice", M, (j) => { j.basics.push(Object.assign({}, j.basics[0])); }, "is listed twice"],
+  ["Basics topic without a file", M, (j) => { delete j.basics[0].file; }, "a Basics topic needs its file"],
+  ["Basics topic coming soon", M, (j) => { j.basics[0].comingSoon = true; }, "unknown field 'comingSoon'"],
+  ["Basics not a list", M, (j) => { j.basics = {}; }, "basics must be a list"],
+  ["Basics file for another topic", TT, (j) => { j.topic = "time"; }, "file says topic 'time'"],
+  ["Basics file unknown field", TT, (j) => { j.pinned = []; }, "unknown field 'pinned'"],
   // controls: these must pass
   ["control: pinned item, two formats, none named", D, (j) => { pin(j); }, null],
   ["control: a fourth format", D, (j) => { const f = j.templates[0].formats; f.push(Object.assign({}, f[0], { id: "fourth" })); }, null],
-  ["control: a percent answer with places", D, (j) => { const a = tpl(j, "change-money").answer; a.type = "percent"; delete a.prefix; }, null]
+  ["control: a percent answer with places", D, (j) => { const a = tpl(j, "change-money").answer; a.type = "percent"; delete a.prefix; }, null],
+  ["control: a smaller grid", TT, (j) => { j.grid.to = 10; }, null]
 ];
 
 /* MUTANT=<part of a name> runs only the matching mutants. */

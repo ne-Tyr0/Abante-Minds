@@ -1,7 +1,8 @@
 /* Progress tests: the path's rules, as the store keeps them. Levels clear on
    answers right the first time, retries and redos never count, clearing a
    level opens the next, and an old (version 1) record keeps the learner and
-   the streak but not the tier progress the path replaced.
+   the streak but not the tier progress the path replaced. Basics facts are
+   mastered on two days, lost on a miss, and never move the path.
 
    Run:  node tests/progress.js        Exits 1 on any failure. */
 "use strict";
@@ -12,8 +13,16 @@ const assert = require("assert");
 const SRC = fs.readFileSync(path.join(__dirname, "..", "app/store.js"), "utf8");
 const KEY = "abante-minds/v1";
 
-/* A browser the store can run in: storage, connectivity, a location. */
+/* A browser the store can run in: storage, connectivity, a location, and a
+   clock the tests can move to another day. */
 let storage = {};
+const RealDate = Date;
+let NOW = null;
+global.Date = class extends RealDate {
+  constructor(...a) { if (a.length) super(...a); else super(NOW === null ? RealDate.now() : NOW); }
+  static now() { return NOW === null ? RealDate.now() : NOW; }
+};
+const onDay = (iso) => { NOW = new RealDate(iso + "T09:00:00").getTime(); };
 global.window = global;
 global.location = { hash: "" };
 global.addEventListener = () => {};
@@ -32,10 +41,20 @@ const TOPICS = [
     { id: "c1", title: "C one", competencies: ["C4", "C1"], hasLesson: false }] }
 ];
 
+const BASICS = [
+  { key: "b", label: "B", icon: "star", colorKey: 4, ready: true, track: "basics", grid: true, levels: [
+    { id: "f1", title: "F one", kind: "facts", competencies: [], hasLesson: true, factCount: 3 },
+    { id: "p1", title: "P one", kind: "practice", competencies: [], hasLesson: false, factCount: 0 },
+    { id: "all", title: "All", kind: "review", competencies: [], hasLesson: false, factCount: 3 }] }
+];
+const FACT_KEYS = ["k1", "k2", "k3"];
+const facts = (topic, level) => (topic === "b" && (level === "f1" || level === "all") ? FACT_KEYS.slice() : []);
+
 /* A fresh store over whatever is in storage, as on app launch. */
 function launch(saved) {
   storage = saved === undefined ? {} : { [KEY]: JSON.stringify(saved) };
-  global.AM = { content: { TOPICS: TOPICS, blueprintCompetencies: 8, examDate: "2027-01-30" } };
+  NOW = null;
+  global.AM = { content: { TOPICS: TOPICS, BASICS: BASICS, facts: facts, blueprintCompetencies: 8, examDate: "2027-01-30" } };
   new Function(SRC).call(global);
   return global.AM.store;
 }
@@ -148,6 +167,85 @@ test("badges", () => {
   assert.deepStrictEqual(earned(), ["level", "topic"]);
   times(8, () => S.recordAnswer("c", "c1", true, true));
   assert.deepStrictEqual(earned(), ["level", "topic", "half"]);
+});
+
+/* ---------- Basics facts ---------- */
+
+const quickRight = (S, k) => S.recordFact(k, true, true);
+test("a fact is mastered when right and quick on two different days", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: false, lost: false });
+  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: false, lost: false }, "twice on one day is still one day");
+  let f = S.factState("k1");
+  assert.deepStrictEqual([f.seen, f.right, f.days, f.mastered, f.quickToday], [2, 2, ["2026-10-10"], false, true]);
+  onDay("2026-10-11");
+  assert.strictEqual(S.factState("k1").quickToday, false);
+  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: true, lost: false });
+  f = S.factState("k1");
+  assert.deepStrictEqual([f.days, f.mastered, f.last], [["2026-10-10", "2026-10-11"], true, "2026-10-11"]);
+  onDay("2026-10-14");
+  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: false, lost: false }, "mastered once, not again");
+  assert.deepStrictEqual(S.factState("k1").days, ["2026-10-11", "2026-10-14"]);
+});
+test("a slow right answer is practice, not mastery", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  S.recordFact("k1", true, false);
+  onDay("2026-10-11");
+  S.recordFact("k1", true, false);
+  const f = S.factState("k1");
+  assert.deepStrictEqual([f.seen, f.right, f.miss, f.days, f.mastered], [2, 2, 0, [], false]);
+});
+test("a miss sends a fact back, even a mastered one", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  quickRight(S, "k1");
+  onDay("2026-10-11");
+  quickRight(S, "k1");
+  assert.deepStrictEqual(S.recordFact("k1", false, false), { mastered: false, lost: true });
+  const f = S.factState("k1");
+  assert.deepStrictEqual([f.miss, f.days, f.mastered], [1, [], false]);
+  assert.deepStrictEqual(S.recordFact("k2", false, false), { mastered: false, lost: false });
+});
+test("facts keep the streak, count as right first time, and are progress", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  S.recordFact("k1", false, false);
+  assert.strictEqual(S.hasProgress(), true, "even a miss is progress");
+  assert.strictEqual(S.get().streakDays, 1);
+  quickRight(S, "k2");
+  assert.strictEqual(S.get().totalCorrect, 1);
+});
+test("a fact's record survives a relaunch", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  quickRight(S, "k3");
+  const T = launch(JSON.parse(storage[KEY]));
+  onDay("2026-10-10");
+  assert.deepStrictEqual(T.factState("k3").days, ["2026-10-10"]);
+});
+test("Basics: every level open, facts mastered per level, review not counted twice", () => {
+  const S = launch();
+  let b = S.basicsTopic("b");
+  assert.deepStrictEqual(b.levels.map((lv) => [lv.kind, lv.facts, lv.unlocked]), [["facts", 3, true], ["practice", 0, true], ["review", 3, true]]);
+  assert.deepStrictEqual([b.facts, b.mastered, b.practiceLevels, b.done, b.next.id], [3, 0, 1, false, "f1"]);
+  for (const k of FACT_KEYS) { onDay("2026-10-10"); quickRight(S, k); onDay("2026-10-11"); quickRight(S, k); }
+  b = S.basicsTopic("b");
+  assert.deepStrictEqual([b.facts, b.mastered, b.levels[0].done, b.levels[2].mastered, b.next.id], [3, 3, true, 3, "p1"]);
+  times(8, () => S.recordAnswer("b", "p1", true, true));
+  b = S.basicsTopic("b");
+  assert.deepStrictEqual([b.cleared, b.done, b.next], [1, true, null]);
+  assert.deepStrictEqual(S.basics().map((t) => t.key), ["b"]);
+  assert.strictEqual(S.basicsTopic("nope"), null);
+});
+test("Basics never move the path", () => {
+  const S = launch();
+  times(8, () => S.recordAnswer("b", "p1", true, true));
+  quickRight(S, "k1");
+  const p = S.path();
+  assert.deepStrictEqual([p.levelsCleared, p.coverage, p.next.level.id], [0, 0, "a1"]);
+  assert.deepStrictEqual(S.badges().filter((x) => x.earned).map((x) => x.key), []);
 });
 
 console.log(failed ? `\n${failed} failed` : "\nok: progress follows the path's rules");

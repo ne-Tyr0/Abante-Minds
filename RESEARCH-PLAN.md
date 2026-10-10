@@ -201,7 +201,10 @@ templates is an afternoon, migrating 300 is a project.
     lower return rate? It cannot be studied while hardcoded.
 17. **Spaced review.** Resurface missed items at 1/3/7 days. Needed for an 8-week
     intervention to measure skill rather than recall of specific items, and it yields a
-    retention measure.
+    retention measure. **Started for Basics facts**: a fact is mastered on two different
+    days, a miss sends it back, and every round brings back a few mastered facts. The
+    per-fact record (seen, right, missed, the days it was right and quick) is a fluency
+    measure in its own right once the attempt log (item 6 in `CLAUDE.md`) keeps latency.
 
 ## Phase 3 — Research instrumentation
 

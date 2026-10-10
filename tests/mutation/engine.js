@@ -46,7 +46,8 @@ const M = [
   ["words keeps the hundreds", "    if (n >= 100) { out.push(ONES[Math.floor(n / 100)] + \" hundred\"); n %= 100; }", "    if (n >= 100) { out.push(ONES[Math.floor(n / 100)] + \" hundred\"); }"],
   ["fixed pads one place too many", "  FUNCS.fixed = function (x, dp) { return decimalString(num(x), toNumber(int(dp))); };", "  FUNCS.fixed = function (x, dp) { return decimalString(num(x), toNumber(int(dp)) + 1); };"],
   ["mixed order ignored", "      if (t.answer.order === \"mixed\") shuffle(", "      if (false) shuffle("],
-  ["level competencies dropped", "        return { id: lv.id, title: lv.title, competencies: lv.competencies.slice(), hasLesson: lv.lesson.length > 0 };", "        return { id: lv.id, title: lv.title, competencies: [], hasLesson: lv.lesson.length > 0 };"],
+  ["level competencies dropped", "          id: lv.id, title: lv.title, kind: lv.kind, competencies: lv.competencies.slice(),", "          id: lv.id, title: lv.title, kind: lv.kind, competencies: [],"],
+  ["a template with no competency adds one", "            if (t.competency && lv.competencies.indexOf(t.competency) < 0) lv.competencies.push(t.competency);", "            if (lv.competencies.indexOf(t.competency) < 0) lv.competencies.push(t.competency);"],
   ["unsimplified fractions accepted", "    return gcdInt(entry.num, entry.den) > 1 ? \"not-lowest-terms\" : null;", "    return null;"],
   ["improper accepted as mixed", "      if (entry.form !== \"mixed\") return \"not-a-mixed-number\";", ""],
   ["oversized fraction part accepted", "      if (entry.num >= entry.den) return \"fraction-part-not-proper\";", ""],
@@ -58,7 +59,21 @@ const M = [
   ["percent loses its sign", "    if (spec.type === \"percent\") return \"%\";", "    if (spec.type === \"percent\") return \"\";"],
   ["mixed answer written as a fraction", "    if (kind === \"mixed\") return mixedText(x);", "    if (kind === \"mixed\") return fracText(x);"],
   ["choices held to keypad rules", "      if (!enterable(\"choice\", v)) return false;", "      if (!validAnswer({ type: \"decimal\" }, v)) return false;"],
-  ["form mistakes get the generic fallback", "return { correct: false, error: wrongForm, feedback: q.formFeedback[wrongForm] || q.missExplain };", "return { correct: false, error: wrongForm, feedback: q.missExplain };"]
+  ["form mistakes get the generic fallback", "return { correct: false, error: wrongForm, feedback: q.formFeedback[wrongForm] || q.missExplain };", "return { correct: false, error: wrongForm, feedback: q.missExplain };"],
+  // Basics
+  ["Basics land on the path", "      basics.push(install(meta, (basicsFiles || [])[i], \"basics\"));", "      list.push(install(meta, (basicsFiles || [])[i], \"basics\"));"],
+  ["facts levels allowed on the path", "          if (kind !== \"practice\" && track !== \"basics\") throw ContentError(where + \": only a Basics level can be \" + kind);", ""],
+  ["a review level asks nothing", "            lv.templates = topic.levels.filter(function (o) { return o.kind === \"facts\"; })", "            lv.templates = topic.levels.filter(function (o) { return false; })"],
+  ["a fact listed twice", "        if (keys.indexOf(f.key) < 0) keys.push(f.key);", "        keys.push(f.key);"],
+  ["facts ignore where", "        if (!(t.where || []).every(function (c) { return bool(evalExpr(c, scope)); })) return;\n        var answer = evalExpr(t.answer.value, scope);", "        var answer = evalExpr(t.answer.value, scope);"],
+  ["facts with answers no one can give", "        if (!validAnswer(t.answer, answer)) return;\n        if (t.answer.type === \"choice\") {", "        if (t.answer.type === \"choice\") {"],
+  ["a computed value enters the key", "        walk(i + 1, s, drawn);", "        walk(i + 1, s, drawn.concat(name));"],
+  ["a key without its template", "          key: t.id + \":\" + drawn.map(", "          key: drawn.map("],
+  ["tiers in a fact", "    if (!spec.range) throw ContentError(t.id + \": a fact's '\" + name + \"' must be a choose or a range, not tiers\");", "    if (!spec.range) return [];"],
+  ["any fact in any level", "    if (found.level.kind === \"practice\" || factsOf(found.level).indexOf(key) < 0)\n      throw ContentError(\"level '\" + topicKey + \"/\" + levelId + \"' has no fact '\" + key + \"'\");", "    factsOf(found.level);"],
+  ["one format for every seed", "    var format = t.formats[Math.floor(rng(seed)() * t.formats.length)];", "    var format = t.formats[0];"],
+  ["the grid fills one side", "        cells[f.params.y + \",\" + f.params.x] = k;", ""],
+  ["every template on the grid", "        if (!template(f.template).grid) return;", ""]
 ];
 
 let caught = 0;

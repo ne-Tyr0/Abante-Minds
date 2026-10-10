@@ -8,8 +8,9 @@ built on that project's own design system, imported unchanged.
 **Target:** Grade 6 learners sitting the Philippine Science High School National
 Competitive Examination (NCE) on 30 January 2027. The learner follows a path through the
 13 topics of `TABLE-OF-SPECIFICATIONS.md`, level by level; decimals and fractions are
-written and the rest are on the path as coming soon. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and
-the plan.
+written and the rest are on the path as coming soon. Beside the path, a Basics track drills
+the facts under every topic, starting with the times tables, until they come without a
+calculator. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and the plan.
 
 Open `index.html` through any static server. There is no build step.
 
@@ -55,8 +56,9 @@ components it imports are reimplemented natively in `app/ui.js`.
 | `app/ui.js` | The design system components as DOM builders, plus the patterns the system deliberately left out (answer tile, keypad, nav) |
 | `app/content.js` | The question engine |
 | `app/entry.js` | What each keypad key does to the answer boxes |
+| `app/facts.js` | Which facts a Basics round asks, and when a missed one comes back |
 | `content/packs/` | The questions, as JSON |
-| `app/store.js` | Learner state: progress level by level, the streak |
+| `app/store.js` | Learner state: progress level by level, Basics facts mastered, the streak |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
 | `app/app.css` | Shell layout and the three width rules |
@@ -87,7 +89,7 @@ to the exam rather than a tier ladder, Topics is the whole path, frame 14 celebr
 cleared level rather than a tier, and frame 15, the demotion card, is gone with tiers.
 
 Routes not in the document: `topic` (a topic's levels), `lesson` (the cards that open a
-level), `installSteps` (how to add the app to the home screen in a browser that cannot do
+level), `basics` and `basicsTopic` (the Basics track and one of its topics), `installSteps` (how to add the app to the home screen in a browser that cannot do
 it in one tap) and `loadFailed` (shown if the question pack cannot load).
 
 ### The questions
@@ -118,6 +120,24 @@ Writing a pack: `content/packs/README.md`.
 - Home counts down to 30 January and shows the share of the blueprint's competencies the
   cleared levels cover.
 - A missed day resets the streak and nothing else.
+
+### Basics
+
+Beside the path, open at any time and never counted on it: the facts and methods under
+every topic, so a learner can work without a calculator. Written so far: the times tables,
+180 facts (66 times facts from 2 × 2 to 12 × 12, and their divide facts) in five groups
+and a review of all of them.
+
+- A facts level is practised fact by fact, in rounds of 20. A fact is **mastered when it
+  is right in under 4 seconds, without a hint, on two different days**. A miss sends it
+  back to be learnt again, mastered or not, and it comes back later in the same round, so
+  the course is always worth repeating.
+- A round asks first the facts being learnt, then a few new ones (at most 6), and always a
+  few mastered ones, so a fact that has slipped is caught.
+- Each group opens with strategy cards (turn it round, double and double again, times 10
+  then halve) and a worked example. The times-table grid fills in as facts are mastered.
+- A right fact moves on by itself after a moment; a wrong one shows its answer and every
+  step, with no second try on the spot.
 
 ### Offline
 
@@ -190,6 +210,7 @@ scroll.
 ```bash
 node tests/engine.js
 node tests/entry.js
+node tests/facts.js
 node tests/progress.js
 node tests/validate-packs.js
 node tests/fuzz.js
@@ -203,14 +224,20 @@ diagnosed.
 `tests/entry.js` pins what each keypad key does to the answer: digits and the decimal
 point for a number, the Next key and the boxes for a fraction or mixed number.
 
+`tests/facts.js` pins the Basics drill: which facts a round asks, in what order, and when
+a missed one comes back.
+
 `tests/progress.js` pins the path's rules: what clears a level, what opens the next, what
-counts as right first time, and how an older saved record is carried over.
+counts as right first time, and how an older saved record is carried over. It also pins
+Basics mastery: right and quick on two days, lost on a miss, and never moving the path.
 
 `tests/validate-packs.js` checks every pack against its schema and the blueprint, then
-generates every template at every tier and checks what a learner would be shown.
+generates every template at every tier and checks what a learner would be shown. Every
+Basics fact is checked in every one of its formats, and every cell of the times-table grid
+against the fact it holds.
 
-`tests/fuzz.js` builds whole sessions for every level at every tier, 144,000 questions in
-all, and fails if any can produce a negative answer or one too long for the keypad, an
+`tests/fuzz.js` builds whole sessions for every level at every tier, 360,000 questions in
+all, and 3,600 Basics rounds for learners at every stage, and fails if any can produce a negative answer or one too long for the keypad, an
 incomplete scaffold, a hint with an unfollowable number, a broken multiple choice, an
 answer the checker rejects, or a named mistake that does not bring back its own feedback.
 The app is offline, so a bad question cannot be hotfixed on a phone that has already

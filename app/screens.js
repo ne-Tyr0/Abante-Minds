@@ -466,6 +466,22 @@
   }
 
   function levelLabel(next) { return next.topic.label + " · Level " + next.level.number; }
+
+  /* How far a Basics topic has got: facts mastered, levels cleared, or both. */
+  function basicsCaption(t) {
+    var parts = [];
+    if (t.facts) parts.push(t.mastered + " of " + t.facts + " facts mastered");
+    if (t.practiceLevels) parts.push(t.cleared + " of " + t.practiceLevels + " levels cleared");
+    return parts.join(" · ");
+  }
+  function basicsRatio(t) {
+    var done = t.mastered + t.cleared, all = t.facts + t.practiceLevels;
+    return all ? done / all : 0;
+  }
+  function factLook(key) {
+    var f = store.factState(key);
+    return f.mastered ? "mastered" : f.seen ? "learning" : "fresh";
+  }
   function startLabel(next) {
     return (next.level.attempts || next.level.lessonSeen ? "Continue: " : "Start: ") + next.level.title;
   }
@@ -535,16 +551,32 @@
       AM.BadgeShelf({ badges: store.badges(), lockedBackground: "var(--surface-100)" })
     );
 
+    /* Basics sit beside the path: open any time, and never counted on it. */
+    var basics = store.basics();
+    var basicsCard = basics.length ? AM.Card({ style: { gap: 12 } },
+      sectionLabel("Basics · practise any time"),
+      el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } },
+        basics.slice(0, 2).map(function (t) {
+          return el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
+            topicTile(t, 32),
+            el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4 } },
+              el("span.label", null, t.label),
+              AM.ProgressBar({ ratio: basicsRatio(t), height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: t.label + " progress" }),
+              el("span.caption", { style: { color: "var(--ink-600)" } }, basicsCaption(t))));
+        })),
+      AM.Button({ label: "Practise the basics", variant: "ghost", fullWidth: true, onClick: function () { app.go("basics"); } })) : null;
+
     var offer = app.canOfferInstall() && !s.installCardDismissed ? installCard(app) : null;
 
     /* Tablet and desktop spend the extra width on a second card rather than on
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          offer, upNext, countdown, streakBlock)
+          offer, upNext, countdown, basicsCard, streakBlock)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
           offer,
           el("div.am-pair", null, upNext, countdown),
+          basicsCard,
           streakBlock,
           el("div.am-pair", null, pathCard, badgeCard));
 
@@ -603,6 +635,24 @@
         t.ready ? el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("next", 20)) : null));
     });
 
+    var basics = store.basics();
+    var basicsRow = basics.length ? el("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: "24px " + gutter() + "px 0" } },
+      sectionLabel("Beside the path"),
+      el("button.am-reset.am-pressable.am-path-row", {
+        type: "button", "aria-label": "Basics: " + basics.map(function (t) { return t.label; }).join(", ") + ". Practise any time.",
+        onClick: function () { app.go("basics"); },
+        style: {
+          "--am-edge": "var(--line-200)", display: "flex", alignItems: "center", gap: "var(--space-3)", width: "100%", textAlign: "left",
+          padding: "12px 14px", borderRadius: "var(--radius-md)", background: "var(--surface-200)", color: "var(--ink-900)", cursor: "pointer"
+        }
+      },
+        topicTile(basics[0]),
+        el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4 } },
+          el("span.label", null, "Basics"),
+          el("span.caption", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+            basics.map(function (t) { return t.label; }).join(", ") + ". Practise any time; they don't open or close anything here.")),
+        el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("next", 20)))) : null;
+
     return {
       nav: "practice", bottomNav: false,
       banner: connectionBanner(),
@@ -612,7 +662,8 @@
           el("div.heading-md", null, "Your path"),
           el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4, textWrap: "pretty" } },
             p.levelsCleared + " of " + p.levelsTotal + " levels cleared" + (p.daysToExam === null ? "" : " · exam in " + p.daysToExam + " days"))),
-        list
+        list,
+        basicsRow
       ], { paddingBottom: 24 }),
       footer: p.next ? el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520 } },
@@ -690,6 +741,121 @@
     };
   };
 
+  /* ---------- Basics ----------
+     The facts and methods under every topic: times tables, adding and
+     subtracting, mental math. Every level is open, at any time, as often as
+     the learner likes. A fact is mastered when it is right and quick on two
+     different days, and a miss sends it back, so there is always something
+     worth another round. Nothing here opens or closes the exam path. */
+  function basicsRowButton(t, onClick, caption, ratio) {
+    return el("button.am-reset.am-pressable.am-path-row", {
+      type: "button", "aria-label": t.label + ", " + caption, onClick: onClick,
+      style: {
+        "--am-edge": "var(--line-200)", display: "flex", alignItems: "center", gap: "var(--space-3)", width: "100%", textAlign: "left",
+        padding: "12px 14px", borderRadius: "var(--radius-md)", background: "var(--surface-200)", color: "var(--ink-900)", cursor: "pointer"
+      }
+    },
+      topicTile(t),
+      el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 } },
+        el("span.label", null, t.label),
+        AM.ProgressBar({ ratio: ratio, height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: t.label + " progress" }),
+        el("span.caption", { style: { color: "var(--ink-600)" } }, caption)),
+      el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("next", 20)));
+  }
+
+  screens.basics = function (app) {
+    var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: "18px " + gutter() + "px 0" } });
+    store.basics().forEach(function (t) {
+      list.appendChild(basicsRowButton(t, function () { app.openBasicsTopic(t.key); }, basicsCaption(t), basicsRatio(t)));
+    });
+    return {
+      nav: "practice", bottomNav: false,
+      banner: connectionBanner(),
+      back: function () { app.go("home", "back"); },
+      body: column([
+        el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+          el("div.heading-md", null, "Basics"),
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4, textWrap: "pretty" } },
+            "The facts and methods under every topic, so you can work without a calculator. Practise any time; nothing here opens or closes your exam path.")),
+        list
+      ], { paddingBottom: 24 })
+    };
+  };
+
+  /* A Basics topic: its levels, all open, and its grid if it has one. */
+  screens.basicsTopic = function (app) {
+    var t = store.basicsTopic(app.scratch.basicsTopic);
+    if (!t) { app.go("basics"); return screens.basics(app); }
+
+    var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: "18px " + gutter() + "px 0" } });
+    t.levels.forEach(function (lv) {
+      var isNext = t.next && t.next.id === lv.id;
+      var caption = lv.kind === "review" ? "All " + lv.facts + " facts, the ones that need work first"
+        : lv.kind === "facts" ? lv.mastered + " of " + lv.facts + " facts mastered"
+        : lv.cleared ? "Cleared · practise again any time" : lv.correct + " of " + lv.target + " right first time to clear";
+      var ratio = lv.kind === "facts" ? lv.mastered / lv.facts : lv.kind === "practice" ? lv.correct / lv.target : null;
+      var glyph = lv.done ? "check" : lv.kind === "review" ? "retry" : lv.kind === "facts" ? "streak" : "lesson";
+      list.appendChild(el("button.am-reset.am-pressable.am-path-row", {
+        type: "button", "aria-label": lv.title + ", " + caption + (isNext ? ", up next" : ""),
+        onClick: function () { app.startLevel(t.key, lv.id); },
+        style: {
+          "--am-edge": isNext ? "var(--brand-blue-600)" : "var(--line-200)",
+          display: "flex", alignItems: "center", gap: "var(--space-3)", width: "100%", textAlign: "left",
+          padding: "12px 14px", borderRadius: "var(--radius-md)", background: "var(--surface-200)", color: "var(--ink-900)", cursor: "pointer"
+        }
+      },
+        el("span", {
+          style: {
+            flex: "none", width: 40, height: 40, borderRadius: "50%",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: lv.done ? "var(--skill-" + t.colorKey + "-600)" : "var(--skill-" + t.colorKey + "-100)",
+            color: lv.done ? "var(--ink-inverse)" : "var(--skill-" + t.colorKey + "-600)"
+          }
+        }, icon(glyph, 20)),
+        el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 } },
+          el("span", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" } },
+            el("span.label", null, lv.title),
+            isNext ? AM.Chip({ label: "Up next" }) : null),
+          ratio === null ? null : AM.ProgressBar({ ratio: ratio, height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: lv.title + " progress" }),
+          el("span.caption", { style: { color: "var(--ink-600)" } }, caption))));
+    });
+
+    var grid = t.grid ? C.grid(t.key) : null;
+    var gridCard = grid ? el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+      AM.Card({ style: { gap: 12 } },
+        sectionLabel(grid.title),
+        AM.FactGrid({ grid: grid, colorKey: t.colorKey, state: factLook }),
+        el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+          "A fact is mastered when you get it right in under 4 seconds on two different days. A miss sends it back to practise."))) : null;
+
+    var target = t.next || t.levels.filter(function (lv) { return lv.kind === "review"; })[0] || t.levels[0];
+    var actions = [AM.Button({
+      label: (t.next ? "Practise: " : "Review: ") + target.title, fullWidth: true,
+      onClick: function () { app.startLevel(t.key, target.id); }
+    })];
+    if (target.hasLesson && target.lessonSeen) actions.push(AM.Button({
+      label: "See the lesson again", variant: "ghost", fullWidth: true,
+      onClick: function () { app.openLesson(t.key, target.id); }
+    }));
+
+    return {
+      nav: "practice", bottomNav: false,
+      banner: connectionBanner(),
+      back: function () { app.go("basics", "back"); },
+      body: column([
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", gap: "var(--space-3)", alignItems: "center" } },
+          topicTile(t, 48),
+          el("span", null,
+            el("div.heading-md", null, t.label),
+            el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 2 } }, basicsCaption(t)))),
+        gridCard,
+        list
+      ], { paddingBottom: 24 }),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } }, actions))
+    };
+  };
+
   /* ---------- A level's lesson ----------
      Two or three cards before the first practice: the idea, a worked example
      with every step shown, and the mistake to avoid. One card at a time, so a
@@ -697,8 +863,9 @@
   screens.lesson = function (app) {
     var l = app.scratch.lesson;
     if (!l) { app.go("home"); return screens.home(app); }
-    var t = store.topicPath(l.topic);
-    var lv = t.levels.filter(function (x) { return x.id === l.level; })[0];
+    var t = C.byKey(l.topic);
+    var number = t.levels.findIndex(function (x) { return x.id === l.level; }) + 1;
+    var lv = { number: number, title: t.levels[number - 1].title };
     var card = l.cards[l.page];
     var last = l.page === l.cards.length - 1;
 
@@ -772,7 +939,7 @@
     var desktop = AM.device() === "desktop";
     var offline = !store.isOnline();
     var header = AM.PracticeHeader({
-      tier: (offline ? "Offline · level " : "Level ") + ses.levelNumber,
+      tier: ses.facts ? (offline ? "Offline · " : "") + ses.levelTitle : (offline ? "Offline · level " : "Level ") + ses.levelNumber,
       questionIndex: ses.index, questionTotal: ses.questions.length
     });
 
@@ -874,6 +1041,17 @@
        matches one the template expects, says so plainly when it does not, and
        reveals one worked step, with the rest still locked. */
     function explanation() {
+      /* A fact needs no explaining when it is right: what matters is whether
+         it was quick enough to count. */
+      if (ses.phase === "correct" && ses.facts) {
+        var secs = (Math.round(ses.lastMs / 100) / 10).toFixed(1);
+        return el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexWrap: "wrap", gap: "var(--space-2)", alignItems: "center" } },
+          ses.lastQuick ? AM.Chip({ icon: "streak", label: "Quick · " + secs + " s", large: true }) : null,
+          ses.lastMastered ? AM.Chip({ icon: "check", label: "Mastered", large: true, background: "var(--success-100)", color: "var(--success-700)" }) : null,
+          ses.lastQuick ? null : el("span.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+            ses.showHints ? "Right. Next time try it without a hint: right in under 4 seconds counts towards mastering it."
+              : "Right in " + secs + " s. Under 4 seconds counts towards mastering it."));
+      }
       if (ses.phase === "correct") {
         return el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
           sectionLabel("How it works"),
@@ -882,6 +1060,9 @@
       if (ses.phase === "wrong") {
         var block = el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
           el("div.body", { style: { textWrap: "pretty" } }, (ses.diagnosis && ses.diagnosis.feedback) || q.missExplain),
+          ses.facts ? el("div.body-sm", { style: { color: "var(--ink-600)" } },
+            (q.answerText ? "The answer is " + q.unit + q.answerText + q.suffix + ". " : "") +
+            (ses.lastRequeued ? "This one comes back later in the round." : "Practise it again next round.")) : null,
           sectionLabel("Step " + ses.stepsRevealed + " of " + q.steps.length));
         var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } });
         q.steps.forEach(function (step, i) {
@@ -909,9 +1090,28 @@
         AM.Chip({ icon: "streak", label: ses.run + " in a row", large: true }));
     }
 
+    /* A facts round shows the level's facts mastered instead. */
+    function factStrip() {
+      var keys = C.facts(ses.topicKey, ses.levelId);
+      var mastered = keys.filter(function (k) { return store.factState(k).mastered; }).length;
+      return el("div", {
+        style: {
+          flex: "none", margin: "0 " + gutter() + "px 16px", background: "var(--surface-200)",
+          borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-card)",
+          padding: "12px var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)"
+        }
+      },
+        el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon("streak", 20)),
+        el("span", { style: { flex: 1, display: "flex", flexDirection: "column", gap: 6 } },
+          el("span.caption", { style: { color: "var(--ink-600)" } }, ses.levelTitle + ": facts mastered" + (offline ? " · counts offline" : "")),
+          AM.ProgressBar({ ratio: keys.length ? mastered / keys.length : 0, label: "Facts mastered" })),
+        el("span.body-sm", { style: { flex: "none", color: "var(--ink-600)" } }, mastered + " of " + keys.length));
+    }
+
     /* How far the level is from clearing. A redo session says it does not
        count, rather than show a bar that will not move. */
     function levelStrip() {
+      if (ses.facts) return factStrip();
       var lv = store.levelState(ses.topicKey, ses.levelId);
       var shown = Math.min(lv.correct, store.CLEAR_TARGET);
       var note = ses.redo ? "Redo · does not count towards the level"
@@ -927,7 +1127,8 @@
         el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon("level-up", 20)),
         el("span", { style: { flex: 1, display: "flex", flexDirection: "column", gap: 6 } },
           el("span.caption", { style: { color: "var(--ink-600)" } }, note),
-          AM.ProgressBar({ ratio: shown / store.CLEAR_TARGET, flex: true, label: "Level progress" })),
+          /* Not flex: in this column it would grow downward from nothing and vanish. */
+          AM.ProgressBar({ ratio: shown / store.CLEAR_TARGET, label: "Level progress" })),
         el("span.body-sm", { style: { flex: "none", color: "var(--ink-600)" } },
           shown + " of " + store.CLEAR_TARGET));
     }
@@ -973,7 +1174,15 @@
     } else if (ses.phase === "correct") {
       actions = el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px" } },
         AM.Button({
-          label: ses.index + 1 >= ses.questions.length ? "Finish session" : "Next question",
+          label: ses.index + 1 >= ses.questions.length ? (ses.facts ? "Finish round" : "Finish session") : "Next question",
+          fullWidth: true, iconRight: "next", onClick: function () { app.next(); }
+        }));
+    } else if (ses.facts) {
+      /* A missed fact is not tried again on the spot, with its answer in
+         view: it comes back later in the round instead. */
+      actions = el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px" } },
+        AM.Button({
+          label: ses.index + 1 >= ses.questions.length ? "Finish round" : "Next question",
           fullWidth: true, iconRight: "next", onClick: function () { app.next(); }
         }));
     } else {
@@ -1069,7 +1278,7 @@
     var s = store.get();
     var ses = app.session;
     if (!ses) { app.go("home"); return screens.home(app); }
-    var t = store.topicPath(ses.topicKey);
+    var t = store.topicPath(ses.topicKey) || store.basicsTopic(ses.topicKey);
     var nextLevel = t.levels[ses.levelNumber] || null;
 
     var ladder = el("div", { style: { padding: "24px " + gutter() + "px 0", display: "flex", gap: "var(--space-2)", alignItems: "stretch", flexWrap: "wrap", justifyContent: "center" } });
@@ -1115,8 +1324,9 @@
   screens.summary = function (app) {
     var r = app.scratch.result;
     if (!r) { app.go("home"); return screens.home(app); }
-    var t = store.topicPath(r.topicKey);
+    var t = store.topicPath(r.topicKey) || store.basicsTopic(r.topicKey);
     var lv = t.levels.filter(function (x) { return x.id === r.levelId; })[0];
+    if (r.facts) return factsSummary(app, r, t, lv);
     var nextLevel = t.levels[lv.number] || null;
 
     function stat(value, label) {
@@ -1178,9 +1388,51 @@
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
           primary,
-          AM.Button({ label: "Back to " + t.label.toLowerCase(), variant: "ghost", fullWidth: true, onClick: function () { app.openTopic(r.topicKey); } })))
+          AM.Button({ label: "Back to " + t.label.toLowerCase(), variant: "ghost", fullWidth: true, onClick: function () { app.backToTopic(r.topicKey); } })))
     };
   };
+
+  /* A facts round: how many were quick, and the level's facts mastered.
+     There is no redo card: a missed fact already came back in the round. */
+  function factsSummary(app, r, t, lv) {
+    function stat(value, label) {
+      return el("div", {
+        style: {
+          background: "var(--surface-200)", borderRadius: "var(--radius-md)",
+          boxShadow: "var(--shadow-card)", padding: "var(--space-3)", textAlign: "center"
+        }
+      }, el("div.heading-lg", null, String(value)), el("div.caption", { style: { color: "var(--ink-600)" } }, label));
+    }
+    var note = lv.mastered + " of " + lv.facts + " facts mastered" +
+      (r.masteredNow ? ", " + r.masteredNow + " of them this round. " : ". ") +
+      "A fact is mastered when it is right in under 4 seconds on two different days.";
+    var grid = t.grid ? C.grid(t.key) : null;
+    return {
+      nav: "practice", bottomNav: false,
+      banner: connectionBanner(),
+      body: column([
+        el("div", { style: { padding: "24px " + gutter() + "px 0" } },
+          el("div.heading-lg", null, "Round done"),
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } },
+            t.label + " · " + lv.title + " · " + r.minutes + " minute" + (r.minutes === 1 ? "" : "s"))),
+        el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
+          stat(r.attempted, "answered"), stat(r.correct, "right first time"), stat(r.quick, "quick")),
+        el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 10 } },
+            sectionLabel(lv.title),
+            AM.ProgressBar({ ratio: lv.facts ? lv.mastered / lv.facts : 0, height: 10, color: "var(--skill-" + t.colorKey + "-600)", label: "Facts mastered" }),
+            el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, note))),
+        grid ? el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 12 } },
+            sectionLabel(grid.title),
+            AM.FactGrid({ grid: grid, colorKey: t.colorKey, state: factLook }))) : null
+      ], { paddingBottom: 24 }),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
+          AM.Button({ label: "Another round", fullWidth: true, onClick: function () { app.startLevel(r.topicKey, r.levelId); } }),
+          AM.Button({ label: "Back to " + t.label.toLowerCase(), variant: "ghost", fullWidth: true, onClick: function () { app.backToTopic(r.topicKey); } })))
+    };
+  }
 
   /* ---------- 20 · Profile ----------
      The ID card from login, reused. Sign out is a ghost, not the primary. */
@@ -1213,7 +1465,8 @@
           })),
 
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", gap: 10 } },
-          stat(s.streakDays, "days in a row"), stat(s.totalCorrect, "right first time")),
+          stat(s.streakDays, "days in a row"), stat(s.totalCorrect, "right first time"),
+          store.basics().length ? stat(store.basics().reduce(function (n, t) { return n + t.mastered; }, 0), "facts mastered") : null),
 
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
           sectionLabel("Badges · " + earned + " of 4"),

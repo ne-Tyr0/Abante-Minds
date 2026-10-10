@@ -38,7 +38,10 @@ jobs:
       - name: Answer entry
         run: node tests/entry.js
 
-      - name: Progress along the path
+      - name: Basics facts drill
+        run: node tests/facts.js
+
+      - name: Progress on the path and in Basics
         run: node tests/progress.js
 
       - name: Question packs are valid

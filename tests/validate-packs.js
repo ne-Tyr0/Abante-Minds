@@ -7,7 +7,8 @@
    1. The schema, read statically: every field, every expression, every name an
       expression uses, every competency and schema tag against the blueprint.
    2. Generation: every template at every tier across many seeds, through the
-      real engine, checking what a learner would actually be shown.
+      real engine, checking what a learner would actually be shown. A Basics
+      facts template is checked fact by fact, in every one of its formats.
 
    Run:  node tests/validate-packs.js        Exits 1 on any problem. */
 "use strict";
@@ -43,10 +44,13 @@ const KEYPAD_MAX = global.AM.entry.NUMBER_MAX;
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const TEMPLATE_KEYS = new Set(["id", "competency", "domain", "construct", "schema", "params", "where",
-  "answer", "formats", "hints", "steps", "explain", "fallback", "distractors"]);
+  "answer", "formats", "hints", "steps", "explain", "fallback", "distractors", "grid"]);
 const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals", "unit", "form", "order"]);
 const TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file", "comingSoon"]);
-const LEVEL_KEYS = new Set(["id", "title", "templates", "lesson"]);
+const LEVEL_KEYS = new Set(["id", "title", "templates", "lesson", "kind"]);
+const BASICS_TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file"]);
+const DOMAINS = new Set(blueprint.domains.map((d) => d.key));
+const MAX_FACTS = 200;
 const REACHABLE = blueprint.competencies.filter((c) => c.app !== "N").length;
 const BLUEPRINT_TOPIC = Object.fromEntries(blueprint.topics.map((t) => [t.key, t]));
 const FORM_ERRORS = new Set(E.FORM_ERRORS);
@@ -125,19 +129,30 @@ function checkParams(t) {
   return defined;
 }
 
-function checkTemplate(t, topic, ids) {
+function checkTemplate(t, topic, ids, track = "path") {
   unknownKeys(t, TEMPLATE_KEYS, "template");
   if (typeof t.id !== "string" || !t.id.startsWith(topic + ".") || !KEBAB.test(t.id.slice(topic.length + 1)))
     fail(`id must be '${topic}.' followed by kebab-case`);
   if (ids.has(t.id)) fail(`id ${t.id} is used twice`);
   ids.add(t.id);
 
-  const comp = COMPETENCY[t.competency];
-  if (!comp) fail(`competency ${t.competency} is not in the blueprint`);
-  else {
-    if (comp.app === "N") fail(`competency ${t.competency} is marked not practicable in the blueprint`);
-    if (t.domain !== comp.domain) fail(`domain ${t.domain} does not match ${t.competency}, which is ${comp.domain}`);
-    if (comp.topic !== topic) fail(`competency ${t.competency} belongs to topic '${comp.topic}', not '${topic}'`);
+  if (track === "basics") {
+    /* Basics are the facts and methods under the blueprint, not on it. */
+    if ("competency" in t) fail("a Basics template has no competency: Basics are not part of the blueprint");
+    if (!DOMAINS.has(t.domain)) fail(`domain ${t.domain} is not one of the blueprint's domains`);
+  } else {
+    const comp = COMPETENCY[t.competency];
+    if (!comp) fail(`competency ${t.competency} is not in the blueprint`);
+    else {
+      if (comp.app === "N") fail(`competency ${t.competency} is marked not practicable in the blueprint`);
+      if (t.domain !== comp.domain) fail(`domain ${t.domain} does not match ${t.competency}, which is ${comp.domain}`);
+      if (comp.topic !== topic) fail(`competency ${t.competency} belongs to topic '${comp.topic}', not '${topic}'`);
+    }
+    if ("grid" in t) fail("grid is only for Basics facts");
+  }
+  if ("grid" in t && t.grid !== true) fail("grid is true or absent");
+  if (t.grid) for (const p of ["x", "y"]) {
+    if (!t.params || !t.params[p] || "value" in t.params[p]) fail(`a grid template needs a drawn param '${p}' for its cell`);
   }
   if (typeof t.construct !== "string" || !t.construct.trim()) fail("construct must be described");
   if (!SCHEMAS.has(t.schema)) fail(`schema '${t.schema}' is not one of the blueprint's problem schemas`);
@@ -250,7 +265,7 @@ function checkPinned(p, templatesById, topic, what = "pinned") {
    sits in exactly one level, a level has at least two (so practice varies),
    and each level opens with a lesson of two or three cards, at least one of
    them a worked example drawn from the level's own templates. */
-function checkLevels(file, topic, byId) {
+function checkLevels(file, topic, byId, track = "path") {
   const levels = file.levels;
   if (!Array.isArray(levels) || !levels.length) { fail("needs at least one level"); return; }
   const levelIds = new Set(), placed = new Map();
@@ -261,7 +276,25 @@ function checkLevels(file, topic, byId) {
     if (levelIds.has(lv.id)) fail(`${label} id is used twice`);
     levelIds.add(lv.id);
     if (typeof lv.title !== "string" || !lv.title.trim() || /[{}]/.test(lv.title)) fail(`${label} needs a plain title`);
+    const kind = lv.kind === undefined ? "practice" : lv.kind;
+    if ("kind" in lv && !(track === "basics" && ["facts", "review"].includes(lv.kind)))
+      fail(`${label} kind is facts or review, and only in a Basics topic`);
+    /* A review level asks every fact of the topic's facts levels. */
+    if (kind === "review") {
+      if ("templates" in lv) fail(`${label}: a review level asks every fact of the topic, so lists no templates`);
+      if ("lesson" in lv) fail(`${label}: a review level has no lesson`);
+      if (!levels.some((o) => o.kind === "facts")) fail(`${label}: there are no facts levels to review`);
+      return;
+    }
     if (!Array.isArray(lv.templates) || lv.templates.length < 2) fail(`${label} needs at least two templates`);
+    for (const id of lv.templates || []) {
+      const t = byId[id];
+      if (!t) continue;
+      if (kind === "facts") {
+        for (const [name, spec] of Object.entries(t.params || {}))
+          if ("tiers" in spec) fail(`${label}: ${id} '${name}' has tiers, but a fact's numbers do not change as the learner goes`);
+      } else if (t.grid) fail(`${label}: ${id} is on the grid, so it belongs in a facts level`);
+    }
     for (const id of lv.templates || []) {
       if (!byId[id] || !id.startsWith(topic + ".")) fail(`${label} names unknown template ${id}`);
       else if (placed.has(id)) fail(`${id} is in level '${placed.get(id)}' and '${lv.id}'`);
@@ -291,11 +324,28 @@ function checkLevels(file, topic, byId) {
   for (const t of file.templates || []) if (!placed.has(t.id)) fail(`${t.id} is in no level`);
 }
 
+/* A Basics grid, such as the times table: the cells are numbers from `from`
+   to `to` both ways, and the facts of templates marked `grid` fill them. */
+function checkGrid(file) {
+  const g = file.grid;
+  if (g === undefined) {
+    if ((file.templates || []).some((t) => t.grid)) fail("templates are marked grid, but the topic has no grid");
+    return;
+  }
+  unknownKeys(g, new Set(["title", "sign", "from", "to"]), "grid");
+  if (typeof g.title !== "string" || !g.title.trim() || /[{}]/.test(g.title)) fail("grid needs a plain title");
+  if (!["×", "+"].includes(g.sign)) fail("grid sign is × or +");
+  if (!Number.isInteger(g.from) || !Number.isInteger(g.to) || g.from < 0 || g.from > g.to || g.to - g.from > 12)
+    fail("grid from and to are whole numbers, from no more than to, at most 13 across");
+  if (!(file.templates || []).some((t) => t.grid)) fail("a grid needs templates marked grid");
+}
+
 /* A written topic covers its part of the blueprint: every competency that
    can be practised in the app as it is (App Y) has a template, and the topic
    has at least the templates the blueprint targets. */
 function checkCoverage(file, topic) {
   const bt = BLUEPRINT_TOPIC[topic];
+  if (!bt) return; /* reported already: the topic is not in the blueprint */
   const covered = new Set((file.templates || []).map((t) => t.competency));
   const needed = blueprint.competencies.filter((c) => c.topic === topic && c.app === "Y");
   const missing = needed.filter((c) => !covered.has(c.code)).map((c) => c.code);
@@ -334,6 +384,34 @@ function sweep(t, pinnedFor) {
   return rate;
 }
 
+/* A facts template: every fact it lists, in every format, and once as the
+   question a round would ask. Each named mistake must be usable on at least
+   one of its facts. */
+function sweepFacts(t, file) {
+  const level = file.levels.find((lv) => (lv.templates || []).includes(t.id));
+  let keys;
+  try { keys = C.facts(file.topic, level.id).filter((k) => k.startsWith(t.id + ":")); }
+  catch (e) { fail(e.message); return; }
+  if (!keys.length) { fail("lists no facts: every combination is ruled out"); return; }
+  if (keys.length > MAX_FACTS) fail(`lists ${keys.length} facts; a template holds at most ${MAX_FACTS}`);
+  const errorsSeen = new Set();
+  for (const k of keys) {
+    const f = C.fact(k);
+    for (const fm of t.formats) {
+      try {
+        const q = C.instance(t.id, 1, f.params, fm.id);
+        inspect(q, `${k} (${fm.id})`);
+        q.distractors.forEach((d) => errorsSeen.add(d.error));
+      } catch (e) { fail(`${k} (${fm.id}): ${e.message}`); }
+    }
+    try { inspect(C.factQuestion(file.topic, level.id, k, 1, 0), `${k} as a round asks it`); }
+    catch (e) { fail(`${k}: ${e.message}`); }
+  }
+  for (const d of t.distractors) if (!errorsSeen.has(d.error))
+    fail(`mistake '${d.error}' was never usable on any of its ${keys.length} facts: its value could not be typed, was the answer, or matched another mistake`);
+  return keys.length;
+}
+
 function inspect(q, label) {
   const all = [q.prompt, q.explain, q.missExplain, ...q.hints, ...q.steps, ...q.distractors.map((d) => d.feedback)];
   if (q.choices) all.push(...q.choices);
@@ -352,7 +430,7 @@ function inspect(q, label) {
 
 const packRoot = path.join(ROOT, "content", "packs");
 const packs = fs.readdirSync(packRoot, { withFileTypes: true }).filter((d) => d.isDirectory()).map((d) => d.name);
-let templateCount = 0, formatCount = 0, mistakeCount = 0;
+let templateCount = 0, formatCount = 0, mistakeCount = 0, factCount = 0;
 const rates = [];
 
 for (const packName of packs) {
@@ -407,6 +485,39 @@ for (const packName of packs) {
     where = `${packName}/${topic.file} coverage`;
     checkCoverage(file, topic.key);
   }
+  /* Beside the path, the Basics track: topics that are not in the blueprint,
+     always open, never coming soon. */
+  const basicsFiles = [], basicsKeys = new Set();
+  if (manifest.basics !== undefined && !Array.isArray(manifest.basics)) fail("basics must be a list");
+  for (const topic of Array.isArray(manifest.basics) ? manifest.basics : []) {
+    where = `${packName}/${topic.file || topic.key} (Basics)`;
+    unknownKeys(topic, BASICS_TOPIC_KEYS, `Basics topic '${topic.key}'`);
+    if (!KEBAB.test(topic.key || "")) fail(`Basics topic key '${topic.key}' must be kebab-case`);
+    if (BLUEPRINT_TOPICS.has(topic.key) || keys.includes(topic.key)) fail(`Basics topic '${topic.key}' has the key of a topic on the path`);
+    if (basicsKeys.has(topic.key)) fail(`Basics topic '${topic.key}' is listed twice`);
+    basicsKeys.add(topic.key);
+    if (!ICONS.has(topic.icon)) fail(`icon '${topic.icon}' is not in the icon set`);
+    if (![1, 2, 3, 4].includes(topic.colorKey)) fail("colorKey must be 1 to 4");
+    if (typeof topic.label !== "string" || !topic.label.trim()) fail("topic needs a label");
+    if (typeof topic.file !== "string") { fail("a Basics topic needs its file"); basicsFiles.push(null); continue; }
+    const file = JSON.parse(read(`content/packs/${packName}/${topic.file}`));
+    basicsFiles.push(file);
+    if (file.topic !== topic.key) fail(`file says topic '${file.topic}', manifest says '${topic.key}'`);
+    unknownKeys(file, new Set(["topic", "levels", "templates", "grid"]), "topic file");
+    for (const t of file.templates || []) {
+      where = `${packName}/${topic.file} ${t.id}`;
+      checkTemplate(t, topic.key, ids, "basics");
+      byId[t.id] = t;
+      templateCount++;
+      formatCount += (t.formats || []).length;
+      mistakeCount += (t.distractors || []).length;
+    }
+    where = `${packName}/${topic.file} levels`;
+    checkLevels(file, topic.key, byId, "basics");
+    where = `${packName}/${topic.file} grid`;
+    checkGrid(file);
+  }
+
   /* A fraction answer in the right amount but the wrong form gets the pack's
      own words for that, so a pack with fraction answers must supply them. */
   where = `${packName}/manifest.json`;
@@ -421,7 +532,7 @@ for (const packName of packs) {
   if (problems.length) continue;
 
   where = `${packName}`;
-  try { C.use(manifest, files); }
+  try { C.use(manifest, files, basicsFiles); }
   catch (e) { fail(`engine refused the pack: ${e.message}`); continue; }
   files.forEach((file) => {
     if (!file) return;
@@ -442,9 +553,47 @@ for (const packName of packs) {
       } catch (e) { fail(e.message); }
     }
   });
+
+  basicsFiles.forEach((file) => {
+    if (!file) return;
+    const factTemplates = new Set(file.levels.filter((lv) => lv.kind === "facts").flatMap((lv) => lv.templates));
+    for (const t of file.templates) {
+      where = `${packName} ${t.id}`;
+      if (factTemplates.has(t.id)) {
+        const n = sweepFacts(t, file);
+        if (n) factCount += n;
+      } else {
+        const rate = sweep(t, []);
+        if (rate !== undefined) rates.push([t.id, rate]);
+      }
+    }
+    for (const lv of file.levels) {
+      if (lv.kind === "review") continue;
+      where = `${packName} ${file.topic}/${lv.id} lesson`;
+      try {
+        for (const card of C.lesson(file.topic, lv.id)) {
+          const texts = card.kind === "example" ? [card.title, card.prompt, card.answer, card.explain, ...card.steps] : [card.title, card.body];
+          for (const s of texts) if (typeof s !== "string" || !s.trim() || /[{}]/.test(s)) fail(`bad text ${JSON.stringify(s)}`);
+        }
+      } catch (e) { fail(e.message); }
+    }
+    /* Every cell of the grid holds the fact whose answer it shows. */
+    if (file.grid) {
+      where = `${packName} ${file.topic} grid`;
+      const g = C.grid(file.topic);
+      for (const x of g.values) for (const y of g.values) {
+        const k = g.cells[x + "," + y];
+        if (!k) { fail(`no fact for ${x} ${g.sign} ${y}`); continue; }
+        const f = C.fact(k);
+        const want = g.sign === "×" ? x * y : x + y;
+        const got = C.instance(f.template, 1, f.params).answer;
+        if (got !== want) fail(`the cell ${x} ${g.sign} ${y} holds ${k}, whose answer is ${got}, not ${want}`);
+      }
+    }
+  });
 }
 
-console.log(`${packs.length} pack(s), ${templateCount} templates, ${formatCount} formats, ${mistakeCount} named mistakes`);
+console.log(`${packs.length} pack(s), ${templateCount} templates, ${formatCount} formats, ${mistakeCount} named mistakes, ${factCount} Basics facts`);
 console.log(`each template generated at 4 tiers x ${SEEDS_PER_TIER} seeds`);
 const busy = rates.filter(([, r]) => r > 0.2).sort((a, b) => b[1] - a[1]);
 if (busy.length) console.log("templates that redraw often: " + busy.map(([id, r]) => `${id} ${(100 * r).toFixed(0)}%`).join(", "));

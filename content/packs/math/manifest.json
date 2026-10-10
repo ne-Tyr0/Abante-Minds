@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
@@ -23,5 +23,8 @@
     { "key": "data", "label": "Graphs and data", "icon": "level-up", "colorKey": 3, "comingSoon": true },
     { "key": "probability", "label": "Probability", "icon": "hint", "colorKey": 4, "comingSoon": true },
     { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "comingSoon": true }
+  ],
+  "basics": [
+    { "key": "times", "label": "Times tables", "icon": "streak", "colorKey": 3, "file": "times.json" }
   ]
 }
