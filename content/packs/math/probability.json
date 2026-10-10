@@ -1,0 +1,468 @@
+{
+  "topic": "probability",
+  "levels": [
+    {
+      "id": "how-likely",
+      "title": "How likely?",
+      "templates": ["probability.likely", "probability.not-happen", "probability.percent-chance"],
+      "lesson": [
+        {
+          "title": "Words for chance",
+          "body": "Impossible, unlikely, as likely as not, likely, certain. A probability puts a number on it: 0 is impossible, 1 is certain, and 1/2 is as likely as not."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "probability.likely", "params": {"r": 6, "b": 2}, "format": "bag"}
+        },
+        {
+          "title": "Not happening",
+          "body": "The probability that something does not happen is 1 minus the probability that it does: if rain is 3/10, no rain is 7/10."
+        }
+      ]
+    },
+    {
+      "id": "outcomes",
+      "title": "Listing outcomes",
+      "templates": ["probability.die", "probability.bag", "probability.spinner", "probability.cards"],
+      "lesson": [
+        {
+          "title": "Wanted out of all",
+          "body": "List every equally likely outcome. The probability is the number you want out of all of them: an even number on a die is 3 out of 6 = 1/2."
+        },
+        {
+          "title": "Worked example",
+          "example": {
+            "template": "probability.bag",
+            "params": {"r": 3, "g": 5, "bl": 2, "colour": "green"},
+            "format": "marbles"
+          }
+        },
+        {
+          "title": "Count things, not kinds",
+          "body": "A bag with 1 red and 9 blue marbles has two colours, but red is 1 out of 10, not 1 out of 2."
+        }
+      ]
+    },
+    {
+      "id": "two-at-once",
+      "title": "Two at once",
+      "templates": ["probability.coins", "probability.two-dice", "probability.expect"],
+      "lesson": [
+        {
+          "title": "List carefully",
+          "body": "Two coins can land HH, HT, TH or TT: four outcomes. HT and TH are different, so one head and one tail is 2 out of 4."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "probability.coins", "params": {"ev": 2}, "format": "coins"}
+        },
+        {
+          "title": "Expecting",
+          "body": "If red has probability 1/4, in 40 spins you would expect about 1/4 × 40 = 10 reds: about, not exactly."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "probability.likely",
+      "competency": "G5.Q3.7",
+      "domain": "DP",
+      "construct": "Describe the chance of an event in words",
+      "schema": "compare",
+      "params": {
+        "r": {"range": [0, 8]},
+        "b": {"range": [0, 8]},
+        "code": {"value": "r == 0 ? 1 : (b == 0 ? 5 : (r < b ? 2 : (r == b ? 3 : 4)))"}
+      },
+      "where": ["r + b >= 2"],
+      "answer": {
+        "type": "choice",
+        "value": "code",
+        "label": "{value == 1 ? 'impossible' : (value == 2 ? 'unlikely' : (value == 3 ? 'as likely as not' : (value == 4 ? 'likely' : 'certain')))}",
+        "order": "size"
+      },
+      "formats": [
+        {
+          "id": "bag",
+          "prompt": "A bag has {r} red marble{r == 1 ? '' : 's'} and {b} blue marble{b == 1 ? '' : 's'}. You pick one without looking. How likely is it to be red?"
+        }
+      ],
+      "hints": [
+        "Compare the red marbles with the blue ones.",
+        "Red: {r}. Blue: {b}.",
+        "{r == 0 ? 'There are no red marbles at all.' : (b == 0 ? 'Every marble is red.' : (r < b ? 'Fewer are red than blue.' : (r == b ? 'As many are red as blue.' : 'More are red than blue.')))}"
+      ],
+      "steps": [
+        "{r} red out of {r + b} marbles",
+        "{r == 0 ? 'There are no red marbles at all.' : (b == 0 ? 'Every marble is red.' : (r < b ? 'Fewer are red than blue.' : (r == b ? 'As many are red as blue.' : 'More are red than blue.')))}",
+        "So picking red is {answer == 1 ? 'impossible' : (answer == 2 ? 'unlikely' : (answer == 3 ? 'as likely as not' : (answer == 4 ? 'likely' : 'certain')))}"
+      ],
+      "explain": "{r == 0 ? 'There are no red marbles at all.' : (b == 0 ? 'Every marble is red.' : (r < b ? 'Fewer are red than blue.' : (r == b ? 'As many are red as blue.' : 'More are red than blue.')))} Picking red is {answer == 1 ? 'impossible' : (answer == 2 ? 'unlikely' : (answer == 3 ? 'as likely as not' : (answer == 4 ? 'likely' : 'certain')))}.",
+      "distractors": [
+        {
+          "value": "code % 5 + 1",
+          "error": "picked-the-next-word",
+          "feedback": "{value == 1 ? 'Impossible means it cannot happen: there would be no red marbles.' : (value == 2 ? 'Unlikely means fewer red marbles than blue.' : (value == 3 ? 'As likely as not means as many red marbles as blue.' : (value == 4 ? 'Likely means more red marbles than blue.' : 'Certain means it must happen: every marble would be red.')))} Here: {r} red, {b} blue."
+        },
+        {
+          "value": "(code + 1) % 5 + 1",
+          "error": "picked-another-word",
+          "feedback": "{value == 1 ? 'Impossible means it cannot happen: there would be no red marbles.' : (value == 2 ? 'Unlikely means fewer red marbles than blue.' : (value == 3 ? 'As likely as not means as many red marbles as blue.' : (value == 4 ? 'Likely means more red marbles than blue.' : 'Certain means it must happen: every marble would be red.')))} Here: {r} red, {b} blue."
+        },
+        {
+          "value": "(code + 2) % 5 + 1",
+          "error": "picked-a-third-word",
+          "feedback": "{value == 1 ? 'Impossible means it cannot happen: there would be no red marbles.' : (value == 2 ? 'Unlikely means fewer red marbles than blue.' : (value == 3 ? 'As likely as not means as many red marbles as blue.' : (value == 4 ? 'Likely means more red marbles than blue.' : 'Certain means it must happen: every marble would be red.')))} Here: {r} red, {b} blue."
+        }
+      ]
+    },
+    {
+      "id": "probability.not-happen",
+      "competency": "G5.Q3.7",
+      "domain": "DP",
+      "construct": "Find the probability that an event does not happen",
+      "schema": "part-whole",
+      "params": {"d": {"range": [3, 10]}, "a": {"range": [1, "d - 1"]}, "p": {"value": "a / d"}},
+      "where": ["gcd(a, d) == 1", "2 * a != d"],
+      "answer": {"type": "fraction", "value": "1 - p"},
+      "formats": [
+        {
+          "id": "rain",
+          "prompt": "The probability that it rains tomorrow is {frac(p)}. What is the probability that it does not rain?"
+        },
+        {
+          "id": "win",
+          "prompt": "The probability that a team wins its next game is {frac(p)}. There are no draws. What is the probability that it does not win?"
+        }
+      ],
+      "hints": [
+        "It either happens or it does not: the two probabilities add up to 1.",
+        "1 − {frac(p)} = ?",
+        "1 is {d}/{d}, and {d}/{d} − {a}/{d} = ?"
+      ],
+      "steps": ["Happens + does not happen = 1", "Does not happen = 1 − {frac(p)}", "= {frac(answer)}"],
+      "explain": "1 − {frac(p)} = {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "p",
+          "error": "gave-the-same-probability",
+          "feedback": "{frac(value)} is the probability that it does happen. The two add up to 1."
+        }
+      ]
+    },
+    {
+      "id": "probability.percent-chance",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Give a probability as a per cent",
+      "schema": "part-whole",
+      "params": {"total": {"choose": [4, 5, 10, 20, 25, 50]}, "w": {"range": [1, "total - 1"]}},
+      "where": ["2 * w != total"],
+      "answer": {"type": "percent", "value": "w * 100 / total"},
+      "formats": [
+        {
+          "id": "tickets",
+          "prompt": "A box has {total} raffle tickets, and {w} of them win a prize. What is the probability of picking a winning ticket, as a per cent?"
+        }
+      ],
+      "hints": [
+        "Probability = winning tickets ÷ all tickets.",
+        "{w} out of {total} = {w}/{total}.",
+        "Make it out of 100: × {100 / total}."
+      ],
+      "steps": ["{w} out of {total}", "= {w * 100 / total}/100", "= {answer}%"],
+      "explain": "{w}/{total} = {answer}%.",
+      "distractors": [
+        {
+          "value": "w",
+          "error": "gave-the-count",
+          "feedback": "{value}% is the number of winning tickets. Write {w} out of {total} as a per cent."
+        },
+        {
+          "value": "(total - w) * 100 / total",
+          "error": "gave-the-chance-of-losing",
+          "feedback": "{value}% is the chance of not winning. The question asks about winning."
+        }
+      ]
+    },
+    {
+      "id": "probability.die",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Find a probability on one die by listing the outcomes",
+      "schema": "part-whole",
+      "params": {"ev": {"range": [1, 6]}, "n": {"value": "ev == 1 ? 1 : (ev == 2 || ev == 5 ? 3 : 2)"}},
+      "answer": {"type": "fraction", "value": "n / 6"},
+      "formats": [
+        {
+          "id": "die",
+          "prompt": "A fair die is rolled. What is the probability of rolling {(ev == 1 ? 'a 5' : (ev == 2 ? 'an even number' : (ev == 3 ? 'a number greater than 4' : (ev == 4 ? 'a multiple of 3' : (ev == 5 ? 'a prime number' : 'a number less than 3')))))}?"
+        }
+      ],
+      "hints": [
+        "A die has 6 equally likely outcomes: 1, 2, 3, 4, 5 and 6.",
+        "The outcomes you want are {(ev == 1 ? '5' : (ev == 2 ? '2, 4 and 6' : (ev == 3 ? '5 and 6' : (ev == 4 ? '3 and 6' : (ev == 5 ? '2, 3 and 5' : '1 and 2')))))}.",
+        "{n} out of 6: simplify the fraction."
+      ],
+      "steps": [
+        "All outcomes: 1 to 6, so 6",
+        "Wanted: {(ev == 1 ? '5' : (ev == 2 ? '2, 4 and 6' : (ev == 3 ? '5 and 6' : (ev == 4 ? '3 and 6' : (ev == 5 ? '2, 3 and 5' : '1 and 2')))))}, so {n}",
+        "{n}/{6}{gcd(n, 6) > 1 ? ' = ' : ''}{gcd(n, 6) > 1 ? frac(answer) : ''}"
+      ],
+      "explain": "{n} of the 6 outcomes: {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "n != 3 ? n / (6 - n) : -1",
+          "error": "compared-with-the-rest",
+          "feedback": "{frac(value)} compares the outcomes you want with the others. Probability compares them with all 6."
+        },
+        {
+          "value": "(n + 1) / 6",
+          "error": "counted-one-too-many",
+          "feedback": "{frac(value)} counts one outcome too many. The ones you want are {(ev == 1 ? '5' : (ev == 2 ? '2, 4 and 6' : (ev == 3 ? '5 and 6' : (ev == 4 ? '3 and 6' : (ev == 5 ? '2, 3 and 5' : '1 and 2')))))}."
+        }
+      ]
+    },
+    {
+      "id": "probability.bag",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Find the probability of picking a colour from a bag",
+      "schema": "part-whole",
+      "params": {
+        "r": {"range": [1, 9]},
+        "g": {"range": [1, 9]},
+        "bl": {"range": [1, 9]},
+        "colour": {"choose": ["red", "green", "blue"]},
+        "n": {"value": "colour == 'red' ? r : (colour == 'green' ? g : bl)"},
+        "total": {"value": "r + g + bl"}
+      },
+      "answer": {"type": "fraction", "value": "n / total"},
+      "formats": [
+        {
+          "id": "marbles",
+          "prompt": "A bag has {r} red, {g} green and {bl} blue marbles. You pick one without looking. What is the probability that it is {colour}?"
+        }
+      ],
+      "hints": [
+        "Probability = the {colour} marbles ÷ all the marbles.",
+        "There are {n} {colour} marbles and {total} in all.",
+        "{n}/{total}: simplify it."
+      ],
+      "steps": [
+        "All marbles: {r} + {g} + {bl} = {total}",
+        "{colour}: {n}",
+        "{n}/{total}{gcd(n, total) > 1 ? ' = ' : ''}{gcd(n, total) > 1 ? frac(answer) : ''}"
+      ],
+      "explain": "{n} of the {total} marbles are {colour}: {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "1 / 3",
+          "error": "counted-colours",
+          "feedback": "{frac(value)} treats the three colours as equally likely. Count the marbles: {n} of {total}."
+        },
+        {
+          "value": "n / (total - n)",
+          "error": "compared-with-the-rest",
+          "feedback": "{frac(value)} compares {colour} with the other marbles. Probability is out of all {total}."
+        }
+      ]
+    },
+    {
+      "id": "probability.spinner",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Find a probability on a numbered spinner",
+      "schema": "part-whole",
+      "params": {"sides": {"choose": [4, 5, 6, 8, 10, 12]}, "k": {"range": [3, "sides"]}},
+      "where": ["k - 1 < sides"],
+      "answer": {"type": "fraction", "value": "(k - 1) / sides"},
+      "formats": [
+        {
+          "id": "spinner",
+          "prompt": "A spinner has {sides} equal parts numbered 1 to {sides}. What is the probability that it lands on a number less than {k}?"
+        }
+      ],
+      "hints": [
+        "List the numbers less than {k}.",
+        "They are 1 to {k - 1}: {k - 1} of them.",
+        "{k - 1} out of {sides}: simplify it."
+      ],
+      "steps": [
+        "All outcomes: {sides}",
+        "Less than {k}: 1 to {k - 1}, so {k - 1}",
+        "{k - 1}/{sides}{gcd(k - 1, sides) > 1 ? ' = ' : ''}{gcd(k - 1, sides) > 1 ? frac(answer) : ''}"
+      ],
+      "explain": "{k - 1} of the {sides} numbers are less than {k}: {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "k / sides",
+          "error": "counted-the-number-itself",
+          "feedback": "{frac(value)} counts {k} too. Less than {k} means 1 to {k - 1}."
+        },
+        {
+          "value": "(k - 1) / (sides - k + 1)",
+          "error": "compared-with-the-rest",
+          "feedback": "{frac(value)} compares with the other numbers. Probability is out of all {sides}."
+        }
+      ]
+    },
+    {
+      "id": "probability.cards",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Find the probability of picking a multiple from numbered cards",
+      "schema": "part-whole",
+      "params": {
+        "cn": {"choose": [10, 12, 15, 20, 24, 30]},
+        "m": {"choose": [2, 3, 4, 5]},
+        "n": {"value": "floor(cn / m)"}
+      },
+      "answer": {"type": "fraction", "value": "n / cn"},
+      "formats": [
+        {
+          "id": "cards",
+          "prompt": "Cards numbered 1 to {cn} are shuffled. You pick one. What is the probability that it is a multiple of {m}?"
+        }
+      ],
+      "hints": [
+        "Count the multiples of {m} from 1 to {cn}.",
+        "The last multiple of {m} up to {cn} is {n * m} = {n} × {m}, so there are {n} of them.",
+        "{n} out of {cn}: simplify it."
+      ],
+      "steps": [
+        "All cards: {cn}",
+        "Multiples of {m}: {n}",
+        "{n}/{cn}{gcd(n, cn) > 1 ? ' = ' : ''}{gcd(n, cn) > 1 ? frac(answer) : ''}"
+      ],
+      "explain": "{n} of the {cn} cards are multiples of {m}: {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "1 / m",
+          "error": "used-one-in-m",
+          "feedback": "{frac(value)} is 1 in {m}. Count the multiples of {m} up to {cn}: {n} of {cn}."
+        },
+        {
+          "value": "(n + 1) / cn",
+          "error": "counted-one-too-many",
+          "feedback": "{frac(value)} counts one card too many. The multiples of {m} up to {cn} are {n}."
+        }
+      ]
+    },
+    {
+      "id": "probability.coins",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Find a probability with two or three coins by listing the outcomes",
+      "schema": "part-whole",
+      "params": {"ev": {"range": [1, 5]}},
+      "answer": {
+        "type": "fraction",
+        "value": "ev == 1 ? 1 / 4 : (ev == 2 ? 1 / 2 : (ev == 3 ? 3 / 4 : (ev == 4 ? 1 / 8 : 3 / 8)))"
+      },
+      "formats": [
+        {
+          "id": "coins",
+          "prompt": "{ev <= 3 ? 'Two coins are' : 'Three coins are'} tossed. What is the probability of getting {(ev == 1 ? 'two heads' : (ev == 2 ? 'one head and one tail' : (ev == 3 ? 'at least one head' : (ev == 4 ? 'three heads' : 'exactly two heads'))))}?"
+        }
+      ],
+      "hints": [
+        "List every way the coins can land, H for heads and T for tails.",
+        "They are {ev <= 3 ? 'HH, HT, TH and TT' : 'HHH, HHT, HTH, HTT, THH, THT, TTH and TTT'}.",
+        "The ones you want are {(ev == 1 ? 'HH' : (ev == 2 ? 'HT and TH' : (ev == 3 ? 'HH, HT and TH' : (ev == 4 ? 'HHH' : 'HHT, HTH and THH'))))}."
+      ],
+      "steps": [
+        "All outcomes: {ev <= 3 ? 'HH, HT, TH and TT' : 'HHH, HHT, HTH, HTT, THH, THT, TTH and TTT'}",
+        "Wanted: {(ev == 1 ? 'HH' : (ev == 2 ? 'HT and TH' : (ev == 3 ? 'HH, HT and TH' : (ev == 4 ? 'HHH' : 'HHT, HTH and THH'))))}",
+        "= {frac(answer)}"
+      ],
+      "explain": "{(ev == 1 ? 'HH' : (ev == 2 ? 'HT and TH' : (ev == 3 ? 'HH, HT and TH' : (ev == 4 ? 'HHH' : 'HHT, HTH and THH'))))} out of {ev <= 3 ? 'HH, HT, TH and TT' : 'HHH, HHT, HTH, HTT, THH, THT, TTH and TTT'}: {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "ev == 3 ? 2 / 3 : (ev <= 2 ? 1 / 3 : 1 / 4)",
+          "error": "missed-outcomes",
+          "feedback": "{frac(value)} misses some outcomes. HT and TH are different; list all {ev <= 3 ? 'four' : 'eight'}: {ev <= 3 ? 'HH, HT, TH and TT' : 'HHH, HHT, HTH, HTT, THH, THT, TTH and TTT'}."
+        }
+      ]
+    },
+    {
+      "id": "probability.two-dice",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Find the probability of a total with two dice",
+      "schema": "multi-step",
+      "params": {"s": {"range": [2, 12]}, "w": {"value": "6 - abs(s - 7)"}},
+      "answer": {"type": "fraction", "value": "w / 36"},
+      "formats": [
+        {
+          "id": "dice",
+          "prompt": "Two fair dice are rolled and the numbers are added. What is the probability that the total is {s}?"
+        }
+      ],
+      "hints": [
+        "Two dice have 6 × 6 = 36 equally likely outcomes.",
+        "List the pairs that add to {s}: {(s == 2 ? '1 + 1' : (s == 3 ? '1 + 2, 2 + 1' : (s == 4 ? '1 + 3, 2 + 2, 3 + 1' : (s == 5 ? '1 + 4, 2 + 3, 3 + 2, 4 + 1' : (s == 6 ? '1 + 5, 2 + 4, 3 + 3, 4 + 2, 5 + 1' : (s == 7 ? '1 + 6, 2 + 5, 3 + 4, 4 + 3, 5 + 2, 6 + 1' : (s == 8 ? '2 + 6, 3 + 5, 4 + 4, 5 + 3, 6 + 2' : (s == 9 ? '3 + 6, 4 + 5, 5 + 4, 6 + 3' : (s == 10 ? '4 + 6, 5 + 5, 6 + 4' : (s == 11 ? '5 + 6, 6 + 5' : '6 + 6'))))))))))}.",
+        "{w} out of 36: simplify it."
+      ],
+      "steps": [
+        "All outcomes: 6 × 6 = 36",
+        "Total {s}: {(s == 2 ? '1 + 1' : (s == 3 ? '1 + 2, 2 + 1' : (s == 4 ? '1 + 3, 2 + 2, 3 + 1' : (s == 5 ? '1 + 4, 2 + 3, 3 + 2, 4 + 1' : (s == 6 ? '1 + 5, 2 + 4, 3 + 3, 4 + 2, 5 + 1' : (s == 7 ? '1 + 6, 2 + 5, 3 + 4, 4 + 3, 5 + 2, 6 + 1' : (s == 8 ? '2 + 6, 3 + 5, 4 + 4, 5 + 3, 6 + 2' : (s == 9 ? '3 + 6, 4 + 5, 5 + 4, 6 + 3' : (s == 10 ? '4 + 6, 5 + 5, 6 + 4' : (s == 11 ? '5 + 6, 6 + 5' : '6 + 6'))))))))))}, so {w}",
+        "{w}/{36}{gcd(w, 36) > 1 ? ' = ' : ''}{gcd(w, 36) > 1 ? frac(answer) : ''}"
+      ],
+      "explain": "{w} of the 36 outcomes total {s}: {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "1 / 11",
+          "error": "treated-totals-as-equal",
+          "feedback": "{frac(value)} treats the 11 totals, 2 to 12, as equally likely. Count the 36 pairs: {w} of them total {s}."
+        },
+        {
+          "value": "w < 6 ? w / 6 : -1",
+          "error": "used-one-die",
+          "feedback": "{frac(value)} is out of 6. Two dice have 6 × 6 = 36 outcomes."
+        }
+      ]
+    },
+    {
+      "id": "probability.expect",
+      "competency": "G5.Q3.7",
+      "domain": "DP",
+      "construct": "Find how many times to expect an outcome",
+      "schema": "equal-groups",
+      "params": {
+        "parts": {"choose": [4, 5, 8, 10]},
+        "red": {"range": [1, "parts - 1"]},
+        "m": {"tiers": {"1": [2, 10], "3": [5, 30]}},
+        "t": {"value": "parts * m"}
+      },
+      "where": ["2 * red != parts"],
+      "answer": {"type": "integer", "value": "red * m"},
+      "formats": [
+        {
+          "id": "spinner",
+          "prompt": "A spinner has {parts} equal parts, and {red} of them are red. It is spun {t} times. About how many times would you expect it to land on red?"
+        }
+      ],
+      "hints": [
+        "The probability of red is {red}/{parts}.",
+        "Expect about {red}/{parts} of the {t} spins.",
+        "{t} ÷ {parts} × {red} = ?"
+      ],
+      "steps": ["P(red) = {red}/{parts}", "{red}/{parts} of {t} = {t} ÷ {parts} × {red}", "= {answer}"],
+      "explain": "{red}/{parts} × {t} = {answer} times.",
+      "distractors": [
+        {
+          "value": "t - red * m",
+          "error": "gave-the-not-red",
+          "feedback": "{value} is the spins expected not to land on red. The question asks about red."
+        },
+        {
+          "value": "t * red",
+          "error": "did-not-divide",
+          "feedback": "{value} is {t} × {red}. Take {red}/{parts} of {t}: divide by {parts} too."
+        }
+      ]
+    }
+  ]
+}
