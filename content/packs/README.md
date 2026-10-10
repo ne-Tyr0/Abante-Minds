@@ -16,7 +16,7 @@ content/packs/<subtest>/
   <topic>.json       one file per written topic: its levels, lessons, templates
 ```
 
-Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `area`, `solids` and `circles` are
+Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `area`, `solids`, `circles` and `probability` are
 written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
 topics: `add-subtract`, `times`, `mental`, `written` and `missing` are written.
 
