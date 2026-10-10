@@ -1,0 +1,557 @@
+{
+  "topic": "ratio",
+  "levels": [
+    {
+      "id": "what-a-ratio-says",
+      "title": "What a ratio says",
+      "templates": ["ratio.part-whole", "ratio.part-part", "ratio.fraction-of"],
+      "lesson": [
+        {
+          "title": "Part to part, part to whole",
+          "body": "A class of 12 boys and 18 girls has boys to girls 12 : 18 (part to part) and girls to all pupils 18 : 30 (part to whole)."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "ratio.fraction-of", "params": {"x": 2, "y": 3}, "format": "class"}
+        },
+        {
+          "title": "Order matters",
+          "body": "Boys to girls is 12 : 18; girls to boys is 18 : 12. Write the terms in the order the words say."
+        }
+      ]
+    },
+    {
+      "id": "equivalent",
+      "title": "Equivalent ratios",
+      "templates": ["ratio.simplest", "ratio.missing-term", "ratio.table"],
+      "lesson": [
+        {
+          "title": "Multiply or divide both",
+          "body": "Equivalent ratios multiply or divide both terms by the same number: 2 : 3 = 4 : 6 = 8 : 12. Adding the same number does not keep a ratio."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "ratio.simplest", "params": {"g": 6, "x": 2, "y": 3}, "format": "simplest"}
+        },
+        {
+          "title": "Simplest form",
+          "body": "A ratio is in simplest form when its terms share no factor but 1: divide both by their GCF. 12 : 18 = 2 : 3."
+        }
+      ]
+    },
+    {
+      "id": "problems",
+      "title": "Ratio problems",
+      "templates": ["ratio.share", "ratio.from-part", "ratio.times-larger"],
+      "lesson": [
+        {
+          "title": "Find one part",
+          "body": "To share ₱60 in the ratio 2 : 3, add the parts: 5. One part is ₱60 ÷ 5 = ₱12, so the shares are ₱24 and ₱36."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "ratio.from-part", "params": {"x": 3, "y": 4, "p": 5}, "format": "class"}
+        },
+        {
+          "title": "How many times",
+          "body": "How many times larger is 24 than 6? Divide: 24 ÷ 6 = 4. Taking away, 24 − 6 = 18, says how much larger, not how many times."
+        }
+      ]
+    },
+    {
+      "id": "proportion",
+      "title": "Proportion",
+      "templates": ["ratio.recipe", "ratio.unit-rate", "ratio.map-scale"],
+      "lesson": [
+        {
+          "title": "In proportion",
+          "body": "Two quantities are in proportion when they grow by the same times: 3 cups for 4 servings, 6 cups for 8 servings, 9 cups for 12."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "ratio.unit-rate", "params": {"u": 7, "n": 3, "m": 5}, "format": "pencils"}
+        },
+        {
+          "title": "Find one first",
+          "body": "When the numbers do not divide neatly, find the cost of one, then multiply: 4 notebooks for ₱60 is ₱15 each, so 7 cost ₱105."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "ratio.part-whole",
+      "competency": "G6.Q2.1",
+      "domain": "NA",
+      "construct": "Write a part-to-whole ratio",
+      "schema": "part-whole",
+      "params": {"b": {"tiers": {"1": [5, 20], "3": [12, 45]}}, "g": {"tiers": {"1": [5, 20], "3": [12, 45]}}},
+      "where": ["b != g"],
+      "answer": {"type": "integer", "value": "b + g"},
+      "formats": [
+        {
+          "id": "class",
+          "prompt": "A class has {b} boys and {g} girls. Complete the ratio of girls to all the pupils: {g} : ?"
+        },
+        {
+          "id": "basket",
+          "prompt": "A basket has {b} mangoes and {g} bananas. Complete the ratio of bananas to all the fruit: {g} : ?"
+        }
+      ],
+      "hints": [
+        "The second part of this ratio is the whole, not the other part.",
+        "The whole is {b} + {g}.",
+        "{b} + {g} = ?"
+      ],
+      "steps": ["Part : whole", "The whole is {b} + {g} = {b + g}", "So the ratio is {g} : {answer}"],
+      "explain": "{g} out of all {b + g}: {g} : {answer}.",
+      "distractors": [
+        {
+          "value": "b",
+          "error": "gave-the-other-part",
+          "feedback": "{value} is the other part. This ratio compares {g} with the whole, {b} + {g}."
+        },
+        {
+          "value": "g",
+          "error": "repeated-the-part",
+          "feedback": "{value} is the part already given. The second term is the whole."
+        }
+      ]
+    },
+    {
+      "id": "ratio.part-part",
+      "competency": "G6.Q2.1",
+      "domain": "NA",
+      "construct": "Write a part-to-part ratio from a part and the whole",
+      "schema": "part-whole",
+      "params": {"t": {"tiers": {"1": [20, 40], "3": [30, 99]}}, "b": {"range": [5, "t - 5"]}},
+      "where": ["2 * b != t"],
+      "answer": {"type": "integer", "value": "t - b"},
+      "formats": [
+        {
+          "id": "class",
+          "prompt": "There are {t} pupils in a class, and {b} are boys. Complete the ratio of boys to girls: {b} : ?"
+        },
+        {
+          "id": "eggs",
+          "prompt": "A tray holds {t} eggs, and {b} are brown. The rest are white. Complete the ratio of brown eggs to white eggs: {b} : ?"
+        }
+      ],
+      "hints": [
+        "This ratio compares two parts: find the other part first.",
+        "The other part is {t} − {b}.",
+        "{t} − {b} = ?"
+      ],
+      "steps": ["Part : part", "The other part is {t} − {b} = {t - b}", "So the ratio is {b} : {answer}"],
+      "explain": "{t} − {b} = {answer}, so the ratio is {b} : {answer}.",
+      "distractors": [
+        {
+          "value": "t",
+          "error": "gave-the-whole",
+          "feedback": "{value} is the whole. This ratio compares {b} with the other part, {t} − {b}."
+        },
+        {
+          "value": "t + b",
+          "error": "added-instead",
+          "feedback": "{value} is {t} + {b}. Take {b} away from {t} to find the other part."
+        }
+      ]
+    },
+    {
+      "id": "ratio.fraction-of",
+      "competency": "G6.Q2.2",
+      "domain": "NA",
+      "construct": "Express one quantity as a fraction of the whole from a ratio",
+      "schema": "part-whole",
+      "params": {"x": {"tiers": {"1": [1, 5], "3": [2, 9]}}, "y": {"tiers": {"1": [1, 5], "3": [2, 9]}}},
+      "where": ["gcd(x, y) == 1", "x != y"],
+      "answer": {"type": "fraction", "value": "x / (x + y)"},
+      "formats": [
+        {
+          "id": "class",
+          "prompt": "The ratio of boys to girls in a class is {x} : {y}. What fraction of the class are boys?"
+        },
+        {
+          "id": "juice",
+          "prompt": "A drink is made of juice and water in the ratio {x} : {y}. What fraction of the drink is juice?"
+        }
+      ],
+      "hints": [
+        "A ratio of {x} : {y} means {x} part{x == 1 ? '' : 's'} and {y} part{y == 1 ? '' : 's'}.",
+        "There are {x} + {y} = {x + y} parts in all.",
+        "{x} part{x == 1 ? '' : 's'} out of {x + y}: write it as a fraction."
+      ],
+      "steps": [
+        "{x} : {y} means {x} part{x == 1 ? '' : 's'} and {y} part{y == 1 ? '' : 's'}",
+        "All the parts: {x} + {y} = {x + y}",
+        "{x} out of {x + y} = {frac(answer)}"
+      ],
+      "explain": "{x} part{x == 1 ? '' : 's'} out of {x + y}: {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "x / y",
+          "error": "used-the-other-part",
+          "feedback": "{frac(value)} compares {x} with {y}. A fraction of the whole is {x} out of {x} + {y}."
+        },
+        {
+          "value": "y / (x + y)",
+          "error": "used-the-wrong-part",
+          "feedback": "{frac(value)} is the other part's share. The question asks for the first part."
+        }
+      ]
+    },
+    {
+      "id": "ratio.simplest",
+      "competency": "G6.Q2.3",
+      "domain": "NA",
+      "construct": "Write a ratio in simplest form",
+      "schema": "multiplicative-compare",
+      "params": {
+        "g": {"tiers": {"1": [2, 6], "3": [3, 12]}},
+        "x": {"tiers": {"1": [1, 5], "3": [2, 9]}},
+        "y": {"tiers": {"1": [2, 7], "3": [2, 11]}},
+        "a": {"value": "g * x"},
+        "b": {"value": "g * y"}
+      },
+      "where": ["gcd(x, y) == 1", "x != y"],
+      "answer": {"type": "integer", "value": "y"},
+      "formats": [{"id": "simplest", "prompt": "Write {a} : {b} in simplest form: {x} : ?"}],
+      "hints": [
+        "Divide both terms by the same number until they share no factor.",
+        "{a} and {b} can both be divided by {g}.",
+        "{b} ÷ {g} = ?"
+      ],
+      "steps": ["Both terms divide by {g}", "{a} ÷ {g} = {x} and {b} ÷ {g} = {y}", "So {a} : {b} = {x} : {answer}"],
+      "explain": "{a} : {b} = {x} : {answer}, dividing both by {g}.",
+      "distractors": [
+        {
+          "value": "b - a + x > 0 ? b - a + x : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} takes the same amount from both terms. Divide both by {g} instead."
+        },
+        {
+          "value": "b",
+          "error": "left-the-term",
+          "feedback": "{value} leaves {b} as it was. Divide it by {g} too."
+        }
+      ]
+    },
+    {
+      "id": "ratio.missing-term",
+      "competency": "G6.Q2.3",
+      "domain": "NA",
+      "construct": "Find the missing term of an equivalent ratio",
+      "schema": "multiplicative-compare",
+      "params": {
+        "x": {"tiers": {"1": [1, 6], "3": [2, 9]}},
+        "y": {"tiers": {"1": [2, 9], "3": [3, 12]}},
+        "k": {"tiers": {"1": [2, 5], "3": [3, 9]}}
+      },
+      "where": ["x != y"],
+      "answer": {"type": "integer", "value": "y * k"},
+      "formats": [
+        {"id": "equal", "prompt": "{x} : {y} = {x * k} : ?"},
+        {
+          "id": "words",
+          "prompt": "Find the missing number so the ratios are equivalent: {x} : {y} = {x * k} : ?"
+        }
+      ],
+      "hints": [
+        "Equivalent ratios multiply both terms by the same number.",
+        "{x} × {k} = {x * k}, so the multiplier is {k}.",
+        "{y} × {k} = ?"
+      ],
+      "steps": ["{x} → {x * k} is × {k}", "Do the same to {y}: {y} × {k}", "= {answer}"],
+      "explain": "Both terms × {k}: {x} : {y} = {x * k} : {answer}.",
+      "distractors": [
+        {
+          "value": "y + x * k - x",
+          "error": "added-instead",
+          "feedback": "{value} adds {x * k - x} to {y}. Equivalent ratios multiply both terms: × {k}."
+        },
+        {
+          "value": "x * k + y",
+          "error": "added-the-terms",
+          "feedback": "{value} adds {y} to {x * k}. Multiply {y} by {k}."
+        }
+      ]
+    },
+    {
+      "id": "ratio.table",
+      "competency": "G6.Q2.5",
+      "domain": "NA",
+      "construct": "Complete a ratio table",
+      "schema": "multiplicative-compare",
+      "params": {"u": {"tiers": {"1": [2, 9], "3": [3, 15]}}, "m": {"tiers": {"1": [4, 6], "3": [5, 9]}}},
+      "answer": {"type": "integer", "value": "u * m"},
+      "formats": [
+        {
+          "id": "bags",
+          "prompt": "1 bag holds {u} kg of rice, 2 bags hold {2 * u} kg and 3 bags hold {3 * u} kg. How many kilograms do {m} bags hold?"
+        },
+        {
+          "id": "packs",
+          "prompt": "A ratio table: 1 pack has {u} pencils, 2 packs have {2 * u}, 3 packs have {3 * u}. How many pencils are in {m} packs?"
+        }
+      ],
+      "hints": ["Each extra bag or pack adds the same amount.", "1 holds {u}, so {m} hold {m} × {u}.", "{m} × {u} = ?"],
+      "steps": ["1 → {u}", "{m} → {m} × {u}", "= {answer}"],
+      "explain": "The table goes up by {u} each time: {m} × {u} = {answer}.",
+      "distractors": [
+        {
+          "value": "3 * u + m - 3",
+          "error": "counted-on-by-one",
+          "feedback": "{value} adds 1 for each step. Each step adds {u}."
+        },
+        {
+          "value": "4 * u",
+          "error": "took-the-next-number",
+          "feedback": "{value} is the next number in the table, for 4. The question asks for {m}."
+        }
+      ]
+    },
+    {
+      "id": "ratio.share",
+      "competency": "G6.Q2.4",
+      "domain": "NA",
+      "construct": "Share an amount in a given ratio",
+      "schema": "part-whole",
+      "params": {
+        "x": {"tiers": {"1": [1, 5], "3": [2, 9]}},
+        "y": {"tiers": {"1": [1, 5], "3": [2, 9]}},
+        "p": {"tiers": {"1": [5, 20], "3": [10, 50]}},
+        "total": {"value": "p * (x + y)"}
+      },
+      "where": ["gcd(x, y) == 1", "x != y"],
+      "answer": {"type": "integer", "value": "p * x"},
+      "formats": [
+        {"id": "money", "prompt": "Ana and Ben share ₱{total} in the ratio {x} : {y}. How much does Ana get?"},
+        {
+          "id": "mangoes",
+          "prompt": "{total} mangoes are shared between two families in the ratio {x} : {y}. How many does the first family get?"
+        }
+      ],
+      "hints": [
+        "Add the parts of the ratio to find how many equal parts there are.",
+        "{x} + {y} = {x + y} parts, and {total} ÷ {x + y} = {p} for each part.",
+        "The first share is {x} part{x == 1 ? '' : 's'}: {x} × {p}."
+      ],
+      "steps": [
+        "{x} + {y} = {x + y} parts",
+        "One part is {total} ÷ {x + y} = {p}",
+        "{x} part{x == 1 ? '' : 's'} = {x} × {p} = {answer}"
+      ],
+      "explain": "One part is {p}, so {x} part{x == 1 ? '' : 's'} {x == 1 ? 'is' : 'are'} {answer}.",
+      "distractors": [
+        {
+          "value": "x != y ? total / 2 : -1",
+          "error": "shared-equally",
+          "feedback": "{value} shares equally. In the ratio {x} : {y}, the first share is {x} part{x == 1 ? '' : 's'} out of {x + y}."
+        },
+        {
+          "value": "p",
+          "error": "gave-one-part",
+          "feedback": "{value} is one part. The first share is {x} part{x == 1 ? '' : 's'}."
+        },
+        {
+          "value": "p * y",
+          "error": "gave-the-other-share",
+          "feedback": "{value} is the other share, {y} part{y == 1 ? '' : 's'}. The question asks for the first."
+        }
+      ]
+    },
+    {
+      "id": "ratio.from-part",
+      "competency": "G6.Q2.4",
+      "domain": "NA",
+      "construct": "Find a quantity from a ratio and the other quantity",
+      "schema": "multiplicative-compare",
+      "params": {
+        "x": {"tiers": {"1": [1, 5], "3": [2, 9]}},
+        "y": {"tiers": {"1": [1, 5], "3": [2, 9]}},
+        "p": {"tiers": {"1": [2, 8], "3": [3, 15]}},
+        "girls": {"value": "y * p"}
+      },
+      "where": ["gcd(x, y) == 1", "x != y"],
+      "answer": {"type": "integer", "value": "x * p"},
+      "formats": [
+        {
+          "id": "class",
+          "prompt": "The ratio of boys to girls is {x} : {y}. There are {girls} girls. How many boys are there?"
+        },
+        {
+          "id": "pets",
+          "prompt": "In a pet shop the ratio of cats to dogs is {x} : {y}. There are {girls} dogs. How many cats are there?"
+        }
+      ],
+      "hints": [
+        "Find what one part of the ratio stands for.",
+        "{y} part{y == 1 ? '' : 's'} {y == 1 ? 'is' : 'are'} {girls}, so one part is {girls} ÷ {y} = {p}.",
+        "The first quantity is {x} part{x == 1 ? '' : 's'}: {x} × {p}."
+      ],
+      "steps": [
+        "{y} part{y == 1 ? '' : 's'} = {girls}",
+        "1 part = {girls} ÷ {y} = {p}",
+        "{x} part{x == 1 ? '' : 's'} = {x} × {p} = {answer}"
+      ],
+      "explain": "One part is {p}, so {x} part{x == 1 ? '' : 's'} {x == 1 ? 'is' : 'are'} {answer}.",
+      "distractors": [
+        {
+          "value": "girls - y + x",
+          "error": "added-the-difference",
+          "feedback": "{value} adds the same as the ratio's terms differ by. Find one part first: {girls} ÷ {y} = {p}."
+        },
+        {
+          "value": "p",
+          "error": "gave-one-part",
+          "feedback": "{value} is one part. The answer is {x} part{x == 1 ? '' : 's'}."
+        }
+      ]
+    },
+    {
+      "id": "ratio.times-larger",
+      "competency": "G6.Q2.6",
+      "domain": "NA",
+      "construct": "Find how many times larger one quantity is than another",
+      "schema": "multiplicative-compare",
+      "params": {
+        "s": {"tiers": {"1": [2, 9], "3": [3, 25]}},
+        "k": {"tiers": {"1": [2, 9], "3": [3, 12]}},
+        "big": {"value": "s * k"}
+      },
+      "answer": {"type": "integer", "value": "k"},
+      "formats": [
+        {
+          "id": "price",
+          "prompt": "A mango costs ₱{big} and a calamansi costs ₱{s}. How many times as much does the mango cost?"
+        },
+        {
+          "id": "height",
+          "prompt": "A tree is {big} m tall and a fence is {s} m tall. How many times as tall as the fence is the tree?"
+        }
+      ],
+      "hints": ["How many times larger means divide, not take away.", "{big} ÷ {s} = ?", "{s} × what = {big}?"],
+      "steps": ["How many times larger: divide", "{big} ÷ {s} = {k}", "So it is {answer} times as large"],
+      "explain": "{big} ÷ {s} = {answer}: {answer} times as much.",
+      "distractors": [
+        {
+          "value": "big - s",
+          "error": "took-away-instead",
+          "feedback": "{value} is how much more, {big} − {s}. How many times larger means {big} ÷ {s}."
+        },
+        {
+          "value": "big + s",
+          "error": "added-instead",
+          "feedback": "{value} is {big} + {s}. How many times larger means {big} ÷ {s}."
+        }
+      ]
+    },
+    {
+      "id": "ratio.recipe",
+      "competency": "G6.Q2.7",
+      "domain": "NA",
+      "construct": "Scale a recipe in proportion",
+      "schema": "rate",
+      "params": {
+        "f": {"tiers": {"1": [2, 5], "3": [2, 9]}},
+        "s": {"tiers": {"1": [2, 6], "3": [3, 8]}},
+        "k": {"tiers": {"1": [2, 4], "3": [2, 6]}}
+      },
+      "answer": {"type": "integer", "value": "f * k"},
+      "formats": [
+        {
+          "id": "flour",
+          "prompt": "A recipe uses {f} cups of flour for {s} servings. How many cups of flour are needed for {s * k} servings?"
+        },
+        {"id": "rice", "prompt": "{f} cups of rice feed {s} people. How many cups feed {s * k} people?"}
+      ],
+      "hints": [
+        "Find how many times bigger the new amount is.",
+        "{s * k} ÷ {s} = {k}, so everything is {k} times as much.",
+        "{f} × {k} = ?"
+      ],
+      "steps": ["{s} → {s * k} is × {k}", "Flour × {k} too: {f} × {k}", "= {answer}"],
+      "explain": "{k} times the servings needs {k} times the flour: {f} × {k} = {answer}.",
+      "distractors": [
+        {
+          "value": "f + s * k - s",
+          "error": "added-instead",
+          "feedback": "{value} adds {s * k - s}, as the servings went up. In proportion, multiply: × {k}."
+        },
+        {
+          "value": "f * s * k",
+          "error": "multiplied-by-the-servings",
+          "feedback": "{value} multiplies {f} by {s * k}. The servings went up {k} times, so multiply {f} by {k}."
+        }
+      ]
+    },
+    {
+      "id": "ratio.unit-rate",
+      "competency": "G6.Q2.7",
+      "domain": "NA",
+      "construct": "Use a unit price to find the cost of a different quantity",
+      "schema": "rate",
+      "params": {
+        "u": {"tiers": {"1": [3, 15], "3": [5, 45]}},
+        "n": {"tiers": {"1": [2, 6], "3": [3, 9]}},
+        "m": {"tiers": {"1": [2, 9], "3": [3, 12]}},
+        "c": {"value": "u * n"}
+      },
+      "where": ["m != n"],
+      "answer": {"type": "integer", "value": "u * m", "prefix": "₱"},
+      "formats": [
+        {"id": "pencils", "prompt": "{n} pencils cost ₱{c}. At the same price, how much do {m} pencils cost?"},
+        {"id": "eggs", "prompt": "{n} eggs cost ₱{c}. How much do {m} eggs cost at the same price?"}
+      ],
+      "hints": ["Find the price of one first.", "₱{c} ÷ {n} = ₱{u} each.", "{m} × ₱{u} = ?"],
+      "steps": ["One costs ₱{c} ÷ {n} = ₱{u}", "{m} cost {m} × ₱{u}", "= ₱{answer}"],
+      "explain": "One costs ₱{u}, so {m} cost ₱{answer}.",
+      "distractors": [
+        {
+          "value": "c * m",
+          "error": "did-not-find-one",
+          "feedback": "{value} is ₱{c} × {m}. ₱{c} buys {n}: find the price of one first."
+        },
+        {
+          "value": "c + m - n > 0 ? c + m - n : -1",
+          "error": "added-instead",
+          "feedback": "{value} {m > n ? 'adds' : 'takes away'} {abs(m - n)}, as the number bought changed. In proportion, find the price of one and multiply."
+        }
+      ]
+    },
+    {
+      "id": "ratio.map-scale",
+      "competency": "G6.Q2.7",
+      "domain": "NA",
+      "construct": "Use a map scale",
+      "schema": "rate",
+      "params": {"s": {"choose": [2, 5, 10, 20, 25, 50]}, "d": {"tiers": {"1": [2, 9], "3": [3, 15]}}},
+      "answer": {"type": "integer", "value": "s * d"},
+      "formats": [
+        {
+          "id": "towns",
+          "prompt": "On a map, 1 cm stands for {s} km. Two towns are {d} cm apart on the map. How many kilometres apart are they?"
+        },
+        {
+          "id": "road",
+          "prompt": "A map's scale is 1 cm to {s} km. A road is {d} cm long on the map. How long is the real road, in kilometres?"
+        }
+      ],
+      "hints": ["Every centimetre on the map is {s} km.", "{d} cm is {d} lots of {s} km.", "{d} × {s} = ?"],
+      "steps": ["1 cm → {s} km", "{d} cm → {d} × {s} km", "= {answer} km"],
+      "explain": "{d} × {s} = {answer} km.",
+      "distractors": [
+        {
+          "value": "s + d",
+          "error": "added-instead",
+          "feedback": "{value} adds {d} to {s}. Each centimetre is {s} km: multiply."
+        },
+        {
+          "value": "s",
+          "error": "gave-the-scale",
+          "feedback": "{value} km is one centimetre. The towns are {d} cm apart."
+        }
+      ]
+    }
+  ]
+}

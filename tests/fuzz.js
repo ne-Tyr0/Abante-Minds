@@ -42,6 +42,9 @@ function fail(rule, q, detail) {
 const ugly = (s) => /\d+\.\d{5,}/.test(s);
 // A negative RESULT ("= -60"). A subtraction sign in "500 - 170" is not one.
 const negative = (s) => /=\s*[-\u2212]\s?\d/.test(s);
+// A negative number anywhere in the words ("adds -3 pesos", "(−4)"): a minus
+// sign right before a digit, not after one. Signed numbers are Grade 7.
+const signed = (s) => /(^|[\s(])[-\u2212]\d/.test(s);
 
 const SEEDS = 600;
 const TIERS = [1, 2, 3, 4];
@@ -114,6 +117,9 @@ function check(q) {
   for (const s of [...(q.hints || []), ...(q.steps || [])]) {
     if (ugly(s)) fail("decimal longer than four places in scaffold", q, s);
     if (negative(s)) fail("negative intermediate in scaffold", q, s);
+  }
+  for (const s of [q.prompt, q.explain, ...(q.hints || []), ...(q.steps || []), ...q.distractors.map((d) => d.feedback)]) {
+    if (signed(s)) fail("a negative number in the words", q, s);
   }
 
   // 4. multiple choice must be answerable
