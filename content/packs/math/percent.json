@@ -1,0 +1,451 @@
+{
+  "topic": "percent",
+  "levels": [
+    {
+      "id": "forms",
+      "title": "Per cent, fraction and decimal",
+      "templates": ["percent.to-fraction", "percent.to-decimal", "percent.from-fraction", "percent.from-decimal"],
+      "lesson": [
+        {
+          "title": "Per cent means out of 100",
+          "body": "45% means 45 out of 100: 45/100 = 9/20 = 0.45. The same amount written three ways."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "percent.to-fraction", "params": {"p": 35}, "format": "write"}
+        },
+        {
+          "title": "Moving between forms",
+          "body": "Per cent to decimal: divide by 100. Decimal to per cent: multiply by 100. Fraction to per cent: make the bottom 100."
+        }
+      ]
+    },
+    {
+      "id": "of-a-number",
+      "title": "Per cent of a number",
+      "templates": ["percent.of-number", "percent.what-percent", "percent.find-whole"],
+      "lesson": [
+        {
+          "title": "Per cent of a number",
+          "body": "25% of 80 is 25/100 × 80 = 20. Or use friendly per cents: 10% of 80 is 8, so 25% is 8 + 8 + 4 = 20."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "percent.of-number", "params": {"p": 25, "k": 4}, "format": "of"}
+        },
+        {"title": "Finding the whole", "body": "If 20% of a number is 12, then 10% is 6 and 100% is 60."}
+      ]
+    },
+    {
+      "id": "real-life",
+      "title": "Per cents in real life",
+      "templates": ["percent.discount", "percent.sale-price", "percent.increase", "percent.interest"],
+      "lesson": [
+        {
+          "title": "Discounts",
+          "body": "A ₱400 bag at 25% off: the discount is 25% of ₱400 = ₱100, so you pay ₱400 − ₱100 = ₱300."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "percent.sale-price", "params": {"k": 20, "p": 25}, "format": "bag"}
+        },
+        {
+          "title": "Increases and interest",
+          "body": "10% more than 300 is 300 + 30 = 330. ₱1000 kept for a year at 5% interest earns ₱50."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "percent.to-fraction",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Write a per cent as a fraction in lowest terms",
+      "schema": "part-whole",
+      "params": {"p": {"tiers": {"1": [2, 98], "3": [2, 98]}}, "g": {"value": "gcd(p, 100)"}},
+      "where": ["g > 1"],
+      "answer": {"type": "fraction", "value": "p / 100"},
+      "formats": [{"id": "write", "prompt": "Write {p}% as a fraction in lowest terms."}],
+      "hints": [
+        "Per cent means out of 100: {p}% = {p}/100.",
+        "Simplify {p}/100: divide the top and bottom by {g}.",
+        "{p} ÷ {g} = {p / g} and 100 ÷ {g} = {100 / g}."
+      ],
+      "steps": ["{p}% = {p}/100", "Divide both by {g}", "= {frac(answer)}"],
+      "explain": "{p}% = {p}/100 = {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "p / 10",
+          "error": "used-tenths",
+          "feedback": "{frac(value)} is {p} tenths. Per cent means out of 100: {p}/100."
+        },
+        {
+          "value": "100 / p",
+          "error": "turned-it-upside-down",
+          "feedback": "{frac(value)} is 100/{p}, upside down. {p}% is {p}/100."
+        }
+      ]
+    },
+    {
+      "id": "percent.to-decimal",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Write a per cent as a decimal",
+      "schema": "part-whole",
+      "params": {"p": {"tiers": {"1": [11, 99], "3": [1, 250]}}},
+      "where": ["p % 10 != 0"],
+      "answer": {"type": "decimal", "value": "p / 100"},
+      "formats": [{"id": "write", "prompt": "Write {p}% as a decimal."}],
+      "hints": [
+        "Per cent means hundredths: divide by 100.",
+        "Dividing by 100 moves the decimal point two places to the left.",
+        "Start from {p} and move the point two places left."
+      ],
+      "steps": ["{p}% = {p} ÷ 100", "Move the point two places left", "= {answer}"],
+      "explain": "{p}% = {p} ÷ 100 = {answer}.",
+      "distractors": [
+        {
+          "value": "p / 10",
+          "error": "moved-one-place",
+          "feedback": "{value} moves the point one place. Per cent means hundredths: move it two places."
+        },
+        {
+          "value": "p",
+          "error": "did-not-move-the-point",
+          "feedback": "{value} is the per cent number. As a decimal, divide by 100."
+        },
+        {
+          "value": "p / 1000",
+          "error": "moved-three-places",
+          "feedback": "{value} moves the point three places. Divide by 100: two places."
+        }
+      ]
+    },
+    {
+      "id": "percent.from-fraction",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Write a fraction as a per cent by making the denominator 100",
+      "schema": "part-whole",
+      "params": {"b": {"choose": [2, 4, 5, 10, 20, 25, 50]}, "a": {"range": [1, "b - 1"]}},
+      "where": ["gcd(a, b) == 1", "b != 10 || a % 2 == 1"],
+      "answer": {"type": "percent", "value": "a * 100 / b"},
+      "formats": [{"id": "write", "prompt": "Write {frac(a / b)} as a per cent."}],
+      "hints": [
+        "Make the denominator 100.",
+        "100 ÷ {b} = {100 / b}, so multiply the top and the bottom by {100 / b}.",
+        "{a} × {100 / b} = {a * 100 / b}, so {frac(a / b)} = {a * 100 / b}/100."
+      ],
+      "steps": ["100 ÷ {b} = {100 / b}", "{frac(a / b)} = {a * 100 / b}/100", "= {answer}%"],
+      "explain": "{frac(a / b)} = {a * 100 / b}/100 = {answer}%.",
+      "distractors": [
+        {
+          "value": "a",
+          "error": "wrote-the-top",
+          "feedback": "{value}% is just the top number. Make the bottom 100 first."
+        },
+        {
+          "value": "a * 10 / b",
+          "error": "made-it-out-of-10",
+          "feedback": "{value}% makes the fraction out of 10. Per cent is out of 100."
+        }
+      ]
+    },
+    {
+      "id": "percent.from-decimal",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Write a decimal as a per cent",
+      "schema": "part-whole",
+      "params": {"k": {"tiers": {"1": [1, 99], "3": [1, 250]}}, "d": {"value": "k / 100"}},
+      "where": ["k % 10 != 0"],
+      "answer": {"type": "percent", "value": "k"},
+      "formats": [{"id": "write", "prompt": "Write {d} as a per cent."}],
+      "hints": [
+        "To make a per cent, multiply by 100.",
+        "Multiplying by 100 moves the point two places to the right.",
+        "{d} with the point two places right = ?"
+      ],
+      "steps": ["{d} × 100", "Move the point two places right", "= {answer}%"],
+      "explain": "{d} × 100 = {answer}%.",
+      "distractors": [
+        {
+          "value": "k / 10",
+          "error": "moved-one-place",
+          "feedback": "{value}% moves the point one place. Multiply by 100: two places."
+        },
+        {
+          "value": "d",
+          "error": "did-not-move-the-point",
+          "feedback": "{value}% is the decimal as it was. Multiply by 100 to make a per cent."
+        }
+      ]
+    },
+    {
+      "id": "percent.of-number",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Find a per cent of a whole number",
+      "schema": "part-whole",
+      "params": {
+        "p": {"choose": [5, 10, 15, 20, 25, 30, 40, 50, 60, 75, 80]},
+        "k": {"tiers": {"1": [1, 10], "3": [3, 25]}},
+        "n": {"value": "20 * k"}
+      },
+      "answer": {"type": "integer", "value": "n * p / 100"},
+      "formats": [
+        {"id": "of", "prompt": "What is {p}% of {n}?"},
+        {
+          "id": "pupils",
+          "prompt": "There are {n} pupils in a school, and {p}% of them walk to school. How many walk to school?"
+        }
+      ],
+      "hints": [
+        "{p}% of {n} means {p}/100 × {n}.",
+        "1% of {n} is {n / 100}, and 10% is {n / 10}.",
+        "{n} × {p} ÷ 100 = ?"
+      ],
+      "steps": ["{p}% = {p}/100", "{n} × {p} = {n * p}", "{n * p} ÷ 100 = {answer}"],
+      "explain": "{p}% of {n} = {n} × {p} ÷ 100 = {answer}.",
+      "distractors": [
+        {
+          "value": "n * p",
+          "error": "did-not-divide-by-100",
+          "feedback": "{value} is {n} × {p}. Per cent means out of 100: divide by 100."
+        },
+        {
+          "value": "n - n * p / 100",
+          "error": "gave-what-is-left",
+          "feedback": "{value} is what is left after {p}%. The question asks for the {p}% itself."
+        },
+        {
+          "value": "n * p / 10",
+          "error": "divided-by-10",
+          "feedback": "{value} divides by 10. Per cent means out of 100."
+        }
+      ]
+    },
+    {
+      "id": "percent.what-percent",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Write one number as a per cent of another",
+      "schema": "part-whole",
+      "params": {"n": {"choose": [10, 20, 25, 50]}, "a": {"range": [1, "n - 1"]}},
+      "where": ["a * 100 / n != n - a"],
+      "answer": {"type": "percent", "value": "a * 100 / n"},
+      "formats": [
+        {
+          "id": "glasses",
+          "prompt": "{a} out of {n} pupils wear glasses. What per cent of the pupils wear glasses?"
+        },
+        {"id": "test", "prompt": "Ana got {a} out of {n} on a test. What is her score as a per cent?"}
+      ],
+      "hints": [
+        "Write it as a fraction, then make the bottom 100.",
+        "{a} out of {n} is {a}/{n}, and 100 ÷ {n} = {100 / n}.",
+        "{a} × {100 / n} = ?"
+      ],
+      "steps": ["{a} out of {n} = {a}/{n}", "Make it out of 100: × {100 / n}", "= {answer}%"],
+      "explain": "{a}/{n} = {answer}/100 = {answer}%.",
+      "distractors": [
+        {
+          "value": "a",
+          "error": "gave-the-count",
+          "feedback": "{value}% is the count. Write {a} out of {n} as out of 100."
+        },
+        {
+          "value": "n - a",
+          "error": "gave-the-rest",
+          "feedback": "{value} is the number who do not. The question asks about the {a}."
+        }
+      ]
+    },
+    {
+      "id": "percent.find-whole",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Find the whole from a per cent and its part",
+      "schema": "work-backwards",
+      "params": {
+        "p": {"choose": [10, 20, 25, 50, 75]},
+        "k": {"tiers": {"1": [1, 10], "3": [2, 30]}},
+        "n": {"value": "20 * k"},
+        "part": {"value": "n * p / 100"}
+      },
+      "answer": {"type": "integer", "value": "n"},
+      "formats": [
+        {"id": "number", "prompt": "{p}% of a number is {part}. What is the number?"},
+        {
+          "id": "money",
+          "prompt": "Mila saves {p}% of her allowance. She saves ₱{part}. How much is her allowance?"
+        }
+      ],
+      "hints": [
+        "{part} is {p}% of the whole. Find 1% or 10% first.",
+        "{p}% is {part}, so 1% is {part} ÷ {p}.",
+        "100% is 100 times 1%."
+      ],
+      "steps": ["{p}% = {part}", "1% = {part} ÷ {p}", "100% = {answer}"],
+      "explain": "{p}% is {part}, so 100% is {answer}.",
+      "distractors": [
+        {
+          "value": "part * p / 100",
+          "error": "took-the-percent-of-the-part",
+          "feedback": "{value} takes {p}% of {part}. Here {part} is the {p}%; find the whole."
+        },
+        {
+          "value": "part + p",
+          "error": "added-the-percent",
+          "feedback": "{value} adds {p} to {part}. {part} is {p}% of the whole: find 100%."
+        }
+      ]
+    },
+    {
+      "id": "percent.discount",
+      "competency": "G6.Q2.9",
+      "domain": "NA",
+      "construct": "Find a discount",
+      "schema": "part-whole",
+      "params": {
+        "k": {"tiers": {"1": [5, 25], "3": [10, 60]}},
+        "price": {"value": "20 * k"},
+        "p": {"choose": [5, 10, 15, 20, 25, 30, 40, 50]}
+      },
+      "answer": {"type": "integer", "value": "price * p / 100", "prefix": "₱"},
+      "formats": [
+        {"id": "bag", "prompt": "A bag costs ₱{price}. It is on sale at {p}% off. How much is the discount?"},
+        {"id": "shoes", "prompt": "Shoes priced at ₱{price} are {p}% off. How many pesos are taken off?"}
+      ],
+      "hints": [
+        "The discount is {p}% of the price.",
+        "{p}% of ₱{price} = ₱{price} × {p} ÷ 100.",
+        "₱{price * p} ÷ 100 = ?"
+      ],
+      "steps": ["Discount = {p}% of ₱{price}", "₱{price} × {p} ÷ 100", "= ₱{answer}"],
+      "explain": "{p}% of ₱{price} is ₱{answer} off.",
+      "distractors": [
+        {
+          "value": "price - price * p / 100",
+          "error": "gave-the-sale-price",
+          "feedback": "₱{value} is the sale price. The question asks for the discount."
+        },
+        {
+          "value": "p",
+          "error": "took-the-percent-as-pesos",
+          "feedback": "{value} is the per cent, not the pesos. {p}% of ₱{price} is ₱{price} × {p} ÷ 100."
+        }
+      ]
+    },
+    {
+      "id": "percent.sale-price",
+      "competency": "G6.Q2.9",
+      "domain": "NA",
+      "construct": "Find a sale price after a discount",
+      "schema": "change",
+      "params": {
+        "k": {"tiers": {"1": [5, 25], "3": [10, 60]}},
+        "price": {"value": "20 * k"},
+        "p": {"choose": [5, 10, 15, 20, 25, 30, 40, 50]},
+        "off": {"value": "price * p / 100"}
+      },
+      "answer": {"type": "integer", "value": "price - off", "prefix": "₱"},
+      "formats": [
+        {"id": "bag", "prompt": "A bag costs ₱{price}. It is on sale at {p}% off. How much do you pay?"},
+        {
+          "id": "shirt",
+          "prompt": "A shirt is priced at ₱{price}, with a {p}% discount. What is the sale price?"
+        }
+      ],
+      "hints": ["First find the discount: {p}% of ₱{price}.", "The discount is ₱{off}.", "₱{price} − ₱{off} = ?"],
+      "steps": ["Discount: {p}% of ₱{price} = ₱{off}", "Sale price = ₱{price} − ₱{off}", "= ₱{answer}"],
+      "explain": "₱{price} − ₱{off} = ₱{answer}.",
+      "distractors": [
+        {
+          "value": "off",
+          "error": "gave-the-discount",
+          "feedback": "₱{value} is the discount. Take it away from ₱{price}."
+        },
+        {
+          "value": "price - p",
+          "error": "took-off-the-percent-as-pesos",
+          "feedback": "₱{value} takes off {p} pesos. {p}% of ₱{price} is ₱{off}."
+        }
+      ]
+    },
+    {
+      "id": "percent.increase",
+      "competency": "G6.Q2.9",
+      "domain": "NA",
+      "construct": "Increase a number by a per cent",
+      "schema": "change",
+      "params": {
+        "k": {"tiers": {"1": [5, 20], "3": [10, 50]}},
+        "n": {"value": "20 * k"},
+        "p": {"choose": [5, 10, 15, 20, 25, 50]},
+        "more": {"value": "n * p / 100"}
+      },
+      "answer": {"type": "integer", "value": "n + more"},
+      "formats": [
+        {
+          "id": "school",
+          "prompt": "A school had {n} pupils last year. This year it has {p}% more. How many pupils does it have now?"
+        },
+        {
+          "id": "harvest",
+          "prompt": "A farm picked {n} kg of mangoes last year and {p}% more this year. How many kilograms did it pick this year?"
+        }
+      ],
+      "hints": ["Find {p}% of {n}, then add it on.", "{p}% of {n} = {more}.", "{n} + {more} = ?"],
+      "steps": ["{p}% of {n} = {more}", "{n} + {more}", "= {answer}"],
+      "explain": "{p}% of {n} is {more}, so {n} + {more} = {answer}.",
+      "distractors": [
+        {"value": "more", "error": "gave-the-increase", "feedback": "{value} is the increase. Add it to {n}."},
+        {
+          "value": "n + p",
+          "error": "added-the-percent",
+          "feedback": "{value} adds {p}. {p}% of {n} is {more}."
+        }
+      ]
+    },
+    {
+      "id": "percent.interest",
+      "competency": "G6.Q2.9",
+      "domain": "NA",
+      "construct": "Find simple interest for one year",
+      "schema": "part-whole",
+      "params": {
+        "k": {"tiers": {"1": [5, 50], "3": [10, 200]}},
+        "P": {"value": "100 * k"},
+        "r": {"choose": [2, 3, 4, 5, 6, 8, 10]}
+      },
+      "answer": {"type": "integer", "value": "P * r / 100", "prefix": "₱"},
+      "formats": [
+        {
+          "id": "bank",
+          "prompt": "₱{P} is kept in a bank for one year at {r}% interest a year. How much interest does it earn?"
+        },
+        {
+          "id": "coop",
+          "prompt": "A cooperative pays {r}% interest a year. How much interest does ₱{P} earn in one year?"
+        }
+      ],
+      "hints": ["The interest for one year is {r}% of ₱{P}.", "1% of ₱{P} is ₱{P / 100}.", "{r} × ₱{P / 100} = ?"],
+      "steps": ["Interest = {r}% of ₱{P}", "1% = ₱{P / 100}", "{r}% = ₱{answer}"],
+      "explain": "{r}% of ₱{P} is ₱{answer}.",
+      "distractors": [
+        {
+          "value": "P + P * r / 100",
+          "error": "gave-the-total",
+          "feedback": "₱{value} is the money plus the interest. The question asks for the interest."
+        },
+        {
+          "value": "P * r",
+          "error": "did-not-divide-by-100",
+          "feedback": "₱{value} is ₱{P} × {r}. Per cent means out of 100: divide by 100."
+        }
+      ]
+    }
+  ]
+}
