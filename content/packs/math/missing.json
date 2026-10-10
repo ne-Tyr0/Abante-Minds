@@ -1,0 +1,738 @@
+{
+  "topic": "missing",
+  "levels": [
+    {
+      "id": "add-take",
+      "title": "Missing in adding and taking away",
+      "templates": ["missing.add-missing", "missing.take-what", "missing.take-from"],
+      "lesson": [
+        {
+          "title": "Undo it",
+          "body": "To find ? in ? + 8 = 23, undo the adding: 23 − 8 = 15. Check by putting it back: 15 + 8 = 23."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "missing.add-missing", "params": {"a": 15, "b": 8}, "format": "first"}
+        },
+        {
+          "title": "Taking away",
+          "body": "In 30 − ? = 18, ask what you take from 30 to leave 18: 30 − 18 = 12. In ? − 7 = 12, add the 7 back: 19."
+        }
+      ]
+    },
+    {
+      "id": "times-divide",
+      "title": "Missing in times and divide",
+      "templates": ["missing.times-missing", "missing.divide-by-what", "missing.divide-what"],
+      "lesson": [
+        {
+          "title": "Undo the times",
+          "body": "? × 6 = 42: undo the times by dividing, 42 ÷ 6 = 7. And ? ÷ 4 = 9: undo the dividing by multiplying, 9 × 4 = 36."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "missing.divide-what", "params": {"a": 9, "b": 4}, "format": "symbols"}
+        },
+        {"title": "Check", "body": "Put your answer back in: 36 ÷ 4 = 9, so 36 is right."}
+      ]
+    },
+    {
+      "id": "letters",
+      "title": "Letters for numbers",
+      "templates": ["missing.letter-add", "missing.letter-times", "missing.letter-divide"],
+      "lesson": [
+        {
+          "title": "A letter is a number",
+          "body": "A letter stands for a number we do not know yet: in n + 7 = 20, n is 13. 4n means 4 × n."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "missing.letter-times", "params": {"L": "n", "a": 6, "b": 4}, "format": "short"}
+        },
+        {"title": "Any letter", "body": "n, x or y: the letter does not matter. In 3y = 27, y = 9."}
+      ]
+    },
+    {
+      "id": "two-steps",
+      "title": "Two steps",
+      "templates": ["missing.two-step", "missing.two-step-take"],
+      "lesson": [
+        {
+          "title": "Undo in reverse",
+          "body": "2n + 3 = 17: undo the + 3 first, 17 − 3 = 14, then undo the × 2, 14 ÷ 2 = 7."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "missing.two-step", "params": {"L": "n", "a": 7, "m": 2, "k": 3}, "format": "short"}
+        },
+        {"title": "Check", "body": "Put n = 7 back: 2 × 7 + 3 = 17. It works."}
+      ]
+    },
+    {
+      "id": "machines",
+      "title": "Input and output",
+      "templates": ["missing.machine", "missing.machine-back", "missing.table"],
+      "lesson": [
+        {
+          "title": "Follow the rule",
+          "body": "A machine that multiplies by 3 and then adds 2 turns 4 into 4 × 3 + 2 = 14."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "missing.table", "params": {"m": 3, "k": 2, "x": 10}, "format": "table"}
+        },
+        {
+          "title": "Running it backwards",
+          "body": "If 14 came out, undo the steps in reverse: 14 − 2 = 12, then 12 ÷ 3 = 4 went in."
+        }
+      ]
+    },
+    {
+      "id": "patterns",
+      "title": "Number patterns",
+      "templates": ["missing.next", "missing.gap", "missing.nth", "missing.doubling"],
+      "lesson": [
+        {
+          "title": "Find the step",
+          "body": "In 4, 7, 10, 13, each number is 3 more than the one before, so the next is 16."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "missing.nth", "params": {"s": 4, "d": 3, "n": 20}, "format": "nth"}
+        },
+        {
+          "title": "Count the steps",
+          "body": "From the 1st number to the 20th there are 19 steps, not 20: the 20th number is 4 + 19 × 3."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "missing.add-missing",
+      "domain": "NA",
+      "construct": "Find a missing number in an addition by taking away",
+      "schema": "change",
+      "params": {
+        "a": {"tiers": {"1": [3, 40], "3": [25, 400]}},
+        "b": {"tiers": {"1": [3, 40], "3": [25, 400]}},
+        "c": {"value": "a + b"}
+      },
+      "answer": {"type": "integer", "value": "a"},
+      "formats": [
+        {"id": "first", "prompt": "? + {b} = {c}"},
+        {"id": "second", "prompt": "{b} + ? = {c}"},
+        {
+          "id": "marbles",
+          "prompt": "Ana had some marbles. She was given {b} more and now has {c}. How many did she have at first?"
+        }
+      ],
+      "hints": ["Undo the adding: take {b} away from {c}.", "? = {c} − {b}.", "{c} − {b} = ?"],
+      "steps": ["? + {b} = {c}", "? = {c} − {b}", "= {answer}"],
+      "explain": "{c} − {b} = {answer}. Check: {answer} + {b} = {c}.",
+      "distractors": [
+        {
+          "value": "c + b",
+          "error": "added-instead",
+          "feedback": "{value} adds {b} to {c}. To undo + {b}, take {b} away."
+        },
+        {
+          "value": "c",
+          "error": "gave-the-total",
+          "feedback": "{value} is the total. The missing number is {b} less than that."
+        }
+      ]
+    },
+    {
+      "id": "missing.take-what",
+      "domain": "NA",
+      "construct": "Find how much was taken away",
+      "schema": "change",
+      "params": {
+        "a": {"tiers": {"1": [3, 40], "3": [25, 400]}},
+        "b": {"tiers": {"1": [3, 40], "3": [25, 400]}},
+        "c": {"value": "a + b"}
+      },
+      "answer": {"type": "integer", "value": "a"},
+      "formats": [
+        {"id": "symbols", "prompt": "{c} − ? = {b}"},
+        {"id": "eggs", "prompt": "There were {c} eggs. Some were used and {b} are left. How many were used?"}
+      ],
+      "hints": ["What do you take from {c} to leave {b}?", "? = {c} − {b}.", "{c} − {b} = ?"],
+      "steps": ["{c} − ? = {b}", "? = {c} − {b}", "= {answer}"],
+      "explain": "{c} − {b} = {answer}. Check: {c} − {answer} = {b}.",
+      "distractors": [
+        {
+          "value": "c + b",
+          "error": "added-instead",
+          "feedback": "{value} adds {b} to {c}. Take {b} from {c} to find what was taken."
+        },
+        {
+          "value": "b",
+          "error": "gave-what-is-left",
+          "feedback": "{value} is what is left. The question asks what was taken away."
+        }
+      ]
+    },
+    {
+      "id": "missing.take-from",
+      "domain": "NA",
+      "construct": "Find the starting number of a taking away by adding back",
+      "schema": "change",
+      "params": {
+        "a": {"tiers": {"1": [3, 40], "3": [25, 400]}},
+        "b": {"tiers": {"1": [3, 40], "3": [25, 400]}},
+        "c": {"value": "a + b"}
+      },
+      "answer": {"type": "integer", "value": "a + b"},
+      "formats": [
+        {"id": "symbols", "prompt": "? − {a} = {b}"},
+        {"id": "money", "prompt": "Lito spent ₱{a} and has ₱{b} left. How much did he have at first?"}
+      ],
+      "hints": ["Undo the taking away: add {a} back.", "? = {b} + {a}.", "{b} + {a} = ?"],
+      "steps": ["? − {a} = {b}", "? = {b} + {a}", "= {answer}"],
+      "explain": "{b} + {a} = {answer}. Check: {answer} − {a} = {b}.",
+      "distractors": [
+        {
+          "value": "b > a ? b - a : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} is {b} − {a}. To undo − {a}, add {a} back."
+        },
+        {
+          "value": "b",
+          "error": "gave-what-is-left",
+          "feedback": "{value} is what is left. The question asks what there was at first."
+        }
+      ]
+    },
+    {
+      "id": "missing.times-missing",
+      "domain": "NA",
+      "construct": "Find a missing factor by dividing",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [2, 10], "3": [2, 25]}},
+        "b": {"tiers": {"1": [2, 10], "3": [2, 12]}},
+        "c": {"value": "a * b"}
+      },
+      "answer": {"type": "integer", "value": "a"},
+      "formats": [
+        {"id": "first", "prompt": "? × {b} = {c}"},
+        {"id": "second", "prompt": "{b} × ? = {c}"},
+        {
+          "id": "bags",
+          "prompt": "{b} bags hold {c} sweets, the same number in each. How many sweets are in each bag?"
+        }
+      ],
+      "hints": ["Undo the times: divide {c} by {b}.", "? = {c} ÷ {b}.", "{c} ÷ {b} = ?"],
+      "steps": ["? × {b} = {c}", "? = {c} ÷ {b}", "= {answer}"],
+      "explain": "{c} ÷ {b} = {answer}. Check: {answer} × {b} = {c}.",
+      "distractors": [
+        {
+          "value": "c * b",
+          "error": "multiplied-instead",
+          "feedback": "{value} is {c} × {b}. To undo × {b}, divide by {b}."
+        },
+        {
+          "value": "c - b",
+          "error": "took-away-instead",
+          "feedback": "{value} is {c} − {b}. To undo × {b}, divide by {b}."
+        }
+      ]
+    },
+    {
+      "id": "missing.divide-by-what",
+      "domain": "NA",
+      "construct": "Find the number something was divided by",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [2, 10], "3": [2, 25]}},
+        "b": {"tiers": {"1": [2, 10], "3": [2, 12]}},
+        "c": {"value": "a * b"}
+      },
+      "answer": {"type": "integer", "value": "b"},
+      "formats": [
+        {"id": "symbols", "prompt": "{c} ÷ ? = {a}"},
+        {
+          "id": "teams",
+          "prompt": "{c} pupils make {a} teams of the same size. How many pupils are in each team?"
+        }
+      ],
+      "hints": ["What do you divide {c} by to get {a}?", "? × {a} = {c}.", "{c} ÷ {a} = ?"],
+      "steps": ["{c} ÷ ? = {a}", "? = {c} ÷ {a}", "= {answer}"],
+      "explain": "{c} ÷ {a} = {answer}. Check: {c} ÷ {answer} = {a}.",
+      "distractors": [
+        {
+          "value": "c * a",
+          "error": "multiplied-instead",
+          "feedback": "{value} is {c} × {a}. Divide {c} by {a} to find the missing number."
+        },
+        {
+          "value": "a",
+          "error": "gave-the-answer-shown",
+          "feedback": "{value} is the answer to the division. The question asks what {c} is divided by."
+        }
+      ]
+    },
+    {
+      "id": "missing.divide-what",
+      "domain": "NA",
+      "construct": "Find the number that was divided, by multiplying",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [2, 10], "3": [2, 25]}},
+        "b": {"tiers": {"1": [2, 10], "3": [2, 12]}},
+        "c": {"value": "a * b"}
+      },
+      "answer": {"type": "integer", "value": "c"},
+      "formats": [
+        {"id": "symbols", "prompt": "? ÷ {b} = {a}"},
+        {
+          "id": "share",
+          "prompt": "Some mangoes were shared equally among {b} families. Each family got {a}. How many mangoes were there?"
+        }
+      ],
+      "hints": ["Undo the dividing: multiply {a} by {b}.", "? = {a} × {b}.", "{a} × {b} = ?"],
+      "steps": ["? ÷ {b} = {a}", "? = {a} × {b}", "= {answer}"],
+      "explain": "{a} × {b} = {answer}. Check: {answer} ÷ {b} = {a}.",
+      "distractors": [
+        {
+          "value": "a % b == 0 ? a / b : -1",
+          "error": "divided-instead",
+          "feedback": "{value} divides {a} by {b}. To undo ÷ {b}, multiply by {b}."
+        },
+        {
+          "value": "a + b",
+          "error": "added-instead",
+          "feedback": "{value} is {a} + {b}. To undo ÷ {b}, multiply by {b}."
+        }
+      ]
+    },
+    {
+      "id": "missing.letter-add",
+      "domain": "NA",
+      "construct": "Solve a one-step equation with a letter: adding",
+      "schema": "change",
+      "params": {
+        "L": {"choose": ["n", "x", "y", "m"]},
+        "a": {"tiers": {"1": [3, 40], "3": [25, 400]}},
+        "b": {"tiers": {"1": [3, 40], "3": [25, 400]}},
+        "c": {"value": "a + b"}
+      },
+      "answer": {"type": "integer", "value": "a"},
+      "formats": [
+        {"id": "first", "prompt": "{L} + {b} = {c}. What is {L}?"},
+        {"id": "second", "prompt": "{b} + {L} = {c}. What is {L}?"}
+      ],
+      "hints": ["{L} stands for a number. Undo the + {b}.", "{L} = {c} − {b}.", "{c} − {b} = ?"],
+      "steps": ["{L} + {b} = {c}", "{L} = {c} − {b}", "{L} = {answer}"],
+      "explain": "{L} = {c} − {b} = {answer}. Check: {answer} + {b} = {c}.",
+      "distractors": [
+        {
+          "value": "c + b",
+          "error": "added-instead",
+          "feedback": "{value} adds {b} to {c}. To undo + {b}, take {b} away."
+        },
+        {
+          "value": "c",
+          "error": "gave-the-total",
+          "feedback": "{value} is the total. {L} is {b} less than that."
+        }
+      ]
+    },
+    {
+      "id": "missing.letter-times",
+      "domain": "NA",
+      "construct": "Solve a one-step equation with a letter: multiplying, written 4n",
+      "schema": "equal-groups",
+      "params": {
+        "L": {"choose": ["n", "x", "y", "m"]},
+        "a": {"tiers": {"1": [2, 10], "3": [2, 25]}},
+        "b": {"tiers": {"1": [2, 10], "3": [2, 12]}},
+        "c": {"value": "a * b"}
+      },
+      "answer": {"type": "integer", "value": "a"},
+      "formats": [
+        {"id": "times", "prompt": "{b} × {L} = {c}. What is {L}?"},
+        {"id": "short", "prompt": "{b}{L} = {c}. What is {L}?"}
+      ],
+      "hints": ["{b}{L} means {b} × {L}. Undo the times.", "{L} = {c} ÷ {b}.", "{c} ÷ {b} = ?"],
+      "steps": ["{b}{L} = {b} × {L} = {c}", "{L} = {c} ÷ {b}", "{L} = {answer}"],
+      "explain": "{L} = {c} ÷ {b} = {answer}. Check: {b} × {answer} = {c}.",
+      "distractors": [
+        {
+          "value": "c * b",
+          "error": "multiplied-instead",
+          "feedback": "{value} is {c} × {b}. To undo × {b}, divide by {b}."
+        },
+        {
+          "value": "c - b",
+          "error": "took-away-instead",
+          "feedback": "{value} is {c} − {b}. {b}{L} means {b} × {L}, so divide by {b}."
+        }
+      ]
+    },
+    {
+      "id": "missing.letter-divide",
+      "domain": "NA",
+      "construct": "Solve a one-step equation with a letter: dividing",
+      "schema": "equal-groups",
+      "params": {
+        "L": {"choose": ["n", "x", "y", "m"]},
+        "a": {"tiers": {"1": [2, 10], "3": [2, 25]}},
+        "b": {"tiers": {"1": [2, 10], "3": [2, 12]}},
+        "c": {"value": "a * b"}
+      },
+      "answer": {"type": "integer", "value": "c"},
+      "formats": [{"id": "symbols", "prompt": "{L} ÷ {b} = {a}. What is {L}?"}],
+      "hints": ["Undo the dividing: multiply {a} by {b}.", "{L} = {a} × {b}.", "{a} × {b} = ?"],
+      "steps": ["{L} ÷ {b} = {a}", "{L} = {a} × {b}", "{L} = {answer}"],
+      "explain": "{L} = {a} × {b} = {answer}. Check: {answer} ÷ {b} = {a}.",
+      "distractors": [
+        {
+          "value": "a % b == 0 ? a / b : -1",
+          "error": "divided-instead",
+          "feedback": "{value} divides {a} by {b}. To undo ÷ {b}, multiply by {b}."
+        },
+        {
+          "value": "a + b",
+          "error": "added-instead",
+          "feedback": "{value} is {a} + {b}. To undo ÷ {b}, multiply by {b}."
+        }
+      ]
+    },
+    {
+      "id": "missing.two-step",
+      "domain": "NA",
+      "construct": "Solve a two-step equation by undoing the steps in reverse: times, then add",
+      "schema": "work-backwards",
+      "params": {
+        "L": {"choose": ["n", "x", "y", "m"]},
+        "a": {"tiers": {"1": [2, 9], "3": [3, 15]}},
+        "m": {"tiers": {"1": [2, 5], "3": [2, 9]}},
+        "k": {"tiers": {"1": [1, 9], "3": [2, 20]}},
+        "r": {"value": "m * a + k"}
+      },
+      "answer": {"type": "integer", "value": "a"},
+      "formats": [
+        {"id": "short", "prompt": "{m}{L} + {k} = {r}. What is {L}?"},
+        {"id": "times", "prompt": "{m} × {L} + {k} = {r}. What is {L}?"},
+        {
+          "id": "think",
+          "prompt": "I think of a number. I multiply it by {m}, then add {k}. I get {r}. What is my number?"
+        }
+      ],
+      "hints": [
+        "Undo the steps in reverse: first take away {k}, then divide by {m}.",
+        "{r} − {k} = {r - k}.",
+        "{r - k} ÷ {m} = ?"
+      ],
+      "steps": [
+        "Take away {k}: {r} − {k} = {r - k}",
+        "Divide by {m}: {r - k} ÷ {m} = {answer}",
+        "Check: {m} × {answer} + {k} = {r}"
+      ],
+      "explain": "Undo + {k}, then × {m}: ({r} − {k}) ÷ {m} = {answer}.",
+      "distractors": [
+        {
+          "value": "r % m == 0 && r / m > k ? r / m - k : -1",
+          "error": "undid-in-the-wrong-order",
+          "feedback": "{value} divides first. Undo the last step first: take away {k}, then divide by {m}."
+        },
+        {
+          "value": "r - k",
+          "error": "forgot-to-divide",
+          "feedback": "{value} is {m} times the number. Divide by {m} too."
+        },
+        {
+          "value": "(r + k) % m == 0 ? (r + k) / m : -1",
+          "error": "added-instead",
+          "feedback": "{value} adds {k}. To undo + {k}, take it away."
+        }
+      ]
+    },
+    {
+      "id": "missing.two-step-take",
+      "domain": "NA",
+      "construct": "Solve a two-step equation by undoing the steps in reverse: times, then take away",
+      "schema": "work-backwards",
+      "params": {
+        "L": {"choose": ["n", "x", "y", "m"]},
+        "a": {"tiers": {"1": [2, 9], "3": [3, 15]}},
+        "m": {"tiers": {"1": [2, 5], "3": [2, 9]}},
+        "k": {"tiers": {"1": [1, 9], "3": [2, 20]}},
+        "r": {"value": "m * a - k"}
+      },
+      "where": ["r > 0"],
+      "answer": {"type": "integer", "value": "a"},
+      "formats": [
+        {"id": "short", "prompt": "{m}{L} − {k} = {r}. What is {L}?"},
+        {
+          "id": "think",
+          "prompt": "I think of a number. I multiply it by {m}, then take away {k}. I get {r}. What is my number?"
+        }
+      ],
+      "hints": [
+        "Undo the steps in reverse: first add {k} back, then divide by {m}.",
+        "{r} + {k} = {r + k}.",
+        "{r + k} ÷ {m} = ?"
+      ],
+      "steps": [
+        "Add {k}: {r} + {k} = {r + k}",
+        "Divide by {m}: {r + k} ÷ {m} = {answer}",
+        "Check: {m} × {answer} − {k} = {r}"
+      ],
+      "explain": "Undo − {k}, then × {m}: ({r} + {k}) ÷ {m} = {answer}.",
+      "distractors": [
+        {
+          "value": "r + k",
+          "error": "forgot-to-divide",
+          "feedback": "{value} is {m} times the number. Divide by {m} too."
+        },
+        {
+          "value": "r > k && (r - k) % m == 0 ? (r - k) / m : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} takes {k} away. To undo − {k}, add it back."
+        }
+      ]
+    },
+    {
+      "id": "missing.machine",
+      "domain": "NA",
+      "construct": "Run a two-step number machine forwards",
+      "schema": "multi-step",
+      "params": {
+        "x": {"tiers": {"1": [2, 9], "3": [5, 20]}},
+        "m": {"tiers": {"1": [2, 5], "3": [2, 9]}},
+        "k": {"tiers": {"1": [1, 9], "3": [2, 20]}}
+      },
+      "answer": {"type": "integer", "value": "m * x + k"},
+      "formats": [
+        {
+          "id": "machine",
+          "prompt": "A number machine multiplies by {m}, then adds {k}. What comes out when {x} goes in?"
+        }
+      ],
+      "hints": ["Do the steps in order: first × {m}, then + {k}.", "{x} × {m} = {m * x}.", "{m * x} + {k} = ?"],
+      "steps": ["{x} goes in", "× {m}: {m * x}", "+ {k}: {answer} comes out"],
+      "explain": "{x} × {m} + {k} = {answer}.",
+      "distractors": [
+        {
+          "value": "(x + k) * m",
+          "error": "added-first",
+          "feedback": "{value} adds {k} first. The machine multiplies by {m} first, then adds."
+        },
+        {
+          "value": "m * x",
+          "error": "forgot-a-step",
+          "feedback": "{value} only multiplies. The machine adds {k} too."
+        }
+      ]
+    },
+    {
+      "id": "missing.machine-back",
+      "domain": "NA",
+      "construct": "Run a two-step number machine backwards",
+      "schema": "work-backwards",
+      "params": {
+        "x": {"tiers": {"1": [2, 9], "3": [5, 20]}},
+        "m": {"tiers": {"1": [2, 5], "3": [2, 9]}},
+        "k": {"tiers": {"1": [1, 9], "3": [2, 20]}},
+        "r": {"value": "m * x - k"}
+      },
+      "where": ["r > 0"],
+      "answer": {"type": "integer", "value": "x"},
+      "formats": [
+        {
+          "id": "machine",
+          "prompt": "A number machine multiplies by {m}, then takes away {k}. {r} comes out. What number went in?"
+        }
+      ],
+      "hints": ["Run the machine backwards: undo the last step first.", "{r} + {k} = {r + k}.", "{r + k} ÷ {m} = ?"],
+      "steps": [
+        "Undo − {k}: {r} + {k} = {r + k}",
+        "Undo × {m}: {r + k} ÷ {m} = {answer}",
+        "Check: {answer} × {m} − {k} = {r}"
+      ],
+      "explain": "Backwards: ({r} + {k}) ÷ {m} = {answer}.",
+      "distractors": [
+        {
+          "value": "m * r - k",
+          "error": "ran-it-forwards",
+          "feedback": "{value} runs the machine forwards again. Undo the steps in reverse."
+        },
+        {
+          "value": "r + k",
+          "error": "forgot-to-divide",
+          "feedback": "{value} undoes only the − {k}. Divide by {m} too."
+        }
+      ]
+    },
+    {
+      "id": "missing.table",
+      "domain": "NA",
+      "construct": "Find the rule of a table and use it further on",
+      "schema": "multi-step",
+      "params": {
+        "m": {"tiers": {"1": [2, 5], "3": [2, 9]}},
+        "k": {"tiers": {"1": [1, 5], "3": [1, 9]}},
+        "x": {"tiers": {"1": [6, 10], "3": [10, 20]}}
+      },
+      "answer": {"type": "integer", "value": "m * x + k"},
+      "formats": [
+        {
+          "id": "table",
+          "prompt": "When x is 1, 2, 3 and 4, y is {m + k}, {2 * m + k}, {3 * m + k} and {4 * m + k}. What is y when x is {x}?"
+        }
+      ],
+      "hints": [
+        "How much does y go up each time x goes up by 1?",
+        "y goes up by {m} each time, and when x is 1, y is {m + k}.",
+        "y = {m} × x + {k}. Put x = {x}."
+      ],
+      "steps": ["y goes up by {m}: the rule is {m} × x + {k}", "x = {x}: {m} × {x} + {k}", "= {answer}"],
+      "explain": "The rule is y = {m} × x + {k}, so y = {m} × {x} + {k} = {answer}.",
+      "distractors": [
+        {
+          "value": "x != 5 ? 5 * m + k : -1",
+          "error": "took-the-next-number",
+          "feedback": "{value} is the next number in the table, for x = 5. Find the rule and use x = {x}."
+        },
+        {
+          "value": "m * x",
+          "error": "left-out-the-add",
+          "feedback": "{value} is {m} × {x}. The rule adds {k} too: check it with x = 1."
+        }
+      ]
+    },
+    {
+      "id": "missing.next",
+      "domain": "NA",
+      "construct": "Continue a number pattern that goes up by the same step",
+      "schema": "multi-step",
+      "params": {"s": {"tiers": {"1": [1, 20], "3": [5, 99]}}, "d": {"tiers": {"1": [2, 9], "3": [3, 25]}}},
+      "answer": {"type": "integer", "value": "s + 4 * d"},
+      "formats": [{"id": "next", "prompt": "What comes next: {s}, {s + d}, {s + 2 * d}, {s + 3 * d}, … ?"}],
+      "hints": [
+        "How much does the pattern go up each time?",
+        "Each number is {d} more than the one before.",
+        "{s + 3 * d} + {d} = ?"
+      ],
+      "steps": [
+        "The step is {s + d} − {s} = {d}",
+        "The last number shown is {s + 3 * d}",
+        "{s + 3 * d} + {d} = {answer}"
+      ],
+      "explain": "The pattern goes up by {d}: {s + 3 * d} + {d} = {answer}.",
+      "distractors": [
+        {
+          "value": "s + 3 * d + 1",
+          "error": "added-1",
+          "feedback": "{value} adds 1. The pattern goes up by {d} each time."
+        },
+        {
+          "value": "s + 5 * d",
+          "error": "skipped-one",
+          "feedback": "{value} skips a number. The next one is only {d} more than {s + 3 * d}."
+        }
+      ]
+    },
+    {
+      "id": "missing.gap",
+      "domain": "NA",
+      "construct": "Find a missing number in the middle of a pattern",
+      "schema": "missing-middle",
+      "params": {"s": {"tiers": {"1": [1, 20], "3": [5, 99]}}, "d": {"tiers": {"1": [2, 9], "3": [3, 25]}}},
+      "answer": {"type": "integer", "value": "s + 2 * d"},
+      "formats": [{"id": "gap", "prompt": "What is the missing number: {s}, {s + d}, ?, {s + 3 * d}, {s + 4 * d}?"}],
+      "hints": ["Find the step from two numbers next to each other.", "{s + d} − {s} = {d}.", "{s + d} + {d} = ?"],
+      "steps": ["The step is {d}", "The missing number is {d} more than {s + d}", "{s + d} + {d} = {answer}"],
+      "explain": "{s + d} + {d} = {answer}, and {answer} + {d} = {s + 3 * d}.",
+      "distractors": [
+        {
+          "value": "s + d + 1",
+          "error": "added-1",
+          "feedback": "{value} adds 1. The pattern goes up by {d} each time."
+        },
+        {
+          "value": "s + 3 * d",
+          "error": "copied-the-next-number",
+          "feedback": "{value} is the number after the gap. The missing one is {d} less."
+        }
+      ]
+    },
+    {
+      "id": "missing.nth",
+      "domain": "NA",
+      "construct": "Find a far-off number in a pattern by counting the steps",
+      "schema": "multi-step",
+      "params": {
+        "s": {"tiers": {"1": [1, 10], "3": [2, 30]}},
+        "d": {"tiers": {"1": [2, 5], "3": [3, 12]}},
+        "n": {"choose": [10, 20, 25, 30, 50, 100]}
+      },
+      "answer": {"type": "integer", "value": "s + (n - 1) * d"},
+      "formats": [
+        {
+          "id": "nth",
+          "prompt": "The pattern {s}, {s + d}, {s + 2 * d}, {s + 3 * d}, … goes on. What is the {n}th number?"
+        }
+      ],
+      "hints": [
+        "From the 1st number to the {n}th, how many steps of {d} are there?",
+        "There are {n - 1} steps: {n - 1} × {d} = {(n - 1) * d}.",
+        "{s} + {(n - 1) * d} = ?"
+      ],
+      "steps": [
+        "Steps from the 1st to the {n}th: {n - 1}",
+        "{n - 1} × {d} = {(n - 1) * d}",
+        "{s} + {(n - 1) * d} = {answer}"
+      ],
+      "explain": "The {n}th number is {s} + {n - 1} × {d} = {answer}.",
+      "distractors": [
+        {
+          "value": "s + n * d",
+          "error": "counted-one-step-too-many",
+          "feedback": "{value} adds the step {n} times. From the 1st number to the {n}th there are only {n - 1} steps."
+        },
+        {
+          "value": "n * d",
+          "error": "forgot-the-start",
+          "feedback": "{value} is {n} × {d}. Start from the first number, {s}."
+        }
+      ]
+    },
+    {
+      "id": "missing.doubling",
+      "domain": "NA",
+      "construct": "Continue a doubling pattern",
+      "schema": "multi-step",
+      "params": {"s": {"tiers": {"1": [1, 5], "3": [2, 12]}}},
+      "answer": {"type": "integer", "value": "16 * s"},
+      "formats": [{"id": "next", "prompt": "What comes next: {s}, {2 * s}, {4 * s}, {8 * s}, … ?"}],
+      "hints": [
+        "How does each number come from the one before?",
+        "Each number is double the one before.",
+        "Double {8 * s} = ?"
+      ],
+      "steps": [
+        "{2 * s} is double {s}, and {4 * s} is double {2 * s}",
+        "The last number shown is {8 * s}",
+        "Double {8 * s} = {answer}"
+      ],
+      "explain": "Each number doubles: double {8 * s} is {answer}.",
+      "distractors": [
+        {
+          "value": "12 * s",
+          "error": "added-the-last-step-again",
+          "feedback": "{value} adds {4 * s} again. Each number is double the one before, not the same step more."
+        },
+        {
+          "value": "8 * s + 1",
+          "error": "added-1",
+          "feedback": "{value} adds 1. Each number is double the one before."
+        }
+      ]
+    }
+  ]
+}

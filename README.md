@@ -140,6 +140,10 @@ every topic, so a learner can work without a calculator. Written so far:
   away with borrowing (across a zero too), long multiplication, and long division by
   chunks, with remainders. Each worked step is one column, so a learner sees where the
   carry or the borrow happens.
+- **Missing numbers**: six practice levels, the step towards algebra: a missing number in
+  adding, taking away, times and divide; letters for numbers (4n = 24); two-step
+  equations undone in reverse; number machines and tables; and number patterns, up to
+  the 100th number.
 
 The facts topics each have a review level of all their facts.
 
