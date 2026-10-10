@@ -1,13 +1,27 @@
 {
-  "$comment": "Maths subtest pack. Each topic file holds that topic's question templates. See content/packs/README.md for the format. 'placeholder' marks topics from the earlier Grade 9 framing, to be replaced by the TABLE-OF-SPECIFICATIONS.md topics in Phase 2.",
   "subtest": "math",
-  "version": "0.1.0",
-  "placeholder": true,
+  "version": "1.0.0",
+  "examDate": "2027-01-30",
+  "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
+  "formFeedback": {
+    "not-lowest-terms": "Right amount, but not in lowest terms. Divide the top and the bottom by the same number.",
+    "not-a-mixed-number": "Right amount. Now write it as a mixed number: a whole number and a fraction.",
+    "fraction-part-not-proper": "The fraction part should be less than 1. Move the whole ones into the whole number."
+  },
   "topics": [
-    { "key": "money", "label": "Change and money", "icon": "coins", "colorKey": 1, "file": "money.json" },
-    { "key": "percent", "label": "Percentages", "icon": "percent", "colorKey": 2, "file": "percent.json" },
-    { "key": "ratio", "label": "Ratio and rate", "icon": "scales", "colorKey": 3, "file": "ratio.json" },
-    { "key": "measure", "label": "Measurement", "icon": "ruler", "colorKey": 4, "file": "measure.json" }
+    { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json" },
+    { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "comingSoon": true },
+    { "key": "gemdas", "label": "Order of operations", "icon": "add", "colorKey": 3, "comingSoon": true },
+    { "key": "factors", "label": "Factors and primes", "icon": "star", "colorKey": 4, "comingSoon": true },
+    { "key": "ratio", "label": "Ratio and proportion", "icon": "coins", "colorKey": 1, "comingSoon": true },
+    { "key": "percent", "label": "Percentages", "icon": "percent", "colorKey": 2, "comingSoon": true },
+    { "key": "time", "label": "Time", "icon": "clock", "colorKey": 3, "comingSoon": true },
+    { "key": "area", "label": "Perimeter and area", "icon": "ruler", "colorKey": 4, "comingSoon": true },
+    { "key": "solids", "label": "Solids and volume", "icon": "triangle", "colorKey": 1, "comingSoon": true },
+    { "key": "circles", "label": "Circles", "icon": "retry", "colorKey": 2, "comingSoon": true },
+    { "key": "data", "label": "Graphs and data", "icon": "level-up", "colorKey": 3, "comingSoon": true },
+    { "key": "probability", "label": "Probability", "icon": "hint", "colorKey": 4, "comingSoon": true },
+    { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "comingSoon": true }
   ]
 }

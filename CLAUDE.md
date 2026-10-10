@@ -27,6 +27,7 @@ Two consequences that are easy to forget:
 python devserver.py            # static server with no-store caching; also prints a LAN URL
 node tests/engine.js           # question-engine unit tests; exits 1 on any failure
 node tests/entry.js            # what each keypad key does to the answer boxes
+node tests/progress.js         # the path's rules: clearing, unlocking, first tries
 node tests/validate-packs.js   # every question pack against the schema and the blueprint
 node tests/fuzz.js             # 160,000 generated questions; exits 1 on any violation
 node poc/progress-code.js      # proves the backup-code codec; exits 1 if a claim fails
@@ -45,9 +46,9 @@ question whose answer was negative (the keypad has no minus key, so it was unans
 and a hint telling learners to "break 9 into 10 and -1". Testing the validator caught a
 third before it shipped: a pinned item on a template with more than one format crashed.
 
-`tests/mutation/` breaks the engine, the entry rules and the packs one way at a time and
-requires the tests to fail: `node tests/mutation/engine.js`, `entry.js`, `validator.js`
-(the last takes a couple of minutes). Not in CI. Run them when you add a rule, and add a
+`tests/mutation/` breaks the engine, the entry rules, the progress rules and the packs one
+way at a time and requires the tests to fail: `node tests/mutation/engine.js`, `entry.js`,
+`progress.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -56,9 +57,9 @@ mutant for it, so a test that can never fail does not pass for one.
 |---|---|
 | `app/content.js` | The question engine: installs a pack, draws numbers, renders questions, checks answers and names mistakes. Expressions are parsed, never `eval`'d, and computed in exact fractions. No questions live in code |
 | `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
-| `content/packs/<subtest>/` | The questions, as JSON: `manifest.json` plus one file per topic. **The current four maths topics are placeholders** from the Grade 9 framing; see `RESEARCH-PLAN.md`. How to write one: `content/packs/README.md` |
+| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. Written so far: decimals. How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
-| `app/store.js` | All learner state, in `localStorage` |
+| `app/store.js` | All learner state, in `localStorage`: progress level by level, the streak |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
 | `app/ui.js` | Design-system components as DOM builders |
@@ -113,8 +114,12 @@ Settled with the project owner. Build on them; don't reopen them.
 - **Each new level opens with a short lesson**: two or three screens with a worked
   example, before any practice. Fuller for what is not taught by exam day (GCF and LCM,
   the area of a circle).
-- **The 13 blueprint topics replace the placeholders as they are built.** Per-topic
-  progress resets then; the learner's name and streak are kept.
+- **The 13 blueprint topics replace the placeholders as they are built.** Done for the
+  switch: the placeholders are gone and the path holds all 13, unwritten ones as coming
+  soon. Progress from the tier model was reset; name, install state and streak were kept.
+- **A level clears at 8 answers right first time.** Retries and redoing missed questions
+  never count. Every written topic is open; levels unlock in order within a topic. The
+  missed-day demotion went with tiers: a missed day now resets only the streak.
 - **Fractions are typed into boxes, and their form counts.** The right amount not in
   lowest terms, or not as a mixed number where one is asked for, is named as its own
   mistake rather than marked right: NCE options are written in lowest terms.
@@ -146,12 +151,18 @@ Settled with the project owner. Build on them; don't reopen them.
 7. ~~**Enable GitHub Pages**.~~ **Done** — live at https://ne-tyr0.github.io/Abante-Minds/.
 8. **Test on a real low-end Android** through the Pages URL. A plain-HTTP LAN address can't
    register the service worker, so install and offline only work on the HTTPS URL.
-9. ~~**CI**.~~ **Done** — `.github/workflows/ci.yml` runs the engine tests, the pack
-   validator, the fuzz, the codec proof, `tests/invariants.js` and, on pull requests,
-   `tests/cache-bump.js`.
+9. ~~**CI**.~~ **Done** — `.github/workflows/ci.yml` runs the engine, entry and progress
+   tests, the pack validator, the fuzz, the codec proof, `tests/invariants.js` and, on
+   pull requests, `tests/cache-bump.js`.
 
-Then the path of levels and the content rebuild (Phase 2), research instrumentation
-(Phase 3) and citability (Phase 4), all in `RESEARCH-PLAN.md`.
+10. ~~**The path of levels**.~~ **Done** — replaces tiers: levels per topic, lessons,
+    the countdown and blueprint coverage on Home (`RESEARCH-PLAN.md` item 15).
+11. **Write the remaining 12 topics**, in path order: fractions, order of operations,
+    factors, ratio, percentages, time, area, solids, circles, data, probability,
+    transformations. Decimals is done (22 templates, 6 levels). Each topic needs its
+    answer input first where it uses a type not yet typeable.
+
+Then research instrumentation (Phase 3) and citability (Phase 4), in `RESEARCH-PLAN.md`.
 
 **Parked:** the other three subtests. The language ladder — there are no native reviewers
 yet, and an unreviewed pack teaches the wrong thing with confidence. Do not ship the

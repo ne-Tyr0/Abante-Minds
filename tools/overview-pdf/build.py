@@ -36,8 +36,8 @@ def data_uri(path):
 
 SHOT = {n: data_uri(os.path.join(SHOTS, n + ".png"))
         for n in ["splash", "home", "topics", "practice", "hint", "correct",
-                  "wrong", "tierup", "summary", "profile", "offline",
-                  "detail_hint", "detail_correct", "detail_tierup"]}
+                  "wrong", "levelup", "summary", "profile", "offline",
+                  "detail_hint", "detail_correct", "detail_levelup"]}
 MARK = data_uri(os.path.join(REPO, "assets", "abante-minds-mark.png"))
 
 
@@ -271,7 +271,7 @@ p4 = f"""
     <div style="width:56mm;flex:none">
       {phone("topics", "Picking a topic. Progress and stars show per topic.")}
       <div style="height:5mm"></div>
-      {detail("detail_tierup", "Reaching a new tier &mdash; the one full-screen celebration in the app.")}
+      {detail("detail_levelup", "Reaching a new tier &mdash; the one full-screen celebration in the app.")}
     </div>
   </div>
 """

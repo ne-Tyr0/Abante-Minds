@@ -1,7 +1,7 @@
 /* Abante Minds — the design system components, as DOM builders.
    Straight ports of the React bundle (components/**), plus the handful of
    patterns the screens use that the system deliberately never made components:
-   the answer tile, the keypad, the tier ladder, the status bar, the nav.
+   the answer tile, the keypad, the status bar, the nav.
    Every colour, radius, and gap comes from a token — there are no literals here
    beyond the pixel sizes the screen document itself specifies. */
 (function () {
@@ -143,7 +143,7 @@
   }
 
   /* ---------- PracticeHeader ----------
-     The calm-mode strip above a question: tier, progress, count. The fill is a
+     The calm-mode strip above a question: level, progress, count. The fill is a
      bare span so motion.css can scale it instead of resizing it. */
   function PracticeHeader(o) {
     o = o || {};
@@ -416,33 +416,6 @@
     return track;
   }
 
-  /* Tier ladder — four rungs: cleared, current, locked, and the trophy at the
-     top. The current rung is the only one that carries an edge. */
-  function TierLadder(o) {
-    var current = o.current || 1;
-    var lockedBg = o.lockedBackground || "var(--surface-200)";
-    var row = el("span", { style: { display: "flex", gap: "var(--space-2)" } });
-    [1, 2, 3, 4].forEach(function (n) {
-      var cleared = n < current;
-      var here = n === current;
-      var glyph = cleared ? "check" : here ? "lesson" : n === 4 ? "trophy" : "lock";
-      var style = {
-        flex: 1, borderRadius: "var(--radius-md)",
-        padding: here ? "10px 6px" : "12px 6px",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-1)"
-      };
-      if (cleared) { style.background = "var(--brand-blue-600)"; style.color = "var(--ink-inverse)"; }
-      else if (here) { style.background = "var(--brand-blue-100)"; style.border = "2px solid var(--brand-blue-600)"; style.color = "var(--brand-blue-600)"; }
-      else { style.background = lockedBg; style.color = "var(--ink-600)"; }
-
-      row.appendChild(el("span", { style: style },
-        icon(glyph, 20),
-        el(here ? "span.label" : "span.caption", { style: here ? { color: "var(--ink-900)" } : null }, String(n))
-      ));
-    });
-    return row;
-  }
-
   /* Seven blocks, one per day of the week. A reset day is a dashed outline
      rather than a red block: the app does not perform disappointment. */
   function StreakWeek(o) {
@@ -482,7 +455,7 @@
       wrap.appendChild(el("span", { style: { display: "flex", flexDirection: "column", gap: 6 } },
         el("span", { style: { display: "flex", justifyContent: "space-between", gap: "var(--space-2)" } },
           el("span.label", null, t.label),
-          el("span.caption", { style: { color: "var(--ink-600)" } }, t.correct + " of " + t.total)
+          el("span.caption", { style: { color: "var(--ink-600)" } }, t.caption || t.correct + " of " + t.total)
         ),
         ProgressBar({ ratio: t.correct / t.total, color: t.color, height: o.height || 8, label: t.label + " progress" })
       ));
@@ -587,7 +560,7 @@
     return node;
   }
 
-  /* A pill that states a fact — streak, tier, topic. Never an action. */
+  /* A pill that states a fact — streak, level, topic. Never an action. */
   function Chip(o) {
     return el("span.caption", {
       style: {
@@ -614,7 +587,6 @@
   AM.AnswerField = AnswerField;
   AM.Keypad = Keypad;
   AM.ProgressBar = ProgressBar;
-  AM.TierLadder = TierLadder;
   AM.StreakWeek = StreakWeek;
   AM.BadgeShelf = BadgeShelf;
   AM.TopicBars = TopicBars;

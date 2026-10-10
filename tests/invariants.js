@@ -111,7 +111,7 @@ const packFiles = [];
 for (const pack of fs.readdirSync(path.join(ROOT, "content/packs"), { withFileTypes: true }).filter((d) => d.isDirectory())) {
   const dir = `content/packs/${pack.name}/`;
   packFiles.push(dir + "manifest.json");
-  for (const t of JSON.parse(read(dir + "manifest.json")).topics) packFiles.push(dir + t.file);
+  for (const t of JSON.parse(read(dir + "manifest.json")).topics) if (t.file) packFiles.push(dir + t.file); /* none yet for a topic coming soon */
 }
 check("every question pack file is precached",
   packFiles.filter((f) => !precached.has(f)).map((f) => "not precached: " + f));

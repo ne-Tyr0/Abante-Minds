@@ -6,9 +6,9 @@ design document imported from the claude.ai design project *Abante Minds system 
 built on that project's own design system, imported unchanged.
 
 **Target:** Grade 6 learners sitting the Philippine Science High School National
-Competitive Examination (NCE) on 30 January 2027. The four topics below are placeholders
-from an earlier Grade 9 framing; their replacement is specified in
-`TABLE-OF-SPECIFICATIONS.md`. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and
+Competitive Examination (NCE) on 30 January 2027. The learner follows a path through the
+13 topics of `TABLE-OF-SPECIFICATIONS.md`, level by level; decimals is written and the rest
+are on the path as coming soon. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and
 the plan.
 
 Open `index.html` through any static server. There is no build step.
@@ -52,12 +52,12 @@ components it imports are reimplemented natively in `app/ui.js`.
 | --- | --- |
 | `index.html` | Shell. Loads the design system, then the app |
 | `app/icons.js` | The 22-glyph Phosphor Bold subset from the design system |
-| `app/ui.js` | The design system components as DOM builders, plus the patterns the system deliberately left out (answer tile, keypad, tier ladder, nav) |
+| `app/ui.js` | The design system components as DOM builders, plus the patterns the system deliberately left out (answer tile, keypad, nav) |
 | `app/content.js` | The question engine |
 | `app/entry.js` | What each keypad key does to the answer boxes |
 | `content/packs/` | The questions, as JSON |
-| `app/store.js` | Learner state: tier, streak, per-topic progress |
-| `app/screens.js` | The twenty screens |
+| `app/store.js` | Learner state: progress level by level, the streak |
+| `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
 | `app/app.css` | Shell layout and the three width rules |
 | `sw.js`, `manifest.webmanifest` | Install to home screen, and a full session with no signal |
@@ -77,21 +77,25 @@ deliberately not built: the app sends nothing, so there is nothing to report as 
 | 4 | `setup` |
 | 5, 6, 17 | `home` |
 | 7, 8 | `topics` |
-| 9, 10, 11, 12, 13, 15, 18 | `practice` |
-| 14 | `tierup` |
+| 9, 10, 11, 12, 13, 18 | `practice` |
+| 14 | `levelup` |
 | 16 | `summary` |
 | 20 | `profile` |
 
-Two routes are not in the document: `installSteps`, which shows how to add the app to the
-home screen in a browser that cannot do it in one tap, and `loadFailed`, shown if the
-question pack cannot load.
+The path changed what some frames show: Home leads with the next level and the countdown
+to the exam rather than a tier ladder, Topics is the whole path, frame 14 celebrates a
+cleared level rather than a tier, and frame 15, the demotion card, is gone with tiers.
+
+Routes not in the document: `topic` (a topic's levels), `lesson` (the cards that open a
+level), `installSteps` (how to add the app to the home screen in a browser that cannot do
+it in one tap) and `loadFailed` (shown if the question pack cannot load).
 
 ### The questions
 
 Eighty hand-written items would be exhausted in a week, and a fixed bank can be memorised,
 so each topic is a set of question types, kept as data in `content/packs/`. A type draws
-fresh numbers for every question, scaled to the learner's tier, and can present the same
-problem in more than one format. The three hints and three worked steps are derived from
+fresh numbers for every question, harder as the learner gets further through the level,
+and can present the same problem in more than one format. The three hints and three worked steps are derived from
 the same numbers, so every question arrives with a real scaffold rather than generic
 advice.
 
@@ -99,24 +103,27 @@ Each type also names the mistakes it expects. A wrong answer that matches one ge
 mistake's own explanation; any other wrong answer is told plainly to start from the first
 step, rather than given a guess about what went wrong.
 
-The items the document prints verbatim — the ₱240 markup, the three kilos of fish for
-₱450, the ₱63 loaf paid with ₱100 — are pinned at the front of their topic, so a fresh
-install opens on exactly the screens in the spec. Writing a pack:
-`content/packs/README.md`.
+Writing a pack: `content/packs/README.md`.
 
 ### Progression
 
-- Twenty correct on a tier opens the next one, and the tier-up takeover is the only gold
-  field in the product.
-- A missed day resets the streak and drops one tier. Five correct in a row restores it.
-  The demote is stated in a card inside the ordinary practice layout — no takeover.
-- Every topic counts to twenty.
+- The path runs through the 13 topics in a set order: decimals, fractions, order of
+  operations, factors, ratio, percentages, time, area, solids, circles, data, probability,
+  transformations. Any written topic can be opened; the next one is marked.
+- Each topic splits into levels that follow its competencies. A level opens with a short
+  lesson the first time and clears at 8 answers right first time; a retry, or redoing a
+  missed question after seeing its solution, does not count. Clearing a level opens the
+  next, and the level-cleared takeover is the only gold field in the product.
+- The numbers get harder as a level fills, and hardest when reviewing a cleared level.
+- Home counts down to 30 January and shows the share of the blueprint's competencies the
+  cleared levels cover.
+- A missed day resets the streak and nothing else.
 
 ### Offline
 
 The service worker precaches the shell and serves it stale-while-revalidate, so a cold
-start with no signal still opens the app. Answers given offline count immediately, so tiers
-move whether or not there is signal. Nothing is sent anywhere, so there is nothing to sync.
+start with no signal still opens the app. Answers given offline count immediately, so levels
+clear whether or not there is signal. Nothing is sent anywhere, so there is nothing to sync.
 
 Learner state lives in `localStorage` and never leaves the device.
 
@@ -183,6 +190,7 @@ scroll.
 ```bash
 node tests/engine.js
 node tests/entry.js
+node tests/progress.js
 node tests/validate-packs.js
 node tests/fuzz.js
 node tests/invariants.js
@@ -195,10 +203,13 @@ diagnosed.
 `tests/entry.js` pins what each keypad key does to the answer: digits and the decimal
 point for a number, the Next key and the boxes for a fraction or mixed number.
 
+`tests/progress.js` pins the path's rules: what clears a level, what opens the next, what
+counts as right first time, and how an older saved record is carried over.
+
 `tests/validate-packs.js` checks every pack against its schema and the blueprint, then
 generates every template at every tier and checks what a learner would be shown.
 
-`tests/fuzz.js` builds whole sessions for every topic at every tier, 160,000 questions in
+`tests/fuzz.js` builds whole sessions for every level at every tier, 144,000 questions in
 all, and fails if any can produce a negative answer or one too long for the keypad, an
 incomplete scaffold, a hint with an unfollowable number, a broken multiple choice, an
 answer the checker rejects, or a named mistake that does not bring back its own feedback.
