@@ -259,6 +259,26 @@ function run() {
       case "basics-adding":
         AM.app.openBasicsTopic("add-subtract");
         break;
+      case "basics-mental":
+        AM.app.openBasicsTopic("mental");
+        break;
+      case "mental-practice":
+        AM.store.markLessonSeen("mental", "split");
+        AM.app.startLevel("mental", "split");
+        s = AM.app.session;
+        s.questions[0] = AM.content.instance("mental.split-times", 1, { a: 23, m: 4 }, "price");
+        s.entry = AM.entry.create("number");
+        AM.app.go("practice");
+        typeIn("32"); AM.app.check();
+        break;
+      case "mental-levelup":
+        AM.store.markLessonSeen("mental", "split");
+        AM.app.startLevel("mental", "split");
+        var ml = AM.store.levelState("mental", "split");
+        AM.store.get().levels["mental/split"] = { correct: 8, attempts: 9, cleared: true, lessonSeen: true };
+        AM.store.set({ levels: AM.store.get().levels });
+        AM.app.go("levelup");
+        break;
       case "facts":
       case "facts-correct":
       case "facts-wrong":

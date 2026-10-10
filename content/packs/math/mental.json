@@ -1,0 +1,642 @@
+{
+  "topic": "mental",
+  "levels": [
+    {
+      "id": "tens",
+      "title": "Times and divide by 10, 100, 1000",
+      "templates": ["mental.times-tens", "mental.divide-tens", "mental.tens-times"],
+      "lesson": [
+        {
+          "title": "Move the digits",
+          "body": "Times 10 moves every digit one place to the left: 37 × 10 = 370. Times 100 moves them two places: 37 × 100 = 3700."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "mental.times-tens", "params": {"a": 37, "k": 2}, "format": "product"}
+        },
+        {
+          "title": "Divide moves them back",
+          "body": "4500 ÷ 100 = 45: every digit moves two places to the right. And 30 × 40 is 3 × 4 = 12 with two zeros: 1200."
+        }
+      ]
+    },
+    {
+      "id": "double-halve",
+      "title": "Double and halve",
+      "templates": ["mental.double", "mental.halve", "mental.halve-double"],
+      "lesson": [
+        {"title": "Double the parts", "body": "Double 38: double 30 is 60, double 8 is 16, and 60 + 16 = 76."},
+        {
+          "title": "Worked example",
+          "example": {"template": "mental.halve", "params": {"a": 37}, "format": "half"}
+        },
+        {
+          "title": "Halve one, double the other",
+          "body": "16 × 25 = 8 × 50 = 4 × 100 = 400. Halving one number and doubling the other keeps the answer the same."
+        }
+      ]
+    },
+    {
+      "id": "five-nine-eleven",
+      "title": "Times 5, 9 and 11",
+      "templates": ["mental.times-5", "mental.times-9", "mental.times-11"],
+      "lesson": [
+        {"title": "Times 5", "body": "46 × 5 is half of 46 × 10: half of 460 is 230."},
+        {
+          "title": "Worked example",
+          "example": {"template": "mental.times-9", "params": {"a": 34}, "format": "product"}
+        },
+        {"title": "Times 11", "body": "43 × 11 is 43 × 10 and one more 43: 430 + 43 = 473."}
+      ]
+    },
+    {
+      "id": "split",
+      "title": "Split and multiply",
+      "templates": ["mental.split-times", "mental.split-two-digit"],
+      "lesson": [
+        {
+          "title": "Split the number",
+          "body": "23 × 4 = 20 × 4 + 3 × 4 = 80 + 12 = 92. Multiply both parts, then add."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "mental.split-times", "params": {"a": 23, "m": 4}, "format": "product"}
+        },
+        {"title": "Split the bigger number", "body": "23 × 14 = 23 × 10 + 23 × 4 = 230 + 92 = 322."}
+      ]
+    },
+    {
+      "id": "divide",
+      "title": "Divide in your head",
+      "templates": ["mental.split-divide", "mental.divide-by-5"],
+      "lesson": [
+        {
+          "title": "Split, then divide",
+          "body": "84 ÷ 4: 84 is 80 + 4, so the answer is 80 ÷ 4 + 4 ÷ 4 = 20 + 1 = 21."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "mental.split-divide", "params": {"d": 8, "q": 12}, "format": "quotient"}
+        },
+        {"title": "Dividing by 5", "body": "85 ÷ 5 = 170 ÷ 10 = 17: double the number, then divide by 10."}
+      ]
+    },
+    {
+      "id": "estimate",
+      "title": "Estimate",
+      "templates": ["mental.estimate-product", "mental.estimate-sum"],
+      "lesson": [
+        {
+          "title": "Round first",
+          "body": "To estimate 49 × 21, round to 50 × 20 = 1000. The exact answer, 1029, is close."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "mental.estimate-sum", "params": {"a": 398, "b": 211}, "format": "about"}
+        },
+        {
+          "title": "Check with an estimate",
+          "body": "An estimate tells you if an answer is about right: 31 × 19 cannot be 5890, because 30 × 20 is only 600."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "mental.times-tens",
+      "domain": "NA",
+      "construct": "Multiply a whole number by 10, 100 or 1000",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [2, 99], "3": [11, 999]}},
+        "k": {"tiers": {"1": [1, 2], "3": [1, 3]}},
+        "p": {"value": "k == 1 ? 10 : (k == 2 ? 100 : 1000)"}
+      },
+      "where": ["a % 10 != 0"],
+      "answer": {"type": "integer", "value": "a * p"},
+      "formats": [{"id": "product", "prompt": "{a} × {p} = ?"}, {"id": "turned", "prompt": "{p} × {a} = ?"}],
+      "hints": [
+        "Times {p} moves every digit {k} place{k == 1 ? '' : 's'} to the left.",
+        "That puts {k} zero{k == 1 ? '' : 's'} on the end of {a}.",
+        "{a} with {k} zero{k == 1 ? '' : 's'} after it = ?"
+      ],
+      "steps": [
+        "{p} has {k} zero{k == 1 ? '' : 's'}",
+        "Each digit of {a} moves {k} place{k == 1 ? '' : 's'} left",
+        "{a} × {p} = {answer}"
+      ],
+      "explain": "{a} × {p} = {answer}: {k} zero{k == 1 ? '' : 's'} on the end.",
+      "distractors": [
+        {
+          "value": "a * p / 10",
+          "error": "one-zero-short",
+          "feedback": "{value} has one zero too few. {p} has {k} zero{k == 1 ? '' : 's'}."
+        },
+        {
+          "value": "a * p * 10",
+          "error": "one-zero-too-many",
+          "feedback": "{value} has one zero too many. {p} has {k} zero{k == 1 ? '' : 's'}."
+        },
+        {
+          "value": "a + p",
+          "error": "added-instead",
+          "feedback": "{value} is {a} + {p}. × means {p} lots of {a}."
+        }
+      ]
+    },
+    {
+      "id": "mental.divide-tens",
+      "domain": "NA",
+      "construct": "Divide a whole number by 10, 100 or 1000 when the answer is whole",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [2, 99], "3": [11, 999]}},
+        "k": {"tiers": {"1": [1, 2], "3": [1, 3]}},
+        "p": {"value": "k == 1 ? 10 : (k == 2 ? 100 : 1000)"},
+        "n": {"value": "a * p"}
+      },
+      "where": ["a % 10 != 0"],
+      "answer": {"type": "integer", "value": "a"},
+      "formats": [
+        {"id": "quotient", "prompt": "{n} ÷ {p} = ?"},
+        {"id": "groups", "prompt": "How many groups of {p} make {n}?"}
+      ],
+      "hints": [
+        "Divide by {p} moves every digit {k} place{k == 1 ? '' : 's'} to the right.",
+        "That takes {k} zero{k == 1 ? '' : 's'} off the end of {n}.",
+        "{n} without its last {k} zero{k == 1 ? '' : 's'} = ?"
+      ],
+      "steps": [
+        "{p} has {k} zero{k == 1 ? '' : 's'}",
+        "Each digit of {n} moves {k} place{k == 1 ? '' : 's'} right",
+        "{n} ÷ {p} = {answer}"
+      ],
+      "explain": "{n} ÷ {p} = {answer}: {k} zero{k == 1 ? '' : 's'} off the end.",
+      "distractors": [
+        {
+          "value": "a * 10",
+          "error": "one-zero-too-many",
+          "feedback": "{value} still has one zero too many. Take {k} zero{k == 1 ? '' : 's'} off {n}."
+        },
+        {
+          "value": "a / 10",
+          "error": "one-zero-too-few",
+          "feedback": "{fmt(value)} takes off one place too many. Take off only {k} zero{k == 1 ? '' : 's'}."
+        },
+        {
+          "value": "n - p",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {p}. ÷ asks how many {p}s make {n}."
+        }
+      ]
+    },
+    {
+      "id": "mental.tens-times",
+      "domain": "NA",
+      "construct": "Multiply multiples of 10 and 100: the digits, then the zeros",
+      "schema": "equal-groups",
+      "params": {
+        "x": {"range": [2, 9]},
+        "y": {"range": [2, 9]},
+        "i": {"tiers": {"1": [1, 1], "3": [1, 2]}},
+        "j": {"tiers": {"1": [0, 1], "3": [1, 2]}},
+        "a": {"value": "x * (i == 1 ? 10 : 100)"},
+        "b": {"value": "y * (j == 0 ? 1 : (j == 1 ? 10 : 100))"},
+        "z": {"value": "i + j"}
+      },
+      "answer": {"type": "integer", "value": "a * b"},
+      "formats": [
+        {"id": "product", "prompt": "{a} × {b} = ?"},
+        {"id": "boxes", "prompt": "A shop packs {b} boxes with {a} pencils each. How many pencils is that?"}
+      ],
+      "hints": [
+        "Multiply the digits that are not zeros, then put all the zeros back.",
+        "{x} × {y} = {x * y}.",
+        "{x * y} with {z} more zero{z == 1 ? '' : 's'} after it = ?"
+      ],
+      "steps": [
+        "{x} × {y} = {x * y}",
+        "{a} and {b} have {z} zero{z == 1 ? '' : 's'} between them",
+        "{x * y} and {z} zero{z == 1 ? '' : 's'}: {answer}"
+      ],
+      "explain": "{x} × {y} = {x * y}, and {z} zero{z == 1 ? '' : 's'} makes {answer}.",
+      "distractors": [
+        {
+          "value": "a * b / 10",
+          "error": "a-zero-short",
+          "feedback": "{value} has a zero too few. Count the zeros in both numbers: {z}."
+        },
+        {
+          "value": "a * b * 10",
+          "error": "a-zero-too-many",
+          "feedback": "{value} has a zero too many. Count the zeros in both numbers: {z}."
+        },
+        {
+          "value": "a + b",
+          "error": "added-instead",
+          "feedback": "{value} is {a} + {b}. × means {b} lots of {a}."
+        }
+      ]
+    },
+    {
+      "id": "mental.double",
+      "domain": "NA",
+      "construct": "Double a two- or three-digit number in parts",
+      "schema": "equal-groups",
+      "params": {"a": {"tiers": {"1": [11, 49], "3": [51, 499]}}},
+      "where": ["a % 10 != 0"],
+      "answer": {"type": "integer", "value": "2 * a"},
+      "formats": [
+        {"id": "double", "prompt": "Double {a} = ?"},
+        {"id": "times-2", "prompt": "{a} × 2 = ?"},
+        {"id": "twice", "prompt": "{a} + {a} = ?"}
+      ],
+      "hints": [
+        "Double the tens and the ones separately, then add.",
+        "Double {a - a % 10} is {2 * (a - a % 10)}, and double {a % 10} is {2 * (a % 10)}.",
+        "{2 * (a - a % 10)} + {2 * (a % 10)} = ?"
+      ],
+      "steps": [
+        "Double {a - a % 10} = {2 * (a - a % 10)}",
+        "Double {a % 10} = {2 * (a % 10)}",
+        "{2 * (a - a % 10)} + {2 * (a % 10)} = {answer}"
+      ],
+      "explain": "Double {a - a % 10} and double {a % 10}: {2 * (a - a % 10)} + {2 * (a % 10)} = {answer}.",
+      "distractors": [
+        {
+          "value": "2 * (a - a % 10) + a % 10",
+          "error": "doubled-only-the-tens",
+          "feedback": "{value} doubles {a - a % 10} but not the {a % 10}. Double both parts."
+        },
+        {"value": "a + 2", "error": "added-2", "feedback": "{value} adds 2. Double means 2 lots of {a}."}
+      ]
+    },
+    {
+      "id": "mental.halve",
+      "domain": "NA",
+      "construct": "Halve an even number in parts that are easy to halve",
+      "schema": "equal-groups",
+      "params": {"a": {"tiers": {"1": [11, 49], "3": [26, 499]}}, "n": {"value": "2 * a"}, "r": {"value": "n % 20"}},
+      "where": ["r != 0"],
+      "answer": {"type": "integer", "value": "a"},
+      "formats": [
+        {"id": "half", "prompt": "Half of {n} = ?"},
+        {"id": "divide", "prompt": "{n} ÷ 2 = ?"},
+        {"id": "share", "prompt": "₱{n} is shared equally between 2 children. How much does each get?"}
+      ],
+      "hints": [
+        "Split {n} into parts that are easy to halve.",
+        "{n} = {n - r} + {r}.",
+        "Half of {n - r} is {(n - r) / 2}, and half of {r} is {r / 2}. Add them."
+      ],
+      "steps": [
+        "{n} = {n - r} + {r}",
+        "Half of {n - r} = {(n - r) / 2}; half of {r} = {r / 2}",
+        "{(n - r) / 2} + {r / 2} = {answer}"
+      ],
+      "explain": "Half of {n - r} is {(n - r) / 2} and half of {r} is {r / 2}: {answer}.",
+      "distractors": [
+        {
+          "value": "floor(n / 10) % 2 == 1 ? floor(n / 20) * 10 + n % 10 / 2 : -1",
+          "error": "dropped-the-odd-ten",
+          "feedback": "{value} halves {floor(n / 10)} tens to {floor(n / 20)} ten{floor(n / 20) == 1 ? '' : 's'} and drops the ten left over. Half of that ten is 5 more."
+        },
+        {
+          "value": "2 * n",
+          "error": "doubled-instead",
+          "feedback": "{value} is double {n}. Half means 2 equal parts."
+        }
+      ]
+    },
+    {
+      "id": "mental.halve-double",
+      "domain": "NA",
+      "construct": "Multiply by halving one number and doubling the other",
+      "schema": "equal-groups",
+      "params": {
+        "b": {"choose": [5, 15, 25, 35, 45, 50]},
+        "h": {"tiers": {"1": [2, 9], "3": [2, 24]}},
+        "a": {"value": "2 * h"}
+      },
+      "answer": {"type": "integer", "value": "a * b"},
+      "formats": [{"id": "product", "prompt": "{a} × {b} = ?"}, {"id": "turned", "prompt": "{b} × {a} = ?"}],
+      "hints": [
+        "Halve one number and double the other: the answer stays the same.",
+        "{a} × {b} = {h} × {2 * b}.",
+        "{h} × {2 * b} = ?"
+      ],
+      "steps": ["Halve {a}: {h}", "Double {b}: {2 * b}", "{h} × {2 * b} = {answer}"],
+      "explain": "{a} × {b} = {h} × {2 * b} = {answer}.",
+      "distractors": [
+        {
+          "value": "h * b",
+          "error": "halved-without-doubling",
+          "feedback": "{value} halves {a} but does not double {b}. Halve one, double the other."
+        },
+        {
+          "value": "4 * h * b",
+          "error": "doubled-both",
+          "feedback": "{value} doubles both numbers. Halve one and double the other."
+        }
+      ]
+    },
+    {
+      "id": "mental.times-5",
+      "domain": "NA",
+      "construct": "Multiply by 5 as times 10, then halve",
+      "schema": "equal-groups",
+      "params": {"a": {"tiers": {"1": [12, 48], "3": [52, 198]}}},
+      "where": ["a % 10 != 0"],
+      "answer": {"type": "integer", "value": "5 * a"},
+      "formats": [
+        {"id": "product", "prompt": "{a} × 5 = ?"},
+        {"id": "coins", "prompt": "How many pesos are {a} five-peso coins?"}
+      ],
+      "hints": ["Times 5 is times 10, then halve.", "{a} × 10 = {10 * a}.", "Half of {10 * a} = ?"],
+      "steps": ["{a} × 10 = {10 * a}", "5 is half of 10", "Half of {10 * a} = {answer}"],
+      "explain": "{a} × 5 is half of {a} × 10: half of {10 * a} is {answer}.",
+      "distractors": [
+        {
+          "value": "10 * a",
+          "error": "did-not-halve",
+          "feedback": "{value} is {a} × 10. Times 5 is half of that."
+        },
+        {
+          "value": "a % 2 == 0 ? a / 2 : -1",
+          "error": "halved-instead",
+          "feedback": "{value} is half of {a}. Times 5 is half of {a} × 10."
+        }
+      ]
+    },
+    {
+      "id": "mental.times-9",
+      "domain": "NA",
+      "construct": "Multiply by 9 as times 10, minus one group",
+      "schema": "equal-groups",
+      "params": {"a": {"tiers": {"1": [12, 49], "3": [51, 199]}}},
+      "where": ["a % 10 != 0"],
+      "answer": {"type": "integer", "value": "9 * a"},
+      "formats": [{"id": "product", "prompt": "{a} × 9 = ?"}, {"id": "turned", "prompt": "9 × {a} = ?"}],
+      "hints": ["Times 9 is times 10, minus one {a}.", "{a} × 10 = {10 * a}.", "{10 * a} − {a} = ?"],
+      "steps": ["{a} × 10 = {10 * a}", "Take away one {a}", "{10 * a} − {a} = {answer}"],
+      "explain": "{a} × 9 = {a} × 10 − {a} = {10 * a} − {a} = {answer}.",
+      "distractors": [
+        {
+          "value": "10 * a",
+          "error": "did-not-take-one-away",
+          "feedback": "{value} is {a} × 10. Times 9 is one {a} less."
+        },
+        {
+          "value": "10 * a - 9",
+          "error": "took-away-9",
+          "feedback": "{value} takes away 9. Take away one {a}: {10 * a} − {a}."
+        }
+      ]
+    },
+    {
+      "id": "mental.times-11",
+      "domain": "NA",
+      "construct": "Multiply by 11 as times 10, plus one group",
+      "schema": "equal-groups",
+      "params": {"a": {"tiers": {"1": [12, 49], "3": [51, 199]}}},
+      "where": ["a % 10 != 0"],
+      "answer": {"type": "integer", "value": "11 * a"},
+      "formats": [{"id": "product", "prompt": "{a} × 11 = ?"}, {"id": "turned", "prompt": "11 × {a} = ?"}],
+      "hints": ["Times 11 is times 10, plus one more {a}.", "{a} × 10 = {10 * a}.", "{10 * a} + {a} = ?"],
+      "steps": ["{a} × 10 = {10 * a}", "Add one more {a}", "{10 * a} + {a} = {answer}"],
+      "explain": "{a} × 11 = {a} × 10 + {a} = {10 * a} + {a} = {answer}.",
+      "distractors": [
+        {
+          "value": "10 * a",
+          "error": "did-not-add-one-more",
+          "feedback": "{value} is {a} × 10. Times 11 is one more {a}."
+        },
+        {
+          "value": "a + 11",
+          "error": "added-instead",
+          "feedback": "{value} is {a} + 11. × means 11 lots of {a}."
+        }
+      ]
+    },
+    {
+      "id": "mental.split-times",
+      "domain": "NA",
+      "construct": "Multiply by a one-digit number by splitting into tens and ones",
+      "schema": "equal-groups",
+      "params": {"a": {"tiers": {"1": [12, 49], "3": [52, 249]}}, "m": {"tiers": {"1": [3, 6], "3": [3, 9]}}},
+      "where": ["a % 10 != 0"],
+      "answer": {"type": "integer", "value": "a * m"},
+      "formats": [
+        {"id": "product", "prompt": "{a} × {m} = ?"},
+        {"id": "price", "prompt": "One notebook costs ₱{a}. How much do {m} notebooks cost?"}
+      ],
+      "hints": [
+        "Split {a} into {a - a % 10} and {a % 10}, and multiply each by {m}.",
+        "{a - a % 10} × {m} = {(a - a % 10) * m} and {a % 10} × {m} = {a % 10 * m}.",
+        "{(a - a % 10) * m} + {a % 10 * m} = ?"
+      ],
+      "steps": [
+        "{a - a % 10} × {m} = {(a - a % 10) * m}",
+        "{a % 10} × {m} = {a % 10 * m}",
+        "{(a - a % 10) * m} + {a % 10 * m} = {answer}"
+      ],
+      "explain": "{a - a % 10} × {m} + {a % 10} × {m} = {(a - a % 10) * m} + {a % 10 * m} = {answer}.",
+      "distractors": [
+        {
+          "value": "(a - a % 10) * m",
+          "error": "forgot-the-ones",
+          "feedback": "{value} multiplies only the {a - a % 10}. Multiply the {a % 10} by {m} too."
+        },
+        {
+          "value": "a - a % 10 + a % 10 * m",
+          "error": "multiplied-only-the-ones",
+          "feedback": "{value} multiplies only the {a % 10}. The {a - a % 10} must be multiplied by {m} too."
+        }
+      ]
+    },
+    {
+      "id": "mental.split-two-digit",
+      "domain": "NA",
+      "construct": "Multiply two two-digit numbers by splitting one into tens and ones",
+      "schema": "equal-groups",
+      "params": {"a": {"tiers": {"1": [12, 29], "3": [12, 49]}}, "b": {"tiers": {"1": [11, 19], "3": [11, 29]}}},
+      "where": ["b % 10 != 0"],
+      "answer": {"type": "integer", "value": "a * b"},
+      "formats": [
+        {"id": "product", "prompt": "{a} × {b} = ?"},
+        {"id": "rows", "prompt": "A hall has {b} rows of {a} chairs. How many chairs is that?"}
+      ],
+      "hints": [
+        "Split {b} into {b - b % 10} and {b % 10}.",
+        "{a} × {b - b % 10} = {a * (b - b % 10)} and {a} × {b % 10} = {a * (b % 10)}.",
+        "{a * (b - b % 10)} + {a * (b % 10)} = ?"
+      ],
+      "steps": [
+        "{a} × {b - b % 10} = {a * (b - b % 10)}",
+        "{a} × {b % 10} = {a * (b % 10)}",
+        "{a * (b - b % 10)} + {a * (b % 10)} = {answer}"
+      ],
+      "explain": "{a} × {b - b % 10} + {a} × {b % 10} = {a * (b - b % 10)} + {a * (b % 10)} = {answer}.",
+      "distractors": [
+        {
+          "value": "a * (b - b % 10)",
+          "error": "forgot-the-ones",
+          "feedback": "{value} is {a} × {b - b % 10} only. Add {a} × {b % 10} too."
+        },
+        {
+          "value": "a * (b % 10)",
+          "error": "forgot-the-tens",
+          "feedback": "{value} is {a} × {b % 10} only. Add {a} × {b - b % 10} too."
+        }
+      ]
+    },
+    {
+      "id": "mental.split-divide",
+      "domain": "NA",
+      "construct": "Divide in your head by splitting into easy parts",
+      "schema": "equal-groups",
+      "params": {
+        "d": {"tiers": {"1": [2, 5], "3": [3, 9]}},
+        "q": {"tiers": {"1": [11, 29], "3": [12, 99]}},
+        "n": {"value": "d * q"},
+        "big": {"value": "10 * d * floor(q / 10)"},
+        "rest": {"value": "n - big"}
+      },
+      "where": ["q % 10 != 0"],
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "quotient", "prompt": "{n} ÷ {d} = ?"},
+        {"id": "share", "prompt": "₱{n} is shared equally among {d} friends. How much does each get?"}
+      ],
+      "hints": [
+        "Split {n} into a part that divides easily by {d}, and the rest.",
+        "{n} = {big} + {rest}.",
+        "{big} ÷ {d} = {big / d} and {rest} ÷ {d} = {rest / d}. Add them."
+      ],
+      "steps": [
+        "{n} = {big} + {rest}",
+        "{big} ÷ {d} = {big / d}; {rest} ÷ {d} = {rest / d}",
+        "{big / d} + {rest / d} = {answer}"
+      ],
+      "explain": "{big} ÷ {d} = {big / d} and {rest} ÷ {d} = {rest / d}, so {n} ÷ {d} = {answer}.",
+      "distractors": [
+        {
+          "value": "big / d",
+          "error": "divided-only-one-part",
+          "feedback": "{value} is {big} ÷ {d}. Divide the other {rest} by {d} too."
+        },
+        {
+          "value": "n - d",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {d}. ÷ shares {n} into {d} equal parts."
+        }
+      ]
+    },
+    {
+      "id": "mental.divide-by-5",
+      "domain": "NA",
+      "construct": "Divide by 5 by doubling, then dividing by 10",
+      "schema": "equal-groups",
+      "params": {"q": {"tiers": {"1": [11, 39], "3": [21, 199]}}, "n": {"value": "5 * q"}},
+      "where": ["q % 10 != 0"],
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "quotient", "prompt": "{n} ÷ 5 = ?"},
+        {"id": "coins", "prompt": "How many five-peso coins make ₱{n}?"}
+      ],
+      "hints": [
+        "Dividing by 5 is the same as doubling, then dividing by 10.",
+        "Double {n} is {2 * n}.",
+        "{2 * n} ÷ 10 = ?"
+      ],
+      "steps": ["Double {n} = {2 * n}", "Divide by 10", "{2 * n} ÷ 10 = {answer}"],
+      "explain": "{n} ÷ 5 = double {n} ÷ 10 = {2 * n} ÷ 10 = {answer}.",
+      "distractors": [
+        {
+          "value": "2 * n",
+          "error": "did-not-divide-by-10",
+          "feedback": "{value} is double {n}. Now divide by 10."
+        },
+        {
+          "value": "n % 2 == 0 ? n / 2 : -1",
+          "error": "halved-instead",
+          "feedback": "{value} is half of {n}. Dividing by 5 is doubling, then dividing by 10."
+        }
+      ]
+    },
+    {
+      "id": "mental.estimate-product",
+      "domain": "NA",
+      "construct": "Estimate a product by rounding each number to the nearest ten",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [11, 98], "3": [21, 98]}},
+        "b": {"tiers": {"1": [11, 98], "3": [21, 98]}},
+        "ra": {"value": "round(a / 10) * 10"},
+        "rb": {"value": "round(b / 10) * 10"}
+      },
+      "where": ["a % 10 != 0", "b % 10 != 0", "a % 10 != 5", "b % 10 != 5"],
+      "answer": {"type": "integer", "value": "ra * rb"},
+      "formats": [{"id": "about", "prompt": "Round each number to the nearest ten. About how much is {a} × {b}?"}],
+      "hints": [
+        "Round {a} and {b} to the nearest ten first.",
+        "{a} is about {ra}, and {b} is about {rb}.",
+        "{ra} × {rb} = ?"
+      ],
+      "steps": ["{a} rounds to {ra}", "{b} rounds to {rb}", "{ra} × {rb} = {answer}"],
+      "explain": "{a} × {b} is about {ra} × {rb} = {answer}. The exact answer is {a * b}.",
+      "distractors": [
+        {
+          "value": "a * b",
+          "error": "worked-it-out-exactly",
+          "feedback": "{value} is the exact answer. The question asks for an estimate: round first."
+        },
+        {
+          "value": "floor(a / 10) * 10 * floor(b / 10) * 10",
+          "error": "rounded-both-down",
+          "feedback": "{value} rounds both numbers down. Round each to the nearest ten: {ra} and {rb}."
+        }
+      ]
+    },
+    {
+      "id": "mental.estimate-sum",
+      "domain": "NA",
+      "construct": "Estimate a sum by rounding each number to the nearest hundred",
+      "schema": "combine",
+      "params": {
+        "a": {"tiers": {"1": [110, 890]}},
+        "b": {"tiers": {"1": [110, 890]}},
+        "ra": {"value": "round(a / 100) * 100"},
+        "rb": {"value": "round(b / 100) * 100"}
+      },
+      "where": ["a % 100 != 50", "b % 100 != 50", "a % 100 != 0", "b % 100 != 0"],
+      "answer": {"type": "integer", "value": "ra + rb"},
+      "formats": [
+        {"id": "about", "prompt": "Round each number to the nearest hundred. About how much is {a} + {b}?"},
+        {
+          "id": "money",
+          "prompt": "Lito buys a bag for ₱{a} and shoes for ₱{b}. Rounding each to the nearest hundred, about how much does he spend?"
+        }
+      ],
+      "hints": [
+        "Round {a} and {b} to the nearest hundred first.",
+        "{a} is about {ra}, and {b} is about {rb}.",
+        "{ra} + {rb} = ?"
+      ],
+      "steps": ["{a} rounds to {ra}", "{b} rounds to {rb}", "{ra} + {rb} = {answer}"],
+      "explain": "{a} + {b} is about {ra} + {rb} = {answer}. The exact answer is {a + b}.",
+      "distractors": [
+        {
+          "value": "a + b",
+          "error": "worked-it-out-exactly",
+          "feedback": "{value} is the exact answer. The question asks for an estimate: round first."
+        },
+        {
+          "value": "floor(a / 100) * 100 + floor(b / 100) * 100",
+          "error": "rounded-both-down",
+          "feedback": "{value} rounds both numbers down. Round each to the nearest hundred: {ra} and {rb}."
+        }
+      ]
+    }
+  ]
+}

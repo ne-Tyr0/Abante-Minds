@@ -133,8 +133,11 @@ every topic, so a learner can work without a calculator. Written so far:
   adjust, counting up when the numbers are close).
 - **Times tables**: 180 facts (66 times facts from 2 × 2 to 12 × 12, and their divide
   facts) in five groups.
+- **Mental math**: six practice levels: times and divide by 10, 100 and 1000; double and
+  halve; times 5, 9 and 11; split and multiply; divide in your head; and estimate to
+  check an answer.
 
-Each has a review level of all its facts.
+The facts topics each have a review level of all their facts.
 
 - A facts level is practised fact by fact, in rounds of 20. A fact is **mastered when it
   is right in under 4 seconds, without a hint, on two different days**. A miss sends it
