@@ -18,7 +18,7 @@ content/packs/<subtest>/
 
 Only `math` exists. Its path holds all 13 blueprint topics; `decimals` and `fractions` are
 written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
-topics: `add-subtract`, `times`, `mental` and `written` are written.
+topics: `add-subtract`, `times`, `mental`, `written` and `missing` are written.
 
 ## Before you commit
 
