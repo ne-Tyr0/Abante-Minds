@@ -27,8 +27,9 @@
      not typed. The blueprint's other types wait for their input. */
   var ENTRY = {
     integer: "number", decimal: "number", percent: "number", unit: "number",
-    "pi-expression": "number", fraction: "fraction", mixed: "mixed", choice: null
+    "pi-expression": "number", fraction: "fraction", mixed: "mixed", time: "time", choice: null
   };
+  var DAY = 1440; /* minutes: a clock time is a whole number of minutes after midnight */
   var INPUTTABLE = {};
   Object.keys(ENTRY).forEach(function (k) { INPUTTABLE[k] = true; });
   var BOX_LIMIT = 999; /* three digits in each fraction box */
@@ -204,6 +205,30 @@
     i = int(i);
     if (i.n < 1 || i.n >= arguments.length) throw ContentError("pick() has no item " + i.n);
     return arguments[i.n];
+  };
+
+  /* Clock times, held as whole minutes after midnight. clock(t) is the 24-hour
+     time, 14:05; clock12(t) the 12-hour one, 2:05 p.m., with 12:00 noon and
+     12:00 midnight named; hm(m) a length of time, 2 hours 5 minutes. */
+  function minutes(t) {
+    t = int(t);
+    if (t.n < 0 || t.n >= DAY) throw ContentError("a clock time is 0 to 1439 minutes after midnight, not " + t.n);
+    return t.n;
+  }
+  FUNCS.clock = function (t) { return clockText(Q(minutes(t))); };
+  FUNCS.clock12 = function (t) {
+    var n = minutes(t), h = Math.floor(n / 60), m = n % 60, mm = (m < 10 ? "0" : "") + m;
+    if (n === 0) return "12:00 midnight";
+    if (n === 720) return "12:00 noon";
+    return (h % 12 === 0 ? 12 : h % 12) + ":" + mm + (h < 12 ? " a.m." : " p.m.");
+  };
+  FUNCS.hm = function (t) {
+    t = int(t);
+    if (t.n <= 0) throw ContentError("hm() takes a length of time of at least a minute");
+    var h = Math.floor(t.n / 60), m = t.n % 60, out = [];
+    if (h) out.push(h + (h === 1 ? " hour" : " hours"));
+    if (m) out.push(m + (m === 1 ? " minute" : " minutes"));
+    return out.join(" ");
   };
 
   var RESERVED = { "true": true, "false": true, answer: true, value: true };
@@ -419,6 +444,7 @@
     var kind = ENTRY[spec.type];
     if (!kind) return true;
     if (spec.type === "integer") return isInt(x);
+    if (kind === "time") return isInt(x) && x.n < DAY;
     if (kind === "fraction") return !isInt(x) && x.n <= BOX_LIMIT && x.d <= BOX_LIMIT;
     if (kind === "mixed") return !isInt(x) && x.n > x.d && floorInt(x.n, x.d) <= BOX_LIMIT && x.d <= BOX_LIMIT;
     var p = decimalPlaces(x);
@@ -431,6 +457,7 @@
     if (!isRat(x) || x.n < 0) return false;
     var kind = ENTRY[type];
     if (!kind) return true;
+    if (kind === "time") return isInt(x) && x.n < DAY;
     if (kind === "number") return validAnswer({ type: "decimal" }, x);
     if (x.n === 0 || x.d > BOX_LIMIT) return false;
     return kind === "fraction" ? x.n <= BOX_LIMIT : floorInt(x.n, x.d) <= BOX_LIMIT;
@@ -600,6 +627,7 @@
   /* The right answer as it would be typed: 36, 3/4, 2 3/4. */
   function answerText(type, x) {
     var kind = ENTRY[type];
+    if (kind === "time") return clockText(x);
     if (kind === "fraction") return fracText(x);
     if (kind === "mixed") return mixedText(x);
     return kind ? fmt(x) : null;
@@ -990,6 +1018,18 @@
     return fromLiteral(s);
   }
 
+  /* A 24-hour time as the boxes produce it, 14:05 or 9:05, read as minutes
+     after midnight. Anything that is not a time on the clock is not one. */
+  function clockText(x) {
+    var h = Math.floor(x.n / 60), m = x.n % 60;
+    return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
+  }
+  function readTime(given) {
+    var m = /^(\d{1,2}):(\d{2})$/.exec(String(given === undefined || given === null ? "" : given).trim());
+    if (!m || +m[1] > 23 || +m[2] > 59) return null;
+    return Q(+m[1] * 60 + +m[2]);
+  }
+
   /* A fraction entry, exactly as the boxes produce it: "3/4", "2 3/4", or a
      bare whole number from the mixed boxes. Anything else is not one. */
   function readFraction(given) {
@@ -1029,7 +1069,7 @@
         return { correct: false, error: wrongForm, feedback: q.formFeedback[wrongForm] || q.missExplain };
       }
     } else {
-      value = readTyped(given);
+      value = q.entry === "time" ? readTime(given) : readTyped(given);
       if (value && eq(value, exact)) return { correct: true, error: null, feedback: null };
     }
     var match = value && (q.distractors || []).filter(function (d) { return eq(toRat(d.exact), value); })[0];
@@ -1074,7 +1114,7 @@
     engine: {
       parse: parse, names: names, slots: slots, evaluate: evalExpr, interpolate: interpolate,
       Q: Q, fromLiteral: fromLiteral, fmt: fmt, peso: peso, round: rround, eq: eq, isRat: isRat,
-      readTyped: readTyped, readFraction: readFraction, frac: fracText, mixed: mixedText,
+      readTyped: readTyped, readFraction: readFraction, readTime: readTime, frac: fracText, mixed: mixedText, clock: clockText,
       ENTRY: ENTRY, FORM_ERRORS: FORM_ERRORS.slice(), BOX_LIMIT: BOX_LIMIT,
       FUNCS: Object.keys(FUNCS), RESERVED: Object.keys(RESERVED),
       INPUTTABLE: Object.keys(INPUTTABLE), MAX_TRIES: MAX_TRIES

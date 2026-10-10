@@ -215,6 +215,9 @@ const MUTANTS = [
   ["slice name too long", DA, (j) => { chart(j, "pie-percent").slices[0].name = "Science and Health"; }, "slice name 'Science and Health' is longer than 16"],
   ["slice with an unknown field", DA, (j) => { chart(j, "pie-angle").slices[0].colour = "red"; }, "slice 0 has an unknown field 'colour'"],
   ["chart label using an unknown name", DA, (j) => { chart(j, "table-difference").label = "{peso(price)}"; }, "chart label {peso(price)} uses 'price'"],
+  // clock times
+  ["time answer past midnight", "time.json", (j) => { j.templates.find((t) => t.id === "time.end-time").answer.value = "s + d + 1440"; }, "no usable question"],
+  ["clock() past midnight", "time.json", (j) => { j.templates.find((t) => t.id === "time.end-time").explain = "{clock(s + 1440)}"; }, "0 to 1439 minutes after midnight"],
   // controls: these must pass
   ["control: pinned item, two formats, none named", D, (j) => { pin(j); }, null],
   ["control: a fourth format", D, (j) => { const f = j.templates[0].formats; f.push(Object.assign({}, f[0], { id: "fourth" })); }, null],

@@ -58,7 +58,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/content.js` | The question engine: installs a pack, draws numbers, renders questions and their charts, checks answers and names mistakes. Expressions are parsed, never `eval`'d, and computed in exact fractions. No questions live in code |
 | `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
 | `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
-| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. Written so far: decimals, fractions, order of operations, factors, ratio, percentages, area, solids, circles, data, probability. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`) and missing-number algebra (`missing.json`). How to write one: `content/packs/README.md` |
+| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. Written so far: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`) and missing-number algebra (`missing.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
 | `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak |
 | `app/screens.js` | One builder per route |
@@ -155,9 +155,10 @@ Settled with the project owner. Build on them; don't reopen them.
    mistakes that each carry their own feedback, so there is no fixed bank to memorise.
    `tests/validate-packs.js` gates every pack. Authoring guide: `content/packs/README.md`.
 5. **Rebuild answer input.** **Partly done** — fractions and mixed numbers (typed into
-   boxes, checked for lowest terms and mixed form), decimals to 4 places, and numbers with
-   a %, a unit or π after them. Still to do, each when the topic that needs it is built:
-   repeating decimals, exponents, ratio pairs and clock times. **Not negatives** — signed
+   boxes, checked for lowest terms and mixed form), decimals to 4 places, numbers with
+   a %, a unit or π after them, and 24-hour clock times (hours and minutes boxes that only
+   take a real time). Still to do, each when the topic that needs it is built: repeating
+   decimals, exponents and ratio pairs. **Not negatives** — signed
    numbers are Grade 7 in MATATAG and absent from the blueprint.
 6. **Attempt log**: timestamps, seeds, latency, hint depth, pack version.
 7. ~~**Enable GitHub Pages**.~~ **Done** — live at https://ne-tyr0.github.io/Abante-Minds/.
@@ -169,8 +170,8 @@ Settled with the project owner. Build on them; don't reopen them.
 
 10. ~~**The path of levels**.~~ **Done** — replaces tiers: levels per topic, lessons,
     the countdown and blueprint coverage on Home (`RESEARCH-PLAN.md` item 15).
-11. **Write the remaining 2 topics**, in path order: time, transformations.
-    Written: decimals, fractions, order of operations, factors, ratio, percentages, area, solids, circles, data, probability. Each topic needs its answer input first where it uses a
+11. **Write the last topic**: transformations.
+    Written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability. Each topic needs its answer input first where it uses a
     type not yet typeable.
 12. ~~**Basics**.~~ **Done** — five topics beside the path: adding and subtracting (158
     facts and two practice levels), the times tables (180 facts), mental math (six

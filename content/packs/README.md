@@ -16,7 +16,7 @@ content/packs/<subtest>/
   <topic>.json       one file per written topic: its levels, lessons, templates
 ```
 
-Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `area`, `solids`, `circles`, `data` and `probability` are
+Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `time`, `area`, `solids`, `circles`, `data` and `probability` are
 written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
 topics: `add-subtract`, `times`, `mental`, `written` and `missing` are written.
 
@@ -47,7 +47,7 @@ this yet.
   "topics": [
     { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json" },
     { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "file": "fractions.json" },
-    { "key": "time", "label": "Time", "icon": "clock", "colorKey": 3, "comingSoon": true }
+    { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "comingSoon": true }
   ]
 }
 ```
@@ -216,6 +216,7 @@ function name.
 | `pi-expression` | The number in front of π, shown with π after it: 12 for 12π |
 | `fraction` | Typed as a numerator over a denominator. Never a whole number; each part at most three digits |
 | `mixed` | Typed as a whole number beside a fraction. More than 1 and not a whole number |
+| `time` | A 24-hour clock time, typed as hours then minutes: 14:05. The value is whole minutes after midnight, 0 to 1439, so 14:05 is `14 * 60 + 5`. The boxes refuse an hour past 23 and minutes past 59. Ask for a 12-hour time or a length of time as a `choice`, with `"{clock12(value)}"` or `"{hm(value)}"` as the label |
 | `choice` | Four options: the answer and exactly three distractors, shown in order of size. Needs a `label`, such as `"{value} km"` or `"{frac(value)}"`, to print each option. Set `"order": "mixed"` when order of size would give the answer away ("which is the greatest?"); the options are then shuffled, the same way every time for a given question |
 
 The keypad has no minus key, so a draw whose answer is negative or has too many decimal
@@ -238,9 +239,12 @@ A fraction mistake is matched by amount, so 2/4 entered for a mistake worth 1/2 
 finds it. Write fraction amounts in text with `{frac(x)}` or `{mixed(x)}`: `{x}` would
 print 0.5, and a repeating amount such as 1/3 cannot be shown as a decimal at all.
 
-The blueprint's other answer types (repeating decimals, exponents, ratio pairs, clock
-times) are refused by the validator until their input is built (`RESEARCH-PLAN.md`,
-item 7).
+The blueprint's other answer types (repeating decimals, exponents, ratio pairs) are
+refused by the validator until their input is built (`RESEARCH-PLAN.md`, item 7).
+
+A 12-hour time written by `clock12` ends in "a.m." or "p.m.", so do not end a sentence
+with one: "closes at {clock12(e)}." prints "9:30 p.m.." and the fuzz fails it. Put the
+time mid-sentence instead.
 
 `prefix` is shown in front of the answer field, for example `"₱"`.
 
@@ -338,7 +342,7 @@ Arithmetic in exact fractions, so `0.1 + 0.2 == 0.3` is true and `round(2.345, 2
 | Numbers | `12`, `1.12`. No `1e3` notation |
 | Words | `'kg'` in single quotes |
 | Operators | `+ - * /`, `%` on whole numbers, `== != < <= > >=`, `&& \|\| !`, `a ? b : c` |
-| Functions | `floor`, `ceil`, `round(x)` or `round(x, places)` (halves round up), `abs`, `min`, `max`, `gcd`, `lcm`, `peso`, `fmt`, `frac` (3/4), `mixed` (2 3/4), `fixed(x, places)` (2.40), `words(n)` (forty-five), `pow(b, e)` (a whole exponent up to 20), `sup(n)` (²: write `{b}{sup(e)}` for 2⁵), `pick(i, a, b, …)` (the i-th, counting from 1: `pick(m, 'June', 'July')`) |
+| Functions | `floor`, `ceil`, `round(x)` or `round(x, places)` (halves round up), `abs`, `min`, `max`, `gcd`, `lcm`, `peso`, `fmt`, `frac` (3/4), `mixed` (2 3/4), `fixed(x, places)` (2.40), `words(n)` (forty-five), `pow(b, e)` (a whole exponent up to 20), `sup(n)` (²: write `{b}{sup(e)}` for 2⁵), `pick(i, a, b, …)` (the i-th, counting from 1: `pick(m, 'June', 'July')`), `clock(t)` (14:05), `clock12(t)` (2:05 p.m., 12:00 noon, 12:00 midnight), `hm(m)` (2 hours 5 minutes): `t` is whole minutes after midnight |
 
 There is no member access, no indexing, and nothing outside the template's own values.
 Comparing a number with a word is an error. `&&` and `||` stop early, so

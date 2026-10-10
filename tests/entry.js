@@ -92,6 +92,31 @@ test("state is never changed in place", () => {
   E.focus(e, "den");
   assert.strictEqual(JSON.stringify(e), before);
 });
+test("a time is typed as hours, then minutes", () => {
+  assert.strictEqual(E.text(keys(E.create("time"), "1405")), "14:05", "two digits of hours move on to the minutes");
+  assert.strictEqual(E.text(keys(E.create("time"), "9>05")), "9:05");
+  assert.strictEqual(E.text(keys(E.create("time"), "0000")), "00:00");
+  assert.strictEqual(E.text(keys(E.create("time"), "23>599")), "23:59");
+  assert.strictEqual(E.text(keys(E.create("time"), "12005")), "12:00", "minutes stop at two digits");
+  assert.strictEqual(E.text(keys(E.create("time"), "9.>3.0")), "9:30", "a time has no decimal point");
+});
+test("only a real time can be typed", () => {
+  assert.strictEqual(E.text(keys(E.create("time"), "24")), "2:", "no hour 24");
+  assert.strictEqual(E.text(keys(E.create("time"), "30")), "3:", "no hour 30");
+  assert.strictEqual(E.text(keys(E.create("time"), "10>7")), "10:", "no 70 minutes");
+  assert.strictEqual(E.text(keys(E.create("time"), "10>6")), "10:", "no 60 minutes");
+});
+test("a time is complete with its hours and both digits of its minutes", () => {
+  assert.strictEqual(E.complete(keys(E.create("time"), "14")), false);
+  assert.strictEqual(E.complete(keys(E.create("time"), "140")), false);
+  assert.strictEqual(E.complete(keys(E.create("time"), "1405")), true);
+  assert.strictEqual(E.complete(keys(E.create("time"), "9>05")), true);
+  assert.strictEqual(E.complete(keys(E.create("time"), ">05")), false);
+});
+test("delete steps back from the minutes to the hours", () => {
+  assert.strictEqual(E.text(keys(E.create("time"), "1405<<<")), "14:");
+  assert.strictEqual(E.text(keys(E.create("time"), "1405<<<<")), "1:");
+});
 test("an unknown kind is refused", () => {
   assert.throws(() => E.create("ratio"), /no answer entry/);
 });

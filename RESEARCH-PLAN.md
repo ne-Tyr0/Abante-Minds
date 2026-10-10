@@ -133,8 +133,9 @@ templates is an afternoon, migrating 300 is a project.
    cannot express most NCE answers. Prerequisite for Phase 2. **Partly done 2026-10-10** —
    fractions and mixed numbers typed into boxes (`app/entry.js`), checked for lowest terms
    and mixed form with each form mistake named; numbers with a %, a unit or π after them.
-   Repeating decimals, exponents, ratio pairs and times follow with the topics that need
-   them.
+   24-hour clock times followed with the time topic: hours and minutes boxes that refuse
+   an hour past 23 or minutes past 59. Repeating decimals, exponents and ratio pairs follow
+   with the topics that need them.
 
    **Correction to an earlier assumption in this plan: negative numbers are not needed.**
    Signed numbers are Grade 7 in MATATAG, absent from Grades 5 and 6. They matter only if
@@ -170,8 +171,8 @@ templates is an afternoon, migrating 300 is a project.
 
 12. **New topic set from the table of specifications**, replacing the four placeholders.
     **In progress** — the placeholders are gone and the path lists all 13 topics.
-    Written: `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `area`, `solids`, `circles`, `data`, `probability`, each covering all of its practicable
-    competencies; the other 2 are on the path as coming soon.
+    Written: `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `time`, `area`, `solids`, `circles`, `data`, `probability`, each covering all of its practicable
+    competencies; the last, `transform`, is on the path as coming soon.
     Target **≥10 templates per topic**. That number is driven by two independent
     constraints that happen to agree: an 8-week intervention is ~320 attempts and template
     *shapes* go stale long before parameterised numbers do; and a defensible KR-20 needs

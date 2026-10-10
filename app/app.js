@@ -506,8 +506,9 @@
     }
     if (q.type !== "compute" || s.phase !== "ask") return;
     if (e.key === "Backspace") { app.backspace(); e.preventDefault(); return; }
-    /* A fraction moves to its next box on "/" or space, as it would be written. */
-    if ((e.key === "/" || e.key === " ") && q.entry !== "number") { app.nextBox(); e.preventDefault(); return; }
+    /* A fraction moves to its next box on "/" or space, as it would be written;
+       a time on ":" or space. */
+    if ((e.key === "/" || e.key === " " || e.key === ":") && q.entry !== "number") { app.nextBox(); e.preventDefault(); return; }
     if (/^[0-9.]$/.test(e.key)) { app.type(e.key); e.preventDefault(); }
   });
 

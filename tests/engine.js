@@ -672,5 +672,49 @@ test("a degree sign sits against its number; other units take a space", () => {
   C.use(PACK.manifest, PACK.files);
 });
 
+/* ---------- clock times ---------- */
+
+test("clock, clock12 and hm write times and lengths of time", () => {
+  assert.deepStrictEqual(["clock(0)", "clock(845)", "clock(1439)"].map(ev), ["00:00", "14:05", "23:59"]);
+  assert.deepStrictEqual(["clock12(0)", "clock12(45)", "clock12(540)", "clock12(720)", "clock12(765)", "clock12(1439)"].map(ev),
+    ["12:00 midnight", "12:45 a.m.", "9:00 a.m.", "12:00 noon", "12:45 p.m.", "11:59 p.m."]);
+  assert.deepStrictEqual(["hm(1)", "hm(45)", "hm(60)", "hm(61)", "hm(125)"].map(ev),
+    ["1 minute", "45 minutes", "1 hour", "1 hour 1 minute", "2 hours 5 minutes"]);
+  throws(() => ev("clock(1440)"), /0 to 1439/);
+  throws(() => ev("clock12(0 - 5)"), /0 to 1439/);
+  throws(() => ev("clock(90.5)"), /whole number/);
+  throws(() => ev("hm(0)"), /at least a minute/);
+  for (const f of ["clock", "clock12", "hm"]) assert.ok(E.RESERVED.includes(f), "a param cannot be named " + f);
+});
+test("a 24-hour time is read exactly as the boxes write it", () => {
+  const t = (s) => { const v = E.readTime(s); return v && E.fmt(v); };
+  assert.deepStrictEqual(["14:05", "9:05", "09:05", "00:00", "23:59"].map(t), ["845", "545", "545", "0", "1439"]);
+  for (const bad of ["24:00", "12:60", "1405", "14:5", "14:05 p.m.", "", null]) assert.strictEqual(E.readTime(bad), null, String(bad));
+});
+const CLOCK = {
+  manifest: Object.assign({}, PACK.manifest, { topics: [{ key: "k", label: "Clock", icon: "star", colorKey: 1, file: "k.json" }] }),
+  files: [{
+    topic: "k",
+    levels: [{ id: "all", title: "All", templates: ["k.time", "k.late"] }],
+    templates: [
+      T("k.time", { answer: { type: "time", value: "a * 60 + 5" },
+        distractors: [{ value: "a * 60 + 725", error: "p-m", feedback: "{clock(value)} is in the afternoon." }] }),
+      T("k.late", { answer: { type: "time", value: "a * 60 + 1440" } })
+    ]
+  }]
+};
+test("a time answer is typed as 24-hour time and checked as one", () => {
+  C.use(CLOCK.manifest, CLOCK.files);
+  const q = C.instance("k.time", 1, { a: 3, b: 2 });
+  assert.deepStrictEqual([q.entry, q.answerText, q.answer, q.suffix], ["time", "03:05", 185, ""]);
+  assert.strictEqual(C.diagnose(q, "3:05").correct, true);
+  assert.strictEqual(C.diagnose(q, "03:05").correct, true);
+  assert.deepStrictEqual(C.diagnose(q, "15:05"), { correct: false, error: "p-m", feedback: "15:05 is in the afternoon." });
+  for (const g of ["3:5", "305", "185", "27:05"]) assert.strictEqual(C.diagnose(q, g).error, null, g);
+  /* A time past midnight is not one the boxes can hold. */
+  throws(() => C.instance("k.late", 1, { a: 3, b: 2 }), /unusable answer/);
+  C.use(PACK.manifest, PACK.files);
+});
+
 console.log(failed ? `\n${failed} failed` : "\nok: engine behaves as specified");
 process.exit(failed ? 1 : 0);

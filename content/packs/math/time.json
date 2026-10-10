@@ -1,0 +1,600 @@
+{
+  "topic": "time",
+  "levels": [
+    {
+      "id": "24-hour",
+      "title": "The 24-hour clock",
+      "templates": ["time.hours-after-midnight", "time.to-24", "time.to-12"],
+      "lesson": [
+        {
+          "title": "Two clocks",
+          "body": "The 12-hour clock goes round twice a day: a.m. before noon, p.m. after it. The 24-hour clock counts the hours from midnight, from 00:00 to 23:59, so it needs no a.m. or p.m."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "time.to-24", "format": "write", "params": {"h": 15, "m": 45}}
+        },
+        {
+          "title": "Changing back",
+          "body": "After noon, add 12 to the hours: 3:45 p.m. is 15:45. To go back, take 12 away: 19:20 is 7:20 p.m. Just after midnight the hours are 00, so 12:30 a.m. is 00:30."
+        }
+      ]
+    },
+    {
+      "id": "how-long",
+      "title": "How long?",
+      "templates": ["time.elapsed", "time.store-hours", "time.overnight"],
+      "lesson": [
+        {
+          "title": "Count on",
+          "body": "Times are not ordinary numbers: an hour has 60 minutes, not 100. Count on instead. From 8:45 to 9:00 is 15 minutes, then 9:00 to 13:00 is 4 hours, then 13:00 to 13:20 is 20 minutes."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "time.elapsed", "format": "bus", "params": {"sh": 8, "sm": 45, "d": 95}}
+        },
+        {
+          "title": "Across noon or midnight",
+          "body": "Split the time at noon or at midnight. From 9:00 p.m. to midnight is 3 hours, and from midnight to 5:30 a.m. is 5 hours 30 minutes: 8 hours 30 minutes in all."
+        }
+      ]
+    },
+    {
+      "id": "start-and-end",
+      "title": "Start and end times",
+      "templates": ["time.end-time", "time.start-time", "time.wake-up"],
+      "lesson": [
+        {
+          "title": "Adding a length of time",
+          "body": "Add the hours, then the minutes. When the minutes reach 60 or more, carry 60 of them as 1 hour: 14:50 and 1 hour 45 minutes is 15:95, which is 16:35."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "time.end-time", "format": "movie", "params": {"s": 890, "d": 105}}
+        },
+        {
+          "title": "Working backwards",
+          "body": "To find a start time, take the length of time away from the end time. Borrow an hour as 60 minutes when you need more minutes: 11:10 is 10 hours 70 minutes, and taking away 1 hour 25 minutes leaves 9:45."
+        }
+      ]
+    },
+    {
+      "id": "time-zones",
+      "title": "Time zones",
+      "templates": ["time.zone-convert", "time.zone-to-manila", "time.zone-flight"],
+      "lesson": [
+        {
+          "title": "Ahead and behind",
+          "body": "Countries east of the Philippines are ahead of Manila: Tokyo is 1 hour ahead. Countries to the west are behind: Dubai is 4 hours behind. Ahead, add the hours; behind, take them away."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "time.zone-convert", "format": "convert", "params": {"p": 5, "t": 900}}
+        },
+        {
+          "title": "Flying across time zones",
+          "body": "For a flight, first add the flying time in Manila time. Then change the landing time to the time where the plane lands."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "time.hours-after-midnight",
+      "competency": "G5.Q1.1",
+      "domain": "MG",
+      "construct": "Say how many hours after midnight a 12-hour time is",
+      "schema": "change",
+      "params": {"h": {"range": [1, 23]}, "m": {"choose": [0, 15, 30, 45]}, "t": {"value": "h * 60 + m"}},
+      "where": ["h != 12"],
+      "answer": {"type": "integer", "value": "h"},
+      "formats": [
+        {
+          "id": "hours",
+          "prompt": "The 24-hour clock counts the hours from midnight. How many whole hours after midnight is {clock12(t)}?"
+        }
+      ],
+      "hints": [
+        "Before noon, the hours are the ones the 12-hour clock shows.",
+        "After noon, add the 12 hours from midnight to noon.",
+        "{h > 12 ? 'It is after noon, so add 12.' : 'It is before noon, so the hours stay as they are.'}"
+      ],
+      "steps": [
+        "{clock12(t)} is {h < 12 ? 'before noon' : 'after noon'}",
+        "{h < 12 ? 'Before noon the hours stay as they are' : 'After noon, add 12'}",
+        "{h > 12 ? h - 12 : h}{h > 12 ? ' + 12 = ' : ' hours after midnight'}{h > 12 ? fmt(answer) : ''}"
+      ],
+      "explain": "{clock12(t)} is {answer} whole hours after midnight, so on the 24-hour clock it is {clock(t)}.",
+      "distractors": [
+        {
+          "value": "h > 12 ? h - 12 : 0 - 1",
+          "error": "forgot-to-add-12",
+          "feedback": "{value} is the hour the 12-hour clock shows. After noon, add the 12 hours from midnight to noon: {value} + 12 = {answer}."
+        },
+        {
+          "value": "h < 12 ? h + 12 : 0 - 1",
+          "error": "added-12-in-the-morning",
+          "feedback": "{value} hours after midnight is in the evening. {clock12(t)} is before noon, so it is {answer} hours after midnight."
+        }
+      ]
+    },
+    {
+      "id": "time.to-24",
+      "competency": "G5.Q1.2",
+      "domain": "MG",
+      "construct": "Write a 12-hour time in 24-hour time",
+      "schema": "change",
+      "params": {"h": {"range": [0, 23]}, "m": {"range": [0, 59]}, "t": {"value": "h * 60 + m"}},
+      "answer": {"type": "time", "value": "t"},
+      "formats": [{"id": "write", "prompt": "Write {clock12(t)} in 24-hour time."}],
+      "hints": [
+        "Is it before noon or after noon?",
+        "{h == 0 ? 'Just after midnight, the hours are 00.' : (h < 12 ? 'Before noon, the hours stay as they are.' : (h == 12 ? 'From noon to 1 p.m., the hours stay 12.' : 'After noon, add 12 to the hours.'))}",
+        "The minutes stay as they are: {m < 10 ? '0' : ''}{m}."
+      ],
+      "steps": [
+        "{t == 720 ? 'Noon' : (h < 12 ? 'Before noon' : 'After noon')}",
+        "{h == 0 ? '12 a.m. becomes 00' : (h <= 12 ? 'The hours stay ' : 'Hours: ')}{h == 0 ? '' : (h <= 12 ? fmt(h) : fmt(h - 12))}{h > 12 ? ' + 12 = ' : ''}{h > 12 ? fmt(h) : ''}",
+        "= {clock(answer)}"
+      ],
+      "explain": "{clock12(t)} is {clock(answer)} in 24-hour time.",
+      "distractors": [
+        {
+          "value": "h > 12 ? t - 720 : 0 - 1",
+          "error": "forgot-to-add-12",
+          "feedback": "{clock(value)} means {clock12(value)} in 12-hour time. After noon, add 12 to the hours: {clock(answer)}."
+        },
+        {
+          "value": "h < 12 ? t + 720 : 0 - 1",
+          "error": "added-12-in-the-morning",
+          "feedback": "{clock(value)} means {clock12(value)} in 12-hour time. {h == 0 ? 'Just after midnight the hours are 00' : 'Before noon the hours stay as they are'}: {clock(answer)}."
+        }
+      ]
+    },
+    {
+      "id": "time.to-12",
+      "competency": "G5.Q1.2",
+      "domain": "MG",
+      "construct": "Write a 24-hour time in 12-hour time",
+      "schema": "change",
+      "params": {"h": {"range": [13, 21]}, "m": {"range": [0, 59]}, "t": {"value": "h * 60 + m"}},
+      "answer": {"type": "choice", "value": "t", "label": "{clock12(value)}", "order": "size"},
+      "formats": [{"id": "write", "prompt": "What is {clock(t)} in 12-hour time?"}],
+      "hints": [
+        "{h} is more than 12, so the time is after noon: p.m.",
+        "Take 12 away from the hours.",
+        "It is not {clock12(t - 60)}: that would be {clock(t - 60)}."
+      ],
+      "steps": ["{h} is after noon: p.m.", "{h} − 12 = {h - 12}", "So {clock12(t)}"],
+      "explain": "{h} − 12 = {h - 12}, so {clock12(t)} is the same time as {clock(t)}.",
+      "distractors": [
+        {
+          "value": "t - 720",
+          "error": "swapped-a-m-and-p-m",
+          "feedback": "{clock12(value)} would be {clock(value)}. {clock(t)} is after noon, so its 12-hour time ends in p.m."
+        },
+        {
+          "value": "t + 120",
+          "error": "took-away-10",
+          "feedback": "{clock12(value)} would be {clock(value)}. Take 12 from the hours, not 10: {h} − 12 = {h - 12}."
+        },
+        {
+          "value": "t - 60",
+          "error": "an-hour-out",
+          "feedback": "{clock12(value)} would be {clock(value)}. Take 12 from the hours: {h} − 12 = {h - 12}."
+        }
+      ]
+    },
+    {
+      "id": "time.elapsed",
+      "competency": "G5.Q1.3",
+      "domain": "MG",
+      "construct": "Find a length of time by counting on",
+      "schema": "change",
+      "params": {
+        "sh": {"range": [6, 18]},
+        "sm": {"range": [5, 55], "step": 5},
+        "s": {"value": "sh * 60 + sm"},
+        "d": {"range": [40, 220], "step": 5},
+        "e": {"value": "s + d"},
+        "next": {"value": "(sh + 1) * 60"}
+      },
+      "where": ["e % 60 < sm", "e < 1440"],
+      "answer": {"type": "integer", "value": "d"},
+      "formats": [
+        {
+          "id": "bus",
+          "prompt": "A bus leaves the terminal at {clock(s)} and arrives at {clock(e)}. How many minutes does the trip take?"
+        },
+        {
+          "id": "fair",
+          "prompt": "A school fair opens at {clock(s)} and the last game ends at {clock(e)}. How many minutes is that?"
+        }
+      ],
+      "hints": [
+        "Count on from {clock(s)} to the next full hour.",
+        "{clock(s)} to {clock(next)} is {60 - sm} minutes.",
+        "Then on to {clock(e)} is {e - next} more minutes."
+      ],
+      "steps": [
+        "{clock(s)} to {clock(next)}: {60 - sm} minutes",
+        "{clock(next)} to {clock(e)}: {e - next} minutes",
+        "{60 - sm} + {e - next} = {answer} minutes"
+      ],
+      "explain": "Count on: {60 - sm} minutes to {clock(next)}, then {e - next} more. That is {answer} minutes.",
+      "distractors": [
+        {
+          "value": "(floor(e / 60) * 100 + e % 60) - (sh * 100 + sm)",
+          "error": "subtracted-like-numbers",
+          "feedback": "{value} takes {sh * 100 + sm} from {floor(e / 60) * 100 + e % 60} as if they were ordinary numbers. An hour has 60 minutes, not 100: count on from {clock(s)} instead."
+        },
+        {
+          "value": "(floor(e / 60) - sh) * 60",
+          "error": "counted-whole-hours",
+          "feedback": "{value} counts whole hours, {clock(sh * 60)} to {clock(floor(e / 60) * 60)}. Count the minutes too: from {clock(s)} to {clock(e)}."
+        }
+      ]
+    },
+    {
+      "id": "time.store-hours",
+      "competency": "G5.Q1.3",
+      "domain": "MG",
+      "construct": "Find a length of time across noon",
+      "schema": "change",
+      "params": {
+        "s": {"range": [360, 570], "step": 15},
+        "e": {"range": ["s + 735", 1320], "step": 15},
+        "d": {"value": "e - s"}
+      },
+      "answer": {"type": "choice", "value": "d", "label": "{hm(value)}", "order": "mixed"},
+      "formats": [
+        {
+          "id": "store",
+          "prompt": "A store is open from {clock12(s)} to {clock12(e)} every day. How long is it open?"
+        },
+        {
+          "id": "clinic",
+          "prompt": "A clinic is open from {clock12(s)} to {clock12(e)} on Saturdays. How long is it open?"
+        }
+      ],
+      "hints": [
+        "Split the time at noon.",
+        "{clock12(s)} to 12:00 noon is {hm(720 - s)}.",
+        "It is not {hm(d - 720)}: that takes {clock12(s)} from {clock12(e)} as if both were in the morning."
+      ],
+      "steps": [
+        "{clock12(s)} to 12:00 noon: {hm(720 - s)}",
+        "12:00 noon to {clock12(e)}: {hm(e - 720)}",
+        "Together: {hm(answer)}"
+      ],
+      "explain": "{hm(720 - s)} before noon and {hm(e - 720)} after it: {hm(answer)}.",
+      "distractors": [
+        {
+          "value": "d - 720",
+          "error": "took-away-the-clock-numbers",
+          "feedback": "{hm(value)} takes {clock12(s)} from {clock12(e)} as if both were in the morning. Split at noon: {hm(720 - s)} before it and {hm(e - 720)} after."
+        },
+        {
+          "value": "d - 60",
+          "error": "an-hour-short",
+          "feedback": "{hm(value)} is an hour short. Split at noon: {hm(720 - s)} before it and {hm(e - 720)} after."
+        },
+        {
+          "value": "d + 60",
+          "error": "an-hour-over",
+          "feedback": "{hm(value)} is an hour too long. Split at noon: {hm(720 - s)} before it and {hm(e - 720)} after."
+        }
+      ]
+    },
+    {
+      "id": "time.overnight",
+      "competency": "G5.Q1.3",
+      "domain": "MG",
+      "construct": "Find a length of time across midnight",
+      "schema": "change",
+      "params": {
+        "s": {"range": [1140, 1410], "step": 5},
+        "e": {"range": [60, 480], "step": 5},
+        "d": {"value": "1440 - s + e"}
+      },
+      "answer": {"type": "choice", "value": "d", "label": "{hm(value)}", "order": "mixed"},
+      "formats": [
+        {
+          "id": "bus",
+          "prompt": "An overnight bus leaves at {clock(s)} and arrives at {clock(e)} the next day. How long is the trip?"
+        }
+      ],
+      "hints": [
+        "Split the trip at midnight.",
+        "{clock(s)} to midnight is {hm(1440 - s)}.",
+        "Midnight to {clock(e)} is {hm(e)}."
+      ],
+      "steps": ["{clock(s)} to 00:00: {hm(1440 - s)}", "00:00 to {clock(e)}: {hm(e)}", "Together: {hm(answer)}"],
+      "explain": "{hm(1440 - s)} before midnight and {hm(e)} after it: {hm(answer)}.",
+      "distractors": [
+        {
+          "value": "s - e",
+          "error": "took-the-times-the-wrong-way",
+          "feedback": "{hm(value)} is the time from {clock(e)} to {clock(s)} on the same day. The bus arrives the next day: split the trip at midnight."
+        },
+        {
+          "value": "1440 - s",
+          "error": "stopped-at-midnight",
+          "feedback": "{hm(value)} only reaches midnight. Add the {hm(e)} after it."
+        },
+        {
+          "value": "d - 60",
+          "error": "an-hour-short",
+          "feedback": "{hm(value)} is an hour short: {hm(1440 - s)} before midnight and {hm(e)} after."
+        }
+      ]
+    },
+    {
+      "id": "time.end-time",
+      "competency": "G5.Q1.3",
+      "domain": "MG",
+      "construct": "Add a length of time to a 24-hour time",
+      "schema": "change",
+      "params": {
+        "s": {"range": [420, 1260], "step": 5},
+        "d": {"range": [65, 200], "step": 5},
+        "dh": {"value": "floor(d / 60)"}
+      },
+      "where": ["s % 60 + d % 60 >= 60", "s + d < 1440"],
+      "answer": {"type": "time", "value": "s + d"},
+      "formats": [
+        {
+          "id": "movie",
+          "prompt": "A movie starts at {clock(s)} and runs for {hm(d)}. At what time does it end?"
+        },
+        {
+          "id": "bus",
+          "prompt": "A bus leaves at {clock(s)}, and the trip takes {hm(d)}. At what time does it arrive?"
+        }
+      ],
+      "hints": [
+        "Add the hours, then the minutes.",
+        "{clock(s)} + {dh} hour{dh == 1 ? '' : 's'} = {clock(s + dh * 60)}.",
+        "Then {s % 60} + {d % 60} = {s % 60 + d % 60} minutes, which is {hm(s % 60 + d % 60)}."
+      ],
+      "steps": [
+        "{clock(s)} + {dh} hour{dh == 1 ? '' : 's'} = {clock(s + dh * 60)}",
+        "{s % 60} + {d % 60} = {s % 60 + d % 60} minutes: carry 60 of them as 1 hour",
+        "= {clock(answer)}"
+      ],
+      "explain": "{clock(s)} + {hm(d)} = {clock(answer)}.",
+      "distractors": [
+        {
+          "value": "s + d - 60",
+          "error": "did-not-carry-the-hour",
+          "feedback": "{clock(value)} is an hour early. {s % 60} + {d % 60} = {s % 60 + d % 60} minutes, which is {hm(s % 60 + d % 60)}: carry the hour."
+        },
+        {
+          "value": "s + d % 60",
+          "error": "added-only-the-minutes",
+          "feedback": "{clock(value)} adds the {d % 60} minutes but not the {dh} hour{dh == 1 ? '' : 's'}."
+        }
+      ]
+    },
+    {
+      "id": "time.start-time",
+      "competency": "G5.Q1.3",
+      "domain": "MG",
+      "construct": "Take a length of time from a 24-hour time",
+      "schema": "work-backwards",
+      "params": {
+        "e": {"range": [600, 1260], "step": 5},
+        "d": {"range": [65, 200], "step": 5},
+        "dh": {"value": "floor(d / 60)"},
+        "mid": {"value": "e - dh * 60"}
+      },
+      "where": ["e % 60 < d % 60"],
+      "answer": {"type": "time", "value": "e - d"},
+      "formats": [
+        {
+          "id": "trip",
+          "prompt": "A field trip ends at {clock(e)}. It lasted {hm(d)}. At what time did it start?"
+        },
+        {
+          "id": "bus",
+          "prompt": "A bus arrives at {clock(e)} after a trip of {hm(d)}. At what time did it leave?"
+        }
+      ],
+      "hints": [
+        "Take the length of time away from the end time.",
+        "Take away the hours first: {clock(e)} − {dh} hour{dh == 1 ? '' : 's'} = {clock(mid)}.",
+        "{e % 60} minutes is less than {d % 60}, so borrow an hour as 60 minutes."
+      ],
+      "steps": [
+        "{clock(e)} − {dh} hour{dh == 1 ? '' : 's'} = {clock(mid)}",
+        "Borrow 60 minutes: {clock(mid)} is {floor(mid / 60) - 1} hours {e % 60 + 60} minutes",
+        "Take away {d % 60} minutes: {clock(answer)}"
+      ],
+      "explain": "{clock(e)} − {hm(d)} = {clock(answer)}.",
+      "distractors": [
+        {
+          "value": "e + d",
+          "error": "added-instead",
+          "feedback": "{clock(value)} adds the {hm(d)}. The start is before the end: take the time away."
+        },
+        {
+          "value": "e - d + 60",
+          "error": "kept-the-borrowed-hour",
+          "feedback": "{clock(value)} is an hour late. When you borrow 60 minutes, take 1 from the hours too."
+        }
+      ]
+    },
+    {
+      "id": "time.wake-up",
+      "competency": "G5.Q1.3",
+      "domain": "MG",
+      "construct": "Work back from a deadline through two lengths of time",
+      "schema": "work-backwards",
+      "params": {
+        "e": {"range": [420, 480], "step": 5},
+        "r": {"range": [40, 90], "step": 5},
+        "w": {"range": [10, 35], "step": 5}
+      },
+      "answer": {"type": "time", "value": "e - r - w"},
+      "formats": [
+        {
+          "id": "school",
+          "prompt": "Ben must be at school by {clock(e)}. Getting ready takes {hm(r)}, and the walk to school takes {w} minutes. What is the latest time Ben can wake up?"
+        }
+      ],
+      "hints": [
+        "Work backwards from {clock(e)}.",
+        "Together, getting ready and walking take {hm(r + w)}.",
+        "{clock(e)} − {hm(r + w)} = ?"
+      ],
+      "steps": [
+        "Getting ready and walking: {hm(r)} + {w} minutes = {hm(r + w)}",
+        "{clock(e)} − {hm(r + w)}",
+        "= {clock(answer)}"
+      ],
+      "explain": "{clock(e)} − {hm(r + w)} = {clock(answer)}.",
+      "distractors": [
+        {
+          "value": "e - r",
+          "error": "forgot-the-walk",
+          "feedback": "{clock(value)} leaves time to get ready but not the {w} minutes of walking."
+        },
+        {
+          "value": "e - w",
+          "error": "forgot-getting-ready",
+          "feedback": "{clock(value)} leaves time to walk but not the {hm(r)} of getting ready."
+        }
+      ]
+    },
+    {
+      "id": "time.zone-convert",
+      "competency": "G5.Q1.5",
+      "domain": "MG",
+      "construct": "Change Philippine time to the time in another country",
+      "schema": "change",
+      "params": {
+        "p": {"range": [1, 6]},
+        "off": {"value": "pick(p, 1, 1, 0 - 1, 0 - 1, 0 - 4, 0 - 5)"},
+        "k": {"value": "abs(off)"},
+        "t": {"range": [0, 1435], "step": 5}
+      },
+      "where": ["t + off * 60 >= 0", "t + off * 60 < 1440", "t - off * 60 >= 0", "t - off * 60 < 1440"],
+      "answer": {"type": "time", "value": "t + off * 60"},
+      "formats": [
+        {
+          "id": "convert",
+          "prompt": "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'ahead of' : 'behind'} Manila. When it is {clock(t)} in Manila, what time is it in {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}?"
+        }
+      ],
+      "hints": [
+        "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {off > 0 ? 'ahead of' : 'behind'} Manila, so {off > 0 ? 'add' : 'take away'} the hours.",
+        "{off > 0 ? 'Add' : 'Take away'} {k} hour{k == 1 ? '' : 's'}.",
+        "{clock(t)} {off > 0 ? '+' : '−'} {k} hour{k == 1 ? '' : 's'} = ?"
+      ],
+      "steps": [
+        "Manila: {clock(t)}",
+        "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'ahead of' : 'behind'} Manila",
+        "{clock(t)} {off > 0 ? '+' : '−'} {k} hour{k == 1 ? '' : 's'} = {clock(answer)}"
+      ],
+      "explain": "When it is {clock(t)} in Manila, it is {clock(answer)} in {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}.",
+      "distractors": [
+        {
+          "value": "t - off * 60",
+          "error": "went-the-wrong-way",
+          "feedback": "{clock(value)} goes the wrong way. {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {off > 0 ? 'ahead of' : 'behind'} Manila, so its clocks show {off > 0 ? 'a later' : 'an earlier'} time."
+        }
+      ]
+    },
+    {
+      "id": "time.zone-to-manila",
+      "competency": "G5.Q1.5",
+      "domain": "MG",
+      "construct": "Change the time in another country to Philippine time",
+      "schema": "change",
+      "params": {
+        "p": {"range": [1, 6]},
+        "off": {"value": "pick(p, 1, 1, 0 - 1, 0 - 1, 0 - 4, 0 - 5)"},
+        "k": {"value": "abs(off)"},
+        "t": {"range": [0, 1435], "step": 5}
+      },
+      "where": ["t + off * 60 >= 0", "t + off * 60 < 1440", "t - off * 60 >= 0", "t - off * 60 < 1440"],
+      "answer": {"type": "time", "value": "t - off * 60"},
+      "formats": [
+        {
+          "id": "call",
+          "prompt": "Tita Liza works in {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}, which is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'ahead of' : 'behind'} Manila. She calls home at {clock(t)}, {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} time. What time is it in Manila?"
+        }
+      ],
+      "hints": [
+        "Manila is {off > 0 ? 'behind' : 'ahead of'} {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}.",
+        "So {off > 0 ? 'take away' : 'add'} {k} hour{k == 1 ? '' : 's'}.",
+        "{clock(t)} {off > 0 ? '−' : '+'} {k} hour{k == 1 ? '' : 's'} = ?"
+      ],
+      "steps": [
+        "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}: {clock(t)}",
+        "Manila is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'behind' : 'ahead of'} {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}",
+        "{clock(t)} {off > 0 ? '−' : '+'} {k} hour{k == 1 ? '' : 's'} = {clock(answer)}"
+      ],
+      "explain": "When it is {clock(t)} in {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}, it is {clock(answer)} in Manila.",
+      "distractors": [
+        {
+          "value": "t + off * 60",
+          "error": "went-the-wrong-way",
+          "feedback": "{clock(value)} goes the wrong way. Manila is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'behind' : 'ahead of'} {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}, so {off > 0 ? 'take the hours away' : 'add the hours'}."
+        }
+      ]
+    },
+    {
+      "id": "time.zone-flight",
+      "competency": "G5.Q1.5",
+      "domain": "MG",
+      "construct": "Find the local time a flight lands in another time zone",
+      "schema": "multi-step",
+      "params": {
+        "p": {"range": [1, 6]},
+        "off": {"value": "pick(p, 1, 1, 0 - 1, 0 - 1, 0 - 4, 0 - 5)"},
+        "k": {"value": "abs(off)"},
+        "f": {"value": "pick(p, 260, 230, 220, 255, 570, 590)"},
+        "t": {"range": [0, 1435], "step": 5},
+        "land": {"value": "t + f"}
+      },
+      "where": [
+        "land < 1440",
+        "land + off * 60 >= 0",
+        "land + off * 60 < 1440",
+        "land - off * 60 >= 0",
+        "land - off * 60 < 1440"
+      ],
+      "answer": {"type": "time", "value": "land + off * 60"},
+      "formats": [
+        {
+          "id": "flight",
+          "prompt": "A plane leaves Manila at {clock(t)}, Manila time. The flight to {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} takes {hm(f)}, and {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'ahead of' : 'behind'} Manila. What is the time in {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} when the plane lands?"
+        }
+      ],
+      "hints": [
+        "First find the landing time in Manila time.",
+        "{clock(t)} + {hm(f)} = {clock(land)} in Manila.",
+        "Then change it to {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} time: {off > 0 ? 'add' : 'take away'} {k} hour{k == 1 ? '' : 's'}."
+      ],
+      "steps": [
+        "Lands at {clock(land)}, Manila time",
+        "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'ahead of' : 'behind'} Manila",
+        "{clock(land)} {off > 0 ? '+' : '−'} {k} hour{k == 1 ? '' : 's'} = {clock(answer)}"
+      ],
+      "explain": "It lands at {clock(land)} Manila time, which is {clock(answer)} in {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}.",
+      "distractors": [
+        {
+          "value": "land",
+          "error": "forgot-the-time-difference",
+          "feedback": "{clock(value)} is the landing time in Manila. Change it to {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} time: {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'ahead of' : 'behind'} Manila."
+        },
+        {
+          "value": "land - off * 60",
+          "error": "went-the-wrong-way",
+          "feedback": "{clock(value)} goes the wrong way. {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {off > 0 ? 'ahead of' : 'behind'} Manila, so its clocks show {off > 0 ? 'a later' : 'an earlier'} time."
+        }
+      ]
+    }
+  ]
+}
