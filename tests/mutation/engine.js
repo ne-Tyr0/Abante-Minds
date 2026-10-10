@@ -90,6 +90,14 @@ const M = [
   ["two series not called double", "(c.series.length > 1 && c.kind !== \"table\" ? \"double \" : \"\")", "\"\""],
   ["lesson drops the chart", "chart: q.chart || null,", "chart: null,"],
   ["degree sign spaced", "(spec.unit === \"°\" ? \"\" : \" \") + spec.unit", "\" \" + spec.unit"],
+  // figures
+  ["overlapping shapes allowed", "      if (used > 360) throw ContentError(\"the shapes round the point overlap: \" + used + \"°\");\n", ""],
+  ["any number of sides drawn", "        if (!SHAPE_NAMES[sides]) throw ContentError(\"a tiling picture cannot show a regular shape of \" + sides + \" sides\");\n", ""],
+  ["one shape named as many", "count === 1 ? SHAPE_NAMES[sides][0] : count + \" \" + SHAPE_NAMES[sides][1]", "count + \" \" + SHAPE_NAMES[sides][1]"],
+  ["a full point said to have a gap", "(c.gap ? \"with a gap left\" : \"with no gap\")", "\"with a gap left\""],
+  ["clock hand past 12", "whole(spec.hand, scope, 1, 12, \"a clock hand\")", "whole(spec.hand, scope, 1, 13, \"a clock hand\")"],
+  ["mirror side unchecked", "      if (c.side !== \"left\" && c.side !== \"right\") throw ContentError(\"a point is to the left or the right of the mirror line\");\n", ""],
+  ["1 squares", "(c.distance === 1 ? \"\" : \"s\")", "\"s\""],
   // clock times
   ["noon called 12:00 p.m.", "    if (n === 720) return \"12:00 noon\";\n", ""],
   ["midnight called 12:00 a.m.", "    if (n === 0) return \"12:00 midnight\";\n", ""],

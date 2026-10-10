@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.16.0",
+  "version": "1.17.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
@@ -22,7 +22,7 @@
     { "key": "circles", "label": "Circles", "icon": "retry", "colorKey": 2, "file": "circles.json" },
     { "key": "data", "label": "Graphs and data", "icon": "level-up", "colorKey": 3, "file": "data.json" },
     { "key": "probability", "label": "Probability", "icon": "hint", "colorKey": 4, "file": "probability.json" },
-    { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "comingSoon": true }
+    { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "file": "transform.json" }
   ],
   "basics": [
     { "key": "add-subtract", "label": "Add and subtract", "icon": "add", "colorKey": 1, "file": "add-subtract.json" },

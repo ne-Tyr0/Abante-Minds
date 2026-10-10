@@ -1,0 +1,534 @@
+{
+  "topic": "transform",
+  "levels": [
+    {
+      "id": "angles-at-a-point",
+      "title": "Angles at a point",
+      "templates": ["transform.regular-angle", "transform.around-a-point", "transform.gap-at-a-point"],
+      "lesson": [
+        {
+          "title": "Fitting round a point",
+          "body": "Shapes tile a floor when their corners fit round each point with no gap and no overlap. The angles round a point always add up to 360°."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "transform.gap-at-a-point", "format": "gap", "params": {"i": 1}}
+        },
+        {
+          "title": "The angle of a regular shape",
+          "body": "A shape with n sides has angles that add up to (n − 2) × 180°. In a regular shape they are all equal: a regular hexagon has 4 × 180° = 720° in all, so each angle is 720° ÷ 6 = 120°."
+        }
+      ]
+    },
+    {
+      "id": "which-tile",
+      "title": "Which shapes tile?",
+      "templates": ["transform.tessellates", "transform.does-not-tessellate"],
+      "lesson": [
+        {
+          "title": "Three regular shapes tile",
+          "body": "Only three regular shapes tile on their own: equilateral triangles (6 × 60°), squares (4 × 90°) and regular hexagons (3 × 120°). Each angle divides 360° exactly."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "transform.tessellates", "format": "which", "params": {"t": 6, "j": 1}}
+        },
+        {
+          "title": "The others leave a gap",
+          "body": "A regular pentagon has angles of 108°. Three make 324°, which leaves a gap of 36°, and four would overlap. So pentagons cannot tile on their own."
+        }
+      ]
+    },
+    {
+      "id": "any-shape",
+      "title": "Tiling with any shape",
+      "templates": ["transform.triangle-tiles", "transform.quadrilateral-tiles", "transform.fill-the-gap"],
+      "lesson": [
+        {
+          "title": "Any triangle, any four-sided shape",
+          "body": "Copies of any triangle tile: two of each angle meet at a point, and 2 × 180° = 360°. Copies of any four-sided shape tile too: its four angles add up to 360°."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "transform.fill-the-gap", "format": "fill", "params": {"c": 4}}
+        },
+        {
+          "title": "Two kinds of shape",
+          "body": "Shapes of different kinds can fill a point together. Two regular octagons take 270°, and a square fills the 90° that is left, as on many tiled floors."
+        }
+      ]
+    },
+    {
+      "id": "moves",
+      "title": "Slides, flips and turns",
+      "templates": ["transform.name-the-move", "transform.mirror-distance", "transform.clock-turn"],
+      "lesson": [
+        {
+          "title": "Three moves",
+          "body": "A translation slides a shape. A reflection flips it over a mirror line. A rotation turns it about a point. In each, the shape keeps its size and its shape."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "transform.clock-turn", "format": "clock", "params": {"h": 2, "q": 90}}
+        },
+        {
+          "title": "Mirror lines",
+          "body": "In a reflection, the image is as far behind the mirror line as the shape is in front of it, and straight across from it."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "transform.regular-angle",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Find each angle of a regular polygon",
+      "schema": "multi-step",
+      "params": {
+        "i": {"range": [1, 7]},
+        "n": {"value": "pick(i, 3, 5, 6, 8, 9, 10, 12)"},
+        "sum": {"value": "(n - 2) * 180"}
+      },
+      "answer": {"type": "unit", "value": "sum / n", "unit": "°"},
+      "formats": [
+        {
+          "id": "angle",
+          "prompt": "How big is each angle of {pick(i, 'an equilateral triangle', 'a regular pentagon', 'a regular hexagon', 'a regular octagon', 'a regular nonagon', 'a regular decagon', 'a regular dodecagon')}?"
+        }
+      ],
+      "hints": [
+        "The angles of a shape with n sides add up to (n − 2) × 180°.",
+        "This shape has {n} sides: ({n} − 2) × 180° = {sum}°.",
+        "Its {n} angles are all equal: {sum}° ÷ {n}."
+      ],
+      "steps": [
+        "{n} sides: angles add up to ({n} − 2) × 180° = {sum}°",
+        "All {n} angles are equal",
+        "{sum}° ÷ {n} = {answer}°"
+      ],
+      "explain": "The angles add up to {sum}°, so each is {sum}° ÷ {n} = {answer}°.",
+      "distractors": [
+        {
+          "value": "sum",
+          "error": "gave-the-angle-sum",
+          "feedback": "{value}° is all {n} angles together. Share it equally: ÷ {n}."
+        },
+        {
+          "value": "360 / n",
+          "error": "gave-the-turn-at-each-corner",
+          "feedback": "{value}° is 360° ÷ {n}, the turn at each corner as you walk round the shape. The angle inside is 180° − {value}° = {answer}°."
+        }
+      ]
+    },
+    {
+      "id": "transform.around-a-point",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Find how many copies of a regular shape meet at a point",
+      "schema": "equal-groups",
+      "params": {"i": {"range": [1, 3]}, "n": {"value": "pick(i, 3, 4, 6)"}, "a": {"value": "pick(i, 60, 90, 120)"}},
+      "answer": {"type": "integer", "value": "360 / a"},
+      "formats": [
+        {
+          "id": "floor",
+          "prompt": "A floor is tiled with copies of {pick(i, 'an equilateral triangle', 'a square', 'a regular hexagon')}, with no gaps. How many tiles meet at each corner point?"
+        },
+        {
+          "id": "point",
+          "prompt": "Copies of {pick(i, 'an equilateral triangle', 'a square', 'a regular hexagon')} are fitted around a point with no gaps or overlaps. How many fit?"
+        }
+      ],
+      "hints": ["The angles at a point add up to 360°.", "Each angle of this shape is {a}°.", "360° ÷ {a}° = ?"],
+      "steps": ["Angles at a point: 360°", "Each angle: {a}°", "360 ÷ {a} = {answer}"],
+      "explain": "360° ÷ {a}° = {answer}, so {answer} tiles meet at each point.",
+      "distractors": [
+        {
+          "value": "n",
+          "error": "gave-the-number-of-sides",
+          "feedback": "{value} is the number of sides. Count the tiles that fit round the point: 360° ÷ {a}°."
+        },
+        {
+          "value": "180 / a",
+          "error": "used-a-straight-angle",
+          "feedback": "{value} fit along a straight line, which is 180°. All the way round a point is 360°."
+        }
+      ]
+    },
+    {
+      "id": "transform.gap-at-a-point",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Find the gap left when a regular shape cannot fill a point",
+      "schema": "multi-step",
+      "params": {
+        "i": {"range": [1, 5]},
+        "n": {"value": "pick(i, 5, 8, 9, 10, 12)"},
+        "a": {"value": "pick(i, 108, 135, 140, 144, 150)"},
+        "k": {"value": "floor(360 / a)"}
+      },
+      "chart": {"kind": "tiling", "title": "Round a point", "shapes": [{"sides": "n", "count": "k"}]},
+      "answer": {"type": "unit", "value": "360 - k * a", "unit": "°"},
+      "formats": [
+        {
+          "id": "gap",
+          "prompt": "As many copies of {pick(i, 'a regular pentagon', 'a regular octagon', 'a regular nonagon', 'a regular decagon', 'a regular dodecagon')} as will fit are placed round a point, without overlapping. How big is the gap that is left?"
+        }
+      ],
+      "hints": [
+        "Each angle of this shape is {a}°.",
+        "{k} fit: {k} × {a}° = {k * a}°.",
+        "The angles at a point make 360°: 360° − {k * a}° = ?"
+      ],
+      "steps": ["Each angle: {a}°", "{k} fit: {k} × {a}° = {k * a}°", "360° − {k * a}° = {answer}°"],
+      "explain": "{k} × {a}° = {k * a}°, leaving 360° − {k * a}° = {answer}°. The gap means this shape cannot tile on its own.",
+      "distractors": [
+        {
+          "value": "k * a",
+          "error": "gave-the-angles-used",
+          "feedback": "{value}° is the space the {k} shapes take up. The gap is what is left of 360°."
+        },
+        {
+          "value": "a",
+          "error": "gave-one-angle",
+          "feedback": "{value}° is one angle of the shape. Fit {k} round the point, then find what is left of 360°."
+        }
+      ]
+    },
+    {
+      "id": "transform.tessellates",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Choose the regular shape that tessellates",
+      "schema": "compare",
+      "params": {
+        "t": {"choose": [3, 4, 6]},
+        "j": {"range": [1, 5]},
+        "x": {"value": "pick(j, 5, 8, 9, 10, 12)"},
+        "y": {"value": "pick(j % 5 + 1, 5, 8, 9, 10, 12)"},
+        "z": {"value": "pick((j + 1) % 5 + 1, 5, 8, 9, 10, 12)"}
+      },
+      "answer": {
+        "type": "choice",
+        "value": "t",
+        "label": "{(value == 3 ? 'An equilateral triangle' : (value == 4 ? 'A square' : (value == 5 ? 'A regular pentagon' : (value == 6 ? 'A regular hexagon' : (value == 8 ? 'A regular octagon' : (value == 9 ? 'A regular nonagon' : (value == 10 ? 'A regular decagon' : 'A regular dodecagon')))))))}",
+        "order": "mixed"
+      },
+      "formats": [
+        {
+          "id": "which",
+          "prompt": "Which of these shapes can tile a floor on its own, with no gaps or overlaps?"
+        }
+      ],
+      "hints": [
+        "A shape tiles round a point when its angle divides 360° exactly.",
+        "Find each angle: a regular shape with n sides has angles of (n − 2) × 180° ÷ n.",
+        "Not {(x == 3 ? 'an equilateral triangle' : (x == 4 ? 'a square' : (x == 5 ? 'a regular pentagon' : (x == 6 ? 'a regular hexagon' : (x == 8 ? 'a regular octagon' : (x == 9 ? 'a regular nonagon' : (x == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))}: its angles are {(x == 3 ? '60' : (x == 4 ? '90' : (x == 5 ? '108' : (x == 6 ? '120' : (x == 8 ? '135' : (x == 9 ? '140' : (x == 10 ? '144' : '150')))))))}°, and 360 ÷ that leaves a remainder."
+      ],
+      "steps": [
+        "Each angle of {(t == 3 ? 'an equilateral triangle' : (t == 4 ? 'a square' : (t == 5 ? 'a regular pentagon' : (t == 6 ? 'a regular hexagon' : (t == 8 ? 'a regular octagon' : (t == 9 ? 'a regular nonagon' : (t == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))}: {(t - 2) * 180 / t}°",
+        "360 ÷ {(t - 2) * 180 / t} = {360 * t / ((t - 2) * 180)}, a whole number",
+        "So {(t == 3 ? 'an equilateral triangle' : (t == 4 ? 'a square' : (t == 5 ? 'a regular pentagon' : (t == 6 ? 'a regular hexagon' : (t == 8 ? 'a regular octagon' : (t == 9 ? 'a regular nonagon' : (t == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))} tiles"
+      ],
+      "explain": "Each angle of {(t == 3 ? 'an equilateral triangle' : (t == 4 ? 'a square' : (t == 5 ? 'a regular pentagon' : (t == 6 ? 'a regular hexagon' : (t == 8 ? 'a regular octagon' : (t == 9 ? 'a regular nonagon' : (t == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))} is {(t - 2) * 180 / t}°, and {360 * t / ((t - 2) * 180)} of them make exactly 360°.",
+      "distractors": [
+        {
+          "value": "x",
+          "error": "picked-a-shape-that-leaves-a-gap",
+          "feedback": "Each angle of {(value == 3 ? 'an equilateral triangle' : (value == 4 ? 'a square' : (value == 5 ? 'a regular pentagon' : (value == 6 ? 'a regular hexagon' : (value == 8 ? 'a regular octagon' : (value == 9 ? 'a regular nonagon' : (value == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))} is {(value - 2) * 180 / value}°. 360 ÷ {(value - 2) * 180 / value} is not a whole number, so copies leave a gap."
+        },
+        {
+          "value": "y",
+          "error": "picked-another-shape-that-leaves-a-gap",
+          "feedback": "Each angle of {(value == 3 ? 'an equilateral triangle' : (value == 4 ? 'a square' : (value == 5 ? 'a regular pentagon' : (value == 6 ? 'a regular hexagon' : (value == 8 ? 'a regular octagon' : (value == 9 ? 'a regular nonagon' : (value == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))} is {(value - 2) * 180 / value}°. 360 ÷ {(value - 2) * 180 / value} is not a whole number, so copies leave a gap."
+        },
+        {
+          "value": "z",
+          "error": "picked-a-third-shape-that-leaves-a-gap",
+          "feedback": "Each angle of {(value == 3 ? 'an equilateral triangle' : (value == 4 ? 'a square' : (value == 5 ? 'a regular pentagon' : (value == 6 ? 'a regular hexagon' : (value == 8 ? 'a regular octagon' : (value == 9 ? 'a regular nonagon' : (value == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))} is {(value - 2) * 180 / value}°. 360 ÷ {(value - 2) * 180 / value} is not a whole number, so copies leave a gap."
+        }
+      ]
+    },
+    {
+      "id": "transform.does-not-tessellate",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Choose the regular shape that does not tessellate",
+      "schema": "compare",
+      "params": {"j": {"range": [1, 5]}, "g": {"value": "pick(j, 5, 8, 9, 10, 12)"}},
+      "answer": {
+        "type": "choice",
+        "value": "g",
+        "label": "{(value == 3 ? 'An equilateral triangle' : (value == 4 ? 'A square' : (value == 5 ? 'A regular pentagon' : (value == 6 ? 'A regular hexagon' : (value == 8 ? 'A regular octagon' : (value == 9 ? 'A regular nonagon' : (value == 10 ? 'A regular decagon' : 'A regular dodecagon')))))))}",
+        "order": "mixed"
+      },
+      "formats": [{"id": "which", "prompt": "Which of these shapes can NOT tile a floor on its own?"}],
+      "hints": [
+        "A shape tiles round a point when its angle divides 360° exactly.",
+        "Find each angle: a regular shape with n sides has angles of (n − 2) × 180° ÷ n.",
+        "Squares tile: four angles of 90° make 360°."
+      ],
+      "steps": [
+        "Each angle of {(g == 3 ? 'an equilateral triangle' : (g == 4 ? 'a square' : (g == 5 ? 'a regular pentagon' : (g == 6 ? 'a regular hexagon' : (g == 8 ? 'a regular octagon' : (g == 9 ? 'a regular nonagon' : (g == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))}: {(g - 2) * 180 / g}°",
+        "360 ÷ {(g - 2) * 180 / g} is not a whole number",
+        "So {(g == 3 ? 'an equilateral triangle' : (g == 4 ? 'a square' : (g == 5 ? 'a regular pentagon' : (g == 6 ? 'a regular hexagon' : (g == 8 ? 'a regular octagon' : (g == 9 ? 'a regular nonagon' : (g == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))} cannot tile on its own"
+      ],
+      "explain": "Each angle of {(g == 3 ? 'an equilateral triangle' : (g == 4 ? 'a square' : (g == 5 ? 'a regular pentagon' : (g == 6 ? 'a regular hexagon' : (g == 8 ? 'a regular octagon' : (g == 9 ? 'a regular nonagon' : (g == 10 ? 'a regular decagon' : 'a regular dodecagon')))))))} is {(g - 2) * 180 / g}°: {floor(360 / ((g - 2) * 180 / g))} of them leave a gap of {360 - floor(360 / ((g - 2) * 180 / g)) * (g - 2) * 180 / g}°.",
+      "distractors": [
+        {
+          "value": "3",
+          "error": "picked-the-triangle",
+          "feedback": "Equilateral triangles tile: six angles of 60° make exactly 360°."
+        },
+        {
+          "value": "4",
+          "error": "picked-the-square",
+          "feedback": "Squares tile: four angles of 90° make exactly 360°."
+        },
+        {
+          "value": "6",
+          "error": "picked-the-hexagon",
+          "feedback": "Regular hexagons tile, like a honeycomb: three angles of 120° make exactly 360°."
+        }
+      ]
+    },
+    {
+      "id": "transform.triangle-tiles",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Use the angles of a triangle to see why any triangle tiles",
+      "schema": "missing-middle",
+      "params": {"a": {"range": [30, 100], "step": 5}, "b": {"range": [20, "150 - a"], "step": 5}},
+      "where": ["180 - a - b >= 20"],
+      "answer": {"type": "unit", "value": "180 - a - b", "unit": "°"},
+      "formats": [
+        {
+          "id": "triangle",
+          "prompt": "Copies of any triangle can tile a floor: six corners meet at each point, two of each angle. A triangle has angles of {a}° and {b}°. What is its third angle?"
+        }
+      ],
+      "hints": ["The angles of a triangle add up to 180°.", "{a}° + {b}° = {a + b}°.", "180° − {a + b}° = ?"],
+      "steps": [
+        "{a}° + {b}° = {a + b}°",
+        "180° − {a + b}° = {answer}°",
+        "At a point: 2 × ({a}° + {b}° + {answer}°) = 360°"
+      ],
+      "explain": "180° − {a}° − {b}° = {answer}°. Two of each angle make 2 × 180° = 360°, so the copies fit with no gap.",
+      "distractors": [
+        {
+          "value": "360 - a - b",
+          "error": "took-them-from-360",
+          "feedback": "{value}° takes the angles from 360°. The angles of one triangle add up to 180°."
+        },
+        {
+          "value": "a + b",
+          "error": "added-the-two",
+          "feedback": "{value}° is the two angles you know, added. The third is what is left of 180°."
+        }
+      ]
+    },
+    {
+      "id": "transform.quadrilateral-tiles",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Use the angles of a quadrilateral to see why any quadrilateral tiles",
+      "schema": "missing-middle",
+      "params": {
+        "a": {"range": [50, 130], "step": 5},
+        "b": {"range": [50, 130], "step": 5},
+        "c": {"range": [50, 130], "step": 5}
+      },
+      "where": ["360 - a - b - c >= 40", "360 - a - b - c <= 150"],
+      "answer": {"type": "unit", "value": "360 - a - b - c", "unit": "°"},
+      "formats": [
+        {
+          "id": "quad",
+          "prompt": "Copies of any four-sided shape can tile a floor: its four corners meet at each point. A four-sided tile has angles of {a}°, {b}° and {c}°. What is its fourth angle?"
+        }
+      ],
+      "hints": [
+        "The four angles of any four-sided shape add up to 360°.",
+        "{a}° + {b}° + {c}° = {a + b + c}°.",
+        "360° − {a + b + c}° = ?"
+      ],
+      "steps": [
+        "{a}° + {b}° + {c}° = {a + b + c}°",
+        "360° − {a + b + c}° = {answer}°",
+        "The four corners fill the point: 360°"
+      ],
+      "explain": "360° − {a + b + c}° = {answer}°. The four angles fill a point exactly, so the copies fit with no gap.",
+      "distractors": [
+        {
+          "value": "a + b + c",
+          "error": "added-the-three",
+          "feedback": "{value}° is the three angles you know, added. The fourth is what is left of 360°."
+        },
+        {
+          "value": "360 - a - b",
+          "error": "left-out-an-angle",
+          "feedback": "{value}° leaves out the {c}° angle. Take all three from 360°."
+        }
+      ]
+    },
+    {
+      "id": "transform.fill-the-gap",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Fill a point with two kinds of regular shape",
+      "schema": "missing-middle",
+      "params": {
+        "c": {"range": [1, 6]},
+        "f": {"value": "pick(c, 60, 60, 60, 90, 60, 90)"},
+        "used": {"value": "pick(c, 120, 240, 180, 270, 300, 180)"}
+      },
+      "chart": {
+        "kind": "tiling",
+        "title": "Round a point",
+        "shapes": [{"sides": "pick(c, 6, 6, 4, 8, 12, 3)", "count": "pick(c, 1, 2, 2, 2, 2, 3)"}]
+      },
+      "answer": {"type": "integer", "value": "(360 - used) / f"},
+      "formats": [
+        {
+          "id": "fill",
+          "prompt": "{pick(c, 'A regular hexagon sits', '2 regular hexagons meet', '2 squares meet', '2 regular octagons meet', '2 regular dodecagons meet', '3 equilateral triangles meet')} at a point, taking up {used}° of the 360°. How many {pick(c, 'equilateral triangles', 'equilateral triangles', 'equilateral triangles', 'squares', 'equilateral triangles', 'squares')} fill the gap that is left?"
+        }
+      ],
+      "hints": [
+        "The angles at a point add up to 360°.",
+        "The gap is 360° − {used}° = {360 - used}°.",
+        "Each of the {pick(c, 'equilateral triangles', 'equilateral triangles', 'equilateral triangles', 'squares', 'equilateral triangles', 'squares')} has angles of {f}°."
+      ],
+      "steps": ["Gap: 360° − {used}° = {360 - used}°", "Each one: {f}°", "{360 - used} ÷ {f} = {answer}"],
+      "explain": "The gap is {360 - used}°, and {360 - used} ÷ {f} = {answer}.",
+      "distractors": [
+        {
+          "value": "360 / f",
+          "error": "filled-the-whole-point",
+          "feedback": "{value} would fill the whole point. Some of it is already used: fill only the {360 - used}° gap."
+        },
+        {
+          "value": "used / f",
+          "error": "filled-the-used-part",
+          "feedback": "{value} would fill the {used}° that is already used. Fill the gap: 360° − {used}° = {360 - used}°."
+        }
+      ]
+    },
+    {
+      "id": "transform.name-the-move",
+      "competency": "G6.Q1.3",
+      "domain": "MG",
+      "construct": "Name a translation, reflection, rotation or tessellation",
+      "schema": "compare",
+      "params": {"s": {"range": [1, 8]}, "g": {"value": "floor((s + 1) / 2)"}},
+      "answer": {
+        "type": "choice",
+        "value": "g",
+        "label": "{pick(value, 'A translation', 'A reflection', 'A rotation', 'A tessellation')}",
+        "order": "size"
+      },
+      "formats": [
+        {
+          "id": "name",
+          "prompt": "What is this: {pick(s, 'a tile slides 4 squares to the right without turning', 'a chess piece moves 3 squares forward, still facing the same way', 'a letter is drawn again on the other side of a mirror line, flipped over', 'the right half of a butterfly is the left half flipped over its middle', 'a fan blade turns a quarter turn about the centre of the fan', 'the hand of a clock moves from 12 to 3', 'copies of a hexagon cover a floor with no gaps or overlaps', 'bricks are laid in rows to cover a wall with no gaps')}?"
+        }
+      ],
+      "hints": [
+        "Does the shape slide, flip, turn, or get copied to cover a surface?",
+        "A slide is a translation, a flip is a reflection, and a turn is a rotation.",
+        "{g == 4 ? 'Nothing here slides, flips or turns on its own.' : 'One shape moves here; it is not copied to cover a surface.'}"
+      ],
+      "steps": [
+        "What happens: {pick(s, 'a tile slides 4 squares to the right without turning', 'a chess piece moves 3 squares forward, still facing the same way', 'a letter is drawn again on the other side of a mirror line, flipped over', 'the right half of a butterfly is the left half flipped over its middle', 'a fan blade turns a quarter turn about the centre of the fan', 'the hand of a clock moves from 12 to 3', 'copies of a hexagon cover a floor with no gaps or overlaps', 'bricks are laid in rows to cover a wall with no gaps')}",
+        "{pick(g, 'A translation slides a shape without turning or flipping it', 'A reflection flips a shape over a mirror line', 'A rotation turns a shape about a point', 'A tessellation covers a surface with copies of shapes, with no gaps or overlaps')}",
+        "So: {pick(g, 'a translation', 'a reflection', 'a rotation', 'a tessellation')}"
+      ],
+      "explain": "{pick(g, 'A translation slides a shape without turning or flipping it.', 'A reflection flips a shape over a mirror line.', 'A rotation turns a shape about a point.', 'A tessellation covers a surface with copies of shapes, with no gaps or overlaps.')} So this is {pick(g, 'a translation', 'a reflection', 'a rotation', 'a tessellation')}.",
+      "distractors": [
+        {
+          "value": "g % 4 + 1",
+          "error": "picked-the-next-word",
+          "feedback": "{pick(value, 'A translation slides a shape without turning or flipping it.', 'A reflection flips a shape over a mirror line.', 'A rotation turns a shape about a point.', 'A tessellation covers a surface with copies of shapes, with no gaps or overlaps.')} Here {pick(s, 'a tile slides 4 squares to the right without turning', 'a chess piece moves 3 squares forward, still facing the same way', 'a letter is drawn again on the other side of a mirror line, flipped over', 'the right half of a butterfly is the left half flipped over its middle', 'a fan blade turns a quarter turn about the centre of the fan', 'the hand of a clock moves from 12 to 3', 'copies of a hexagon cover a floor with no gaps or overlaps', 'bricks are laid in rows to cover a wall with no gaps')}: {pick(g, 'a translation', 'a reflection', 'a rotation', 'a tessellation')}."
+        },
+        {
+          "value": "(g + 1) % 4 + 1",
+          "error": "picked-another-word",
+          "feedback": "{pick(value, 'A translation slides a shape without turning or flipping it.', 'A reflection flips a shape over a mirror line.', 'A rotation turns a shape about a point.', 'A tessellation covers a surface with copies of shapes, with no gaps or overlaps.')} Here {pick(s, 'a tile slides 4 squares to the right without turning', 'a chess piece moves 3 squares forward, still facing the same way', 'a letter is drawn again on the other side of a mirror line, flipped over', 'the right half of a butterfly is the left half flipped over its middle', 'a fan blade turns a quarter turn about the centre of the fan', 'the hand of a clock moves from 12 to 3', 'copies of a hexagon cover a floor with no gaps or overlaps', 'bricks are laid in rows to cover a wall with no gaps')}: {pick(g, 'a translation', 'a reflection', 'a rotation', 'a tessellation')}."
+        },
+        {
+          "value": "(g + 2) % 4 + 1",
+          "error": "picked-a-third-word",
+          "feedback": "{pick(value, 'A translation slides a shape without turning or flipping it.', 'A reflection flips a shape over a mirror line.', 'A rotation turns a shape about a point.', 'A tessellation covers a surface with copies of shapes, with no gaps or overlaps.')} Here {pick(s, 'a tile slides 4 squares to the right without turning', 'a chess piece moves 3 squares forward, still facing the same way', 'a letter is drawn again on the other side of a mirror line, flipped over', 'the right half of a butterfly is the left half flipped over its middle', 'a fan blade turns a quarter turn about the centre of the fan', 'the hand of a clock moves from 12 to 3', 'copies of a hexagon cover a floor with no gaps or overlaps', 'bricks are laid in rows to cover a wall with no gaps')}: {pick(g, 'a translation', 'a reflection', 'a rotation', 'a tessellation')}."
+        }
+      ]
+    },
+    {
+      "id": "transform.mirror-distance",
+      "competency": "G6.Q1.3",
+      "domain": "MG",
+      "construct": "Find how far a point and its reflection are apart",
+      "schema": "multiplicative-compare",
+      "params": {"d": {"tiers": {"1": [1, 6], "3": [4, 10]}}, "side": {"choose": ["left", "right"]}},
+      "chart": {"kind": "mirror", "title": "Squared paper", "distance": "d", "side": "side"},
+      "answer": {"type": "integer", "value": "2 * d"},
+      "formats": [
+        {
+          "id": "grid",
+          "prompt": "On squared paper, a point is {d} squares to the {side} of a mirror line. It is reflected in the line. How many squares apart are the point and its image?"
+        }
+      ],
+      "hints": [
+        "A reflection is as far behind the mirror as the point is in front of it.",
+        "The image is {d} squares on the other side of the line.",
+        "{d} + {d} = ?"
+      ],
+      "steps": ["Point to the line: {d} squares", "Line to the image: {d} squares", "{d} + {d} = {answer}"],
+      "explain": "The image is {d} squares on the other side, so they are {d} + {d} = {answer} squares apart.",
+      "distractors": [
+        {
+          "value": "d",
+          "error": "gave-the-distance-to-the-line",
+          "feedback": "{value} squares is how far the point is from the mirror line. The image is the same distance on the other side: {d} + {d}."
+        }
+      ]
+    },
+    {
+      "id": "transform.clock-turn",
+      "competency": "G5.Q4.12",
+      "domain": "MG",
+      "construct": "Turn a clock hand about the centre",
+      "schema": "change",
+      "params": {"h": {"range": [1, 12]}, "q": {"choose": [90, 180, 270, 60, 120, 150]}, "steps": {"value": "q / 30"}},
+      "chart": {"kind": "clock", "title": "Before the turn", "hand": "h"},
+      "answer": {"type": "integer", "value": "(h - 1 + steps) % 12 + 1"},
+      "formats": [
+        {
+          "id": "clock",
+          "prompt": "The hand of a clock points to {h}. It turns {q}° clockwise about the centre of the clock. Which number does it point to now?"
+        }
+      ],
+      "hints": [
+        "A full turn is 360°, and the clock has 12 numbers.",
+        "So each number is 360° ÷ 12 = 30° from the next.",
+        "{q}° ÷ 30° = {steps} numbers on, going clockwise."
+      ],
+      "steps": [
+        "One number to the next: 30°",
+        "{q}° ÷ 30° = {steps} numbers",
+        "{steps} on from {h}, clockwise: {answer}"
+      ],
+      "explain": "{q}° is {steps} numbers on from {h}, so the hand points to {answer}.",
+      "distractors": [
+        {
+          "value": "(h - 1 - steps + 12) % 12 + 1",
+          "error": "turned-anticlockwise",
+          "feedback": "{value} is where an anticlockwise turn ends. Clockwise goes the way the hands of a clock move: from {h}, count on."
+        },
+        {
+          "value": "steps",
+          "error": "gave-the-numbers-moved",
+          "feedback": "{value} is how many numbers the hand moves. Count {value} on from {h}, clockwise."
+        }
+      ]
+    }
+  ]
+}

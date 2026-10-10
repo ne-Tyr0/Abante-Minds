@@ -672,6 +672,50 @@ test("a degree sign sits against its number; other units take a space", () => {
   C.use(PACK.manifest, PACK.files);
 });
 
+/* ---------- figures ---------- */
+
+const ONE_TO = (n) => ({ a: { range: [1, n] }, b: { value: "1" } });
+const FIGS = {
+  manifest: Object.assign({}, PACK.manifest, { topics: [{ key: "g", label: "Figures", icon: "star", colorKey: 1, file: "g.json" }] }),
+  files: [{
+    topic: "g",
+    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side"] }],
+    templates: [
+      T("g.tiling", { params: ONE_TO(6), chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "5", count: "a" }] } }),
+      T("g.two", { chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "8", count: "2" }, { sides: "4", count: "1" }] } }),
+      T("g.seven", { chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "7", count: "1" }] } }),
+      T("g.clock", { params: ONE_TO(13), chart: { kind: "clock", title: "Clock", hand: "a" } }),
+      T("g.mirror", { params: ONE_TO(11), chart: { kind: "mirror", title: "Paper", distance: "a", side: "'left'" } }),
+      T("g.side", { chart: { kind: "mirror", title: "Paper", distance: "a", side: "'up'" } })
+    ]
+  }]
+};
+test("figures: regular shapes round a point, and the gap they leave", () => {
+  C.use(FIGS.manifest, FIGS.files);
+  const t = C.instance("g.tiling", 1, { a: 3 }).chart;
+  assert.deepStrictEqual(t.shapes, [{ sides: 5, count: 3, angle: 108, name: "3 regular pentagons" }]);
+  assert.strictEqual(t.gap, 36);
+  assert.strictEqual(t.text, "Picture: 3 regular pentagons round a point, with a gap left.");
+  assert.strictEqual(C.instance("g.tiling", 1, { a: 1 }).chart.shapes[0].name, "a regular pentagon");
+  const two = C.instance("g.two", 1, { a: 3, b: 2 }).chart;
+  assert.deepStrictEqual([two.gap, two.text], [0, "Picture: 2 regular octagons and a square round a point, with no gap."]);
+  throws(() => C.instance("g.tiling", 1, { a: 4 }), /overlap/);
+  throws(() => C.instance("g.seven", 1, { a: 3, b: 2 }), /cannot show a regular shape of 7 sides/);
+  C.use(PACK.manifest, PACK.files);
+});
+test("figures: a clock face and a mirror line", () => {
+  C.use(FIGS.manifest, FIGS.files);
+  const k = C.instance("g.clock", 1, { a: 3 }).chart;
+  assert.deepStrictEqual([k.hand, k.text], [3, "Picture: a clock face, with its hand pointing to 3."]);
+  throws(() => C.instance("g.clock", 1, { a: 13 }), /a clock hand is 1 to 12/);
+  const m = C.instance("g.mirror", 1, { a: 3 }).chart;
+  assert.deepStrictEqual([m.distance, m.side, m.text], [3, "left", "Picture: squared paper with a mirror line, and a point 3 squares to its left."]);
+  assert.strictEqual(C.instance("g.mirror", 1, { a: 1 }).chart.text, "Picture: squared paper with a mirror line, and a point 1 square to its left.");
+  throws(() => C.instance("g.mirror", 1, { a: 11 }), /1 to 10/);
+  throws(() => C.instance("g.side", 1, { a: 3, b: 2 }), /left or the right/);
+  C.use(PACK.manifest, PACK.files);
+});
+
 /* ---------- clock times ---------- */
 
 test("clock, clock12 and hm write times and lengths of time", () => {

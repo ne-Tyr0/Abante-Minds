@@ -16,8 +16,9 @@ content/packs/<subtest>/
   <topic>.json       one file per written topic: its levels, lessons, templates
 ```
 
-Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `time`, `area`, `solids`, `circles`, `data` and `probability` are
-written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
+Only `math` exists. Its path holds all 13 blueprint topics, and all are written:
+`decimals`, `fractions`, `gemdas`, `factors`, `ratio`, `percent`, `time`, `area`, `solids`, `circles`, `data`, `probability` and `transform`. A topic not yet written is marked
+`comingSoon` and has no file. Beside the path, `basics` lists the Basics
 topics: `add-subtract`, `times`, `mental`, `written` and `missing` are written.
 
 ## Before you commit
@@ -281,6 +282,9 @@ A question can come with a graph or a table, drawn from the template's own numbe
 | `bar`, `line` | `title`; `axis`, the label up the side; `step`, the gap between gridlines; 2 to 8 `categories` along the bottom; 1 or 2 `series`, each a `name` and one value per category. Two series make a double graph with a key. Optional `label` for the numbers, such as `"{peso(value)}"` |
 | `pie` | `title`; `unit`, `%` (the slices make 100) or `°` (they make 360); 2 to 6 `slices`, each a `name`, a `value`, and optionally `hidden`, a true/false expression that leaves that slice unlabelled for a question that asks for it |
 | `table` | `title`; `axis`, the heading over the row names; 2 to 8 `categories`, the rows; 1 to 3 `series`, the columns; optional `label` |
+| `tiling` | A picture: `title`; `shapes`, 1 or 2 kinds of regular shape fitted round a point in turn, each a number of `sides` (3, 4, 5, 6, 8, 9, 10 or 12) and a `count`. Whatever is left of the 360° is shown as a gap marked "?". The shapes may not overlap |
+| `clock` | A picture: `title`; `hand`, the number from 1 to 12 the hand points to |
+| `mirror` | A picture: `title`; squared paper with a mirror line and one point, `distance` squares (1 to 10) to its `side`, `'left'` or `'right'` |
 
 The chart is part of the question, so like the prompt it may use the params but never
 `answer`. The validator draws every chart and holds it to what a phone can show:

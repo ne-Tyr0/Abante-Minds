@@ -31,7 +31,8 @@ const lvl = (j, id) => j.levels.find((l) => l.id === id);
 const D = "decimals.json", M = "manifest.json", TT = "times.json";
 const ttpl = (j, id) => j.templates.find((t) => t.id === "times." + id);
 const PIECES = { template: "decimals.how-many-pieces", params: { vi: 25, t: 30, p: 45 } };
-const DA = "data.json";
+const DA = "data.json", TR = "transform.json";
+const figure = (j, id) => j.templates.find((t) => t.id === "transform." + id).chart;
 const chart = (j, id) => j.templates.find((t) => t.id === "data." + id).chart;
 const pin = (j, p) => { j.pinned = [Object.assign({}, PIECES, p, { params: Object.assign({}, PIECES.params, p && p.params) })]; };
 
@@ -117,7 +118,7 @@ const MUTANTS = [
   ["topic missing from the path", M, (j) => { j.topics = j.topics.filter((t) => t.key !== "transform"); }, "blueprint topic 'transform' is not on the path"],
   ["topic on the path twice", M, (j) => { j.topics.push(Object.assign({}, j.topics[1])); }, "on the path twice"],
   ["topic not in the blueprint", M, (j) => { j.topics[1].key = "money"; }, "topic 'money' is not in the blueprint"],
-  ["coming soon with a file", M, (j) => { j.topics.find((t) => t.comingSoon).file = "fractions.json"; }, "a topic coming soon has no file yet"],
+  ["coming soon with a file", M, (j) => { j.topics.find((t) => t.key === "transform").comingSoon = true; }, "a topic coming soon has no file yet"],
   ["written topic without a file", M, (j) => { delete j.topics[0].file; }, "a written topic needs its file"],
   ["unknown topic field", M, (j) => { j.topics[0].colour = 1; }, "unknown field 'colour'"],
   ["fraction answers without form feedback", M, (j) => { delete j.formFeedback; }, "formFeedback is required"],
@@ -215,6 +216,17 @@ const MUTANTS = [
   ["slice name too long", DA, (j) => { chart(j, "pie-percent").slices[0].name = "Science and Health"; }, "slice name 'Science and Health' is longer than 16"],
   ["slice with an unknown field", DA, (j) => { chart(j, "pie-angle").slices[0].colour = "red"; }, "slice 0 has an unknown field 'colour'"],
   ["chart label using an unknown name", DA, (j) => { chart(j, "table-difference").label = "{peso(price)}"; }, "chart label {peso(price)} uses 'price'"],
+  // figures
+  ["picture with a graph field", TR, (j) => { figure(j, "gap-at-a-point").axis = "Degrees"; }, "a tiling picture has no axis"],
+  ["graph with a picture field", DA, (j) => { chart(j, "read-bar").hand = "1"; }, "a bar has no hand"],
+  ["tiling of three kinds of shape", TR, (j) => { const s = figure(j, "gap-at-a-point").shapes; s.push(s[0], s[0]); }, "a tiling picture has 1 or 2 kinds of shape"],
+  ["tiling shape with an unknown field", TR, (j) => { figure(j, "gap-at-a-point").shapes[0].colour = "red"; }, "shape 0 has an unknown field 'colour'"],
+  ["shapes that overlap", TR, (j) => { figure(j, "gap-at-a-point").shapes[0].count = "k + 1"; }, "the shapes round the point overlap"],
+  ["a seven-sided picture", TR, (j) => { figure(j, "gap-at-a-point").shapes[0].sides = "7"; }, "cannot show a regular shape of 7 sides"],
+  ["clock hand past 12", TR, (j) => { figure(j, "clock-turn").hand = "h + 12"; }, "a clock hand is 1 to 12"],
+  ["clock with no hand", TR, (j) => { delete figure(j, "clock-turn").hand; }, "chart hand must be an expression"],
+  ["point off the paper", TR, (j) => { figure(j, "mirror-distance").distance = "d + 10"; }, "the distance from the mirror line is 1 to 10"],
+  ["picture that uses the answer", TR, (j) => { figure(j, "clock-turn").hand = "answer"; }, "chart hand uses 'answer'"],
   // clock times
   ["time answer past midnight", "time.json", (j) => { j.templates.find((t) => t.id === "time.end-time").answer.value = "s + d + 1440"; }, "no usable question"],
   ["clock() past midnight", "time.json", (j) => { j.templates.find((t) => t.id === "time.end-time").explain = "{clock(s + 1440)}"; }, "0 to 1439 minutes after midnight"],
