@@ -292,6 +292,8 @@ test("sessions: one level's templates, pinned first when asked, no template twic
   assert.strictEqual(ses[0].prompt, "3 times 4?");
   assert.strictEqual(ses[1].prompt, "6 groups of 5?");
   assert.ok(ses[0].pinned && ses[1].pinned && !ses[2].pinned);
+  /* A pinned item has no seed, so the attempt log finds it by its place in the topic's list. */
+  assert.deepStrictEqual([ses[0].pinnedAt, ses[1].pinnedAt, ses[2].pinnedAt], [0, 1, undefined]);
   for (let i = 3; i < ses.length; i++) assert.notStrictEqual(ses[i].templateId, ses[i - 1].templateId, `question ${i}`);
   assert.ok(ses.every((q) => ["t.formats", "t.tiers", "t.where"].includes(q.templateId)), "only level one's templates");
   assert.deepStrictEqual(ses.map((q) => q.id), ses.map((_, i) => "t-one-" + i));

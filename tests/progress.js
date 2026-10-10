@@ -248,5 +248,52 @@ test("Basics never move the path", () => {
   assert.deepStrictEqual(S.badges().filter((x) => x.earned).map((x) => x.key), []);
 });
 
+/* ---------- the attempt log ---------- */
+
+const LOG_KEY = "abante-minds/attempts";
+test("every answer is logged, with the build and the time", () => {
+  const s = launch();
+  NOW = 1700000000000;
+  const row = s.logAttempt({ topic: "a", template: "a.t", seed: 7, given: "12", correct: false, error: "added" });
+  assert.deepStrictEqual(row, { at: 1700000000000, app: s.APP_BUILD, topic: "a", template: "a.t", seed: 7, given: "12", correct: false, error: "added" });
+  assert.strictEqual(s.attempts().length, 1);
+  assert.deepStrictEqual(JSON.parse(storage[LOG_KEY]), [row], "kept under its own key");
+  assert.ok(!(LOG_KEY in JSON.parse(storage[KEY] || "{}")), "not inside the main record");
+});
+test("the log survives a relaunch and keeps its order", () => {
+  let s = launch();
+  s.logAttempt({ n: 1 });
+  s.logAttempt({ n: 2 });
+  const kept = storage[LOG_KEY];
+  s = launch();
+  storage[LOG_KEY] = kept;
+  new Function(SRC).call(global);
+  assert.deepStrictEqual(global.AM.store.attempts().map((r) => r.n), [1, 2]);
+});
+test("past LOG_MAX the oldest attempts go", () => {
+  const s = launch();
+  for (let i = 0; i < s.LOG_MAX + 3; i++) s.logAttempt({ n: i });
+  const rows = s.attempts();
+  assert.strictEqual(rows.length, s.LOG_MAX);
+  assert.deepStrictEqual([rows[0].n, rows[rows.length - 1].n], [3, s.LOG_MAX + 2]);
+});
+test("a full phone gives up the oldest fifth rather than the new answer", () => {
+  const s = launch();
+  for (let i = 0; i < 10; i++) s.logAttempt({ n: i });
+  const real = global.localStorage.setItem;
+  let refused = false;
+  global.localStorage.setItem = (k, v) => { if (k === LOG_KEY && !refused) { refused = true; throw new Error("QuotaExceededError"); } real(k, v); };
+  s.logAttempt({ n: 10 });
+  global.localStorage.setItem = real;
+  assert.deepStrictEqual(s.attempts().map((r) => r.n), [2, 3, 4, 5, 6, 7, 8, 9, 10]);
+  assert.strictEqual(JSON.parse(storage[LOG_KEY]).length, 9);
+});
+test("the copy handed out cannot change the log", () => {
+  const s = launch();
+  s.logAttempt({ n: 1 });
+  s.attempts().push({ n: 99 });
+  assert.strictEqual(s.attempts().length, 1);
+});
+
 console.log(failed ? `\n${failed} failed` : "\nok: progress follows the path's rules");
 process.exit(failed ? 1 : 0);

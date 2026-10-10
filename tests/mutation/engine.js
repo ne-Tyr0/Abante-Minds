@@ -90,6 +90,7 @@ const M = [
   ["two series not called double", "(c.series.length > 1 && c.kind !== \"table\" ? \"double \" : \"\")", "\"\""],
   ["lesson drops the chart", "chart: q.chart || null,", "chart: null,"],
   ["degree sign spaced", "(spec.unit === \"°\" ? \"\" : \" \") + spec.unit", "\" \" + spec.unit"],
+  ["pinned items lose their place", "          q.pinnedAt = at;\n", ""],
   // figures
   ["overlapping shapes allowed", "      if (used > 360) throw ContentError(\"the shapes round the point overlap: \" + used + \"°\");\n", ""],
   ["any number of sides drawn", "        if (!SHAPE_NAMES[sides]) throw ContentError(\"a tiling picture cannot show a regular shape of \" + sides + \" sides\");\n", ""],

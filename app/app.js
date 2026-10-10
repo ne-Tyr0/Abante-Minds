@@ -260,6 +260,8 @@
       showHints: false, hintsRevealed: 0, stepsRevealed: 1,
       run: 0, correct: 0, attempted: 0, missed: [],
       pendingLevelUp: false, startedAt: Date.now(),
+      /* Ties a session's rows together in the attempt log. */
+      id: Date.now().toString(36) + "-" + Math.floor(Math.random() * 1679616).toString(36),
       /* A facts round times each answer from the moment it is shown. */
       shownAt: Date.now(), lastMs: null, lastQuick: false, lastMastered: false, lastRequeued: false,
       quick: 0, mastered: [], seed: null
@@ -346,6 +348,16 @@
     s.diagnosis = C.diagnose(q, given);
     var right = s.diagnosis.correct;
     s.phase = right ? "correct" : "wrong";
+    q.__tries = (q.__tries || 0) + 1;
+    store.logAttempt({
+      session: s.id, topic: s.topicKey, level: s.levelId, kind: s.redo ? "redo" : s.kind,
+      template: q.templateId, tier: q.tier, seed: q.seed, pinned: q.pinned ? q.pinnedAt : null,
+      format: q.format, fact: q.factKey || null, pack: q.packVersion,
+      ordinal: s.index, attempt: q.__tries, given: given, correct: right, error: s.diagnosis.error,
+      ms: Date.now() - s.shownAt, hints: s.showHints ? s.hintsRevealed : 0,
+      /* Steps show only after a wrong answer, so a first try has seen none. */
+      steps: q.__tries > 1 ? s.stepsRevealed : 0
+    });
 
     /* Only the first try at a question counts towards the level: right on
        the first try is what "correct" means in the session and on the path. */
@@ -409,6 +421,7 @@
     var s = app.session;
     if (!s) return;
     s.phase = "ask";
+    s.shownAt = Date.now();
     s.entry = freshEntry(s);
     s.picked = null;
     s.diagnosis = null;
