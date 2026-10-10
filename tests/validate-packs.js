@@ -35,16 +35,19 @@ const INPUTTABLE = new Set(E.INPUTTABLE);
 const RESERVED = new Set(E.RESERVED);
 const BLUEPRINT_TOPICS = new Set(blueprint.topics.map((t) => t.key));
 
-// The keypad's own length limit, read from app.js so the two cannot drift.
-const keypad = read("app/app.js").match(/s\.typed\.length >= (\d+)/);
-if (!keypad) { console.log("FAIL could not find the keypad length limit in app/app.js"); process.exit(1); }
-const KEYPAD_MAX = Number(keypad[1]);
+// The keypad's own length limit, from the entry rules the app uses, so the
+// two cannot drift.
+new Function(read("app/entry.js")).call(global);
+const KEYPAD_MAX = global.AM.entry.NUMBER_MAX;
 
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const TEMPLATE_KEYS = new Set(["id", "competency", "domain", "construct", "schema", "params", "where",
   "answer", "formats", "hints", "steps", "explain", "fallback", "distractors"]);
-const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals"]);
+const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals", "unit", "form"]);
+const FORM_ERRORS = new Set(E.FORM_ERRORS);
+const NUMBER_TYPES_WITH_PLACES = new Set(["decimal", "percent", "unit", "pi-expression"]);
+let usesFractionAnswers = false;
 const FORMAT_KEYS = new Set(["id", "prompt", "hints", "steps", "explain"]);
 const DISTRACTOR_KEYS = new Set(["value", "error", "feedback"]);
 
@@ -149,9 +152,16 @@ function checkTemplate(t, topic, ids, placeholder) {
   if (!ANSWER_TYPES.has(a.type)) fail(`answer type '${a.type}' is not in the blueprint`);
   else if (!INPUTTABLE.has(a.type)) fail(`answer type '${a.type}' cannot be entered yet; it needs the answer-input rebuild`);
   expr(a.value, params, "answer value");
-  if ("maxDecimals" in a && (a.type !== "decimal" || !Number.isInteger(a.maxDecimals) || a.maxDecimals < 0 || a.maxDecimals > 4))
-    fail("maxDecimals is only for decimal answers, 0 to 4");
+  if ("maxDecimals" in a && (!NUMBER_TYPES_WITH_PLACES.has(a.type) || !Number.isInteger(a.maxDecimals) || a.maxDecimals < 0 || a.maxDecimals > 4))
+    fail("maxDecimals is only for decimal, percent, unit and pi-expression answers, 0 to 4");
   if ("prefix" in a && typeof a.prefix !== "string") fail("prefix must be text");
+  if (a.type === "unit") {
+    if (typeof a.unit !== "string" || !a.unit.trim() || /[{}]/.test(a.unit)) fail("a unit answer needs its unit, such as cm²");
+  } else if ("unit" in a) fail("unit is only for unit answers");
+  const fractional = E.ENTRY[a.type] === "fraction" || E.ENTRY[a.type] === "mixed";
+  if (fractional) usesFractionAnswers = true;
+  if ("form" in a && (!fractional || !["lowest", "any"].includes(a.form)))
+    fail("form is only for fraction and mixed answers, and is 'lowest' or 'any'");
   if (a.type === "choice") text(a.label, withValue, "answer label");
   else if ("label" in a) fail("label is only for choice answers");
 
@@ -187,6 +197,7 @@ function checkTemplate(t, topic, ids, placeholder) {
       unknownKeys(d, DISTRACTOR_KEYS, label);
       expr(d.value, withAnswer, `${label} value`);
       if (typeof d.error !== "string" || !KEBAB.test(d.error)) fail(`${label} needs a kebab-case error code`);
+      if (FORM_ERRORS.has(d.error)) fail(`${label}: '${d.error}' is a form mistake the checker names itself`);
       if (codes.has(d.error)) fail(`error code ${d.error} is used twice`);
       codes.add(d.error);
       text(d.feedback, withValue, `${label} feedback`);
@@ -264,13 +275,13 @@ function inspect(q, label) {
   if (q.choices) all.push(...q.choices);
   for (const s of all) if (typeof s !== "string" || !s.trim() || /[{}]/.test(s)) fail(`${label}: bad text ${JSON.stringify(s)}`);
   if (!Number.isFinite(q.answer) || q.answer < 0) fail(`${label}: answer ${q.answer} cannot be entered`);
-  else if (q.type === "compute" && E.fmt(q.answerExact).length > KEYPAD_MAX)
-    fail(`${label}: answer ${E.fmt(q.answerExact)} is longer than the keypad's ${KEYPAD_MAX} characters`);
+  else if (q.entry === "number" && q.answerText.length > KEYPAD_MAX)
+    fail(`${label}: answer ${q.answerText} is longer than the keypad's ${KEYPAD_MAX} characters`);
   if (q.type === "choice") {
     if (q.choices.length !== 4 || new Set(q.choices).size !== 4) fail(`${label}: choices are not four different options`);
     if (!(q.answerIndex >= 0 && q.answerIndex < 4)) fail(`${label}: the answer is not among the choices`);
   }
-  if (!C.isCorrect(q, q.type === "choice" ? q.answerIndex : String(q.answer))) fail(`${label}: the checker rejects its own answer`);
+  if (!C.isCorrect(q, q.type === "choice" ? q.answerIndex : q.answerText)) fail(`${label}: the checker rejects its own answer`);
 }
 
 /* ---------- run ---------- */
@@ -287,6 +298,7 @@ for (const packName of packs) {
   if (!/^\d+\.\d+\.\d+$/.test(manifest.version || "")) fail("version must be x.y.z");
   if (typeof manifest.fallbackFeedback !== "string" || !manifest.fallbackFeedback.trim()) fail("fallbackFeedback is required");
   const placeholder = manifest.placeholder === true;
+  usesFractionAnswers = false;
 
   const ids = new Set(), byId = {}, files = [];
   for (const topic of manifest.topics || []) {
@@ -309,6 +321,17 @@ for (const packName of packs) {
     }
     where = `${packName}/${topic.file} pinned`;
     for (const p of file.pinned || []) checkPinned(p, byId, topic.key);
+  }
+  /* A fraction answer in the right amount but the wrong form gets the pack's
+     own words for that, so a pack with fraction answers must supply them. */
+  where = `${packName}/manifest.json`;
+  const ff = manifest.formFeedback;
+  if (ff !== undefined || usesFractionAnswers) {
+    if (!ff || typeof ff !== "object") fail("formFeedback is required when a template takes fraction or mixed answers");
+    else {
+      for (const k of Object.keys(ff)) if (!FORM_ERRORS.has(k)) fail(`formFeedback has an unknown entry '${k}'`);
+      for (const k of FORM_ERRORS) if (typeof ff[k] !== "string" || !ff[k].trim() || /[{}]/.test(ff[k])) fail(`formFeedback needs plain text for '${k}'`);
+    }
   }
   if (problems.length) continue;
 

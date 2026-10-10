@@ -103,8 +103,8 @@
       "schema": "part-whole",
       "params": {
         "whole": { "choose": [20, 25, 40, 50] },
-        "frac": { "choose": [0.2, 0.4, 0.6, 0.8] },
-        "part": { "value": "round(whole * frac)" }
+        "share": { "choose": [0.2, 0.4, 0.6, 0.8] },
+        "part": { "value": "round(whole * share)" }
       },
       "answer": { "type": "choice", "value": "round(part / whole * 100)", "label": "{value}%" },
       "formats": [

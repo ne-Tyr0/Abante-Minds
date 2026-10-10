@@ -130,7 +130,11 @@ templates is an afternoon, migrating 300 is a project.
    item the old bank had padded with an invented option, which the engine now draws again.
 7. **Rebuild answer input.** Fractions, mixed numbers, decimals to 4 places, repeating
    decimals, exponents, π-expressions and unit-bearing answers. The current numeric keypad
-   cannot express most NCE answers. Prerequisite for Phase 2.
+   cannot express most NCE answers. Prerequisite for Phase 2. **Partly done 2026-10-10** —
+   fractions and mixed numbers typed into boxes (`app/entry.js`), checked for lowest terms
+   and mixed form with each form mistake named; numbers with a %, a unit or π after them.
+   Repeating decimals, exponents, ratio pairs and times follow with the topics that need
+   them.
 
    **Correction to an earlier assumption in this plan: negative numbers are not needed.**
    Signed numbers are Grade 7 in MATATAG, absent from Grades 5 and 6. They matter only if

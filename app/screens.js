@@ -688,8 +688,11 @@
         });
         return grid;
       }
-      return el("div", { style: { padding: "20px " + gutter() + "px 0" } },
-        AM.AnswerField({ value: ses.typed, prefix: q.unit, active: ses.typed.length > 0, tall: desktop }));
+      return el("div", { style: { padding: "20px " + gutter() + "px 0" } }, answerField(desktop));
+    }
+
+    function answerField(tall) {
+      return AM.AnswerField({ entry: ses.entry, prefix: q.unit, suffix: q.suffix, tall: tall, onFocusBox: app.focusBox });
     }
 
     /* ----- hints (13) ----- */
@@ -728,7 +731,7 @@
     function verdict() {
       if (ses.phase === "ask") return null;
       var right = ses.phase === "correct";
-      var given = q.type === "choice" ? q.choices[ses.picked] : (q.unit || "") + (ses.typed || "0");
+      var given = q.type === "choice" ? q.choices[ses.picked] : (q.unit || "") + AM.entry.text(ses.entry) + q.suffix;
       return el("div", { style: { padding: "16px " + gutter() + "px 0" } },
         el("div", {
           style: {
@@ -813,7 +816,7 @@
     function checkButton() {
       return AM.Button({
         label: "Check", fullWidth: !desktop,
-        disabled: q.type === "choice" ? ses.picked === null : ses.typed.length === 0,
+        disabled: q.type === "choice" ? ses.picked === null : !AM.entry.complete(ses.entry),
         onClick: function () { app.check(); }
       });
     }
@@ -868,14 +871,18 @@
 
     /* ----- desktop: the keypad sits beside the field, not under it ----- */
     var keypadNode = (q.type === "compute" && ses.phase === "ask")
-      ? AM.Keypad({ tall: desktop, onPress: function (d) { app.type(d); }, onDelete: function () { app.backspace(); } })
+      ? AM.Keypad({
+          kind: q.entry, tall: desktop,
+          onPress: function (d) { app.type(d); }, onDelete: function () { app.backspace(); }, onNext: function () { app.nextBox(); }
+        })
       : null;
 
     if (desktop) {
       var left = el("div", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--space-4)" } });
       if (q.type === "compute") {
-        left.appendChild(AM.AnswerField({ value: ses.typed, prefix: q.unit, active: ses.typed.length > 0, tall: true }));
-        if (ses.phase === "ask") left.appendChild(el("div.body-sm", { style: { color: "var(--ink-600)" } }, "Type on the keyboard or use the keypad."));
+        left.appendChild(answerField(true));
+        if (ses.phase === "ask") left.appendChild(el("div.body-sm", { style: { color: "var(--ink-600)" } },
+          q.entry === "number" ? "Type on the keyboard or use the keypad." : "Type on the keyboard or use the keypad. / or space moves to the next box."));
       }
       if (ses.phase === "ask") {
         left.appendChild(el("div", { style: { display: "flex", gap: "var(--space-3)", marginTop: "var(--space-2)" } },

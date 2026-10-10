@@ -26,6 +26,7 @@ Two consequences that are easy to forget:
 ```bash
 python devserver.py            # static server with no-store caching; also prints a LAN URL
 node tests/engine.js           # question-engine unit tests; exits 1 on any failure
+node tests/entry.js            # what each keypad key does to the answer boxes
 node tests/validate-packs.js   # every question pack against the schema and the blueprint
 node tests/fuzz.js             # 160,000 generated questions; exits 1 on any violation
 node poc/progress-code.js      # proves the backup-code codec; exits 1 if a claim fails
@@ -44,11 +45,17 @@ question whose answer was negative (the keypad has no minus key, so it was unans
 and a hint telling learners to "break 9 into 10 and -1". Testing the validator caught a
 third before it shipped: a pinned item on a template with more than one format crashed.
 
+`tests/mutation/` breaks the engine, the entry rules and the packs one way at a time and
+requires the tests to fail: `node tests/mutation/engine.js`, `entry.js`, `validator.js`
+(the last takes a couple of minutes). Not in CI. Run them when you add a rule, and add a
+mutant for it, so a test that can never fail does not pass for one.
+
 ## Layout
 
 | Path | What |
 |---|---|
 | `app/content.js` | The question engine: installs a pack, draws numbers, renders questions, checks answers and names mistakes. Expressions are parsed, never `eval`'d, and computed in exact fractions. No questions live in code |
+| `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
 | `content/packs/<subtest>/` | The questions, as JSON: `manifest.json` plus one file per topic. **The current four maths topics are placeholders** from the Grade 9 framing; see `RESEARCH-PLAN.md`. How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
 | `app/store.js` | All learner state, in `localStorage` |
@@ -99,6 +106,18 @@ Settled with the project owner. Build on them; don't reopen them.
 - **Adding to the home screen is on offer at any time until installed**: on the splash,
   as a Home card whose "Not now" removes it for good, and as a button on Profile that
   stays. Where the browser cannot install in one tap, the offer shows the steps instead.
+- **Progression is a path of levels** (decided 2026-10-10). The topics run in a set order;
+  each topic splits into levels that follow its competencies, and clearing a level unlocks
+  the next. Home shows the days left to 30 January and how much of the blueprint is
+  cleared. This replaces the tier ladder and "20 correct per topic".
+- **Each new level opens with a short lesson**: two or three screens with a worked
+  example, before any practice. Fuller for what is not taught by exam day (GCF and LCM,
+  the area of a circle).
+- **The 13 blueprint topics replace the placeholders as they are built.** Per-topic
+  progress resets then; the learner's name and streak are kept.
+- **Fractions are typed into boxes, and their form counts.** The right amount not in
+  lowest terms, or not as a mixed number where one is asked for, is named as its own
+  mistake rather than marked right: NCE options are written in lowest terms.
 
 ## Next, in order
 
@@ -118,9 +137,11 @@ Settled with the project owner. Build on them; don't reopen them.
    A template is a question *type*: fresh numbers per tier, one or more formats, and named
    mistakes that each carry their own feedback, so there is no fixed bank to memorise.
    `tests/validate-packs.js` gates every pack. Authoring guide: `content/packs/README.md`.
-5. **Rebuild answer input**: fractions, mixed numbers, decimals to 4 places, repeating
-   decimals, exponents, π-expressions, unit-bearing answers. Blocking for most NCE content.
-   **Not negatives** — signed numbers are Grade 7 in MATATAG and absent from the blueprint.
+5. **Rebuild answer input.** **Partly done** — fractions and mixed numbers (typed into
+   boxes, checked for lowest terms and mixed form), decimals to 4 places, and numbers with
+   a %, a unit or π after them. Still to do, each when the topic that needs it is built:
+   repeating decimals, exponents, ratio pairs and clock times. **Not negatives** — signed
+   numbers are Grade 7 in MATATAG and absent from the blueprint.
 6. **Attempt log**: timestamps, seeds, latency, hint depth, pack version.
 7. ~~**Enable GitHub Pages**.~~ **Done** — live at https://ne-tyr0.github.io/Abante-Minds/.
 8. **Test on a real low-end Android** through the Pages URL. A plain-HTTP LAN address can't
@@ -129,8 +150,8 @@ Settled with the project owner. Build on them; don't reopen them.
    validator, the fuzz, the codec proof, `tests/invariants.js` and, on pull requests,
    `tests/cache-bump.js`.
 
-Then the content rebuild (Phase 2), research instrumentation (Phase 3) and citability
-(Phase 4), all in `RESEARCH-PLAN.md`.
+Then the path of levels and the content rebuild (Phase 2), research instrumentation
+(Phase 3) and citability (Phase 4), all in `RESEARCH-PLAN.md`.
 
 **Parked:** the other three subtests. The language ladder — there are no native reviewers
 yet, and an unreviewed pack teaches the wrong thing with confidence. Do not ship the
@@ -162,12 +183,11 @@ keeping the vendored design system on the live site.
   `latin`, so both Lexend files are preloaded. π (U+03C0) is in neither subset and will fall
   back to a system face — it is needed by the blueprint's `circles` topic. See the note in
   `app/fonts.css`.
-- **The keypad is numeric-only**: seven characters, one decimal point. Any item whose
-  answer is a fraction, mixed number, exponent, π-expression or unit-bearing value is
-  currently unanswerable — which is most of the blueprint. The validator refuses those
-  answer types until answer input is rebuilt, and it and the fuzz check every typed answer
-  fits the keypad, reading the length limit from `app/app.js`. This is why answer input has
-  to be rebuilt before most NCE content can be authored.
+- **The keypad takes numbers and fractions, nothing else yet**: seven characters and one
+  decimal point for a number, three digits per box for a fraction. An answer that is a
+  repeating decimal, an exponent, a ratio pair or a clock time is still unanswerable. The
+  validator refuses those answer types until their input exists, and it and the fuzz check
+  every typed answer fits, reading the limits from `app/entry.js`.
 - **`factors` and `circles` are not taught before the exam.** GCF and LCM are Grade 6
   Quarter 4; area of a circle likewise. The exam is 30 January, about four weeks into
   Term 3. For these topics the app **teaches**, and cannot assume a classroom went first.

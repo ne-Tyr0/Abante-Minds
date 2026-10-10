@@ -201,7 +201,7 @@
       questions: C.buildSession(key, store.SESSION_LENGTH, store.get().tier, Date.now()),
       index: 0,
       phase: "ask",
-      typed: "",
+      entry: null,
       picked: null,
       diagnosis: null,
       showHints: false,
@@ -215,6 +215,7 @@
       pendingTierUp: false,
       startedAt: Date.now()
     };
+    app.session.entry = freshEntry(app.session);
     app.go("practice");
   };
 
@@ -225,13 +226,21 @@
       topicLabel: topic.label,
       colorKey: topic.colorKey,
       questions: result.missed.slice(),
-      index: 0, phase: "ask", typed: "", picked: null, diagnosis: null,
+      index: 0, phase: "ask", entry: null, picked: null, diagnosis: null,
       showHints: false, hintsRevealed: 0, stepsRevealed: 1,
       run: 0, correct: 0, attempted: 0, missed: [],
       demoteSeen: true, pendingTierUp: false, startedAt: Date.now()
     };
+    app.session.entry = freshEntry(app.session);
     app.go("practice");
   };
+
+  /* An empty answer of the kind the current question takes: number,
+     fraction or mixed number. A choice question has none. */
+  function freshEntry(s) {
+    var q = s.questions[s.index];
+    return q && q.entry ? AM.entry.create(q.entry) : null;
+  }
 
   /* The keypad stays put while the body scrolls, so with hints open the
      answer field can sit below the visible part of the body. Bring it into
@@ -241,33 +250,28 @@
     if (field && field.scrollIntoView) field.scrollIntoView({ block: "nearest" });
   }
 
-  app.type = function (d) {
+  /* Every key goes through the entry rules in entry.js, so the keypad and a
+     hardware keyboard behave the same. */
+  function editEntry(change) {
     var s = app.session;
-    if (!s || s.phase !== "ask") return;
-    if (d === "." && s.typed.indexOf(".") > -1) return;
-    if (s.typed.length >= 7) return;
-    s.typed += d;
+    if (!s || s.phase !== "ask" || !s.entry) return;
+    s.entry = change(s.entry);
     app.keepScroll = true;
     render();
     revealAnswer();
-  };
+  }
 
-  app.backspace = function () {
-    var s = app.session;
-    if (!s || s.phase !== "ask") return;
-    s.typed = s.typed.slice(0, -1);
-    app.keepScroll = true;
-    render();
-    revealAnswer();
-  };
+  app.type = function (d) { editEntry(function (e) { return AM.entry.press(e, d); }); };
+  app.backspace = function () { editEntry(AM.entry.del); };
+  app.nextBox = function () { editEntry(AM.entry.next); };
+  app.focusBox = function (box) { editEntry(function (e) { return AM.entry.focus(e, box); }); };
 
   app.check = function () {
     var s = app.session;
     if (!s || s.phase !== "ask") return;
     var q = s.questions[s.index];
-    var given = q.type === "choice" ? s.picked : s.typed;
-    if (q.type === "choice" && given === null) return;
-    if (q.type === "compute" && !s.typed) return;
+    if (q.type === "choice" ? s.picked === null : !AM.entry.complete(s.entry)) return;
+    var given = q.type === "choice" ? s.picked : AM.entry.text(s.entry);
 
     /* A wrong answer that matches a mistake the template expects gets that
        mistake's explanation; any other gets the honest fallback. */
@@ -305,7 +309,7 @@
     var s = app.session;
     if (!s) return;
     s.phase = "ask";
-    s.typed = "";
+    s.entry = freshEntry(s);
     s.picked = null;
     s.diagnosis = null;
     render();
@@ -332,7 +336,7 @@
     if (s.index + 1 >= s.questions.length) { finish(); return; }
     s.index += 1;
     s.phase = "ask";
-    s.typed = "";
+    s.entry = freshEntry(s);
     s.picked = null;
     s.diagnosis = null;
     s.showHints = false;
@@ -386,6 +390,8 @@
     }
     if (q.type !== "compute" || s.phase !== "ask") return;
     if (e.key === "Backspace") { app.backspace(); e.preventDefault(); return; }
+    /* A fraction moves to its next box on "/" or space, as it would be written. */
+    if ((e.key === "/" || e.key === " ") && q.entry !== "number") { app.nextBox(); e.preventDefault(); return; }
     if (/^[0-9.]$/.test(e.key)) { app.type(e.key); e.preventDefault(); }
   });
 
