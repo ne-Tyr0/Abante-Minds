@@ -9,8 +9,8 @@ built on that project's own design system, imported unchanged.
 Competitive Examination (NCE) on 30 January 2027. The learner follows a path through the
 13 topics of `TABLE-OF-SPECIFICATIONS.md`, level by level; decimals and fractions are
 written and the rest are on the path as coming soon. Beside the path, a Basics track drills
-the facts under every topic, starting with the times tables, until they come without a
-calculator. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and the plan.
+the facts under every topic, starting with adding and subtracting and the times tables,
+until they come without a calculator. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and the plan.
 
 Open `index.html` through any static server. There is no build step.
 
@@ -124,9 +124,17 @@ Writing a pack: `content/packs/README.md`.
 ### Basics
 
 Beside the path, open at any time and never counted on it: the facts and methods under
-every topic, so a learner can work without a calculator. Written so far: the times tables,
-180 facts (66 times facts from 2 × 2 to 12 × 12, and their divide facts) in five groups
-and a review of all of them.
+every topic, so a learner can work without a calculator. Written so far:
+
+- **Add and subtract**: 158 facts in five groups (small sums, make 10, doubles and near
+  doubles, adding 10, bridging through 10), which between them hold every sum of two
+  numbers from 1 to 10 exactly once and the take-aways that undo them; then two practice
+  levels of two-digit adding and taking away in your head (tens then ones, round and
+  adjust, counting up when the numbers are close).
+- **Times tables**: 180 facts (66 times facts from 2 × 2 to 12 × 12, and their divide
+  facts) in five groups.
+
+Each has a review level of all its facts.
 
 - A facts level is practised fact by fact, in rounds of 20. A fact is **mastered when it
   is right in under 4 seconds, without a hint, on two different days**. A miss sends it
@@ -135,7 +143,8 @@ and a review of all of them.
 - A round asks first the facts being learnt, then a few new ones (at most 6), and always a
   few mastered ones, so a fact that has slipped is caught.
 - Each group opens with strategy cards (turn it round, double and double again, times 10
-  then halve) and a worked example. The times-table grid fills in as facts are mastered.
+  then halve, make 10 first) and a worked example. The times and addition tables fill in
+  as facts are mastered.
 - A right fact moves on by itself after a moment; a wrong one shows its answer and every
   step, with no second try on the spot.
 
