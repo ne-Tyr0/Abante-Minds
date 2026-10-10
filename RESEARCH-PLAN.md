@@ -147,7 +147,8 @@ templates is an afternoon, migrating 300 is a project.
    questions can now carry a picture drawn from their numbers (bar, line and pie graphs and
    tables for `data`; shapes round a point, a clock face and a mirror line for `transform`).
    Picture answer options are still to build.
-8. **Attempt log.** Append-only, ring-buffered (~5,000 attempts). Per answer: timestamp,
+8. **Attempt log.** **Done 2026-10-11** (`store.logAttempt`, `store.attempts()`, under its
+   own key so the main record stays small to write). Append-only, ring-buffered (~5,000 attempts). Per answer: timestamp,
    session id, topic, template id, tier, **question seed**, answer given, correct, latency
    ms, hint depth (0–3), steps viewed, ordinal in session, pack version, app version,
    condition flags.

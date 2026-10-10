@@ -898,10 +898,14 @@
     var r = rng(o.seed === undefined ? Date.now() : o.seed);
     var out = [];
     if (o.pinned) {
-      topic.pinned.forEach(function (p) {
+      /* A pinned item has no seed; its place in the topic's list finds it again. */
+      topic.pinned.forEach(function (p, at) {
         var t = template(p.template);
-        if (out.length < o.count && level.templates.indexOf(t) > -1)
-          out.push(decorate(instanceFrom(t, PACK, o.tier, p.params, p.format), topic, level, out.length));
+        if (out.length < o.count && level.templates.indexOf(t) > -1) {
+          var q = decorate(instanceFrom(t, PACK, o.tier, p.params, p.format), topic, level, out.length);
+          q.pinnedAt = at;
+          out.push(q);
+        }
       });
     }
     var last = -1, n = level.templates.length;

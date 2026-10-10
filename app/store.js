@@ -11,7 +11,10 @@
    next one in its topic.
 
    Beside the path, the Basics track keeps each fact (7 × 8, 56 ÷ 7) on its
-   own: mastered when right and quick on MASTERY_DAYS different days. */
+   own: mastered when right and quick on MASTERY_DAYS different days.
+
+   Every answer also goes into an attempt log under its own key, so the main
+   record stays small to write. It stays on the phone like the rest. */
 (function () {
   "use strict";
 
@@ -21,6 +24,9 @@
   var CLEAR_TARGET = 8;         /* first-try correct answers that clear a level */
   var SESSION_LENGTH = 10;
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
+  var LOG_KEY = "abante-minds/attempts";
+  var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
+  var APP_BUILD = 27;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -343,6 +349,38 @@
     ];
   }
 
+  /* ---------- the attempt log ----------
+     One row per answer, right or wrong, first try or not: enough to rebuild
+     the exact question (template, tier, seed or pinned position, format and
+     pack version) and to see how it was answered (what was given, the
+     mistake it matched, how long it took, how many hints and steps were
+     seen). No question text and nothing about the learner. Append-only and
+     ring-buffered at LOG_MAX (RESEARCH-PLAN.md item 8). */
+  var attemptLog = null;
+  function loadLog() {
+    if (attemptLog) return attemptLog;
+    try { attemptLog = JSON.parse(window.localStorage.getItem(LOG_KEY) || "[]"); } catch (e) { attemptLog = []; }
+    if (!Array.isArray(attemptLog)) attemptLog = [];
+    return attemptLog;
+  }
+  function saveLog() {
+    /* A full phone gives up the oldest fifth and tries once more; after that
+       the log runs in memory, like the rest of the store in private mode. */
+    for (var tries = 0; tries < 2; tries++) {
+      try { window.localStorage.setItem(LOG_KEY, JSON.stringify(attemptLog)); return; }
+      catch (e) { attemptLog.splice(0, Math.max(1, Math.floor(attemptLog.length / 5))); }
+    }
+  }
+  function logAttempt(fields) {
+    var row = { at: Date.now(), app: APP_BUILD };
+    Object.keys(fields).forEach(function (k) { row[k] = fields[k]; });
+    var log = loadLog();
+    log.push(row);
+    if (log.length > LOG_MAX) log.splice(0, log.length - LOG_MAX);
+    saveLog();
+    return row;
+  }
+
   function hasProgress() {
     return state.totalCorrect > 0 || Object.keys(state.levels).length > 0 || Object.keys(state.facts).length > 0;
   }
@@ -350,7 +388,8 @@
   /* Forget the learner entirely and start again at the splash screen. */
   function reset() {
     state = blank();
-    try { window.localStorage.removeItem(KEY); } catch (e) { /* nothing to clear */ }
+    attemptLog = [];
+    try { window.localStorage.removeItem(KEY); window.localStorage.removeItem(LOG_KEY); } catch (e) { /* nothing to clear */ }
     window.location.reload();
   }
 
@@ -359,6 +398,8 @@
     SESSION_LENGTH: SESSION_LENGTH,
     MASTERY_DAYS: MASTERY_DAYS,
     VERSION: VERSION,
+    LOG_MAX: LOG_MAX,
+    APP_BUILD: APP_BUILD,
 
     get: function () { return state; },
     set: function (patch) {
@@ -389,6 +430,8 @@
     },
     badges: badges,
     hasProgress: hasProgress,
+    logAttempt: logAttempt,
+    attempts: function () { return loadLog().slice(); },
     reset: reset,
     today: today,
     migrate: migrate,

@@ -160,7 +160,12 @@ Settled with the project owner. Build on them; don't reopen them.
    take a real time). Still to do, each when the topic that needs it is built: repeating
    decimals, exponents and ratio pairs. **Not negatives** — signed
    numbers are Grade 7 in MATATAG and absent from the blueprint.
-6. **Attempt log**: timestamps, seeds, latency, hint depth, pack version.
+6. ~~**Attempt log**.~~ **Done** — every answer is a row under its own storage key
+   (`abante-minds/attempts`, `store.attempts()`): the session, topic, level, template,
+   tier, seed or pinned position, format, fact, pack and app build, the answer given, right
+   or wrong, the mistake it matched, latency, hints and steps seen, and which try it was.
+   Ring-buffered at 5,000; reset clears it. It stays on the phone: exporting it is the
+   consent work of Phase 3.
 7. ~~**Enable GitHub Pages**.~~ **Done** — live at https://ne-tyr0.github.io/Abante-Minds/.
 8. **Test on a real low-end Android** through the Pages URL. A plain-HTTP LAN address can't
    register the service worker, so install and offline only work on the HTTPS URL.
@@ -190,6 +195,8 @@ Change `CACHE` in `sw.js` whenever a precached file changes. Installed phones ke
 copies until `sw.js` itself changes. CI enforces this on pull requests
 (`tests/cache-bump.js`). The question packs are precached too, so a pack edit needs the
 bump, and a new pack file must be added to `SHELL` (`tests/invariants.js` fails if not).
+`APP_BUILD` in `app/store.js` moves with it: it is the build number in `CACHE`, stamped on
+every row of the attempt log, and `tests/invariants.js` fails if the two differ.
 
 Hosted at **https://ne-tyr0.github.io/Abante-Minds/**, built from `main` at the repo root.
 

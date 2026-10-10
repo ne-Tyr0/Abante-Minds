@@ -88,6 +88,14 @@ check("index.html does not load the design system's CDN font import",
 check("sw.js declares a CACHE version",
   /var CACHE = "[^"]+";/.test(swSrc) ? [] : ['no `var CACHE = "...";` line in sw.js']);
 
+/* The attempt log stamps each row with the build that made it, so the build
+   number in the store must move with the cache: a release that bumps one and
+   not the other would label new answers with an old build. */
+const cacheBuild = (swSrc.match(/var CACHE = "abante-minds-v(\d+)";/) || [])[1];
+const storeBuild = (read("app/store.js").match(/var APP_BUILD = (\d+);/) || [])[1];
+check("the store's APP_BUILD matches the build in sw.js's CACHE",
+  cacheBuild && cacheBuild === storeBuild ? [] : [`CACHE is build ${cacheBuild}, APP_BUILD is ${storeBuild}`]);
+
 /* 8. Everything in the repo is published, so any page other than the app that
       writes saved progress must refuse to run off localhost. The screenshot
       harness seeds a demo learner; opened on the live site, it would wipe a
