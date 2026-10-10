@@ -22,10 +22,10 @@ const PACK = "content/packs/math/";
 const manifest = JSON.parse(read(PACK + "manifest.json"));
 C.use(manifest, manifest.topics.map((t) => JSON.parse(read(PACK + t.file))));
 
-// The keypad's own length limit, read from app.js so the two cannot drift.
-const keypad = read("app/app.js").match(/s\.typed\.length >= (\d+)/);
-if (!keypad) { console.log("FAIL could not find the keypad length limit in app/app.js"); process.exit(1); }
-const KEYPAD_MAX = Number(keypad[1]);
+// The keypad's own length limit, from the entry rules the app uses, so the
+// two cannot drift.
+new Function(read("app/entry.js")).call(global);
+const KEYPAD_MAX = global.AM.entry.NUMBER_MAX;
 
 const FAILURES = {};
 function fail(rule, q, detail) {
@@ -47,14 +47,18 @@ for (const topic of C.TOPICS) {
     for (const q of C.buildSession(topic.key, 10, tier, seed)) {
       total++;
 
-      // 1. the answer must be a number the keypad can type: no minus key, at
-      //    most four decimal places, and no longer than the keypad allows
+      // 1. the answer must be one a learner can enter: no minus key; a number
+      //    at most four decimal places and no longer than the keypad allows; a
+      //    fraction a non-whole amount whose parts fit their boxes
       if (!Number.isFinite(q.answer)) fail("answer is not finite", q, String(q.answer));
       else if (q.answer < 0) fail("answer is negative", q, String(q.answer));
-      else if (Math.abs(q.answer * 1e4 - Math.round(q.answer * 1e4)) > 1e-6)
+      else if (q.entry === "number" && Math.abs(q.answer * 1e4 - Math.round(q.answer * 1e4)) > 1e-6)
         fail("answer needs more than 4 decimal places", q, String(q.answer));
-      else if (q.type === "compute" && C.engine.fmt(q.answerExact).length > KEYPAD_MAX)
-        fail("answer is longer than the keypad allows", q, C.engine.fmt(q.answerExact));
+      else if (q.entry === "number" && q.answerText.length > KEYPAD_MAX)
+        fail("answer is longer than the keypad allows", q, q.answerText);
+      else if ((q.entry === "fraction" || q.entry === "mixed") &&
+               (Number.isInteger(q.answer) || q.answerText.split(/[ /]/).some((p) => p.length > global.AM.entry.BOX_MAX)))
+        fail("fraction answer does not fit its boxes", q, q.answerText);
 
       // 2. the scaffold must be complete
       if (!q.hints || q.hints.length !== 3) fail("not exactly 3 hints", q, String(q.hints && q.hints.length));
@@ -78,7 +82,7 @@ for (const topic of C.TOPICS) {
       }
 
       // 5. the checker must accept the answer it generated
-      const given = q.type === "choice" ? q.answerIndex : String(q.answer);
+      const given = q.type === "choice" ? q.answerIndex : q.answerText;
       if (!C.isCorrect(q, given)) fail("own answer rejected by checker", q, String(given));
 
       // 6. entering a named mistake must bring back that mistake's feedback,
@@ -87,6 +91,8 @@ for (const topic of C.TOPICS) {
       for (const d of q.distractors) {
         const entry = q.type === "choice"
           ? q.choiceValues.findIndex((v) => C.engine.eq(v, d.exact))
+          : q.entry === "fraction" ? C.engine.frac(d.exact)
+          : q.entry === "mixed" ? C.engine.mixed(d.exact)
           : C.engine.fmt(d.exact);
         const got = C.diagnose(q, entry);
         if (got.correct) markedRight.push(d.error);

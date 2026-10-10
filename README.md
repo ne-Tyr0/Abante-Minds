@@ -54,6 +54,7 @@ components it imports are reimplemented natively in `app/ui.js`.
 | `app/icons.js` | The 22-glyph Phosphor Bold subset from the design system |
 | `app/ui.js` | The design system components as DOM builders, plus the patterns the system deliberately left out (answer tile, keypad, tier ladder, nav) |
 | `app/content.js` | The question engine |
+| `app/entry.js` | What each keypad key does to the answer boxes |
 | `content/packs/` | The questions, as JSON |
 | `app/store.js` | Learner state: tier, streak, per-topic progress |
 | `app/screens.js` | The twenty screens |
@@ -181,6 +182,7 @@ scroll.
 
 ```bash
 node tests/engine.js
+node tests/entry.js
 node tests/validate-packs.js
 node tests/fuzz.js
 node tests/invariants.js
@@ -189,6 +191,9 @@ node tests/invariants.js
 `tests/engine.js` pins the engine's behaviour to small examples: exact arithmetic, the
 expression language and its limits, formats, tiers, constraints, and how a wrong answer is
 diagnosed.
+
+`tests/entry.js` pins what each keypad key does to the answer: digits and the decimal
+point for a number, the Next key and the boxes for a fraction or mixed number.
 
 `tests/validate-packs.js` checks every pack against its schema and the blueprint, then
 generates every template at every tier and checks what a learner would be shown.

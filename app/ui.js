@@ -291,20 +291,23 @@
   /* The keypad is the only way into a computation answer: no options, no
      calculator. Delete is a word rather than a glyph — the subset has no
      backspace and the rule is not to invent one. */
+  /* A fraction has no decimal point, so its keypad trades the point for a
+     Next key that moves from box to box. */
   function Keypad(o) {
-    var keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", ".", "0", "Delete"];
+    var fraction = o.kind === "fraction" || o.kind === "mixed";
+    var keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9", fraction ? "Next" : ".", "0", "Delete"];
     var grid = el("div.am-keypad", {
       style: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "var(--space-2)" }
     });
     keys.forEach(function (k) {
-      var isDelete = k === "Delete";
-      grid.appendChild(el("button.am-reset.am-pressable" + (isDelete ? ".label" : ".heading-md"), {
+      var isDelete = k === "Delete", isNext = k === "Next", isWord = isDelete || isNext;
+      grid.appendChild(el("button.am-reset.am-pressable" + (isWord ? ".label" : ".heading-md"), {
         type: "button",
-        "aria-label": isDelete ? "Delete last digit" : k,
-        onClick: function () { isDelete ? o.onDelete() : o.onPress(k); },
+        "aria-label": isDelete ? "Delete last digit" : isNext ? "Next box" : k,
+        onClick: function () { isDelete ? o.onDelete() : isNext ? o.onNext() : o.onPress(k); },
         style: {
           "--am-edge": "var(--line-200)", background: "var(--surface-200)",
-          color: isDelete ? "var(--ink-600)" : "var(--ink-900)",
+          color: isWord ? "var(--ink-600)" : "var(--ink-900)",
           borderRadius: "var(--radius-sm)", height: o.tall ? 56 : 52,
           display: "flex", alignItems: "center", justifyContent: "center"
         }
@@ -315,21 +318,78 @@
 
   /* The answer field. The caret is a painted rule, not a real input: the value
      only ever arrives through the keypad or a hardware keyboard. */
+  /* The answer as typed. A number is one line with a caret; a fraction is a
+     numerator box over a denominator box, with a whole-number box beside them
+     for a mixed number. Each box is a full tap target and the one being typed
+     into carries the caret and the blue edge. A prefix (the peso sign) sits
+     before the answer and a suffix (%, a unit, pi) after it. */
+  var BOX_NAMES = { whole: "Whole number", num: "Numerator", den: "Denominator" };
+
   function AnswerField(o) {
+    var e = o.entry;
+    var active = !AM.entry.isEmpty(e);
+    var affix = function (text) {
+      return text ? el(o.tall ? "span.heading-lg" : "span.heading-md", { style: { color: "var(--ink-600)", whiteSpace: "pre" } }, text) : null;
+    };
+    var caret = function () {
+      return el("span.am-caret", { style: { width: 2, height: o.tall ? 32 : 28, background: "var(--brand-blue-600)" } });
+    };
+
+    if (e.kind === "number") {
+      return el("div.am-answer-field", {
+        role: "status", "aria-live": "polite",
+        "aria-label": "Your answer: " + (e.parts.value ? (o.prefix || "") + e.parts.value + (o.suffix || "") : "empty"),
+        style: {
+          height: o.tall ? 76 : 64,
+          border: "2px solid " + (active ? "var(--brand-blue-600)" : "var(--line-200)"),
+          borderRadius: "var(--radius-sm)", background: "var(--surface-200)",
+          display: "flex", alignItems: "center", gap: "var(--space-2)",
+          padding: o.tall ? "0 20px" : "0 var(--space-4)"
+        }
+      },
+        affix(o.prefix),
+        el("span.heading-lg", null, e.parts.value),
+        caret(),
+        e.parts.value ? affix(o.suffix) : null
+      );
+    }
+
+    function box(name) {
+      var on = e.box === name, value = e.parts[name];
+      return el("button.am-reset.am-answer-box.heading-lg", {
+        type: "button",
+        "aria-label": BOX_NAMES[name] + ", " + (value || "empty"),
+        "aria-pressed": on ? "true" : "false",
+        onClick: function () { if (o.onFocusBox) o.onFocusBox(name); },
+        style: {
+          minWidth: 56, height: 48, padding: "0 var(--space-2)",
+          display: "flex", alignItems: "center", justifyContent: "center", gap: 2,
+          border: "2px " + (value || on ? "solid " : "dashed ") + (on ? "var(--brand-blue-600)" : "var(--line-200)"),
+          borderRadius: "var(--radius-sm)", background: "var(--surface-100)",
+          color: "var(--ink-900)", cursor: "pointer"
+        }
+      }, value, on ? caret() : null);
+    }
+
+    var stacked = el("span", { style: { display: "inline-flex", flexDirection: "column", alignItems: "stretch", gap: 4 } },
+      box("num"),
+      el("span", { "aria-hidden": "true", style: { height: 3, borderRadius: 2, background: "var(--ink-900)" } }),
+      box("den"));
+
     return el("div.am-answer-field", {
-      role: "status", "aria-live": "polite",
-      "aria-label": "Your answer: " + (o.value || "empty"),
+      role: "group",
+      "aria-label": "Your answer: " + (active ? (o.prefix || "") + AM.entry.text(e) + (o.suffix || "") : "empty"),
       style: {
-        height: o.tall ? 76 : 64,
-        border: "2px solid " + (o.active ? "var(--brand-blue-600)" : "var(--line-200)"),
+        border: "2px solid " + (active ? "var(--brand-blue-600)" : "var(--line-200)"),
         borderRadius: "var(--radius-sm)", background: "var(--surface-200)",
-        display: "flex", alignItems: "center", gap: "var(--space-2)",
-        padding: o.tall ? "0 20px" : "0 var(--space-4)"
+        display: "flex", alignItems: "center", gap: "var(--space-3)",
+        padding: "var(--space-2) " + (o.tall ? "20px" : "var(--space-4)")
       }
     },
-      o.prefix ? el(o.tall ? "span.heading-lg" : "span.heading-md", { style: { color: "var(--ink-600)" } }, o.prefix) : null,
-      el("span.heading-lg", null, o.value || ""),
-      el("span.am-caret", { style: { width: 2, height: o.tall ? 32 : 28, background: "var(--brand-blue-600)" } })
+      affix(o.prefix),
+      e.kind === "mixed" ? box("whole") : null,
+      stacked,
+      affix(o.suffix)
     );
   }
 

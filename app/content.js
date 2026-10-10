@@ -21,7 +21,19 @@
   var AM = (window.AM = window.AM || {});
   var PESO = "₱";
   var MAX_TRIES = 500;
-  var INPUTTABLE = { integer: true, decimal: true, choice: true };
+  /* Answer types the app can take today, and the box each is typed into:
+     one box for a number, a numerator over a denominator for a fraction, a
+     whole number beside a fraction for a mixed number. A choice is tapped,
+     not typed. The blueprint's other types wait for their input. */
+  var ENTRY = {
+    integer: "number", decimal: "number", percent: "number", unit: "number",
+    "pi-expression": "number", fraction: "fraction", mixed: "mixed", choice: null
+  };
+  var INPUTTABLE = {};
+  Object.keys(ENTRY).forEach(function (k) { INPUTTABLE[k] = true; });
+  var BOX_LIMIT = 999; /* three digits in each fraction box */
+  /* Right value, wrong form: the mistakes the checker names on its own. */
+  var FORM_ERRORS = ["not-lowest-terms", "not-a-mixed-number", "fraction-part-not-proper"];
 
   function ContentError(message) {
     var e = new Error(message);
@@ -112,6 +124,15 @@
     if (p < 0) throw ContentError(a.n + "/" + a.d + " is a repeating decimal; it cannot be shown as written");
     return decimalString(a, p);
   }
+  /* Fractions in prose, always in lowest terms: 3/4, 7/4. A whole number
+     reads as itself. */
+  function fracText(a) { return isInt(a) ? String(a.n) : a.n + "/" + a.d; }
+  /* 2 3/4. Under one it is a plain fraction; a whole number is itself. */
+  function mixedText(a) {
+    if (isInt(a) || Math.abs(a.n) < a.d) return fracText(a);
+    var whole = floorInt(a.n, a.d);
+    return whole + " " + (a.n - whole * a.d) + "/" + a.d;
+  }
   /* Money: whole pesos as they are, anything else to two places. */
   function peso(a) {
     var r = rround(a, 2);
@@ -134,6 +155,8 @@
   FUNCS.lcm = function (a, b) { a = int(a).n; b = int(b).n; return Q(safe(Math.abs(a * b) / (gcdInt(a, b) || 1))); };
   FUNCS.peso = function (x) { return peso(num(x)); };
   FUNCS.fmt = function (x) { return fmt(num(x)); };
+  FUNCS.frac = function (x) { return fracText(num(x)); };
+  FUNCS.mixed = function (x) { return mixedText(num(x)); };
 
   var RESERVED = { "true": true, "false": true, answer: true, value: true };
   Object.keys(FUNCS).forEach(function (k) { RESERVED[k] = true; });
@@ -340,11 +363,29 @@
     return scope;
   }
 
+  /* Whether an answer of this type can be given at all. A number must be
+     typeable on the keypad; a fraction must fit its boxes and not be a whole
+     number; a choice can be any amount its label can show. */
   function validAnswer(spec, x) {
     if (!isRat(x) || x.n < 0) return false;
+    var kind = ENTRY[spec.type];
+    if (!kind) return true;
     if (spec.type === "integer") return isInt(x);
+    if (kind === "fraction") return !isInt(x) && x.n <= BOX_LIMIT && x.d <= BOX_LIMIT;
+    if (kind === "mixed") return !isInt(x) && x.n > x.d && floorInt(x.n, x.d) <= BOX_LIMIT && x.d <= BOX_LIMIT;
     var p = decimalPlaces(x);
     return p >= 0 && p <= (spec.maxDecimals === undefined ? 4 : spec.maxDecimals);
+  }
+
+  /* Whether a learner answering this type could enter this value, right or
+     wrong. A mistake that cannot be entered can never be matched. */
+  function enterable(type, x) {
+    if (!isRat(x) || x.n < 0) return false;
+    var kind = ENTRY[type];
+    if (!kind) return true;
+    if (kind === "number") return validAnswer({ type: "decimal" }, x);
+    if (x.n === 0 || x.d > BOX_LIMIT) return false;
+    return kind === "fraction" ? x.n <= BOX_LIMIT : floorInt(x.n, x.d) <= BOX_LIMIT;
   }
 
   function within(scope) {
@@ -355,15 +396,16 @@
 
   function render(t, pack, scope, format, meta) {
     var answer = scope.answer;
-    /* A mistake whose value the keypad cannot express -- negative, repeating,
-       too many places -- can never be matched from a typed answer, so it is
-       left out of this question rather than rendered. Choice items have already
-       been checked in choiceUsable. */
+    /* A mistake whose value cannot be entered for this answer type --
+       negative, a repeating decimal on the number keypad, too big for the
+       fraction boxes -- can never be matched, so it is left out of this
+       question rather than rendered. Choice items have already been checked in
+       choiceUsable. */
     var distractors = [];
     (t.distractors || []).forEach(function (d) {
       var ds = within(scope);
       ds.value = num(evalExpr(d.value, scope));
-      if (!validAnswer({ type: "decimal" }, ds.value)) return;
+      if (!enterable(t.answer.type, ds.value)) return;
       distractors.push({ error: d.error, exact: ds.value, value: toNumber(ds.value), feedback: interpolate(d.feedback, ds) });
     });
     /* Two mistakes that land on the same number cannot be told apart, so
@@ -386,10 +428,15 @@
       schema: t.schema,
       answerType: t.answer.type,
       type: t.answer.type === "choice" ? "choice" : "compute",
+      entry: ENTRY[t.answer.type],
       unit: t.answer.prefix || "",
+      suffix: suffixFor(t.answer),
+      form: ENTRY[t.answer.type] === "fraction" || ENTRY[t.answer.type] === "mixed" ? (t.answer.form || "lowest") : null,
+      formFeedback: pack.formFeedback || {},
       prompt: interpolate(format.prompt, scope),
       answer: toNumber(answer),
       answerExact: answer,
+      answerText: answerText(t.answer.type, answer),
       hints: (format.hints || t.hints).map(function (h) { return interpolate(h, scope); }),
       steps: (format.steps || t.steps).map(function (h) { return interpolate(h, scope); }),
       explain: interpolate(format.explain || t.explain, scope),
@@ -410,13 +457,29 @@
     return q;
   }
 
+  /* What follows the typed number: a per cent sign, a unit, or pi. */
+  function suffixFor(spec) {
+    if (spec.type === "percent") return "%";
+    if (spec.type === "pi-expression") return "π";
+    if (spec.type === "unit") return " " + spec.unit;
+    return "";
+  }
+
+  /* The right answer as it would be typed: 36, 3/4, 2 3/4. */
+  function answerText(type, x) {
+    var kind = ENTRY[type];
+    if (kind === "fraction") return fracText(x);
+    if (kind === "mixed") return mixedText(x);
+    return kind ? fmt(x) : null;
+  }
+
   /* A choice item needs four different, sensible options, every one of them a
      named mistake. Rather than invent a filler option, draw again. */
   function choiceUsable(t, scope) {
     var vals = [scope.answer];
     for (var i = 0; i < (t.distractors || []).length; i++) {
       var v = evalExpr(t.distractors[i].value, scope);
-      if (!validAnswer({ type: "decimal" }, v)) return false;
+      if (!enterable("choice", v)) return false;
       vals.push(v);
     }
     for (var a = 0; a < vals.length; a++)
@@ -498,7 +561,10 @@
       topics[meta.key] = topic;
       list.push(topic);
     });
-    PACK = { subtest: manifest.subtest, version: manifest.version, fallbackFeedback: manifest.fallbackFeedback };
+    PACK = {
+      subtest: manifest.subtest, version: manifest.version,
+      fallbackFeedback: manifest.fallbackFeedback, formFeedback: manifest.formFeedback || {}
+    };
     TOPIC_BY_KEY = topics;
     TEMPLATE_BY_ID = templates;
     AM.content.TOPICS = list.map(function (t) { return { key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey }; });
@@ -571,12 +637,44 @@
     return fromLiteral(s);
   }
 
+  /* A fraction entry, exactly as the boxes produce it: "3/4", "2 3/4", or a
+     bare whole number from the mixed boxes. Anything else is not one. */
+  function readFraction(given) {
+    var s = String(given === undefined || given === null ? "" : given).trim(), m;
+    if ((m = /^(\d+)\/(\d+)$/.exec(s)) && +m[2] > 0)
+      return { form: "fraction", whole: 0, num: +m[1], den: +m[2], value: Q(+m[1], +m[2]) };
+    if ((m = /^(\d+) (\d+)\/(\d+)$/.exec(s)) && +m[3] > 0)
+      return { form: "mixed", whole: +m[1], num: +m[2], den: +m[3], value: add(Q(+m[1]), Q(+m[2], +m[3])) };
+    if ((m = /^(\d+)$/.exec(s))) return { form: "whole", whole: +m[1], num: 0, den: 1, value: Q(+m[1]) };
+    return null;
+  }
+
+  /* The right amount in the wrong form. NCE options are written in lowest
+     terms, so the form is part of the answer, but it is a different mistake
+     from a wrong amount and is named as one. */
+  function formError(q, entry) {
+    if (q.form !== "lowest") return null;
+    if (q.entry === "mixed") {
+      if (entry.form !== "mixed") return "not-a-mixed-number";
+      if (entry.num >= entry.den) return "fraction-part-not-proper";
+    }
+    return gcdInt(entry.num, entry.den) > 1 ? "not-lowest-terms" : null;
+  }
+
   function diagnose(q, given) {
     var exact = toRat(q.answerExact);
     var value;
     if (q.type === "choice") {
       if (given === q.answerIndex) return { correct: true, error: null, feedback: null };
       value = q.choiceValues && q.choiceValues[given] ? toRat(q.choiceValues[given]) : null;
+    } else if (q.entry === "fraction" || q.entry === "mixed") {
+      var entry = readFraction(given);
+      value = entry && entry.value;
+      if (value && eq(value, exact)) {
+        var wrongForm = formError(q, entry);
+        if (!wrongForm) return { correct: true, error: null, feedback: null };
+        return { correct: false, error: wrongForm, feedback: q.formFeedback[wrongForm] || q.missExplain };
+      }
     } else {
       value = readTyped(given);
       if (value && eq(value, exact)) return { correct: true, error: null, feedback: null };
@@ -611,7 +709,9 @@
     engine: {
       parse: parse, names: names, slots: slots, evaluate: evalExpr, interpolate: interpolate,
       Q: Q, fromLiteral: fromLiteral, fmt: fmt, peso: peso, round: rround, eq: eq, isRat: isRat,
-      readTyped: readTyped, FUNCS: Object.keys(FUNCS), RESERVED: Object.keys(RESERVED),
+      readTyped: readTyped, readFraction: readFraction, frac: fracText, mixed: mixedText,
+      ENTRY: ENTRY, FORM_ERRORS: FORM_ERRORS.slice(), BOX_LIMIT: BOX_LIMIT,
+      FUNCS: Object.keys(FUNCS), RESERVED: Object.keys(RESERVED),
       INPUTTABLE: Object.keys(INPUTTABLE), MAX_TRIES: MAX_TRIES
     }
   };

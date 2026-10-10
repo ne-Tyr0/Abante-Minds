@@ -102,7 +102,52 @@ function run() {
       for (var n = 0; n < i; n++) s.questions[n].__scored = true;
       s.questions[i] = s.questions[0];
       s.index = i;
+      s.entry = s.questions[i].entry ? AM.entry.create(s.questions[i].entry) : null;
       return s;
+    }
+
+    /* Through the keypad's own path, so the field shows what a learner sees.
+       ">" stands for the Next key that moves between fraction boxes. */
+    function typeIn(text) {
+      text.split("").forEach(function (k) { if (k === ">") AM.app.nextBox(); else AM.app.type(k); });
+    }
+
+    /* Fraction and per-cent answers, for reviewing the answer field until a
+       real topic in the pack uses them. Installed in memory only. */
+    function useAnswerFixture() {
+      var base = {
+        competency: "G6.Q1.11", domain: "NA", construct: "review", schema: "equal-groups",
+        hints: ["h", "h", "h"], steps: ["s", "s", "s"], explain: "e",
+        distractors: [{ value: "answer + 1", error: "one-more", feedback: "One more." }]
+      };
+      function t(id, extra) { var o = {}; Object.keys(base).forEach(function (k) { o[k] = base[k]; }); Object.keys(extra).forEach(function (k) { o[k] = extra[k]; }); o.id = id; return o; }
+      AM.content.use({
+        subtest: "math", version: "0.0.0", fallbackFeedback: "Start from the first step below.",
+        formFeedback: {
+          "not-lowest-terms": "Right amount, but not in lowest terms. Divide the top and bottom by the same number.",
+          "not-a-mixed-number": "Right amount. Now write it as a mixed number: a whole number and a fraction.",
+          "fraction-part-not-proper": "The fraction part should be less than 1. Move the whole ones into the whole number."
+        },
+        topics: [{ key: "review", label: "Answer review", icon: "percent", colorKey: 1, file: "-" }]
+      }, [{
+        topic: "review",
+        pinned: [
+          { template: "review.mixed", params: { w: 2, a: 3 } },
+          { template: "review.percent", params: { a: 7 } }
+        ],
+        templates: [
+          t("review.mixed", {
+            params: { w: { range: [1, 3] }, a: { range: [1, 3] } },
+            answer: { type: "mixed", value: "w + a / 4" },
+            formats: [{ id: "one", prompt: "A recipe needs {w * 4 + a}/4 cups of rice. Write that as a mixed number." }]
+          }),
+          t("review.percent", {
+            params: { a: { range: [2, 9] } },
+            answer: { type: "percent", value: "a * 10" },
+            formats: [{ id: "one", prompt: "{a} out of 10 learners passed. What per cent passed?" }]
+          })
+        ]
+      }]);
     }
 
     var s;
@@ -119,16 +164,16 @@ function run() {
         AM.app.go("topics");
         break;
       case "practice":
-        s = canonicalAt("percent", 3); s.typed = "36"; AM.app.go("practice");
+        s = canonicalAt("percent", 3); AM.app.go("practice"); typeIn("36");
         break;
       case "hint":
         s = canonicalAt("percent", 3); s.showHints = true; s.hintsRevealed = 1; AM.app.go("practice");
         break;
       case "correct":
-        s = canonicalAt("percent", 3); s.typed = "36"; AM.app.go("practice"); AM.app.check();
+        s = canonicalAt("percent", 3); AM.app.go("practice"); typeIn("36"); AM.app.check();
         break;
       case "wrong":
-        s = canonicalAt("percent", 3); s.typed = "276"; AM.app.go("practice"); AM.app.check();
+        s = canonicalAt("percent", 3); AM.app.go("practice"); typeIn("276"); AM.app.check();
         break;
       case "tierup":
         AM.store.set({ tier: 3, tierProgress: 0 });
@@ -167,6 +212,16 @@ function run() {
         AM.app.go("profile");
         AM.app.deferredInstall = null; /* no one-tap prompt, so the offer opens the steps */
         AM.app.offerInstall();
+        break;
+      /* Not in the PDF: the fraction and per-cent answer fields, for review. */
+      case "fraction-entry":
+        useAnswerFixture(); AM.app.startPractice("review"); typeIn("2>3");
+        break;
+      case "fraction-wrong-form":
+        useAnswerFixture(); AM.app.startPractice("review"); typeIn(">11>4"); AM.app.check();
+        break;
+      case "percent-entry":
+        useAnswerFixture(); AM.app.startPractice("review"); AM.app.next(); typeIn("70");
         break;
       default:
         document.title = "UNKNOWN-SCREEN";

@@ -52,6 +52,7 @@ this yet.
 | `version` | `x.y.z` |
 | `placeholder` | `true` skips the checks that tie topics and competencies to the blueprint's topic list. Remove it once the topics come from the blueprint |
 | `fallbackFeedback` | What a wrong answer that matches no named mistake is told. A template can override it with `fallback` |
+| `formFeedback` | Required once any template takes `fraction` or `mixed` answers: the words for `not-lowest-terms`, `not-a-mixed-number` and `fraction-part-not-proper` |
 | `topics[].icon` | One of the 22 names in `app/icons.js` |
 | `topics[].colorKey` | 1 to 4, the skill hue |
 
@@ -119,7 +120,12 @@ function name.
 |---|---|
 | `integer` | A whole number |
 | `decimal` | Up to `maxDecimals` places (0 to 4, default 4) |
-| `choice` | Four options: the answer and exactly three distractors, shown in order of size. Needs a `label`, such as `"{value} km"`, to print each option |
+| `percent` | A number shown with % after it. `maxDecimals` as for `decimal` |
+| `unit` | A number shown with its `unit` after it, such as `"cm²"`. `maxDecimals` as for `decimal` |
+| `pi-expression` | The number in front of π, shown with π after it: 12 for 12π |
+| `fraction` | Typed as a numerator over a denominator. Never a whole number; each part at most three digits |
+| `mixed` | Typed as a whole number beside a fraction. More than 1 and not a whole number |
+| `choice` | Four options: the answer and exactly three distractors, shown in order of size. Needs a `label`, such as `"{value} km"` or `"{frac(value)}"`, to print each option |
 
 The keypad has no minus key, so a draw whose answer is negative or has too many decimal
 places is drawn again, as is a choice item whose options collide. The engine tries 500
@@ -130,9 +136,20 @@ A typed answer must also be at most seven characters, the keypad's limit. That i
 redrawn: the validator and the fuzz fail a template that can produce a longer one, so keep
 the ranges inside it.
 
-The other answer types in the blueprint (fractions, mixed numbers, exponents, π, units
-and so on) are refused by the validator until answer input is rebuilt
-(`RESEARCH-PLAN.md`, item 7).
+For `fraction` and `mixed`, the form is part of the answer unless `"form": "any"` is set:
+the right amount not in lowest terms, or not as a mixed number where one is asked for, is
+named as its own mistake (`not-lowest-terms`, `not-a-mixed-number`,
+`fraction-part-not-proper`) and gets the words in the manifest's `formFeedback`. Those
+three codes are the checker's own; a distractor cannot use them. A pack with any fraction
+answer must supply all three.
+
+A fraction mistake is matched by amount, so 2/4 entered for a mistake worth 1/2 still
+finds it. Write fraction amounts in text with `{frac(x)}` or `{mixed(x)}`: `{x}` would
+print 0.5, and a repeating amount such as 1/3 cannot be shown as a decimal at all.
+
+The blueprint's other answer types (repeating decimals, exponents, ratio pairs, clock
+times) are refused by the validator until their input is built (`RESEARCH-PLAN.md`,
+item 7).
 
 `prefix` is shown in front of the answer field, for example `"₱"`.
 
@@ -193,7 +210,7 @@ Arithmetic in exact fractions, so `0.1 + 0.2 == 0.3` is true and `round(2.345, 2
 | Numbers | `12`, `1.12`. No `1e3` notation |
 | Words | `'kg'` in single quotes |
 | Operators | `+ - * /`, `%` on whole numbers, `== != < <= > >=`, `&& \|\| !`, `a ? b : c` |
-| Functions | `floor`, `ceil`, `round(x)` or `round(x, places)` (halves round up), `abs`, `min`, `max`, `gcd`, `lcm`, `peso`, `fmt` |
+| Functions | `floor`, `ceil`, `round(x)` or `round(x, places)` (halves round up), `abs`, `min`, `max`, `gcd`, `lcm`, `peso`, `fmt`, `frac` (3/4), `mixed` (2 3/4) |
 
 There is no member access, no indexing, and nothing outside the template's own values.
 Comparing a number with a word is an error. `&&` and `||` stop early, so

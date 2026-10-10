@@ -278,5 +278,135 @@ test("sessions: pinned items first, the right length, no template twice running"
   assert.ok(C.buildSession("nope", 3, 1, 1).every((q) => q.topicKey === "t"), "unknown topic falls back to the first");
 });
 
+/* ---------- fractions, mixed numbers and number suffixes ---------- */
+
+test("frac and mixed show amounts as a learner writes them", () => {
+  assert.strictEqual(ev("frac(6 / 8)"), "3/4");
+  assert.strictEqual(ev("frac(7 / 4)"), "7/4");
+  assert.strictEqual(ev("frac(4)"), "4");
+  assert.strictEqual(ev("mixed(11 / 4)"), "2 3/4");
+  assert.strictEqual(ev("mixed(3 / 4)"), "3/4");
+  assert.strictEqual(ev("mixed(2)"), "2");
+  assert.ok(E.RESERVED.includes("frac") && E.RESERVED.includes("mixed"));
+});
+test("fraction entries are read exactly as the boxes produce them", () => {
+  const r = (t) => { const x = E.readFraction(t); return x && [x.form, x.whole, x.num, x.den, E.fmt(x.value)]; };
+  assert.deepStrictEqual(r("3/4"), ["fraction", 0, 3, 4, "0.75"]);
+  assert.deepStrictEqual(r("2 3/4"), ["mixed", 2, 3, 4, "2.75"]);
+  assert.deepStrictEqual(r("6/8"), ["fraction", 0, 6, 8, "0.75"]);
+  assert.deepStrictEqual(r("5"), ["whole", 5, 0, 1, "5"]);
+  for (const bad of ["3/0", "1/2/3", "0.75", "3/", "/4", "2 3", "", null]) assert.strictEqual(E.readFraction(bad), null, String(bad));
+});
+
+const F = (id, extra) => Object.assign({
+  id, competency: "G6.Q1.11", domain: "NA", construct: "test", schema: "equal-groups",
+  params: { a: { range: [1, 5] }, b: { range: [6, 9] } },
+  answer: { type: "fraction", value: "a / b" },
+  formats: [{ id: "one", prompt: "{a} over {b}?" }],
+  hints: ["h1", "h2", "h3"], steps: ["s1", "s2", "s3"], explain: "{frac(answer)}",
+  distractors: [{ value: "a / (b + 1)", error: "one-more", feedback: "{frac(value)} has one more in the bottom." }]
+}, extra);
+
+const FRACTION_PACK = {
+  manifest: {
+    subtest: "math", version: "9.9.9", fallbackFeedback: "Not yet.",
+    formFeedback: {
+      "not-lowest-terms": "Lowest terms, please.",
+      "not-a-mixed-number": "As a mixed number, please.",
+      "fraction-part-not-proper": "The fraction part is too big."
+    },
+    topics: [{ key: "f", label: "Fractions", icon: "star", colorKey: 1, file: "f.json" }]
+  },
+  files: [{
+    topic: "f",
+    templates: [
+      F("f.third", { params: { a: { range: [1, 2] }, b: { value: "3" } }, distractors: [
+        { value: "a / (b + 1)", error: "one-more", feedback: "{frac(value)} has one more in the bottom." },
+        { value: "a / 6", error: "doubled-the-bottom", feedback: "{frac(value)} doubled the bottom." }] }),
+      F("f.any", { answer: { type: "fraction", value: "a / b", form: "any" } }),
+      F("f.whole-sometimes", { params: { a: { range: [2, 12] }, b: { value: "2" } } }),
+      F("f.mixed", {
+        params: { w: { range: [1, 4] }, a: { range: [1, 2] }, b: { value: "3" } },
+        answer: { type: "mixed", value: "w + a / b" },
+        distractors: [{ value: "w + a / (b + 1)", error: "one-more", feedback: "{mixed(value)} has one more in the bottom." }]
+      }),
+      F("f.percent", { params: { a: { range: [1, 9] }, b: { value: "10" } }, answer: { type: "percent", value: "a * b" },
+        distractors: [{ value: "a", error: "forgot-to-scale", feedback: "{value}% forgot the ten." }] }),
+      F("f.unit", { params: { a: { range: [2, 9] }, b: { value: "1" } }, answer: { type: "unit", unit: "cm²", value: "a * a" },
+        distractors: [{ value: "a * 4", error: "perimeter", feedback: "{value} is the perimeter." }] }),
+      F("f.pi", { params: { a: { range: [2, 9] }, b: { value: "1" } }, answer: { type: "pi-expression", value: "a * a" },
+        distractors: [{ value: "a * 2", error: "circumference", feedback: "{value}π is the circumference." }] }),
+      F("f.choice", {
+        params: { a: { range: [1, 2] }, b: { value: "3" } },
+        answer: { type: "choice", value: "a / b", label: "{frac(value)}" },
+        distractors: [
+          { value: "a / (b + 1)", error: "one-more", feedback: "x" },
+          { value: "a / (b + 2)", error: "two-more", feedback: "x" },
+          { value: "(a + 1) / (b + 4)", error: "both-more", feedback: "x" }]
+      }),
+      F("f.money", { params: { a: { range: [2, 9] }, b: { value: "1" } }, answer: { type: "integer", value: "a * 10", prefix: "₱" },
+        distractors: [{ value: "a", error: "forgot-to-scale", feedback: "x" }] })
+    ]
+  }]
+};
+
+test("a fraction question: entry kind, answer text, form", () => {
+  C.use(FRACTION_PACK.manifest, FRACTION_PACK.files);
+  const q = C.instance("f.third", 1, { a: 2 });
+  assert.deepStrictEqual([q.type, q.entry, q.answerText, q.form, q.suffix, q.unit], ["compute", "fraction", "2/3", "lowest", "", ""]);
+});
+test("a fraction mistake whose decimal repeats can still be named", () => {
+  const q = C.instance("f.third", 1, { a: 1 });
+  // 1/4 terminates; 1/6 repeats and was dropped before fractions could be typed.
+  assert.deepStrictEqual(q.distractors.map((d) => [d.error, E.frac(d.exact)]), [["one-more", "1/4"], ["doubled-the-bottom", "1/6"]]);
+  assert.deepStrictEqual(C.diagnose(q, "1/6"), { correct: false, error: "doubled-the-bottom", feedback: "1/6 doubled the bottom." });
+});
+test("diagnose a fraction: right, unsimplified, a named mistake, or the fallback", () => {
+  const q = C.instance("f.third", 1, { a: 2 });
+  assert.deepStrictEqual(C.diagnose(q, "2/3"), { correct: true, error: null, feedback: null });
+  assert.deepStrictEqual(C.diagnose(q, "4/6"), { correct: false, error: "not-lowest-terms", feedback: "Lowest terms, please." });
+  assert.deepStrictEqual(C.diagnose(q, "2/4"), { correct: false, error: "one-more", feedback: "1/2 has one more in the bottom." });
+  assert.deepStrictEqual(C.diagnose(q, "5/7"), { correct: false, error: null, feedback: "Not yet." });
+  assert.deepStrictEqual(C.diagnose(q, "0.75"), { correct: false, error: null, feedback: "Not yet." });
+});
+test("form 'any' accepts an unsimplified fraction", () => {
+  const q = C.instance("f.any", 1, { a: 3, b: 6 });
+  assert.strictEqual(q.answerText, "1/2");
+  assert.strictEqual(C.diagnose(q, "3/6").correct, true);
+});
+test("a fraction answer is never a whole number", () => {
+  for (let s = 0; s < 200; s++) assert.ok(!Number.isInteger(C.generate("f.whole-sometimes", 1, s).answer));
+  assert.ok(Array.from({ length: 200 }, (_, s) => C.firstDraw("f.whole-sometimes", 1, s)).some((f) => f.reason === "answer"));
+});
+test("diagnose a mixed number: form mistakes are named apart from wrong amounts", () => {
+  const q = C.instance("f.mixed", 1, { w: 2, a: 2 });
+  assert.deepStrictEqual([q.entry, q.answerText], ["mixed", "2 2/3"]);
+  assert.strictEqual(C.diagnose(q, "2 2/3").correct, true);
+  assert.strictEqual(C.diagnose(q, "8/3").error, "not-a-mixed-number");
+  assert.strictEqual(C.diagnose(q, "2 4/6").error, "not-lowest-terms");
+  assert.strictEqual(C.diagnose(q, "1 5/3").error, "fraction-part-not-proper");
+  assert.strictEqual(C.diagnose(q, "2 2/4").error, "one-more");
+  assert.deepStrictEqual(C.diagnose(q, "2"), { correct: false, error: null, feedback: "Not yet." });
+  assert.strictEqual(C.diagnose(q, "8/3").feedback, "As a mixed number, please.");
+});
+test("numbers with a sign or unit after them", () => {
+  assert.deepStrictEqual(["f.percent", "f.unit", "f.pi"].map((id) => {
+    const q = C.generate(id, 1, 3);
+    return [q.entry, q.suffix];
+  }), [["number", "%"], ["number", " cm²"], ["number", "π"]]);
+  const q = C.instance("f.unit", 1, { a: 5 });
+  assert.strictEqual(C.diagnose(q, "25").correct, true);
+  assert.strictEqual(C.diagnose(q, "20").error, "perimeter");
+  const m = C.instance("f.money", 1, { a: 4 });
+  assert.deepStrictEqual([m.unit, m.suffix, m.answerText], ["₱", "", "40"]);
+});
+test("choices can be fractions that repeat as decimals", () => {
+  const q = C.instance("f.choice", 1, { a: 1 });
+  assert.strictEqual(q.entry, null);
+  assert.deepStrictEqual(q.choices, ["1/5", "1/4", "2/7", "1/3"]);
+  assert.strictEqual(q.choices[q.answerIndex], "1/3");
+  assert.strictEqual(C.diagnose(q, 1).error, "one-more");
+});
+
 console.log(failed ? `\n${failed} failed` : "\nok: engine behaves as specified");
 process.exit(failed ? 1 : 0);
