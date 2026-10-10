@@ -1,0 +1,568 @@
+{
+  "topic": "circles",
+  "levels": [
+    {
+      "id": "parts",
+      "title": "Parts of a circle",
+      "templates": ["circles.diameter", "circles.radius", "circles.parts"],
+      "lesson": [
+        {
+          "title": "Centre, radius, diameter",
+          "body": "Every point on a circle is the same distance from its centre. That distance is the radius. A diameter goes across through the centre, so it is two radii."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "circles.diameter", "params": {"r": 7}, "format": "circle"}
+        },
+        {
+          "title": "Chord and circumference",
+          "body": "A chord joins two points on the circle; the diameter is the longest chord. The circumference is the distance all the way around."
+        }
+      ]
+    },
+    {
+      "id": "circumference",
+      "title": "Circumference",
+      "templates": ["circles.circumference-pi", "circles.circumference-314", "circles.wheel-227"],
+      "lesson": [
+        {
+          "title": "π",
+          "body": "For every circle, circumference ÷ diameter is the same number, π: a little more than 3. We use 3.14 or 22/7 for it, or leave the answer in terms of π."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "circles.circumference-314", "params": {"r": 5}, "format": "radius"}
+        },
+        {
+          "title": "The formula",
+          "body": "Circumference = π × diameter = 2 × π × radius. Read which one the question gives you."
+        }
+      ]
+    },
+    {
+      "id": "area",
+      "title": "Area of a circle",
+      "templates": ["circles.area-pi", "circles.area-from-diameter", "circles.area-314"],
+      "lesson": [
+        {
+          "title": "Why π × r × r",
+          "body": "Cut a circle into thin slices and lay them head to tail: they make nearly a rectangle, half the circumference long (π × r) and one radius high. Area = π × r × r."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "circles.area-314", "params": {"r": 10}, "format": "radius"}
+        },
+        {
+          "title": "Radius, not diameter",
+          "body": "Given the diameter, halve it first: a circle 10 cm across has r = 5, and its area is π × 25 = 25π cm²."
+        }
+      ]
+    },
+    {
+      "id": "composite",
+      "title": "Circle problems",
+      "templates": ["circles.semicircle", "circles.window", "circles.track", "circles.wheel-distance", "circles.ring"],
+      "lesson": [
+        {
+          "title": "Parts of circles",
+          "body": "A semicircle is half a circle: half the area. Split a figure into squares, rectangles and circle parts, and add or take away."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "circles.semicircle", "params": {"r": 5}, "format": "half"}
+        },
+        {
+          "title": "Curved edges",
+          "body": "A track's two semicircular ends make one whole circle, so one lap is 2 × the straight + π × the diameter."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "circles.diameter",
+      "competency": "G6.Q3.10",
+      "domain": "MG",
+      "construct": "Find the diameter from the radius",
+      "schema": "multiplicative-compare",
+      "params": {"r": {"tiers": {"1": [2, 25], "3": [5, 90]}}},
+      "answer": {"type": "unit", "value": "2 * r", "unit": "cm"},
+      "formats": [
+        {"id": "circle", "prompt": "A circle has a radius of {r} cm. What is its diameter?"},
+        {"id": "plate", "prompt": "The radius of a plate is {r} cm. How wide is the plate across its centre?"}
+      ],
+      "hints": [
+        "The diameter goes across the circle through the centre.",
+        "That is two radii end to end.",
+        "2 × {r} = ?"
+      ],
+      "steps": ["Diameter = 2 × radius", "= 2 × {r}", "= {answer} cm"],
+      "explain": "The diameter is two radii: 2 × {r} = {answer} cm.",
+      "distractors": [
+        {
+          "value": "r / 2",
+          "error": "halved-instead",
+          "feedback": "{value} cm halves the radius. The diameter is twice the radius."
+        },
+        {
+          "value": "r",
+          "error": "gave-the-radius",
+          "feedback": "{value} cm is the radius. The diameter is twice as long."
+        }
+      ]
+    },
+    {
+      "id": "circles.radius",
+      "competency": "G6.Q3.10",
+      "domain": "MG",
+      "construct": "Find the radius from the diameter",
+      "schema": "multiplicative-compare",
+      "params": {"d": {"tiers": {"1": [4, 50], "3": [9, 99]}}},
+      "answer": {"type": "unit", "value": "d / 2", "unit": "cm"},
+      "formats": [
+        {"id": "circle", "prompt": "A circle has a diameter of {d} cm. What is its radius?"},
+        {
+          "id": "clock",
+          "prompt": "A round clock face is {d} cm across. How far is it from the centre to the edge?"
+        }
+      ],
+      "hints": ["The radius goes from the centre to the edge.", "It is half of the diameter.", "{d} ÷ 2 = ?"],
+      "steps": ["Radius = diameter ÷ 2", "= {d} ÷ 2", "= {answer} cm"],
+      "explain": "The radius is half the diameter: {d} ÷ 2 = {answer} cm.",
+      "distractors": [
+        {
+          "value": "2 * d",
+          "error": "doubled-instead",
+          "feedback": "{value} cm doubles the diameter. The radius is half of it."
+        },
+        {
+          "value": "d",
+          "error": "gave-the-diameter",
+          "feedback": "{value} cm is the diameter. The radius is half."
+        }
+      ]
+    },
+    {
+      "id": "circles.parts",
+      "competency": "G6.Q3.10",
+      "domain": "MG",
+      "construct": "Name a part of a circle from its description",
+      "schema": "part-whole",
+      "params": {"item": {"range": [1, 4]}},
+      "answer": {
+        "type": "choice",
+        "value": "item",
+        "label": "{value == 1 ? 'radius' : (value == 2 ? 'diameter' : (value == 3 ? 'chord' : 'circumference'))}",
+        "order": "size"
+      },
+      "formats": [
+        {
+          "id": "name",
+          "prompt": "What is the name for {item == 1 ? 'a line from the centre of a circle to its edge' : (item == 2 ? 'a line across a circle through its centre' : (item == 3 ? 'a line joining two points on a circle that does not pass through the centre' : 'the distance all the way around a circle'))}?"
+        }
+      ],
+      "hints": [
+        "Think of where the line or distance starts and ends.",
+        "Does it pass through the centre? Does it go around?",
+        "The four parts: radius, diameter, chord, circumference."
+      ],
+      "steps": [
+        "{answer == 1 ? 'The radius' : (answer == 2 ? 'The diameter' : (answer == 3 ? 'A chord' : 'The circumference'))} {answer == 1 ? 'goes from the centre to the edge' : (answer == 2 ? 'goes across the circle through the centre' : (answer == 3 ? 'joins two points on the edge without passing through the centre' : 'is the distance all the way around'))}",
+        "That matches the description",
+        "So it is the {answer == 1 ? 'radius' : (answer == 2 ? 'diameter' : (answer == 3 ? 'chord' : 'circumference'))}"
+      ],
+      "explain": "{answer == 1 ? 'The radius' : (answer == 2 ? 'The diameter' : (answer == 3 ? 'A chord' : 'The circumference'))} {answer == 1 ? 'goes from the centre to the edge' : (answer == 2 ? 'goes across the circle through the centre' : (answer == 3 ? 'joins two points on the edge without passing through the centre' : 'is the distance all the way around'))}.",
+      "distractors": [
+        {
+          "value": "item % 4 + 1",
+          "error": "picked-the-next-part",
+          "feedback": "{value == 1 ? 'The radius' : (value == 2 ? 'The diameter' : (value == 3 ? 'A chord' : 'The circumference'))} {value == 1 ? 'goes from the centre to the edge' : (value == 2 ? 'goes across the circle through the centre' : (value == 3 ? 'joins two points on the edge without passing through the centre' : 'is the distance all the way around'))}."
+        },
+        {
+          "value": "(item + 1) % 4 + 1",
+          "error": "picked-another-part",
+          "feedback": "{value == 1 ? 'The radius' : (value == 2 ? 'The diameter' : (value == 3 ? 'A chord' : 'The circumference'))} {value == 1 ? 'goes from the centre to the edge' : (value == 2 ? 'goes across the circle through the centre' : (value == 3 ? 'joins two points on the edge without passing through the centre' : 'is the distance all the way around'))}."
+        },
+        {
+          "value": "(item + 2) % 4 + 1",
+          "error": "picked-a-third-part",
+          "feedback": "{value == 1 ? 'The radius' : (value == 2 ? 'The diameter' : (value == 3 ? 'A chord' : 'The circumference'))} {value == 1 ? 'goes from the centre to the edge' : (value == 2 ? 'goes across the circle through the centre' : (value == 3 ? 'joins two points on the edge without passing through the centre' : 'is the distance all the way around'))}."
+        }
+      ]
+    },
+    {
+      "id": "circles.circumference-pi",
+      "competency": "G6.Q3.13",
+      "domain": "MG",
+      "construct": "Find a circumference in terms of π",
+      "schema": "multiplicative-compare",
+      "params": {"d": {"tiers": {"1": [2, 30], "3": [5, 99]}}},
+      "answer": {"type": "pi-expression", "value": "d"},
+      "formats": [
+        {
+          "id": "diameter",
+          "prompt": "A circle has a diameter of {d} cm. What is its circumference, in terms of π?"
+        }
+      ],
+      "hints": ["Circumference = π × diameter.", "The diameter is {d} cm.", "π × {d} = ?π"],
+      "steps": ["C = π × d", "= π × {d}", "= {answer}π cm"],
+      "explain": "C = π × {d} = {answer}π cm.",
+      "distractors": [
+        {
+          "value": "2 * d",
+          "error": "doubled-the-diameter",
+          "feedback": "{value}π doubles the diameter. 2 × π × r uses the radius; with the diameter it is just π × {d}."
+        },
+        {
+          "value": "d % 2 == 0 ? d * d / 4 : -1",
+          "error": "found-the-area",
+          "feedback": "{value}π is the area, π × r × r. The circumference is π × diameter."
+        },
+        {
+          "value": "d % 2 == 0 ? d / 2 : -1",
+          "error": "used-the-radius",
+          "feedback": "{value}π uses the radius. Circumference = π × diameter, or 2 × π × radius."
+        }
+      ]
+    },
+    {
+      "id": "circles.circumference-314",
+      "competency": "G6.Q3.13",
+      "domain": "MG",
+      "construct": "Find a circumference with π = 3.14",
+      "schema": "multiplicative-compare",
+      "params": {"r": {"tiers": {"1": [1, 15], "3": [5, 50]}}},
+      "answer": {"type": "decimal", "value": "2 * 3.14 * r"},
+      "formats": [
+        {
+          "id": "radius",
+          "prompt": "Use π = 3.14. A circle has a radius of {r} cm. What is its circumference?"
+        },
+        {
+          "id": "fence",
+          "prompt": "Use π = 3.14. A round garden has a radius of {r} m. How many metres of fence go around it?"
+        }
+      ],
+      "hints": ["Circumference = 2 × π × radius.", "2 × {r} = {2 * r}, the diameter.", "3.14 × {2 * r} = ?"],
+      "steps": ["C = 2 × π × r", "= 3.14 × {2 * r}", "= {answer}"],
+      "explain": "C = 3.14 × {2 * r} = {answer}.",
+      "distractors": [
+        {
+          "value": "3.14 * r",
+          "error": "forgot-to-double",
+          "feedback": "{value} uses the radius as the diameter. Circumference = π × diameter = 3.14 × {2 * r}."
+        },
+        {
+          "value": "3.14 * r * r",
+          "error": "found-the-area",
+          "feedback": "{value} is the area, π × r × r. The circumference is 2 × π × r."
+        }
+      ]
+    },
+    {
+      "id": "circles.wheel-227",
+      "competency": "G6.Q3.13",
+      "domain": "MG",
+      "construct": "Find how far a wheel rolls in one turn, with π = 22/7",
+      "schema": "multiplicative-compare",
+      "params": {"k": {"tiers": {"1": [1, 6], "3": [2, 14]}}, "d": {"value": "7 * k"}},
+      "answer": {"type": "unit", "value": "22 * k", "unit": "cm"},
+      "formats": [
+        {
+          "id": "wheel",
+          "prompt": "Use π = 22/7. A wheel has a diameter of {d} cm. How far does it roll in one full turn?"
+        }
+      ],
+      "hints": [
+        "In one turn, a wheel rolls its circumference.",
+        "Circumference = π × diameter = 22/7 × {d}.",
+        "{d} ÷ 7 = {k}, and 22 × {k} = ?"
+      ],
+      "steps": ["One turn = circumference", "22/7 × {d} = 22 × {k}", "= {answer} cm"],
+      "explain": "22/7 × {d} = {answer} cm in one turn.",
+      "distractors": [
+        {
+          "value": "44 * k",
+          "error": "used-the-diameter-as-radius",
+          "feedback": "{value} cm doubles the diameter. With the diameter, C = π × d = 22/7 × {d}."
+        },
+        {
+          "value": "d",
+          "error": "gave-the-diameter",
+          "feedback": "{value} cm is the diameter. One turn rolls the circumference, π × {d}."
+        }
+      ]
+    },
+    {
+      "id": "circles.area-pi",
+      "competency": "G6.Q4.2",
+      "domain": "MG",
+      "construct": "Find the area of a circle in terms of π from its radius",
+      "schema": "equal-groups",
+      "params": {"r": {"tiers": {"1": [2, 12], "3": [5, 30]}}},
+      "where": ["r != 2"],
+      "answer": {"type": "pi-expression", "value": "r * r"},
+      "formats": [{"id": "radius", "prompt": "A circle has a radius of {r} cm. What is its area, in terms of π?"}],
+      "hints": ["Area = π × radius × radius.", "{r} × {r} = {r * r}.", "So the area is {r * r} lots of π."],
+      "steps": ["A = π × r × r", "= π × {r} × {r}", "= {answer}π cm²"],
+      "explain": "A = π × {r} × {r} = {answer}π cm².",
+      "distractors": [
+        {
+          "value": "2 * r",
+          "error": "found-the-circumference",
+          "feedback": "{value}π is the circumference, 2 × π × r. Area is π × r × r."
+        },
+        {
+          "value": "4 * r * r",
+          "error": "used-the-diameter",
+          "feedback": "{value}π uses the diameter, {2 * r}, as the radius. Use r = {r}."
+        }
+      ]
+    },
+    {
+      "id": "circles.area-from-diameter",
+      "competency": "G6.Q4.2",
+      "domain": "MG",
+      "construct": "Find the area of a circle in terms of π from its diameter",
+      "schema": "equal-groups",
+      "params": {"r": {"tiers": {"1": [2, 12], "3": [5, 30]}}, "d": {"value": "2 * r"}},
+      "where": ["r != 2"],
+      "answer": {"type": "pi-expression", "value": "r * r"},
+      "formats": [{"id": "diameter", "prompt": "A circle has a diameter of {d} cm. What is its area, in terms of π?"}],
+      "hints": ["Find the radius first: half of the diameter.", "{d} ÷ 2 = {r}.", "π × {r} × {r} = ?π"],
+      "steps": ["r = {d} ÷ 2 = {r}", "A = π × {r} × {r}", "= {answer}π cm²"],
+      "explain": "r = {r}, so A = π × {r} × {r} = {answer}π cm².",
+      "distractors": [
+        {
+          "value": "d * d",
+          "error": "used-the-diameter",
+          "feedback": "{value}π squares the diameter. Halve it first: r = {r}."
+        },
+        {
+          "value": "d",
+          "error": "found-the-circumference",
+          "feedback": "{value}π is the circumference, π × d. Area is π × r × r."
+        }
+      ]
+    },
+    {
+      "id": "circles.area-314",
+      "competency": "G6.Q4.2",
+      "domain": "MG",
+      "construct": "Find the area of a circle with π = 3.14",
+      "schema": "equal-groups",
+      "params": {"r": {"tiers": {"1": [1, 10], "3": [3, 20]}}},
+      "where": ["r != 2"],
+      "answer": {"type": "decimal", "value": "3.14 * r * r"},
+      "formats": [
+        {"id": "radius", "prompt": "Use π = 3.14. A circle has a radius of {r} cm. What is its area?"},
+        {
+          "id": "rug",
+          "prompt": "Use π = 3.14. A round rug has a radius of {r} dm. What is its area in square decimetres?"
+        }
+      ],
+      "hints": ["Area = π × r × r.", "{r} × {r} = {r * r}.", "3.14 × {r * r} = ?"],
+      "steps": ["A = π × r × r", "= 3.14 × {r * r}", "= {answer}"],
+      "explain": "A = 3.14 × {r} × {r} = {answer}.",
+      "distractors": [
+        {
+          "value": "2 * 3.14 * r",
+          "error": "found-the-circumference",
+          "feedback": "{value} is the circumference, 2 × π × r. Area is π × r × r."
+        },
+        {
+          "value": "3.14 * 4 * r * r",
+          "error": "used-the-diameter",
+          "feedback": "{value} uses the diameter as the radius. Use r = {r}."
+        }
+      ]
+    },
+    {
+      "id": "circles.semicircle",
+      "competency": "G6.Q4.3",
+      "domain": "MG",
+      "construct": "Find the area of a semicircle with π = 3.14",
+      "schema": "part-whole",
+      "params": {"r": {"tiers": {"1": [2, 10], "3": [3, 20]}}, "d": {"value": "2 * r"}},
+      "answer": {"type": "unit", "value": "3.14 * r * r / 2", "unit": "cm²"},
+      "formats": [
+        {"id": "half", "prompt": "Use π = 3.14. A semicircle has a diameter of {d} cm. What is its area?"},
+        {
+          "id": "window",
+          "prompt": "Use π = 3.14. A half-moon window is a semicircle {d} cm across. What is its area?"
+        }
+      ],
+      "hints": [
+        "A semicircle is half a circle: find the circle's area, then halve it.",
+        "r = {d} ÷ 2 = {r}, so the circle is 3.14 × {r * r} = {3.14 * r * r}.",
+        "{3.14 * r * r} ÷ 2 = ?"
+      ],
+      "steps": ["r = {d} ÷ 2 = {r}", "Whole circle: 3.14 × {r} × {r} = {3.14 * r * r}", "Half: {answer} cm²"],
+      "explain": "Half of 3.14 × {r} × {r}: {answer} cm².",
+      "distractors": [
+        {
+          "value": "3.14 * r * r",
+          "error": "gave-the-whole-circle",
+          "feedback": "{value} cm² is the whole circle. A semicircle is half."
+        },
+        {
+          "value": "3.14 * d * d / 2",
+          "error": "used-the-diameter",
+          "feedback": "{value} cm² uses the diameter as the radius. Halve it first: r = {r}."
+        }
+      ]
+    },
+    {
+      "id": "circles.window",
+      "competency": "G6.Q4.3",
+      "domain": "MG",
+      "construct": "Find the area of a square with a semicircle on top, with π = 3.14",
+      "schema": "part-whole",
+      "params": {"r": {"tiers": {"1": [2, 10], "3": [5, 25]}}, "s": {"value": "2 * r"}},
+      "answer": {"type": "unit", "value": "s * s + 3.14 * r * r / 2", "unit": "cm²"},
+      "formats": [
+        {
+          "id": "window",
+          "prompt": "Use π = 3.14. A window is a square {s} cm wide with a semicircle on top. The semicircle's diameter is the square's top side. What is the area of the window?"
+        }
+      ],
+      "hints": [
+        "Add the square and the semicircle.",
+        "Square: {s} × {s} = {s * s}. Semicircle: half of 3.14 × {r} × {r}.",
+        "{s * s} + {3.14 * r * r / 2} = ?"
+      ],
+      "steps": [
+        "Square: {s} × {s} = {s * s}",
+        "Semicircle: 3.14 × {r} × {r} ÷ 2 = {3.14 * r * r / 2}",
+        "{s * s} + {3.14 * r * r / 2} = {answer} cm²"
+      ],
+      "explain": "{s * s} + {3.14 * r * r / 2} = {answer} cm².",
+      "distractors": [
+        {
+          "value": "s * s + 3.14 * r * r",
+          "error": "added-a-whole-circle",
+          "feedback": "{value} cm² adds a whole circle. The top is only a semicircle: halve it."
+        },
+        {
+          "value": "s * s",
+          "error": "left-out-the-semicircle",
+          "feedback": "{value} cm² is only the square. Add the semicircle on top."
+        }
+      ]
+    },
+    {
+      "id": "circles.track",
+      "competency": "G6.Q4.4",
+      "domain": "MG",
+      "construct": "Find the distance around a running track: two straights and two semicircles",
+      "schema": "multi-step",
+      "params": {
+        "L": {"tiers": {"1": [20, 60], "3": [40, 120]}},
+        "k": {"tiers": {"1": [2, 6], "3": [3, 9]}},
+        "d": {"value": "10 * k"}
+      },
+      "answer": {"type": "unit", "value": "2 * L + 3.14 * d", "unit": "m"},
+      "formats": [
+        {
+          "id": "track",
+          "prompt": "Use π = 3.14. A running track has two straight sides, each {L} m long, joined by two semicircles with a diameter of {d} m. How long is one lap?"
+        }
+      ],
+      "hints": [
+        "One lap is the two straights and the two semicircles.",
+        "Two semicircles make one whole circle: 3.14 × {d} = {3.14 * d}.",
+        "2 × {L} + {3.14 * d} = ?"
+      ],
+      "steps": [
+        "Straights: 2 × {L} = {2 * L}",
+        "Two semicircles = one circle: 3.14 × {d} = {3.14 * d}",
+        "{2 * L} + {3.14 * d} = {answer} m"
+      ],
+      "explain": "2 × {L} + 3.14 × {d} = {answer} m.",
+      "distractors": [
+        {
+          "value": "2 * L + 6.28 * d",
+          "error": "counted-two-whole-circles",
+          "feedback": "{value} m counts two whole circles. Two semicircles make just one."
+        },
+        {
+          "value": "2 * L",
+          "error": "left-out-the-curves",
+          "feedback": "{value} m is only the straights. Add the curved ends."
+        }
+      ]
+    },
+    {
+      "id": "circles.wheel-distance",
+      "competency": "G6.Q4.4",
+      "domain": "MG",
+      "construct": "Find how far a wheel travels in a number of turns, with π = 22/7",
+      "schema": "multi-step",
+      "params": {"n": {"choose": [5, 10, 20, 25, 50, 100]}},
+      "answer": {"type": "unit", "value": "220 * n / 100", "unit": "m"},
+      "formats": [
+        {
+          "id": "bike",
+          "prompt": "Use π = 22/7. A bicycle wheel has a diameter of 70 cm. How many metres does the bicycle go when the wheel turns {n} times?"
+        }
+      ],
+      "hints": [
+        "One turn rolls the circumference: 22/7 × 70.",
+        "22/7 × 70 = 220 cm.",
+        "{n} × 220 cm = {220 * n} cm. Change it to metres."
+      ],
+      "steps": ["One turn: 22/7 × 70 = 220 cm", "{n} turns: {n} × 220 = {220 * n} cm", "{220 * n} cm = {answer} m"],
+      "explain": "{n} × 220 cm = {220 * n} cm = {answer} m.",
+      "distractors": [
+        {
+          "value": "220 * n",
+          "error": "did-not-change-to-metres",
+          "feedback": "{value} is in centimetres. The question asks for metres: ÷ 100."
+        },
+        {
+          "value": "70 * n / 100",
+          "error": "used-the-diameter",
+          "feedback": "{value} m uses the diameter. One turn rolls the circumference, 220 cm."
+        }
+      ]
+    },
+    {
+      "id": "circles.ring",
+      "competency": "G6.Q4.3",
+      "domain": "MG",
+      "construct": "Find the area of a ring in terms of π",
+      "schema": "part-whole",
+      "params": {"R": {"tiers": {"1": [4, 12], "3": [6, 25]}}, "r": {"range": [1, "R - 2"]}},
+      "answer": {"type": "pi-expression", "value": "R * R - r * r"},
+      "formats": [
+        {
+          "id": "ring",
+          "prompt": "A ring is the space between two circles with the same centre, of radius {R} cm and {r} cm. What is its area, in terms of π?"
+        },
+        {
+          "id": "path",
+          "prompt": "A round pond has a radius of {r} m, and a path goes around it out to a radius of {R} m. What is the area of the path, in terms of π?"
+        }
+      ],
+      "hints": [
+        "Take the small circle away from the big one.",
+        "Big: π × {R} × {R} = {R * R}π. Small: π × {r} × {r} = {r * r}π.",
+        "{R * R}π − {r * r}π = ?π"
+      ],
+      "steps": ["Big circle: {R * R}π", "Small circle: {r * r}π", "Ring: {R * R}π − {r * r}π = {answer}π"],
+      "explain": "{R * R}π − {r * r}π = {answer}π.",
+      "distractors": [
+        {
+          "value": "(R - r) * (R - r)",
+          "error": "squared-the-width",
+          "feedback": "{value}π squares the width of the ring, {R} − {r}. Take the small circle's area from the big one's."
+        },
+        {
+          "value": "R * R + r * r",
+          "error": "added-the-circles",
+          "feedback": "{value}π adds the two circles. The ring is the big one with the small one taken out."
+        }
+      ]
+    }
+  ]
+}
