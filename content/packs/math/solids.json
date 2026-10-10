@@ -1,0 +1,718 @@
+{
+  "topic": "solids",
+  "levels": [
+    {
+      "id": "parts",
+      "title": "Faces, edges and vertices",
+      "templates": ["solids.prism-parts", "solids.pyramid-parts", "solids.cube-edges", "solids.box-edges"],
+      "lesson": [
+        {
+          "title": "Prisms and pyramids",
+          "body": "A prism has two equal bases joined by rectangles. A pyramid has one base and triangles that meet at a point."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "solids.prism-parts", "params": {"n": 5, "what": "edges"}, "format": "prism"}
+        },
+        {
+          "title": "Cubes and boxes",
+          "body": "A cube and a rectangular prism both have 6 faces, 12 edges and 8 vertices. A cube's edges are all equal; a box has 4 edges of each of its three lengths."
+        }
+      ]
+    },
+    {
+      "id": "surface-area",
+      "title": "Surface area",
+      "templates": ["solids.cube-surface", "solids.box-surface", "solids.open-box"],
+      "lesson": [
+        {
+          "title": "Add the faces",
+          "body": "Surface area is the total area of all the faces. A cube has 6 equal squares; a box has 3 pairs of matching rectangles."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "solids.box-surface", "params": {"a": 5, "b": 4, "c": 3}, "format": "box"}
+        },
+        {"title": "Open boxes", "body": "A box with no lid has only 5 faces: the bottom and the four sides."}
+      ]
+    },
+    {
+      "id": "volume",
+      "title": "Volume",
+      "templates": ["solids.cube-volume", "solids.box-volume", "solids.missing-edge", "solids.cubes-in-box"],
+      "lesson": [
+        {
+          "title": "Length × width × height",
+          "body": "Volume is the space inside, counted in cubes. A box 4 cm by 3 cm by 2 cm holds 4 × 3 × 2 = 24 cubes of 1 cm³."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "solids.box-volume", "params": {"a": 6, "b": 5, "c": 4}, "format": "box"}
+        },
+        {
+          "title": "Working back",
+          "body": "If you know the volume and two edges, divide: a 60 cm³ box that is 5 cm by 4 cm is 60 ÷ 20 = 3 cm high."
+        }
+      ]
+    },
+    {
+      "id": "units",
+      "title": "Units of volume and capacity",
+      "templates": ["solids.best-unit", "solids.cm3-to-litres", "solids.litres-to-cm3"],
+      "lesson": [
+        {
+          "title": "Volume and capacity",
+          "body": "Volume is measured in cubic units like cm³ and m³; capacity, how much liquid fits, in litres and millilitres."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "solids.cm3-to-litres", "params": {"k": 6}, "format": "convert"}
+        },
+        {
+          "title": "1 litre is 1000 cm³",
+          "body": "A cube 10 cm on each side holds exactly 1 litre: 10 × 10 × 10 = 1000 cm³. So 1 mL is 1 cm³."
+        }
+      ]
+    },
+    {
+      "id": "capacity",
+      "title": "Capacity problems",
+      "templates": ["solids.tank-litres", "solids.pails"],
+      "lesson": [
+        {
+          "title": "Volume, then litres",
+          "body": "To find how much a tank holds, find its volume in cm³, then divide by 1000 to get litres."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "solids.tank-litres", "params": {"a": 50, "b": 30, "c": 40}, "format": "tank"}
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "solids.prism-parts",
+      "competency": "G5.Q4.5",
+      "domain": "MG",
+      "construct": "Count the faces, edges or vertices of a prism",
+      "schema": "part-whole",
+      "params": {"n": {"choose": [3, 4, 5, 6, 8]}, "what": {"choose": ["faces", "edges", "vertices"]}},
+      "answer": {"type": "integer", "value": "what == 'faces' ? n + 2 : (what == 'edges' ? 3 * n : 2 * n)"},
+      "formats": [
+        {
+          "id": "prism",
+          "prompt": "{n == 8 ? 'An' : 'A'} {n == 3 ? 'triangular' : (n == 4 ? 'square' : (n == 5 ? 'pentagonal' : (n == 6 ? 'hexagonal' : 'octagonal')))} prism has two {n == 3 ? 'triangular' : (n == 4 ? 'square' : (n == 5 ? 'pentagonal' : (n == 6 ? 'hexagonal' : 'octagonal')))} bases with {n} sides each. How many {what} does it have?"
+        }
+      ],
+      "hints": [
+        "A prism has two equal bases, joined by rectangles.",
+        "Each base has {n} sides and {n} corners, and there are {n} rectangles around the sides.",
+        "{what == 'faces' ? 'Faces: the 2 bases and the rectangles around them.' : (what == 'edges' ? 'Edges: the sides of both bases and one edge up each corner.' : 'Vertices: the corners of both bases.')}"
+      ],
+      "steps": [
+        "Each base has {n} sides",
+        "{what == 'faces' ? 'Faces = 2 bases + ' : (what == 'edges' ? 'Edges = 2 × ' : 'Vertices = 2 × ')}{fmt(n)}{what == 'faces' ? ' rectangles' : (what == 'edges' ? ' + ' : ' corners')}{what == 'edges' ? fmt(n) : ''}{what == 'edges' ? ' going up' : ''}",
+        "= {answer} {what}"
+      ],
+      "explain": "A prism whose bases have {n} sides has {n + 2} faces, {3 * n} edges and {2 * n} vertices.",
+      "distractors": [
+        {
+          "value": "n + 2",
+          "error": "gave-the-faces",
+          "feedback": "{value} is the number of faces. The question asks for {what}."
+        },
+        {
+          "value": "3 * n",
+          "error": "gave-the-edges",
+          "feedback": "{value} is the number of edges. The question asks for {what}."
+        },
+        {
+          "value": "2 * n",
+          "error": "gave-the-vertices",
+          "feedback": "{value} is the number of vertices. The question asks for {what}."
+        },
+        {
+          "value": "n",
+          "error": "counted-one-base",
+          "feedback": "{value} counts one base only. A prism has two."
+        }
+      ]
+    },
+    {
+      "id": "solids.pyramid-parts",
+      "competency": "G5.Q4.5",
+      "domain": "MG",
+      "construct": "Count the faces, edges or vertices of a pyramid",
+      "schema": "part-whole",
+      "params": {"n": {"choose": [3, 4, 5, 6, 8]}, "what": {"choose": ["faces", "edges", "vertices"]}},
+      "answer": {"type": "integer", "value": "what == 'faces' ? n + 1 : (what == 'edges' ? 2 * n : n + 1)"},
+      "formats": [
+        {
+          "id": "pyramid",
+          "prompt": "{n == 8 ? 'An' : 'A'} {n == 3 ? 'triangular' : (n == 4 ? 'square' : (n == 5 ? 'pentagonal' : (n == 6 ? 'hexagonal' : 'octagonal')))} pyramid has {n == 8 ? 'an' : 'a'} {n == 3 ? 'triangular' : (n == 4 ? 'square' : (n == 5 ? 'pentagonal' : (n == 6 ? 'hexagonal' : 'octagonal')))} base with {n} sides. How many {what} does it have?"
+        }
+      ],
+      "hints": [
+        "A pyramid has one base and triangles that meet at a point at the top.",
+        "The base has {n} sides, so there are {n} triangles.",
+        "{what == 'faces' ? 'Faces: the base and the triangles.' : (what == 'edges' ? 'Edges: the sides of the base and one up to the top from each corner.' : 'Vertices: the corners of the base and the point at the top.')}"
+      ],
+      "steps": [
+        "The base has {n} sides",
+        "{what == 'faces' ? 'Faces = 1 base + ' : (what == 'edges' ? 'Edges = ' : 'Vertices = ')}{fmt(n)}{what == 'faces' ? ' triangles' : (what == 'edges' ? ' + ' : ' corners + 1 top')}{what == 'edges' ? fmt(n) : ''}{what == 'edges' ? ' going up' : ''}",
+        "= {answer} {what}"
+      ],
+      "explain": "A pyramid whose base has {n} sides has {n + 1} faces, {2 * n} edges and {n + 1} vertices.",
+      "distractors": [
+        {
+          "value": "what == 'edges' ? n + 1 : 2 * n",
+          "error": "mixed-up-the-counts",
+          "feedback": "{value} is the number of {what == 'edges' ? 'faces' : 'edges'}. The question asks for {what}."
+        },
+        {
+          "value": "n + 2",
+          "error": "counted-like-a-prism",
+          "feedback": "{value} counts like a prism. A pyramid has one base, not two."
+        },
+        {
+          "value": "n",
+          "error": "counted-the-base-only",
+          "feedback": "{value} counts the base only. Count the {what == 'vertices' ? 'point at the top' : 'triangles'} too."
+        }
+      ]
+    },
+    {
+      "id": "solids.cube-edges",
+      "competency": "G5.Q4.10",
+      "domain": "MG",
+      "construct": "Find the total length of a cube's edges",
+      "schema": "equal-groups",
+      "params": {"s": {"tiers": {"1": [2, 12], "3": [5, 40]}}},
+      "answer": {"type": "unit", "value": "12 * s", "unit": "cm"},
+      "formats": [
+        {
+          "id": "wire",
+          "prompt": "A wire frame is made in the shape of a cube with edges {s} cm long. How many centimetres of wire does it use?"
+        }
+      ],
+      "hints": ["A cube has 12 edges, all the same length.", "Each edge is {s} cm.", "12 × {s} = ?"],
+      "steps": ["A cube has 12 equal edges", "Each is {s} cm", "12 × {s} = {answer} cm"],
+      "explain": "12 edges of {s} cm: {answer} cm of wire.",
+      "distractors": [
+        {
+          "value": "6 * s",
+          "error": "counted-faces",
+          "feedback": "{value} counts 6, the faces. A cube has 12 edges."
+        },
+        {
+          "value": "8 * s",
+          "error": "counted-vertices",
+          "feedback": "{value} counts 8, the corners. A cube has 12 edges."
+        },
+        {
+          "value": "4 * s",
+          "error": "counted-one-face",
+          "feedback": "{value} goes around one face only. A cube has 12 edges."
+        }
+      ]
+    },
+    {
+      "id": "solids.box-edges",
+      "competency": "G5.Q4.10",
+      "domain": "MG",
+      "construct": "Find the total length of a rectangular prism's edges",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [3, 12], "3": [5, 30]}},
+        "b": {"tiers": {"1": [2, 10], "3": [4, 25]}},
+        "c": {"tiers": {"1": [2, 8], "3": [3, 20]}}
+      },
+      "where": ["a != b", "b != c", "a != c"],
+      "answer": {"type": "unit", "value": "4 * (a + b + c)", "unit": "cm"},
+      "formats": [
+        {
+          "id": "frame",
+          "prompt": "A box frame is {a} cm long, {b} cm wide and {c} cm high. How many centimetres of stick are needed for all its edges?"
+        }
+      ],
+      "hints": [
+        "A rectangular prism has 12 edges: 4 of each length.",
+        "4 edges are {a} cm, 4 are {b} cm and 4 are {c} cm.",
+        "4 × ({a} + {b} + {c}) = ?"
+      ],
+      "steps": ["4 edges of each length", "{a} + {b} + {c} = {a + b + c}", "4 × {a + b + c} = {answer} cm"],
+      "explain": "4 × ({a} + {b} + {c}) = {answer} cm.",
+      "distractors": [
+        {
+          "value": "a + b + c",
+          "error": "counted-one-of-each",
+          "feedback": "{value} counts one edge of each length. There are 4 of each."
+        },
+        {
+          "value": "2 * (a + b + c)",
+          "error": "counted-two-of-each",
+          "feedback": "{value} counts 2 of each. A box has 4 edges of each length."
+        },
+        {
+          "value": "a * b * c",
+          "error": "gave-the-volume",
+          "feedback": "{value} is the volume. Add the edges instead."
+        }
+      ]
+    },
+    {
+      "id": "solids.cube-surface",
+      "competency": "G5.Q4.8",
+      "domain": "MG",
+      "construct": "Find the surface area of a cube",
+      "schema": "equal-groups",
+      "params": {"s": {"tiers": {"1": [2, 10], "3": [4, 25]}}},
+      "where": ["s != 6"],
+      "answer": {"type": "unit", "value": "6 * s * s", "unit": "cm²"},
+      "formats": [{"id": "cube", "prompt": "A cube has edges {s} cm long. What is its surface area?"}],
+      "hints": ["A cube has 6 faces, each a square.", "Each face is {s} × {s} = {s * s} cm².", "6 × {s * s} = ?"],
+      "steps": ["One face: {s} × {s} = {s * s} cm²", "6 faces", "6 × {s * s} = {answer} cm²"],
+      "explain": "6 faces of {s * s} cm²: {answer} cm².",
+      "distractors": [
+        {
+          "value": "s * s * s",
+          "error": "gave-the-volume",
+          "feedback": "{value} is the volume, {s} × {s} × {s}. Surface area adds the 6 faces."
+        },
+        {"value": "s * s", "error": "gave-one-face", "feedback": "{value} cm² is one face. A cube has 6."},
+        {
+          "value": "4 * s * s",
+          "error": "counted-four-faces",
+          "feedback": "{value} cm² counts 4 faces. Do not forget the top and bottom: 6 faces."
+        }
+      ]
+    },
+    {
+      "id": "solids.box-surface",
+      "competency": "G5.Q4.8",
+      "domain": "MG",
+      "construct": "Find the surface area of a rectangular prism",
+      "schema": "multi-step",
+      "params": {
+        "a": {"tiers": {"1": [3, 10], "3": [5, 20]}},
+        "b": {"tiers": {"1": [2, 8], "3": [4, 15]}},
+        "c": {"tiers": {"1": [2, 6], "3": [3, 12]}}
+      },
+      "where": ["a != b", "b != c"],
+      "answer": {"type": "unit", "value": "2 * (a * b + b * c + a * c)", "unit": "cm²"},
+      "formats": [
+        {
+          "id": "box",
+          "prompt": "A box is {a} cm long, {b} cm wide and {c} cm high. What is its surface area?"
+        }
+      ],
+      "hints": [
+        "A box has 3 pairs of matching faces.",
+        "The faces are {a} × {b} = {a * b}, {b} × {c} = {b * c} and {a} × {c} = {a * c}, two of each.",
+        "2 × ({a * b} + {b * c} + {a * c}) = ?"
+      ],
+      "steps": [
+        "Faces: {a * b}, {b * c} and {a * c} cm²",
+        "{a * b} + {b * c} + {a * c} = {a * b + b * c + a * c}",
+        "× 2 = {answer} cm²"
+      ],
+      "explain": "2 × ({a * b} + {b * c} + {a * c}) = {answer} cm².",
+      "distractors": [
+        {
+          "value": "a * b + b * c + a * c",
+          "error": "counted-one-of-each",
+          "feedback": "{value} cm² counts one face of each kind. Each has a matching face opposite: double it."
+        },
+        {
+          "value": "a * b * c",
+          "error": "gave-the-volume",
+          "feedback": "{value} is the volume. Surface area adds the areas of the 6 faces."
+        }
+      ]
+    },
+    {
+      "id": "solids.open-box",
+      "competency": "G5.Q4.9",
+      "domain": "MG",
+      "construct": "Solve a surface area problem: a box with no lid",
+      "schema": "multi-step",
+      "params": {
+        "a": {"tiers": {"1": [4, 12], "3": [6, 25]}},
+        "b": {"tiers": {"1": [3, 10], "3": [5, 20]}},
+        "c": {"tiers": {"1": [2, 8], "3": [3, 15]}}
+      },
+      "where": ["a != b"],
+      "answer": {"type": "unit", "value": "a * b + 2 * (b * c + a * c)", "unit": "cm²"},
+      "formats": [
+        {
+          "id": "paint",
+          "prompt": "A box with no lid is {a} cm long, {b} cm wide and {c} cm high. How many square centimetres of the outside are painted, bottom included?"
+        },
+        {
+          "id": "paper",
+          "prompt": "Ana covers the outside of an open box, {a} cm by {b} cm and {c} cm high, with paper: the bottom and the four sides. How much paper does she need?"
+        }
+      ],
+      "hints": [
+        "There is no lid: count the bottom and the four sides.",
+        "Bottom: {a} × {b} = {a * b}. Sides: 2 × {b * c} and 2 × {a * c}.",
+        "{a * b} + {2 * b * c} + {2 * a * c} = ?"
+      ],
+      "steps": [
+        "Bottom: {a} × {b} = {a * b}",
+        "Sides: 2 × {b} × {c} + 2 × {a} × {c} = {2 * (b * c + a * c)}",
+        "{a * b} + {2 * (b * c + a * c)} = {answer} cm²"
+      ],
+      "explain": "No lid: {a * b} + {2 * (b * c + a * c)} = {answer} cm².",
+      "distractors": [
+        {
+          "value": "2 * (a * b + b * c + a * c)",
+          "error": "counted-the-lid",
+          "feedback": "{value} cm² counts a lid. This box has none: count the bottom once."
+        },
+        {
+          "value": "2 * (b * c + a * c)",
+          "error": "left-out-the-bottom",
+          "feedback": "{value} cm² is the four sides. Add the bottom, {a} × {b}."
+        }
+      ]
+    },
+    {
+      "id": "solids.cube-volume",
+      "competency": "G6.Q3.3",
+      "domain": "MG",
+      "construct": "Find the volume of a cube",
+      "schema": "equal-groups",
+      "params": {"s": {"tiers": {"1": [2, 10], "3": [3, 30]}}},
+      "where": ["s != 6"],
+      "answer": {"type": "unit", "value": "s * s * s", "unit": "cm³"},
+      "formats": [{"id": "cube", "prompt": "A cube has edges {s} cm long. What is its volume?"}],
+      "hints": ["Volume of a cube = edge × edge × edge.", "{s} × {s} = {s * s}.", "{s * s} × {s} = ?"],
+      "steps": ["Volume = {s} × {s} × {s}", "{s} × {s} = {s * s}", "{s * s} × {s} = {answer} cm³"],
+      "explain": "{s} × {s} × {s} = {answer} cm³.",
+      "distractors": [
+        {
+          "value": "3 * s",
+          "error": "multiplied-by-3",
+          "feedback": "{value} is {s} × 3. Volume multiplies the edge by itself three times."
+        },
+        {
+          "value": "6 * s * s",
+          "error": "gave-the-surface-area",
+          "feedback": "{value} is the surface area. Volume is {s} × {s} × {s}."
+        },
+        {
+          "value": "s * s",
+          "error": "gave-one-face",
+          "feedback": "{value} is the area of one face. Volume multiplies by {s} once more."
+        }
+      ]
+    },
+    {
+      "id": "solids.box-volume",
+      "competency": "G6.Q3.3",
+      "domain": "MG",
+      "construct": "Find the volume of a rectangular prism",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [2, 12], "3": [5, 30]}},
+        "b": {"tiers": {"1": [2, 10], "3": [4, 20]}},
+        "c": {"tiers": {"1": [2, 8], "3": [3, 15]}}
+      },
+      "answer": {"type": "unit", "value": "a * b * c", "unit": "cm³"},
+      "formats": [
+        {"id": "box", "prompt": "A box is {a} cm long, {b} cm wide and {c} cm high. What is its volume?"},
+        {
+          "id": "aquarium",
+          "prompt": "An aquarium is {a} cm long, {b} cm wide and {c} cm deep. What is its volume in cubic centimetres?"
+        }
+      ],
+      "hints": ["Volume = length × width × height.", "{a} × {b} = {a * b}.", "{a * b} × {c} = ?"],
+      "steps": ["Volume = {a} × {b} × {c}", "{a} × {b} = {a * b}", "{a * b} × {c} = {answer} cm³"],
+      "explain": "{a} × {b} × {c} = {answer} cm³.",
+      "distractors": [
+        {
+          "value": "a + b + c",
+          "error": "added-instead",
+          "feedback": "{value} adds the lengths. Volume multiplies them."
+        },
+        {
+          "value": "2 * (a * b + b * c + a * c)",
+          "error": "gave-the-surface-area",
+          "feedback": "{value} is the surface area. Volume is {a} × {b} × {c}."
+        }
+      ]
+    },
+    {
+      "id": "solids.missing-edge",
+      "competency": "G6.Q3.4",
+      "domain": "MG",
+      "construct": "Find a missing edge from the volume",
+      "schema": "work-backwards",
+      "params": {
+        "a": {"tiers": {"1": [2, 10], "3": [4, 20]}},
+        "b": {"tiers": {"1": [2, 8], "3": [3, 15]}},
+        "c": {"tiers": {"1": [2, 9], "3": [3, 15]}},
+        "V": {"value": "a * b * c"}
+      },
+      "answer": {"type": "unit", "value": "c", "unit": "cm"},
+      "formats": [
+        {
+          "id": "box",
+          "prompt": "A box has a volume of {V} cm³. It is {a} cm long and {b} cm wide. How high is it?"
+        }
+      ],
+      "hints": [
+        "Volume = length × width × height, so height = volume ÷ (length × width).",
+        "{a} × {b} = {a * b}.",
+        "{V} ÷ {a * b} = ?"
+      ],
+      "steps": ["{a} × {b} = {a * b}", "height = {V} ÷ {a * b}", "= {answer} cm"],
+      "explain": "{V} ÷ ({a} × {b}) = {answer} cm.",
+      "distractors": [
+        {
+          "value": "V - a - b",
+          "error": "took-away-instead",
+          "feedback": "{value} takes {a} and {b} away. Divide the volume by {a} × {b}."
+        },
+        {
+          "value": "V % a == 0 ? V / a : -1",
+          "error": "divided-by-one-edge",
+          "feedback": "{value} divides by {a} only. Divide by {a} × {b} = {a * b}."
+        }
+      ]
+    },
+    {
+      "id": "solids.cubes-in-box",
+      "competency": "G6.Q3.4",
+      "domain": "MG",
+      "construct": "Count how many small cubes fit in a box",
+      "schema": "multi-step",
+      "params": {
+        "e": {"choose": [2, 3, 5]},
+        "p": {"range": [2, 6]},
+        "q": {"range": [2, 6]},
+        "r": {"range": [1, 5]},
+        "a": {"value": "e * p"},
+        "b": {"value": "e * q"},
+        "c": {"value": "e * r"}
+      },
+      "answer": {"type": "integer", "value": "p * q * r"},
+      "formats": [
+        {
+          "id": "cubes",
+          "prompt": "How many cubes with {e} cm edges fit exactly in a box {a} cm long, {b} cm wide and {c} cm high?"
+        }
+      ],
+      "hints": [
+        "Find how many cubes fit along each edge of the box.",
+        "{a} ÷ {e} = {p}, {b} ÷ {e} = {q}, {c} ÷ {e} = {r}.",
+        "{p} × {q} × {r} = ?"
+      ],
+      "steps": [
+        "Along: {a} ÷ {e} = {p}; across: {b} ÷ {e} = {q}; up: {c} ÷ {e} = {r}",
+        "{p} × {q} × {r}",
+        "= {answer} cubes"
+      ],
+      "explain": "{p} × {q} × {r} = {answer} cubes.",
+      "distractors": [
+        {
+          "value": "a * b * c",
+          "error": "gave-the-box-volume",
+          "feedback": "{value} cm³ is the volume of the box. Each cube is {e} × {e} × {e}: count how many fit along each edge."
+        },
+        {
+          "value": "a * b * c / e",
+          "error": "divided-by-the-edge",
+          "feedback": "{value} divides by {e} once. A cube's volume is {e} × {e} × {e} = {e * e * e} cm³."
+        }
+      ]
+    },
+    {
+      "id": "solids.best-unit",
+      "competency": "G6.Q3.1",
+      "domain": "MG",
+      "construct": "Choose a sensible unit for a volume or a capacity",
+      "schema": "compare",
+      "params": {
+        "item": {"range": [1, 8]},
+        "best": {
+          "value": "item == 1 || item == 5 ? 1 : (item == 2 || item == 8 ? 2 : (item == 3 || item == 7 ? 3 : 4))"
+        }
+      },
+      "answer": {
+        "type": "choice",
+        "value": "best",
+        "label": "{value == 1 ? 'cubic centimetres (cm³)' : (value == 2 ? 'cubic metres (m³)' : (value == 3 ? 'millilitres (mL)' : 'litres (L)'))}",
+        "order": "size"
+      },
+      "formats": [
+        {
+          "id": "which",
+          "prompt": "Which unit is best for measuring {item == 1 ? 'a small box of chalk' : (item == 2 ? 'a classroom' : (item == 3 ? 'a spoonful of cough syrup' : (item == 4 ? 'a pail of water' : (item == 5 ? 'a die' : (item == 6 ? 'a water tank for a house' : (item == 7 ? 'a glass of milk' : 'a swimming pool'))))))}?"
+        }
+      ],
+      "hints": [
+        "Is it a solid space or an amount of liquid?",
+        "Cubic units measure solid space; litres and millilitres measure liquid.",
+        "Then think about size: small or big?"
+      ],
+      "steps": [
+        "{item == 1 || item == 2 || item == 5 || item == 8 ? 'It is a space, so use cubic units' : 'It is a liquid, so use litres or millilitres'}",
+        "{item == 1 || item == 3 || item == 5 || item == 7 ? 'It is small' : 'It is big'}",
+        "So the best unit is {answer == 1 ? 'cubic centimetres (cm³)' : (answer == 2 ? 'cubic metres (m³)' : (answer == 3 ? 'millilitres (mL)' : 'litres (L)'))}"
+      ],
+      "explain": "{answer == 1 ? 'Cubic centimetres (cm³)' : (answer == 2 ? 'Cubic metres (m³)' : (answer == 3 ? 'Millilitres (mL)' : 'Litres (L)'))} {answer == 1 ? 'measure small solids, like a box of chalk' : (answer == 2 ? 'measure big spaces, like a room' : (answer == 3 ? 'measure small amounts of liquid, like a dose of medicine' : 'measure bigger amounts of liquid, like a pail of water'))}.",
+      "distractors": [
+        {
+          "value": "best % 4 + 1",
+          "error": "picked-the-next-unit",
+          "feedback": "{value == 1 ? 'Cubic centimetres (cm³)' : (value == 2 ? 'Cubic metres (m³)' : (value == 3 ? 'Millilitres (mL)' : 'Litres (L)'))} {value == 1 ? 'measure small solids, like a box of chalk' : (value == 2 ? 'measure big spaces, like a room' : (value == 3 ? 'measure small amounts of liquid, like a dose of medicine' : 'measure bigger amounts of liquid, like a pail of water'))}."
+        },
+        {
+          "value": "(best + 1) % 4 + 1",
+          "error": "picked-another-unit",
+          "feedback": "{value == 1 ? 'Cubic centimetres (cm³)' : (value == 2 ? 'Cubic metres (m³)' : (value == 3 ? 'Millilitres (mL)' : 'Litres (L)'))} {value == 1 ? 'measure small solids, like a box of chalk' : (value == 2 ? 'measure big spaces, like a room' : (value == 3 ? 'measure small amounts of liquid, like a dose of medicine' : 'measure bigger amounts of liquid, like a pail of water'))}."
+        },
+        {
+          "value": "(best + 2) % 4 + 1",
+          "error": "picked-a-third-unit",
+          "feedback": "{value == 1 ? 'Cubic centimetres (cm³)' : (value == 2 ? 'Cubic metres (m³)' : (value == 3 ? 'Millilitres (mL)' : 'Litres (L)'))} {value == 1 ? 'measure small solids, like a box of chalk' : (value == 2 ? 'measure big spaces, like a room' : (value == 3 ? 'measure small amounts of liquid, like a dose of medicine' : 'measure bigger amounts of liquid, like a pail of water'))}."
+        }
+      ]
+    },
+    {
+      "id": "solids.cm3-to-litres",
+      "competency": "G6.Q3.2",
+      "domain": "MG",
+      "construct": "Convert cubic centimetres to litres",
+      "schema": "multiplicative-compare",
+      "params": {"k": {"tiers": {"1": [1, 20], "3": [1, 90]}}, "c": {"value": "250 * k"}},
+      "answer": {"type": "unit", "value": "c / 1000", "unit": "L"},
+      "formats": [{"id": "convert", "prompt": "{c} cm³ = ? L"}],
+      "hints": ["1 litre = 1000 cm³.", "So divide by 1000.", "{c} ÷ 1000 = ?"],
+      "steps": ["1 L = 1000 cm³", "{c} ÷ 1000", "= {answer} L"],
+      "explain": "{c} cm³ ÷ 1000 = {answer} L.",
+      "distractors": [
+        {
+          "value": "c / 100",
+          "error": "divided-by-100",
+          "feedback": "{value} L divides by 100. A litre is 1000 cm³."
+        },
+        {
+          "value": "c * 1000",
+          "error": "multiplied-instead",
+          "feedback": "{value} multiplies. Litres are bigger than cm³: divide by 1000."
+        }
+      ]
+    },
+    {
+      "id": "solids.litres-to-cm3",
+      "competency": "G6.Q3.2",
+      "domain": "MG",
+      "construct": "Convert litres to cubic centimetres",
+      "schema": "multiplicative-compare",
+      "params": {"k": {"tiers": {"1": [1, 20], "3": [1, 60]}}, "l": {"value": "k / 4"}},
+      "answer": {"type": "unit", "value": "l * 1000", "unit": "cm³"},
+      "formats": [
+        {"id": "convert", "prompt": "{l} L = ? cm³"},
+        {"id": "ml", "prompt": "A bottle holds {l} L. How many cm³ is that?"}
+      ],
+      "hints": ["1 litre = 1000 cm³ = 1000 mL.", "So multiply by 1000.", "{l} × 1000 = ?"],
+      "steps": ["1 L = 1000 cm³", "{l} × 1000", "= {answer} cm³"],
+      "explain": "{l} L × 1000 = {answer} cm³.",
+      "distractors": [
+        {
+          "value": "l * 100",
+          "error": "multiplied-by-100",
+          "feedback": "{value} cm³ multiplies by 100. A litre is 1000 cm³."
+        },
+        {
+          "value": "l / 1000",
+          "error": "divided-instead",
+          "feedback": "{value} divides. A cm³ is smaller than a litre, so there are more of them: × 1000."
+        }
+      ]
+    },
+    {
+      "id": "solids.tank-litres",
+      "competency": "G6.Q3.5",
+      "domain": "MG",
+      "construct": "Find how many litres a tank holds",
+      "schema": "multi-step",
+      "params": {
+        "a": {"choose": [20, 25, 30, 40, 50, 60]},
+        "b": {"choose": [10, 20, 25, 30, 40]},
+        "c": {"choose": [10, 15, 20, 25, 30, 40]}
+      },
+      "answer": {"type": "unit", "value": "a * b * c / 1000", "unit": "L"},
+      "formats": [
+        {
+          "id": "tank",
+          "prompt": "A fish tank is {a} cm long, {b} cm wide and {c} cm high. How many litres of water does it hold when full?"
+        }
+      ],
+      "hints": [
+        "Find the volume in cm³, then change it to litres.",
+        "{a} × {b} × {c} = {a * b * c} cm³.",
+        "{a * b * c} ÷ 1000 = ?"
+      ],
+      "steps": ["Volume: {a} × {b} × {c} = {a * b * c} cm³", "1 L = 1000 cm³", "{a * b * c} ÷ 1000 = {answer} L"],
+      "explain": "{a * b * c} cm³ = {answer} L.",
+      "distractors": [
+        {
+          "value": "a * b * c",
+          "error": "did-not-convert",
+          "feedback": "{value} is the volume in cm³. Change it to litres: ÷ 1000."
+        },
+        {
+          "value": "a * b * c / 100",
+          "error": "divided-by-100",
+          "feedback": "{value} L divides by 100. A litre is 1000 cm³."
+        }
+      ]
+    },
+    {
+      "id": "solids.pails",
+      "competency": "G6.Q3.5",
+      "domain": "MG",
+      "construct": "Find how many containers fill a tank",
+      "schema": "multi-step",
+      "params": {
+        "p": {"choose": [2, 4, 5, 8, 10]},
+        "a": {"choose": [40, 50, 60, 80, 100]},
+        "b": {"choose": [20, 25, 40, 50]},
+        "c": {"choose": [20, 25, 40, 50]},
+        "L": {"value": "a * b * c / 1000"}
+      },
+      "where": ["floor(L) == L && L % p == 0"],
+      "answer": {"type": "integer", "value": "L / p"},
+      "formats": [
+        {
+          "id": "pails",
+          "prompt": "A tank is {a} cm long, {b} cm wide and {c} cm high. A pail holds {p} L. How many pails of water fill the tank?"
+        }
+      ],
+      "hints": [
+        "Find how many litres the tank holds first.",
+        "{a} × {b} × {c} = {a * b * c} cm³ = {L} L.",
+        "{L} ÷ {p} = ?"
+      ],
+      "steps": ["{a} × {b} × {c} = {a * b * c} cm³", "= {L} L", "{L} ÷ {p} = {answer} pails"],
+      "explain": "The tank holds {L} L, so {L} ÷ {p} = {answer} pails.",
+      "distractors": [
+        {
+          "value": "L",
+          "error": "gave-the-litres",
+          "feedback": "{value} L is how much the tank holds. Divide by {p} to count the pails."
+        },
+        {
+          "value": "a * b * c / p",
+          "error": "did-not-convert",
+          "feedback": "{value} divides cm³ by litres. Change the volume to litres first: {L} L."
+        }
+      ]
+    }
+  ]
+}
