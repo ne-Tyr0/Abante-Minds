@@ -20,8 +20,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SHOTS = os.path.join(HERE, "shots")
 CHROME = os.environ.get("CHROME", r"C:\Program Files\Google\Chrome\Application\chrome.exe")
 
-SCREENS = ["splash", "home", "topics", "practice", "hint", "correct",
-           "wrong", "tierup", "summary", "profile", "offline"]
+SCREENS = ["splash", "home", "topics", "topic", "lesson", "practice", "hint", "correct",
+           "wrong", "levelup", "summary", "profile", "offline"]
 
 # Close-ups cut from the 2x captures, as (source screen, box). They were placed
 # against the current layout: if one of these screens changes, re-check its box
@@ -29,7 +29,7 @@ SCREENS = ["splash", "home", "topics", "practice", "hint", "correct",
 DETAILS = {
     "detail_hint": ("hint", (0, 325, 780, 800)),        # the three hints
     "detail_correct": ("correct", (0, 280, 780, 800)),  # verdict and working
-    "detail_tierup": ("tierup", (0, 500, 780, 1420)),   # the celebration
+    "detail_levelup": ("levelup", (0, 500, 780, 1420)), # the celebration
 }
 
 CHROME_ARGS = ["--headless=new", "--disable-gpu", "--hide-scrollbars",

@@ -38,6 +38,9 @@ jobs:
       - name: Answer entry
         run: node tests/entry.js
 
+      - name: Progress along the path
+        run: node tests/progress.js
+
       - name: Question packs are valid
         run: node tests/validate-packs.js
 

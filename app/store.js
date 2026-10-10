@@ -3,16 +3,20 @@
    a session runs to the end with or without signal, and progress leaves the device
    only when the learner exports it. localStorage is wrapped because a locked-down
    school browser can throw on the first read, and losing progress is better than a
-   white screen. */
+   white screen.
+
+   Progress is a path of levels (content/packs). A level clears at CLEAR_TARGET
+   answers right on the first try; a retry, or redoing a missed question after
+   seeing its solution, does not count towards it. Clearing a level unlocks the
+   next one in its topic. */
 (function () {
   "use strict";
 
   var AM = (window.AM = window.AM || {});
-  var KEY = "abante-minds/v1";
-  var TIER_TARGET = 20;      /* twenty correct on a tier opens the next */
-  var TOPIC_TARGET = 20;     /* four topics, twenty questions each */
+  var KEY = "abante-minds/v1";  /* the storage key stays; the version lives inside */
+  var VERSION = 2;
+  var CLEAR_TARGET = 8;         /* first-try correct answers that clear a level */
   var SESSION_LENGTH = 10;
-  var RECOVERY_RUN = 5;      /* five correct in a row after a demote */
 
   function today() {
     var d = new Date();
@@ -32,37 +36,46 @@
 
   function blank() {
     return {
-      version: 1,
+      version: VERSION,
       installed: false,            /* set only on evidence: the browser reporting an install, or running from the home screen */
       installCardDismissed: false, /* "Not now" on the Home card; Profile keeps offering it */
       signedIn: false,
       profile: null,               /* {name, school, colorKey, iconKey, username} */
-      tier: 1,
-      tierProgress: 0,
-      demoted: false,
-      recoveryRun: 0,
-      topics: { money: 0, percent: 0, ratio: 0, measure: 0 },
-      lastTopic: null,
+      levels: {},                  /* "topic/level": {correct, attempts, cleared, lessonSeen} */
+      lastLevel: null,             /* {topic, level}: where the learner last practised */
       streakDays: 0,
       lastActiveDay: null,
       lastRolledDay: null,
       weekStart: null,
       week: [false, false, false, false, false, false, false],
       resetToday: false,
-      totalCorrect: 0,
+      totalCorrect: 0,             /* answers right on the first try, across the path */
       recoveryRequested: false,
       lastSession: null
     };
   }
 
+  /* Version 1 counted tiers and the four placeholder topics. The path replaced
+     both, so that progress is dropped. Who the learner is, the install state
+     and the streak carry over. */
+  var CARRIED = ["installed", "installCardDismissed", "signedIn", "profile", "streakDays",
+    "lastActiveDay", "lastRolledDay", "weekStart", "week", "resetToday", "recoveryRequested"];
+
+  function migrate(saved) {
+    var base = blank();
+    if (!saved || typeof saved !== "object") return base;
+    if (saved.version === VERSION) {
+      Object.keys(saved).forEach(function (k) { base[k] = saved[k]; });
+      return base;
+    }
+    CARRIED.forEach(function (k) { if (k in saved) base[k] = saved[k]; });
+    return base;
+  }
+
   function read() {
     try {
       var raw = window.localStorage.getItem(KEY);
-      if (!raw) return blank();
-      var parsed = JSON.parse(raw);
-      var base = blank();
-      Object.keys(parsed || {}).forEach(function (k) { base[k] = parsed[k]; });
-      return base;
+      return raw ? migrate(JSON.parse(raw)) : blank();
     } catch (e) {
       return blank();
     }
@@ -84,14 +97,10 @@
 
   /* ---------- day roll ----------
      Called on boot and whenever a session starts. A missed day resets the
-     streak, and a reset streak drops the learner one tier — which the practice
-     screen then states calmly, inside the ordinary layout. */
+     streak. Nothing else is taken away: a cleared level stays cleared. */
   function rollDay() {
     var t = today();
     if (state.lastActiveDay === t) return;
-    /* Boot, every session start and every answer call this. Demoting is a
-       once-a-day event, so the roll has to be idempotent or opening the app
-       twice after a missed day would cost two tiers. */
     if (state.lastRolledDay === t) return;
     state.lastRolledDay = t;
 
@@ -99,12 +108,6 @@
     if (state.lastActiveDay && gap !== null && gap > 1) {
       state.streakDays = 0;
       state.resetToday = true;
-      if (state.tier > 1) {
-        state.tier -= 1;
-        state.tierProgress = Math.min(state.tierProgress, TIER_TARGET - 1);
-        state.demoted = true;
-        state.recoveryRun = 0;
-      }
     }
 
     /* Roll the week strip when we cross into a new Monday-based week. */
@@ -130,41 +133,112 @@
     if (gap === 1 || gap === null) state.resetToday = false;
   }
 
-  /* ---------- answers ---------- */
-  function recordAnswer(topicKey, correct) {
+  /* ---------- levels ---------- */
+  function levelKey(topic, level) { return topic + "/" + level; }
+
+  function levelState(topic, level) {
+    var s = state.levels[levelKey(topic, level)];
+    return {
+      correct: s ? s.correct : 0, attempts: s ? s.attempts : 0,
+      cleared: !!(s && s.cleared), lessonSeen: !!(s && s.lessonSeen)
+    };
+  }
+
+  function saveLevel(topic, level, s) { state.levels[levelKey(topic, level)] = s; }
+
+  /* One answer. Only a first try moves the level: right adds to it, and the
+     level clears when it reaches CLEAR_TARGET. Any answer counts as practice
+     for the streak. */
+  function recordAnswer(topic, level, right, firstTry) {
     rollDay();
     markPractice();
-
-    if (!correct) {
-      state.recoveryRun = 0;
-      commit();
-      return { tieredUp: false };
-    }
-
-    state.totalCorrect += 1;
-    state.topics[topicKey] = Math.min(TOPIC_TARGET, (state.topics[topicKey] || 0) + 1);
-    state.tierProgress += 1;
-
-    var tieredUp = false;
-    if (state.demoted) {
-      state.recoveryRun += 1;
-      if (state.recoveryRun >= RECOVERY_RUN && state.tier < 4) {
-        state.tier += 1;
-        state.tierProgress = 0;
-        state.demoted = false;
-        state.recoveryRun = 0;
-        tieredUp = true;
+    var s = levelState(topic, level), clearedNow = false;
+    if (firstTry) {
+      s.attempts += 1;
+      if (right) {
+        s.correct += 1;
+        state.totalCorrect += 1;
+        if (!s.cleared && s.correct >= CLEAR_TARGET) { s.cleared = true; clearedNow = true; }
       }
     }
-    if (!tieredUp && state.tierProgress >= TIER_TARGET && state.tier < 4) {
-      state.tier += 1;
-      state.tierProgress = 0;
-      state.demoted = false;
-      tieredUp = true;
-    }
-
+    saveLevel(topic, level, s);
+    state.lastLevel = { topic: topic, level: level };
     commit();
-    return { tieredUp: tieredUp };
+    return { cleared: clearedNow };
+  }
+
+  /* Practice that does not move a level (redoing missed questions) still
+     keeps the streak. */
+  function notePractice() {
+    rollDay();
+    markPractice();
+    commit();
+  }
+
+  function markLessonSeen(topic, level) {
+    var s = levelState(topic, level);
+    s.lessonSeen = true;
+    saveLevel(topic, level, s);
+    commit();
+  }
+
+  /* How hard the numbers are: tier 1 on a fresh level, rising as the learner
+     gets answers right, and tier 4 for reviewing a level already cleared. */
+  function tierFor(topic, level) {
+    var s = levelState(topic, level);
+    if (s.cleared) return 4;
+    return s.correct >= 6 ? 3 : s.correct >= 3 ? 2 : 1;
+  }
+
+  /* ---------- the path, as the screens show it ---------- */
+  function topicPath(t) {
+    var levels = t.levels.map(function (lv, i) {
+      var s = levelState(t.key, lv.id);
+      return {
+        id: lv.id, title: lv.title, number: i + 1, competencies: lv.competencies, hasLesson: lv.hasLesson,
+        correct: Math.min(s.correct, CLEAR_TARGET), target: CLEAR_TARGET, attempts: s.attempts,
+        cleared: s.cleared, lessonSeen: s.lessonSeen, unlocked: false
+      };
+    });
+    levels.forEach(function (lv, i) { lv.unlocked = i === 0 || levels[i - 1].cleared; });
+    var cleared = levels.filter(function (lv) { return lv.cleared; }).length;
+    return {
+      key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey, ready: t.ready,
+      levels: levels, cleared: cleared, total: levels.length,
+      current: levels.filter(function (lv) { return lv.unlocked && !lv.cleared; })[0] || null,
+      done: t.ready && levels.length > 0 && cleared === levels.length
+    };
+  }
+
+  /* The whole path: every topic in order, the levels cleared, the share of the
+     blueprint those levels cover, the days to the exam, and where to go next --
+     the level last practised if it is still open, else the first open level
+     on the path. */
+  function path() {
+    var topics = AM.content.TOPICS.map(topicPath);
+    var levelsCleared = 0, levelsTotal = 0, covered = {};
+    topics.forEach(function (t) {
+      levelsCleared += t.cleared;
+      levelsTotal += t.total;
+      t.levels.forEach(function (lv) {
+        if (lv.cleared) lv.competencies.forEach(function (c) { covered[c] = true; });
+      });
+    });
+    var reachable = AM.content.blueprintCompetencies;
+    var next = null, last = state.lastLevel;
+    if (last) {
+      var lt = topics.filter(function (t) { return t.key === last.topic && t.ready; })[0];
+      if (lt && lt.current) next = { topic: lt, level: lt.current };
+    }
+    if (!next) {
+      topics.some(function (t) { if (t.ready && t.current) { next = { topic: t, level: t.current }; return true; } return false; });
+    }
+    return {
+      topics: topics, levelsCleared: levelsCleared, levelsTotal: levelsTotal,
+      coverage: reachable ? Object.keys(covered).length / reachable : 0,
+      daysToExam: AM.content.examDate ? Math.max(0, daysBetween(today(), AM.content.examDate)) : null,
+      next: next
+    };
   }
 
   /* ---------- connectivity ----------
@@ -179,34 +253,21 @@
   window.addEventListener("online", function () { setOnline(true); });
   window.addEventListener("offline", function () { setOnline(false); });
 
-  /* ---------- derived ---------- */
-  function topicList() {
-    return AM.content.TOPICS.map(function (t) {
-      return {
-        key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey,
-        correct: state.topics[t.key] || 0,
-        total: TOPIC_TARGET,
-        color: "var(--skill-" + t.colorKey + "-600)",
-        ratio: (state.topics[t.key] || 0) / TOPIC_TARGET
-      };
-    });
-  }
-
   function badges() {
+    var p = path();
     return [
       { key: "streak", label: "4 days", icon: "streak", earned: state.streakDays >= 4,
         face: "var(--brand-blue-100)", ink: "var(--brand-blue-600)" },
-      { key: "tier2", label: "Tier 2", icon: "level-up", earned: state.tier >= 2,
+      { key: "level", label: "1st level", icon: "level-up", earned: p.levelsCleared > 0,
         face: "var(--skill-2-100)", ink: "var(--skill-2-600)" },
-      { key: "tier3", label: "Tier 3", icon: "trophy", earned: state.tier >= 3,
+      { key: "topic", label: "1st topic", icon: "trophy", earned: p.topics.some(function (t) { return t.done; }),
         face: "var(--skill-3-100)", ink: "var(--skill-3-600)" },
-      { key: "all4", label: "All 4", icon: "star",
-        earned: topicList().every(function (t) { return t.correct >= TOPIC_TARGET; }),
+      { key: "half", label: "Halfway", icon: "star", earned: p.coverage >= 0.5,
         face: "var(--skill-4-100)", ink: "var(--skill-4-600)" }
     ];
   }
 
-  function hasProgress() { return state.totalCorrect > 0; }
+  function hasProgress() { return state.totalCorrect > 0 || Object.keys(state.levels).length > 0; }
 
   /* Forget the learner entirely and start again at the splash screen. */
   function reset() {
@@ -216,10 +277,9 @@
   }
 
   AM.store = {
-    TIER_TARGET: TIER_TARGET,
-    TOPIC_TARGET: TOPIC_TARGET,
+    CLEAR_TARGET: CLEAR_TARGET,
     SESSION_LENGTH: SESSION_LENGTH,
-    RECOVERY_RUN: RECOVERY_RUN,
+    VERSION: VERSION,
 
     get: function () { return state; },
     set: function (patch) {
@@ -232,11 +292,20 @@
 
     rollDay: rollDay,
     recordAnswer: recordAnswer,
-    topicList: topicList,
+    notePractice: notePractice,
+    markLessonSeen: markLessonSeen,
+    levelState: levelState,
+    tierFor: tierFor,
+    topicPath: function (key) {
+      var t = AM.content.TOPICS.filter(function (x) { return x.key === key; })[0];
+      return t ? topicPath(t) : null;
+    },
+    path: path,
     badges: badges,
     hasProgress: hasProgress,
     reset: reset,
     today: today,
+    migrate: migrate,
 
     isOnline: function () { return online; },
     /* Exposed so the offline screens are reachable without pulling the plug:
@@ -245,6 +314,6 @@
   };
 
   rollDay();
-  write(state);
+  write(state); /* saves a migrated record straight away */
   if (location.hash === "#offline") setOnline(false);
 })();

@@ -133,7 +133,8 @@ html, body {
 .am-navitem:focus-visible,
 .am-railitem:focus-visible,
 .am-backlink:focus-visible,
-.am-dismiss:focus-visible {
+.am-dismiss:focus-visible,
+.am-path-row:focus-visible {
   outline: 3px solid var(--focus-ring);
   outline-offset: 2px;
   border-radius: var(--radius-sm);

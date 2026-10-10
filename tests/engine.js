@@ -139,11 +139,19 @@ const T = (id, extra) => Object.assign({
 const PACK = {
   manifest: {
     subtest: "math", version: "9.9.9", fallbackFeedback: "Not yet.",
+    examDate: "2027-01-30", blueprintCompetencies: 94,
     topics: [{ key: "t", label: "Test", icon: "star", colorKey: 1, file: "t.json" },
-             { key: "u", label: "Other", icon: "star", colorKey: 2, file: "u.json" }]
+             { key: "u", label: "Other", icon: "star", colorKey: 2, file: "u.json" },
+             { key: "v", label: "Later", icon: "star", colorKey: 3, comingSoon: true }]
   },
   files: [{
     topic: "t",
+    levels: [
+      { id: "one", title: "One", templates: ["t.formats", "t.tiers", "t.where"], lesson: [
+        { title: "Groups", body: "Times means equal groups." },
+        { title: "Worked example", example: { template: "t.formats", params: { a: 3, b: 4 }, format: "two" } }] },
+      { id: "two", title: "Two", templates: ["t.choice", "t.dropped", "t.decimal"] }
+    ],
     pinned: [{ template: "t.formats", params: { a: 3, b: 4 } }, { template: "t.formats", params: { a: 5, b: 6 }, format: "two" }],
     templates: [
       T("t.formats", { formats: [{ id: "one", prompt: "{a} times {b}?" }, { id: "two", prompt: "{b} groups of {a}?" }] }),
@@ -171,22 +179,32 @@ const PACK = {
         answer: { type: "decimal", value: "a * b", maxDecimals: 1 }
       })
     ]
-  }, { topic: "u", templates: [T("u.only")] }]
+  }, { topic: "u", levels: [{ id: "only", title: "Only", templates: ["u.only"] }], templates: [T("u.only")] }, null]
 };
 
 test("use() refuses a pack that cannot work", () => {
   const m = PACK.manifest;
-  throws(() => C.use(m, [PACK.files[1], PACK.files[0]]), /missing or mislabelled/);
-  throws(() => C.use(m, [PACK.files[0], { topic: "u", templates: [T("t.where")] }]), /used twice/);
-  throws(() => C.use(m, [PACK.files[0], { topic: "u", templates: [] }]), /no templates/);
+  const u = (extra) => Object.assign({ topic: "u", levels: [{ id: "only", title: "Only", templates: ["u.only"] }], templates: [T("u.only")] }, extra);
+  throws(() => C.use(m, [PACK.files[1], PACK.files[0], null]), /missing or mislabelled/);
+  throws(() => C.use(m, [PACK.files[0], u({ templates: [T("t.where")], levels: [{ id: "x", title: "X", templates: ["t.where"] }] }), null]), /used twice/);
+  throws(() => C.use(m, [PACK.files[0], u({ templates: [] }), null]), /no templates/);
+  throws(() => C.use(m, [PACK.files[0], u({ levels: [] }), null]), /no levels/);
+  throws(() => C.use(m, [PACK.files[0], u({ levels: [{ id: "x", title: "X", templates: ["u.nope"] }] }), null]), /unknown template u.nope/);
+  throws(() => C.use(m, [PACK.files[0], u(), u()]), /coming soon but has a file/);
   throws(() => C.use({}, []), /no topics/);
 });
 test("use() installs topics, version and subtest", () => {
   C.use(PACK.manifest, PACK.files);
-  assert.deepStrictEqual(C.TOPICS.map((t) => t.key), ["t", "u"]);
+  assert.deepStrictEqual(C.TOPICS.map((t) => [t.key, t.ready]), [["t", true], ["u", true], ["v", false]]);
   assert.strictEqual(C.packVersion, "9.9.9");
   assert.strictEqual(C.subtest, "math");
-  assert.deepStrictEqual(C.byKey("u"), { key: "u", label: "Other", icon: "star", colorKey: 2 });
+  assert.strictEqual(C.examDate, "2027-01-30");
+  assert.strictEqual(C.blueprintCompetencies, 94);
+  assert.deepStrictEqual(C.byKey("u"), {
+    key: "u", label: "Other", icon: "star", colorKey: 2, ready: true,
+    levels: [{ id: "only", title: "Only", competencies: ["G5.Q2.10"], hasLesson: false }]
+  });
+  assert.deepStrictEqual(C.byKey("v").levels, []);
   assert.strictEqual(C.byKey("nope"), undefined);
 });
 test("generation is deterministic in (template, tier, seed)", () => {
@@ -260,22 +278,49 @@ test("diagnose: right, a named mistake, or the honest fallback", () => {
   assert.deepStrictEqual(C.diagnose(c, wrong), { correct: false, error: "first", feedback: "2 is a." });
 });
 test("a template's own fallback replaces the pack's", () => {
-  C.use(PACK.manifest, [Object.assign({}, PACK.files[0], { templates: [T("t.fb", { fallback: "Try {a} again." })] }), PACK.files[1]]);
+  C.use(PACK.manifest, [Object.assign({}, PACK.files[0], {
+    pinned: [], templates: [T("t.fb", { fallback: "Try {a} again." })], levels: [{ id: "fb", title: "Fb", templates: ["t.fb"] }]
+  }), PACK.files[1], null]);
   assert.strictEqual(C.diagnose(C.instance("t.fb", 1, { a: 3, b: 4 }), "99").feedback, "Try 3 again.");
   C.use(PACK.manifest, PACK.files);
 });
-test("sessions: pinned items first, the right length, no template twice running", () => {
-  const ses = C.buildSession("t", 10, 1, 42);
+test("sessions: one level's templates, pinned first when asked, no template twice running", () => {
+  const S = (o) => C.buildSession(Object.assign({ topic: "t", level: "one", count: 10, tier: 1, seed: 42 }, o));
+  const ses = S({ pinned: true });
   assert.strictEqual(ses.length, 10);
   assert.strictEqual(ses[0].prompt, "3 times 4?");
   assert.strictEqual(ses[1].prompt, "6 groups of 5?");
   assert.ok(ses[0].pinned && ses[1].pinned && !ses[2].pinned);
   for (let i = 3; i < ses.length; i++) assert.notStrictEqual(ses[i].templateId, ses[i - 1].templateId, `question ${i}`);
-  assert.deepStrictEqual(ses.map((q) => q.id), ses.map((_, i) => "t-" + i));
-  assert.deepStrictEqual(C.buildSession("t", 10, 1, 42), ses);
-  assert.strictEqual(C.buildSession("t", 1, 1, 42).length, 1);
-  assert.ok(C.buildSession("u", 5, 1, 1).every((q) => q.topicKey === "u"));
-  assert.ok(C.buildSession("nope", 3, 1, 1).every((q) => q.topicKey === "t"), "unknown topic falls back to the first");
+  assert.ok(ses.every((q) => ["t.formats", "t.tiers", "t.where"].includes(q.templateId)), "only level one's templates");
+  assert.deepStrictEqual(ses.map((q) => q.id), ses.map((_, i) => "t-one-" + i));
+  assert.deepStrictEqual([ses[0].levelId, ses[0].levelTitle], ["one", "One"]);
+  assert.deepStrictEqual(S({ pinned: true }), ses);
+  assert.ok(S({ pinned: false }).every((q) => !q.pinned));
+  assert.ok(S({ level: "two", pinned: true }).every((q) => !q.pinned && ["t.choice", "t.dropped", "t.decimal"].includes(q.templateId)),
+    "pinned items from another level stay out");
+  assert.strictEqual(S({ count: 1 }).length, 1);
+  throws(() => S({ topic: "nope" }), /no topic 'nope'/);
+  throws(() => S({ topic: "v" }), /no topic 'v'/);
+  throws(() => S({ level: "nine" }), /no level 'nine'/);
+});
+test("a lesson: text as written, examples rendered from their template", () => {
+  const cards = C.lesson("t", "one");
+  assert.deepStrictEqual(cards[0], { kind: "text", title: "Groups", body: "Times means equal groups." });
+  assert.strictEqual(cards[1].kind, "example");
+  assert.strictEqual(cards[1].prompt, "4 groups of 3?");
+  assert.strictEqual(cards[1].answer, "12");
+  assert.deepStrictEqual(cards[1].steps, ["s1", "s2", "s3"]);
+  assert.deepStrictEqual(C.lesson("t", "two"), []);
+});
+test("words and fixed", () => {
+  const w = (n) => ev("words(" + n + ")");
+  assert.deepStrictEqual([0, 7, 13, 20, 45, 100, 105, 450, 1005, 12045].map(w),
+    ["zero", "seven", "thirteen", "twenty", "forty-five", "one hundred", "one hundred five", "four hundred fifty", "one thousand five", "twelve thousand forty-five"]);
+  throws(() => w(1000000), /0 to 999999/);
+  throws(() => ev("words(1.5)"), /whole number/);
+  assert.deepStrictEqual([ev("fixed(2.4, 2)"), ev("fixed(7, 3)"), ev("fixed(0.035, 3)")], ["2.40", "7.000", "0.035"]);
+  throws(() => ev("fixed(1 / 3, 2)"), /cannot show/);
 });
 
 /* ---------- fractions, mixed numbers and number suffixes ---------- */
@@ -319,6 +364,7 @@ const FRACTION_PACK = {
   },
   files: [{
     topic: "f",
+    levels: [{ id: "all", title: "All", templates: ["f.third", "f.any", "f.whole-sometimes", "f.mixed", "f.percent", "f.unit", "f.pi", "f.choice", "f.money", "f.mixed-order"] }],
     templates: [
       F("f.third", { params: { a: { range: [1, 2] }, b: { value: "3" } }, distractors: [
         { value: "a / (b + 1)", error: "one-more", feedback: "{frac(value)} has one more in the bottom." },
@@ -345,7 +391,15 @@ const FRACTION_PACK = {
           { value: "(a + 1) / (b + 4)", error: "both-more", feedback: "x" }]
       }),
       F("f.money", { params: { a: { range: [2, 9] }, b: { value: "1" } }, answer: { type: "integer", value: "a * 10", prefix: "₱" },
-        distractors: [{ value: "a", error: "forgot-to-scale", feedback: "x" }] })
+        distractors: [{ value: "a", error: "forgot-to-scale", feedback: "x" }] }),
+      F("f.mixed-order", {
+        params: { a: { range: [1, 9] }, b: { value: "1" } },
+        answer: { type: "choice", value: "a + 30", label: "{value}", order: "mixed" },
+        distractors: [
+          { value: "a", error: "low", feedback: "x" },
+          { value: "a + 10", error: "mid", feedback: "x" },
+          { value: "a + 20", error: "high", feedback: "x" }]
+      })
     ]
   }]
 };
@@ -399,6 +453,14 @@ test("numbers with a sign or unit after them", () => {
   assert.strictEqual(C.diagnose(q, "20").error, "perimeter");
   const m = C.instance("f.money", 1, { a: 4 });
   assert.deepStrictEqual([m.unit, m.suffix, m.answerText], ["₱", "", "40"]);
+});
+test("choices in mixed order: the answer is not always last, and stays put for a question", () => {
+  const where = Array.from({ length: 60 }, (_, s) => C.generate("f.mixed-order", 1, s).answerIndex);
+  assert.ok(new Set(where).size >= 3, "the greatest option moves around: " + where.join(""));
+  for (let s = 0; s < 20; s++) assert.deepStrictEqual(C.generate("f.mixed-order", 1, s).choices, C.generate("f.mixed-order", 1, s).choices);
+  const a = C.instance("f.mixed-order", 1, { a: 4 }), b = C.instance("f.mixed-order", 1, { a: 4 });
+  assert.deepStrictEqual(a.choices, b.choices);
+  assert.strictEqual(a.choices[a.answerIndex], "34");
 });
 test("choices can be fractions that repeat as decimals", () => {
   const q = C.instance("f.choice", 1, { a: 1 });

@@ -298,7 +298,7 @@
             sectionLabel("What happens next"),
             step(1, "The request leaves this phone the next time it has signal."),
             step(2, "Mr. Dela Cruz gives you a new four-digit PIN."),
-            step(3, "You sign in with it. Your tier and streak are untouched.")
+            step(3, "You sign in with it. Your progress and streak are untouched.")
           )
         )
       ),
@@ -446,17 +446,36 @@
     };
   };
 
-  /* ---------- 5 / 6 / 17 / 19 · Home ----------
-     First run and returning are the same screen at two states; the offline and
-     sync strips are the same screen with a banner. */
+  /* ---------- 5 / 6 / 17 · Home ----------
+     The countdown to the exam, how much of the path is cleared, and the one
+     level to do next. The streak stays; the tier ladder is gone, because the
+     path replaced tiers. */
+  function pct(ratio) { return Math.round(ratio * 100); }
+
+  /* The coloured tile a topic carries everywhere: its icon on its skill hue. */
+  function topicTile(t, size) {
+    size = size || 40;
+    return el("span", {
+      style: {
+        flex: "none", width: size, height: size, borderRadius: "var(--radius-sm)",
+        background: t.ready ? "var(--skill-" + t.colorKey + "-100)" : "var(--surface-300)",
+        color: t.ready ? "var(--skill-" + t.colorKey + "-600)" : "var(--ink-600)",
+        display: "flex", alignItems: "center", justifyContent: "center"
+      }
+    }, icon(t.ready ? t.icon : "lock", Math.round(size / 2)));
+  }
+
+  function levelLabel(next) { return next.topic.label + " · Level " + next.level.number; }
+  function startLabel(next) {
+    return (next.level.attempts || next.level.lessonSeen ? "Continue: " : "Start: ") + next.level.title;
+  }
+
   screens.home = function (app) {
     var s = store.get();
+    var p = store.path();
     var first = !store.hasProgress();
-    var topics = store.topicList();
-    var tierRatio = s.tierProgress / store.TIER_TARGET;
-    var remaining = store.TIER_TARGET - s.tierProgress;
-    var lastTopic = s.lastTopic ? C.byKey(s.lastTopic) : null;
     var desktop = AM.device() === "desktop";
+    var next = p.next;
 
     var headline = first
       ? el("div", { style: { padding: "24px " + gutter() + "px 0" } },
@@ -469,60 +488,51 @@
           desktop ? null : AM.Chip({ icon: "streak", label: String(s.streakDays), large: true })
         );
 
-    /* The progress card. On desktop the actions move inside it — there is no
-       thumb at the bottom of a desktop screen. */
-    var progressCard = first
-      ? AM.Card({ style: { gap: 10 } },
-          el("div.heading-sm", null, "Nothing attempted yet"),
-          el("div.body", { style: { textWrap: "pretty" } }, "Start with 10 questions on change and money. About eight minutes."),
-          el("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-3)", marginTop: 4 } },
-            AM.Chip({ label: "Tier 1" }),
-            AM.ProgressBar({ ratio: 0, flex: true, label: "Tier 1 progress" }),
-            el("span.caption", { style: { color: "var(--ink-600)", whiteSpace: "nowrap" } }, "0 of " + store.TIER_TARGET))
-        )
-      : AM.Card({ style: { gap: 10 } },
-          el("span", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "var(--space-2)" } },
-            el("span.heading-sm", null, "Tier " + s.tier),
-            el("span.caption", { style: { color: "var(--ink-600)" } },
-              s.tier < 4 ? s.tierProgress + " of " + store.TIER_TARGET + " to tier " + (s.tier + 1)
-                         : s.tierProgress + " of " + store.TIER_TARGET)),
-          AM.ProgressBar({ ratio: tierRatio, height: 10, label: "Tier " + s.tier + " progress" }),
-          el("span.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-            !store.isOnline()
-              ? "All four topics are downloaded. 60 questions ready without signal."
-              : s.lastSession
-                ? "Last session: " + s.lastSession.topicLabel.toLowerCase() + ", " + s.lastSession.correct + " of " + s.lastSession.attempted + " correct."
-                : "Pick up where you left off."),
-          desktop ? el("span", { style: { display: "flex", gap: "var(--space-3)", marginTop: "var(--space-2)", flexWrap: "wrap" } },
-            AM.Button({ label: continueLabel(lastTopic), onClick: function () { app.startPractice(s.lastTopic); } }),
-            AM.Button({ label: "Pick another topic", variant: "ghost", onClick: function () { app.go("topics"); } })
-          ) : null
-        );
+    var countdown = AM.Card({ style: { gap: 10 } },
+      el("span", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "var(--space-2)" } },
+        el("span.heading-sm", null, p.daysToExam === null ? "Your path" : "Exam in " + p.daysToExam + " day" + (p.daysToExam === 1 ? "" : "s")),
+        el("span.caption", { style: { color: "var(--ink-600)" } }, "30 January")),
+      AM.ProgressBar({ ratio: p.coverage, height: 10, label: "Blueprint cleared" }),
+      el("span.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+        p.levelsCleared + " level" + (p.levelsCleared === 1 ? "" : "s") + " cleared · " + pct(p.coverage) + "% of the exam blueprint"));
 
-    var ladderCard = el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
-      sectionLabel("Tier ladder"),
-      AM.TierLadder({ current: s.tier, lockedBackground: desktop || AM.device() === "tablet" ? "var(--surface-100)" : "var(--surface-200)" }),
-      el("span.body-sm", { style: { color: "var(--ink-600)" } },
-        first ? "Twenty correct on tier 1 opens tier 2."
-              : !store.isOnline() ? "Tiers move whether or not there is signal."
-              : s.tier < 4 ? remaining + " more correct opens tier " + (s.tier + 1) + "."
-              : "Every tier is open.")
-    );
+    var upNext = next
+      ? AM.Card({ style: { gap: 12 } },
+          sectionLabel("Up next"),
+          el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
+            topicTile(next.topic),
+            el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
+              el("span.label", null, levelLabel(next)),
+              el("span.body", { style: { color: "var(--ink-600)" } }, next.level.title))),
+          AM.ProgressBar({ ratio: next.level.correct / next.level.target, height: 8, color: "var(--skill-" + next.topic.colorKey + "-600)", label: "Level progress" }),
+          el("span.caption", { style: { color: "var(--ink-600)" } },
+            !next.level.lessonSeen && next.level.hasLesson
+              ? "Starts with a short lesson. " + next.level.target + " right first time clears it."
+              : next.level.correct + " of " + next.level.target + " right first time to clear it"),
+          desktop ? el("span", { style: { display: "flex", gap: "var(--space-3)", marginTop: "var(--space-2)", flexWrap: "wrap" } },
+            AM.Button({ label: startLabel(next), onClick: function () { app.startLevel(next.topic.key, next.level.id); } }),
+            AM.Button({ label: "See the whole path", variant: "ghost", onClick: function () { app.go("topics"); } })
+          ) : null)
+      : AM.Card({ style: { gap: 10 } },
+          sectionLabel("Up next"),
+          el("span.body", { style: { textWrap: "pretty" } }, "Every level written so far is cleared. More topics are on the way; review any level from the path."));
 
     var streakBlock = (first || desktop) ? null : el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
       sectionLabel(s.streakDays + " day" + (s.streakDays === 1 ? "" : "s") + " in a row"),
       AM.StreakWeek({ days: s.streakDays, resetToday: s.resetToday, height: AM.device() === "phone" ? 38 : 48 })
     );
 
-    var topicCard = (first || AM.device() === "phone") ? null : AM.Card({ style: { padding: "var(--space-6)", gap: 14 } },
-      sectionLabel("Progress by topic"),
-      AM.TopicBars(topics, { height: 10 })
-    );
+    var written = p.topics.filter(function (t) { return t.ready; });
+    var pathCard = (first || AM.device() === "phone") ? null : AM.Card({ style: { padding: "var(--space-6)", gap: 14 } },
+      sectionLabel("Your path"),
+      AM.TopicBars(written.map(function (t) {
+        return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels", color: "var(--skill-" + t.colorKey + "-600)" };
+      }), { height: 10 }),
+      el("span.body-sm", { style: { color: "var(--ink-600)" } }, (p.topics.length - written.length) + " more topics coming"));
 
     var badgeCard = (first || AM.device() === "phone") ? null : AM.Card({ style: { padding: "var(--space-6)", gap: "var(--space-3)" } },
       sectionLabel("Badges · " + store.badges().filter(function (b) { return b.earned; }).length + " of 4"),
-      AM.BadgeShelf({ badges: store.badges(), lockedBackground: "var(--surface-100)" }),
-      el("span.body-sm", { style: { color: "var(--ink-600)" } }, "Tier 3 unlocks the badge and longer questions.")
+      AM.BadgeShelf({ badges: store.badges(), lockedBackground: "var(--surface-100)" })
     );
 
     var offer = app.canOfferInstall() && !s.installCardDismissed ? installCard(app) : null;
@@ -531,20 +541,18 @@
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          offer, progressCard, ladderCard, streakBlock)
+          offer, upNext, countdown, streakBlock)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
           offer,
-          el("div.am-pair", null, progressCard, AM.Card({ style: { padding: "var(--space-6)", gap: "var(--space-3)" } }, ladderCard)),
+          el("div.am-pair", null, upNext, countdown),
           streakBlock,
-          el("div.am-pair", null, topicCard, badgeCard));
+          el("div.am-pair", null, pathCard, badgeCard));
 
     var footer = (desktop) ? null : el("div", {
       style: { flex: "none", padding: "0 " + gutter() + "px 20px", display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }
     }, el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
-        first
-          ? AM.Button({ label: "Start practicing", fullWidth: true, onClick: function () { app.go("topics"); } })
-          : AM.Button({ label: continueLabel(lastTopic), fullWidth: true, onClick: function () { app.startPractice(s.lastTopic); } }),
-        first ? null : AM.Button({ label: "Pick another topic", variant: "ghost", fullWidth: true, onClick: function () { app.go("topics"); } })
+        next ? AM.Button({ label: startLabel(next), fullWidth: true, onClick: function () { app.startLevel(next.topic.key, next.level.id); } }) : null,
+        AM.Button({ label: "See the whole path", variant: next ? "ghost" : "primary", fullWidth: true, onClick: function () { app.go("topics"); } })
       ));
 
     return {
@@ -554,55 +562,46 @@
         style: { background: "var(--brand-blue-100)", color: "var(--brand-blue-600)" }
       }, icon("streak", 22), el("span.label", { style: { color: "var(--ink-900)" } },
         s.streakDays + " day" + (s.streakDays === 1 ? "" : "s") + " in a row")),
-      body: column([headline, el("div", { style: { height: first ? 20 : 20 } }), cards], { gap: 0, paddingBottom: 24 }),
+      body: column([headline, el("div", { style: { height: 20 } }), cards], { gap: 0, paddingBottom: 24 }),
       footer: footer
     };
   };
 
-  function continueLabel(topic) {
-    return topic ? "Continue " + topic.label.toLowerCase() : "Start practicing";
-  }
-
-  /* ---------- 7 / 8 · Topic picker ----------
-     Nothing picked yet, so the action is drawn already-pressed and flat —
-     shape says "not now" before colour does. */
+  /* ---------- 7 / 8 · The path ----------
+     Every topic of the blueprint in the order the app teaches them. Any
+     written topic can be opened; the one to do next is marked. A topic not yet
+     written is shown, locked, as coming soon, so the path never pretends to be
+     the whole exam when it is not. */
   screens.topics = function (app) {
-    var s = store.get();
-    var first = !store.hasProgress();
-    var picked = app.scratch.pickedTopic || (first ? null : s.lastTopic);
-    var topics = store.topicList();
+    var p = store.path();
+    var nextKey = p.next ? p.next.topic.key : null;
 
-    var grid = el("div", {
-      style: {
-        display: "grid", gridTemplateColumns: "148px 148px", gap: "14px 12px",
-        justifyContent: "center", padding: "18px " + gutter() + "px 0"
-      }
+    var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: "18px " + gutter() + "px 0" } });
+    p.topics.forEach(function (t) {
+      var caption = !t.ready ? "Coming soon"
+        : t.done ? "All " + t.total + " levels cleared"
+        : t.cleared + " of " + t.total + " levels";
+      list.appendChild(el("button.am-reset.am-pressable.am-path-row", {
+        type: "button", disabled: !t.ready,
+        "aria-label": t.label + ", " + caption + (t.key === nextKey ? ", up next" : ""),
+        onClick: function () { if (t.ready) app.openTopic(t.key); },
+        style: {
+          "--am-edge": t.key === nextKey ? "var(--brand-blue-600)" : "var(--line-200)",
+          display: "flex", alignItems: "center", gap: "var(--space-3)", width: "100%", textAlign: "left",
+          padding: "12px 14px", borderRadius: "var(--radius-md)",
+          background: t.ready ? "var(--surface-200)" : "var(--surface-100)",
+          color: t.ready ? "var(--ink-900)" : "var(--ink-600)", cursor: t.ready ? "pointer" : "default"
+        }
+      },
+        topicTile(t),
+        el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 } },
+          el("span", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" } },
+            el("span.label", null, t.label),
+            t.key === nextKey ? AM.Chip({ label: "Up next" }) : null),
+          t.ready ? AM.ProgressBar({ ratio: t.total ? t.cleared / t.total : 0, height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: t.label + " levels cleared" }) : null,
+          el("span.caption", { style: { color: "var(--ink-600)" } }, caption)),
+        t.ready ? el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("next", 20)) : null));
     });
-
-    topics.forEach(function (t) {
-      /* Three stars, one per third of the twenty, rounded to the nearest — the
-         levels the design document prints: 0 of 20 none, 5 one, 12 two, 18 all
-         three. */
-      var litCount = Math.round((t.correct / t.total) * 3);
-      var stars = el("span", { style: { display: "flex", gap: "var(--space-1)" } });
-      for (var i = 0; i < 3; i++) {
-        var lit = i < litCount;
-        stars.appendChild(el("span", { style: { color: lit ? "var(--skill-" + t.colorKey + "-600)" : "var(--surface-300)" } }, icon("star", 15)));
-      }
-      var isPicked = picked === t.key;
-      grid.appendChild(el("span", { style: { display: "flex", flexDirection: "column", gap: "var(--space-1)" } },
-        AM.SkillCard({
-          label: t.label, icon: t.icon, colorKey: t.colorKey, progress: t.ratio,
-          selected: isPicked,
-          onClick: function () { app.scratch.pickedTopic = t.key; app.render(); }
-        }),
-        stars,
-        el("span.caption", { style: { color: isPicked ? "var(--brand-blue-600)" : "var(--ink-600)" } },
-          t.correct + " of " + t.total + (isPicked ? " · picked" : (t.correct === 0 && !first ? " · not started" : "")))
-      ));
-    });
-
-    var pickedTopic = picked ? C.byKey(picked) : null;
 
     return {
       nav: "practice", bottomNav: false,
@@ -610,19 +609,155 @@
       back: function () { app.go("home", "back"); },
       body: column([
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
-          el("div.heading-md", null, "Pick a topic"),
-          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } },
-            first ? "Four topics. Twenty questions each."
-                  : (pickedTopic ? pickedTopic.label + " is where you left off." : "Four topics. Twenty questions each."))),
-        grid
-      ]),
+          el("div.heading-md", null, "Your path"),
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4, textWrap: "pretty" } },
+            p.levelsCleared + " of " + p.levelsTotal + " levels cleared" + (p.daysToExam === null ? "" : " · exam in " + p.daysToExam + " days"))),
+        list
+      ], { paddingBottom: 24 }),
+      footer: p.next ? el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520 } },
+          AM.Button({ label: startLabel(p.next), fullWidth: true, onClick: function () { app.startLevel(p.next.topic.key, p.next.level.id); } }))) : null
+    };
+  };
+
+  /* ---------- A topic's levels ----------
+     Levels open in order: a cleared one can be reviewed, the current one
+     continued, a locked one waits for the one before it. */
+  screens.topic = function (app) {
+    var t = store.topicPath(app.scratch.topic);
+    if (!t || !t.ready) { app.go("topics"); return screens.topics(app); }
+    var current = t.current;
+
+    var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: "18px " + gutter() + "px 0" } });
+    t.levels.forEach(function (lv) {
+      var isCurrent = current && current.id === lv.id;
+      var glyph = lv.cleared ? "check" : lv.unlocked ? "lesson" : "lock";
+      var caption = lv.cleared ? "Cleared · tap to review"
+        : lv.unlocked ? lv.correct + " of " + lv.target + " right first time to clear"
+        : "Clear level " + (lv.number - 1) + " to open";
+      list.appendChild(el("button.am-reset.am-pressable.am-path-row", {
+        type: "button", disabled: !lv.unlocked,
+        "aria-label": "Level " + lv.number + ", " + lv.title + ", " + caption,
+        onClick: function () { if (lv.unlocked) app.startLevel(t.key, lv.id); },
+        style: {
+          "--am-edge": isCurrent ? "var(--brand-blue-600)" : "var(--line-200)",
+          display: "flex", alignItems: "center", gap: "var(--space-3)", width: "100%", textAlign: "left",
+          padding: "12px 14px", borderRadius: "var(--radius-md)",
+          background: lv.unlocked ? "var(--surface-200)" : "var(--surface-100)",
+          color: lv.unlocked ? "var(--ink-900)" : "var(--ink-600)", cursor: lv.unlocked ? "pointer" : "default"
+        }
+      },
+        el("span", {
+          style: {
+            flex: "none", width: 40, height: 40, borderRadius: "50%",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            background: lv.cleared ? "var(--skill-" + t.colorKey + "-600)" : lv.unlocked ? "var(--skill-" + t.colorKey + "-100)" : "var(--surface-300)",
+            color: lv.cleared ? "var(--ink-inverse)" : lv.unlocked ? "var(--skill-" + t.colorKey + "-600)" : "var(--ink-600)"
+          }
+        }, icon(glyph, 20)),
+        el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 } },
+          el("span.label", null, "Level " + lv.number + " · " + lv.title),
+          isCurrent ? AM.ProgressBar({ ratio: lv.correct / lv.target, height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: "Level progress" }) : null,
+          el("span.caption", { style: { color: "var(--ink-600)" } }, caption))));
+    });
+
+    var actions = [];
+    if (current) actions.push(AM.Button({
+      label: (current.attempts || current.lessonSeen ? "Continue level " : "Start level ") + current.number,
+      fullWidth: true, onClick: function () { app.startLevel(t.key, current.id); }
+    }));
+    if (current && current.lessonSeen && current.hasLesson) actions.push(AM.Button({
+      label: "See the lesson again", variant: "ghost", fullWidth: true,
+      onClick: function () { app.openLesson(t.key, current.id); }
+    }));
+    if (!current) actions.push(AM.Button({ label: "Back to the path", fullWidth: true, onClick: function () { app.go("topics", "back"); } }));
+
+    return {
+      nav: "practice", bottomNav: false,
+      banner: connectionBanner(),
+      back: function () { app.go("topics", "back"); },
+      body: column([
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", gap: "var(--space-3)", alignItems: "center" } },
+          topicTile(t, 48),
+          el("span", null,
+            el("div.heading-md", null, t.label),
+            el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 2 } },
+              t.done ? "All " + t.total + " levels cleared" : t.cleared + " of " + t.total + " levels cleared"))),
+        list
+      ], { paddingBottom: 24 }),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } }, actions))
+    };
+  };
+
+  /* ---------- A level's lesson ----------
+     Two or three cards before the first practice: the idea, a worked example
+     with every step shown, and the mistake to avoid. One card at a time, so a
+     small screen never has to scroll through a wall of text. */
+  screens.lesson = function (app) {
+    var l = app.scratch.lesson;
+    if (!l) { app.go("home"); return screens.home(app); }
+    var t = store.topicPath(l.topic);
+    var lv = t.levels.filter(function (x) { return x.id === l.level; })[0];
+    var card = l.cards[l.page];
+    var last = l.page === l.cards.length - 1;
+
+    var dots = el("span", { style: { display: "flex", gap: 6 }, "aria-label": "Card " + (l.page + 1) + " of " + l.cards.length });
+    l.cards.forEach(function (_, i) {
+      dots.appendChild(el("span", {
+        style: {
+          width: i === l.page ? 20 : 8, height: 8, borderRadius: "var(--radius-pill)",
+          background: i <= l.page ? "var(--skill-" + t.colorKey + "-600)" : "var(--surface-300)"
+        }
+      }));
+    });
+
+    var content;
+    if (card.kind === "text") {
+      content = el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
+        el("div.heading-md", null, card.title),
+        el("div.body-lg", { style: { textWrap: "pretty" } }, card.body));
+    } else {
+      var steps = el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } });
+      card.steps.forEach(function (st, i) {
+        steps.appendChild(AM.Card({ style: { padding: 14, flexDirection: "row", alignItems: "flex-start", gap: "var(--space-3)" } },
+          el("span.label", {
+            style: {
+              flex: "none", width: 28, height: 28, borderRadius: "50%", background: "var(--brand-blue-100)",
+              color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
+            }
+          }, String(i + 1)),
+          el("span.body-lg", { style: { textWrap: "pretty" } }, st)));
+      });
+      content = el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
+        el("div.heading-md", null, card.title),
+        el("div.body-lg", { style: { fontWeight: 500, textWrap: "pretty" } }, card.prompt),
+        steps,
+        el("div", {
+          style: {
+            border: "2px solid var(--success-700)", background: "var(--success-100)", borderRadius: "var(--radius-md)",
+            padding: "var(--space-3) var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)"
+          }
+        },
+          el("span", { style: { color: "var(--success-700)", flex: "none" } }, icon("check", 22, { glyph: true })),
+          el("span", null,
+            el("span.caption", { style: { display: "block", color: "var(--success-700)" } }, "Answer"),
+            el("span.heading-md", null, card.answer))),
+        el("div.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, card.explain));
+    }
+
+    return {
+      nav: null,
+      back: function () { app.lessonPage(-1); },
+      body: column([
+        el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-3)" } },
+          el("span.caption", { style: { color: "var(--ink-600)" } }, t.label + " · Level " + lv.number + " · " + lv.title),
+          dots),
+        content
+      ], { paddingBottom: 24 }),
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520 } },
-          AM.Button({
-            label: pickedTopic ? continueLabel(pickedTopic) : "Start practicing",
-            fullWidth: true, disabled: !picked,
-            onClick: function () { app.scratch.pickedTopic = null; app.startPractice(picked); }
-          })))
+          AM.Button({ label: last ? "Start practice" : "Next", iconRight: last ? null : "next", fullWidth: true, onClick: function () { app.lessonPage(1); } })))
     };
   };
 
@@ -630,35 +765,16 @@
      One screen. Question text gets the most room at every width; correct and
      wrong each carry a glyph, never a fill alone. */
   screens.practice = function (app) {
-    var s = store.get();
     var ses = app.session;
     if (!ses) { app.go("home"); return screens.home(app); }
 
     var q = ses.questions[ses.index];
     var desktop = AM.device() === "desktop";
     var offline = !store.isOnline();
-    var tierLabel = (offline ? "Offline · tier " : "Tier ") + s.tier;
-
     var header = AM.PracticeHeader({
-      tier: tierLabel, questionIndex: ses.index, questionTotal: ses.questions.length
+      tier: (offline ? "Offline · level " : "Level ") + ses.levelNumber,
+      questionIndex: ses.index, questionTotal: ses.questions.length
     });
-
-    /* ----- the demote notice (15). Calm, not punishing: a card in the ordinary
-       layout, and the next question is already there. ----- */
-    var demoteCard = (s.demoted && !ses.demoteSeen) ? el("div", { style: { padding: "18px " + gutter() + "px 0" } },
-      AM.Card({ style: { flexDirection: "row", gap: "var(--space-3)", alignItems: "flex-start" } },
-        el("span", {
-          style: {
-            width: 36, height: 36, flex: "none", borderRadius: "var(--radius-sm)",
-            background: "var(--brand-blue-100)", color: "var(--brand-blue-600)",
-            display: "flex", alignItems: "center", justifyContent: "center"
-          }
-        }, icon("streak", 20)),
-        el("span", null,
-          el("span.heading-sm", { style: { display: "block" } }, "Back to tier " + s.tier),
-          el("span.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-            "Your streak reset. " + store.RECOVERY_RUN + " correct in a row puts you back on tier " + (s.tier + 1) + "."))
-      )) : null;
 
     /* ----- question text ----- */
     var answered = ses.phase !== "ask";
@@ -793,9 +909,14 @@
         AM.Chip({ icon: "streak", label: ses.run + " in a row", large: true }));
     }
 
-    function tierStrip() {
-      if (s.tier >= 4) return null;
-      var remaining = store.TIER_TARGET - s.tierProgress;
+    /* How far the level is from clearing. A redo session says it does not
+       count, rather than show a bar that will not move. */
+    function levelStrip() {
+      var lv = store.levelState(ses.topicKey, ses.levelId);
+      var shown = Math.min(lv.correct, store.CLEAR_TARGET);
+      var note = ses.redo ? "Redo · does not count towards the level"
+        : lv.cleared ? "Level " + ses.levelNumber + " cleared · reviewing"
+        : "Level " + ses.levelNumber + ": " + (store.CLEAR_TARGET - shown) + " more to clear" + (offline ? " · counts offline" : "");
       return el("div", {
         style: {
           flex: "none", margin: "0 " + gutter() + "px 16px", background: "var(--surface-200)",
@@ -805,11 +926,10 @@
       },
         el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon("level-up", 20)),
         el("span", { style: { flex: 1, display: "flex", flexDirection: "column", gap: 6 } },
-          el("span.caption", { style: { color: "var(--ink-600)" } },
-            "Tier " + (s.tier + 1) + " in " + remaining + " correct" + (offline ? " · counts offline" : "")),
-          AM.ProgressBar({ ratio: s.tierProgress / store.TIER_TARGET, flex: true, label: "Tier progress" })),
+          el("span.caption", { style: { color: "var(--ink-600)" } }, note),
+          AM.ProgressBar({ ratio: shown / store.CLEAR_TARGET, flex: true, label: "Level progress" })),
         el("span.body-sm", { style: { flex: "none", color: "var(--ink-600)" } },
-          s.tierProgress + " of " + store.TIER_TARGET));
+          shown + " of " + store.CLEAR_TARGET));
     }
 
     /* ----- actions ----- */
@@ -899,7 +1019,7 @@
           row,
           verdict(), explanation(), streakChip(),
           hintPanel(),
-          tierStrip()
+          levelStrip()
         ));
 
       return {
@@ -919,7 +1039,6 @@
       /* Screen 13 moves the answer field below the scaffold once a hint is
          open, so the worked step and the box you type into read in order. */
       body: column([
-        demoteCard,
         promptNode,
         (ses.phase === "ask" && !ses.showHints) ? answerArea() : null,
         (ses.phase === "ask" && !ses.showHints)
@@ -933,7 +1052,7 @@
       ]),
       belowFold: el("div", null,
         hintsUsedCard(),
-        keypadNode ? el("div", { style: { padding: "0 " + gutter() + "px" } }, keypadNode) : tierStrip()),
+        keypadNode ? el("div", { style: { padding: "0 " + gutter() + "px" } }, keypadNode) : levelStrip()),
       footer: actions
     };
   };
@@ -943,26 +1062,29 @@
     return mins + " minute" + (mins === 1 ? "" : "s") + " today";
   }
 
-  /* ---------- 14 · Tier up ----------
+  /* ---------- 14 · Level cleared ----------
      No header, no nav, one action. The only gold field in the product; the
-     button inverts to a white face because amber and gold never share a screen. */
-  screens.tierup = function (app) {
+     topic's levels below show the one just cleared and the one now open. */
+  screens.levelup = function (app) {
     var s = store.get();
-    var topicLabel = app.session ? app.session.topicLabel : "practice";
+    var ses = app.session;
+    if (!ses) { app.go("home"); return screens.home(app); }
+    var t = store.topicPath(ses.topicKey);
+    var nextLevel = t.levels[ses.levelNumber] || null;
 
-    var ladder = el("div", { style: { padding: "24px " + gutter() + "px 0", display: "flex", gap: "var(--space-2)", alignItems: "stretch" } });
-    [1, 2, 3, 4].forEach(function (n) {
-      var cleared = n < s.tier, here = n === s.tier;
+    var ladder = el("div", { style: { padding: "24px " + gutter() + "px 0", display: "flex", gap: "var(--space-2)", alignItems: "stretch", flexWrap: "wrap", justifyContent: "center" } });
+    t.levels.forEach(function (lv) {
+      var here = lv.number === ses.levelNumber;
       var style = {
-        flex: 1, background: "var(--surface-200)", borderRadius: "var(--radius-md)",
-        padding: here ? "10px 8px" : "12px 8px",
+        flex: "1 0 44px", maxWidth: 72, background: "var(--surface-200)", borderRadius: "var(--radius-md)",
+        padding: here ? "10px 6px" : "12px 6px",
         display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-        color: cleared ? "var(--success-700)" : here ? "var(--celebration-coral-600)" : "var(--ink-600)"
+        color: here ? "var(--celebration-coral-600)" : lv.cleared ? "var(--success-700)" : lv.unlocked ? "var(--ink-900)" : "var(--ink-600)"
       };
       if (here) style.border = "2px solid var(--ink-900)";
       ladder.appendChild(el("span", { style: style },
-        icon(cleared ? "check" : here ? "trophy" : "lock", 20),
-        el(here ? "span.label" : "span.caption", { style: { color: here ? "var(--ink-900)" : (cleared ? "var(--ink-900)" : "var(--ink-600)") } }, "Tier " + n)));
+        icon(here ? "trophy" : lv.cleared ? "check" : lv.unlocked ? "lesson" : "lock", 20),
+        el(here ? "span.label" : "span.caption", { style: { color: here || lv.cleared || lv.unlocked ? "var(--ink-900)" : "var(--ink-600)" } }, String(lv.number))));
     });
 
     return {
@@ -971,27 +1093,31 @@
         style: { flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0 }
       },
         AM.CelebrationBanner({
-          headline: "Tier " + s.tier,
-          sublabel: "Unlocked, " + ((s.profile && s.profile.name.split(" ")[0]) || "there"),
+          headline: "Level " + ses.levelNumber,
+          sublabel: "Cleared, " + ((s.profile && s.profile.name.split(" ")[0]) || "there"),
           icon: "level-up",
           style: { background: "transparent", boxShadow: "none", paddingBottom: 0 }
         }),
         el("div", { style: { padding: "0 32px", textAlign: "center" } },
           el("div.body-lg", { style: { color: "var(--ink-900)", textWrap: "pretty" } },
-            store.TIER_TARGET + " of " + store.TIER_TARGET + " in " + topicLabel.toLowerCase() + ". The questions get longer from here.")),
+            store.CLEAR_TARGET + " right first time in " + ses.levelTitle.toLowerCase() + ". " +
+            (nextLevel ? "Level " + nextLevel.number + ", " + nextLevel.title.toLowerCase() + ", is open."
+                       : "That was the last level in " + t.label.toLowerCase() + "."))),
         ladder
       ),
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 32px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520 } },
-          AM.Button({ label: "Keep going", variant: "inverse", fullWidth: true, cta: true, onClick: function () { app.afterTierUp(); } })))
+          AM.Button({ label: "Keep going", variant: "inverse", fullWidth: true, cta: true, onClick: function () { app.afterLevelUp(); } })))
     };
   };
 
   /* ---------- 16 · Session summary ---------- */
   screens.summary = function (app) {
-    var s = store.get();
     var r = app.scratch.result;
     if (!r) { app.go("home"); return screens.home(app); }
+    var t = store.topicPath(r.topicKey);
+    var lv = t.levels.filter(function (x) { return x.id === r.levelId; })[0];
+    var nextLevel = t.levels[lv.number] || null;
 
     function stat(value, label) {
       return el("div", {
@@ -1004,6 +1130,13 @@
 
     var missed = r.missed.length;
     var earned = store.badges().filter(function (b) { return b.earned; }).length;
+    var levelNote = r.redo ? "Redoing missed questions keeps your streak but does not count towards the level."
+      : lv.cleared ? (nextLevel ? "Cleared. Level " + nextLevel.number + ", " + nextLevel.title.toLowerCase() + ", is open." : "Cleared. That was the last level in " + t.label.toLowerCase() + ".")
+      : (lv.target - lv.correct) + " more right first time to clear it.";
+
+    var primary = (lv.cleared && nextLevel && nextLevel.unlocked && !nextLevel.cleared)
+      ? AM.Button({ label: "Start level " + nextLevel.number, fullWidth: true, onClick: function () { app.startLevel(r.topicKey, nextLevel.id); } })
+      : AM.Button({ label: lv.cleared ? "Review this level" : "Practice again", fullWidth: true, onClick: function () { app.startLevel(r.topicKey, r.levelId); } });
 
     return {
       nav: "practice", bottomNav: false,
@@ -1012,19 +1145,16 @@
         el("div", { style: { padding: "24px " + gutter() + "px 0" } },
           el("div.heading-lg", null, "Session done"),
           el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } },
-            r.topicLabel + " · " + r.minutes + " minute" + (r.minutes === 1 ? "" : "s"))),
+            r.topicLabel + " · Level " + r.levelNumber + " · " + r.minutes + " minute" + (r.minutes === 1 ? "" : "s"))),
 
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
-          stat(r.attempted, "attempted"), stat(r.correct, "correct"), stat(s.tier, "tier")),
+          stat(r.attempted, "attempted"), stat(r.correct, "right first time"), stat(lv.correct + "/" + lv.target, "level")),
 
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 10 } },
-            sectionLabel("Tier " + s.tier + " progress"),
-            AM.ProgressBar({ ratio: s.tierProgress / store.TIER_TARGET, height: 10, label: "Tier progress" }),
-            el("span.body-sm", { style: { color: "var(--ink-600)" } },
-              s.tier < 4
-                ? s.tierProgress + " of " + store.TIER_TARGET + ". " + (store.TIER_TARGET - s.tierProgress) + " more correct to reach tier " + (s.tier + 1) + "."
-                : "Every tier is open."))),
+            sectionLabel("Level " + lv.number + " · " + lv.title),
+            AM.ProgressBar({ ratio: lv.correct / lv.target, height: 10, color: "var(--skill-" + t.colorKey + "-600)", label: "Level progress" }),
+            el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, levelNote))),
 
         missed ? el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
           sectionLabel("Do next"),
@@ -1044,11 +1174,11 @@
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
           sectionLabel("Badges · " + earned + " of 4"),
           AM.BadgeShelf({ badges: store.badges() }))
-      ]),
+      ], { paddingBottom: 24 }),
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
-          AM.Button({ label: "Practice again", fullWidth: true, onClick: function () { app.startPractice(r.topicKey); } }),
-          AM.Button({ label: "Back home", variant: "ghost", fullWidth: true, onClick: function () { app.go("home", "back"); } })))
+          primary,
+          AM.Button({ label: "Back to " + t.label.toLowerCase(), variant: "ghost", fullWidth: true, onClick: function () { app.openTopic(r.topicKey); } })))
     };
   };
 
@@ -1058,6 +1188,8 @@
     var s = store.get();
     var p = s.profile || { name: "Ligaya Mendoza", school: "Poblacion, Pilar", colorKey: 2 };
     var earned = store.badges().filter(function (b) { return b.earned; }).length;
+    var path = store.path();
+    var written = path.topics.filter(function (t) { return t.ready; });
 
     function stat(value, label) {
       return el("div", {
@@ -1075,13 +1207,13 @@
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.ProfileCard({
             name: p.name, greeting: "",
-            school: p.school + " · Grade 6 · Tier " + s.tier,
+            school: p.school + " · Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
             colorKey: p.colorKey, iconKey: p.iconKey,
             style: { maxWidth: "none", width: "100%" }
           })),
 
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", gap: 10 } },
-          stat(s.streakDays, "days in a row"), stat(s.totalCorrect, "correct so far")),
+          stat(s.streakDays, "days in a row"), stat(s.totalCorrect, "right first time")),
 
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
           sectionLabel("Badges · " + earned + " of 4"),
@@ -1089,7 +1221,10 @@
 
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
           sectionLabel("Progress by topic"),
-          AM.TopicBars(store.topicList())),
+          AM.TopicBars(written.map(function (t) {
+            return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels", color: "var(--skill-" + t.colorKey + "-600)" };
+          })),
+          el("span.body-sm", { style: { color: "var(--ink-600)" } }, (path.topics.length - written.length) + " more topics coming")),
 
         /* One button, no card: it fits the space Profile had spare on a
            390x844 phone, so the footer and nav stay on screen. */

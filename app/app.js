@@ -188,49 +188,78 @@
 
   /* ---------- practice loop ---------- */
 
-  app.startPractice = function (topicKey) {
-    var key = topicKey || store.get().lastTopic || C.TOPICS[0].key;
-    var topic = C.byKey(key);
-    store.rollDay();
-    store.set({ lastTopic: key });
-
-    app.session = {
-      topicKey: key,
-      topicLabel: topic.label,
-      colorKey: topic.colorKey,
-      questions: C.buildSession(key, store.SESSION_LENGTH, store.get().tier, Date.now()),
-      index: 0,
-      phase: "ask",
-      entry: null,
-      picked: null,
-      diagnosis: null,
-      showHints: false,
-      hintsRevealed: 0,
-      stepsRevealed: 1,
-      run: 0,
-      correct: 0,
-      attempted: 0,
-      missed: [],
-      demoteSeen: !store.get().demoted,
-      pendingTierUp: false,
-      startedAt: Date.now()
-    };
-    app.session.entry = freshEntry(app.session);
-    app.go("practice");
+  /* A topic's levels, from the path. */
+  app.openTopic = function (topicKey) {
+    app.scratch.topic = topicKey;
+    app.go("topic");
   };
 
-  app.startRedo = function (result) {
-    var topic = C.byKey(result.topicKey);
-    app.session = {
-      topicKey: result.topicKey,
-      topicLabel: topic.label,
-      colorKey: topic.colorKey,
-      questions: result.missed.slice(),
+  /* A level opens with its lesson the first time; after that, straight to
+     practice. The lesson can always be seen again from the topic screen. */
+  app.startLevel = function (topicKey, levelId) {
+    var lv = store.levelState(topicKey, levelId);
+    var level = levelMeta(topicKey, levelId);
+    if (level.hasLesson && !lv.lessonSeen) app.openLesson(topicKey, levelId);
+    else beginLevel(topicKey, levelId);
+  };
+
+  app.openLesson = function (topicKey, levelId) {
+    app.scratch.lesson = { topic: topicKey, level: levelId, page: 0, cards: C.lesson(topicKey, levelId) };
+    app.go("lesson");
+  };
+
+  app.lessonPage = function (delta) {
+    var l = app.scratch.lesson;
+    if (!l) return;
+    var page = l.page + delta;
+    if (page < 0) { app.go("topic", "back"); return; }
+    if (page >= l.cards.length) {
+      store.markLessonSeen(l.topic, l.level);
+      beginLevel(l.topic, l.level);
+      return;
+    }
+    l.page = page;
+    app.go("lesson", delta < 0 ? "back" : "forward");
+  };
+
+  function levelMeta(topicKey, levelId) {
+    var topic = C.byKey(topicKey);
+    var index = topic.levels.findIndex(function (lv) { return lv.id === levelId; });
+    var level = topic.levels[index];
+    return { topic: topic, number: index + 1, id: level.id, title: level.title, hasLesson: level.hasLesson };
+  }
+
+  function newSession(meta, questions, redo) {
+    return {
+      topicKey: meta.topic.key, topicLabel: meta.topic.label, colorKey: meta.topic.colorKey,
+      levelId: meta.id, levelTitle: meta.title, levelNumber: meta.number,
+      redo: !!redo, questions: questions,
       index: 0, phase: "ask", entry: null, picked: null, diagnosis: null,
       showHints: false, hintsRevealed: 0, stepsRevealed: 1,
       run: 0, correct: 0, attempted: 0, missed: [],
-      demoteSeen: true, pendingTierUp: false, startedAt: Date.now()
+      pendingLevelUp: false, startedAt: Date.now()
     };
+  }
+
+  /* A level's first session opens with its pinned questions; the numbers get
+     harder as the level fills (store.tierFor). */
+  function beginLevel(topicKey, levelId) {
+    var meta = levelMeta(topicKey, levelId);
+    var lv = store.levelState(topicKey, levelId);
+    store.rollDay();
+    var questions = C.buildSession({
+      topic: topicKey, level: levelId, count: store.SESSION_LENGTH,
+      tier: store.tierFor(topicKey, levelId), seed: Date.now(), pinned: lv.attempts === 0
+    });
+    app.session = newSession(meta, questions, false);
+    app.session.entry = freshEntry(app.session);
+    app.go("practice");
+  }
+
+  /* Missed questions again, after their solutions were shown. They keep the
+     streak going but do not count towards clearing the level. */
+  app.startRedo = function (result) {
+    app.session = newSession(levelMeta(result.topicKey, result.levelId), result.missed.slice(), true);
     app.session.entry = freshEntry(app.session);
     app.go("practice");
   };
@@ -278,28 +307,25 @@
     s.diagnosis = C.diagnose(q, given);
     var right = s.diagnosis.correct;
     s.phase = right ? "correct" : "wrong";
-    s.demoteSeen = true;
 
-    /* An attempt is counted once per question, however many tries it takes. */
-    if (!q.__counted) {
+    /* Only the first try at a question counts towards the level: right on
+       the first try is what "correct" means in the session and on the path. */
+    var firstTry = !q.__counted;
+    if (firstTry) {
       q.__counted = true;
       s.attempted += 1;
+      if (right) s.correct += 1;
     }
+    if (s.redo) store.notePractice();
+    else if (store.recordAnswer(s.topicKey, s.levelId, right, firstTry).cleared) s.pendingLevelUp = true;
 
     if (right) {
       s.run += 1;
-      if (!q.__scored) {
-        q.__scored = true;
-        s.correct += 1;
-        var outcome = store.recordAnswer(s.topicKey, true);
-        s.pendingTierUp = outcome.tieredUp;
-      }
       /* A question first answered wrong stops being a miss once it lands. */
       s.missed = s.missed.filter(function (m) { return m.id !== q.id; });
     } else {
       s.run = 0;
       s.stepsRevealed = 1;
-      store.recordAnswer(s.topicKey, false);
       if (!s.missed.some(function (m) { return m.id === q.id; })) s.missed.push(q);
     }
     render();
@@ -318,16 +344,21 @@
   app.next = function () {
     var s = app.session;
     if (!s) return;
-    if (s.pendingTierUp) { s.pendingTierUp = false; app.go("tierup"); return; }
+    if (s.pendingLevelUp) { s.pendingLevelUp = false; app.go("levelup"); return; }
     advance();
   };
 
-  app.afterTierUp = function () {
+  /* The fade and a fallback timer both try to move on, and the button can be
+     tapped twice: only the first of them, while the celebration is still up,
+     advances. A throttled or slow phone can finish the fade after the timer,
+     which once skipped a question. */
+  app.afterLevelUp = function () {
+    function once() { if (app.route === "levelup") advance(); }
     if (motion) {
-      motion.dismissCelebration(document.querySelector(".am-celebrate"), advance);
+      motion.dismissCelebration(document.querySelector(".am-celebrate"), once);
       /* Never gate on the fade: if the animation API is unavailable, move on. */
-      window.setTimeout(function () { if (app.route === "tierup") advance(); }, 400);
-    } else advance();
+      window.setTimeout(once, 400);
+    } else once();
   };
 
   function advance() {
@@ -352,6 +383,10 @@
       topicKey: s.topicKey,
       topicLabel: s.topicLabel,
       colorKey: s.colorKey,
+      levelId: s.levelId,
+      levelTitle: s.levelTitle,
+      levelNumber: s.levelNumber,
+      redo: s.redo,
       attempted: s.attempted,
       correct: s.correct,
       missed: s.missed.map(function (q) {
@@ -363,7 +398,7 @@
       minutes: minutes
     };
     app.scratch.result = result;
-    store.set({ lastSession: { topicLabel: s.topicLabel, correct: s.correct, attempted: s.attempted } });
+    store.set({ lastSession: { topicLabel: s.topicLabel, levelTitle: s.levelTitle, correct: s.correct, attempted: s.attempted } });
     app.session = null;
     app.go("summary");
   }

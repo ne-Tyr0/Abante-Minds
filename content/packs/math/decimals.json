@@ -1,0 +1,874 @@
+{
+  "topic": "decimals",
+  "levels": [
+    {
+      "id": "place-value",
+      "title": "Place value",
+      "templates": ["decimals.digit-value", "decimals.write-from-words", "decimals.to-fraction", "decimals.from-fraction"],
+      "lesson": [
+        { "title": "Places after the point", "body": "After the decimal point come tenths, then hundredths, then thousandths. In 4.582 the 5 is 5 tenths, the 8 is 8 hundredths and the 2 is 2 thousandths." },
+        { "title": "Worked example", "example": { "template": "decimals.digit-value", "params": { "w": 4, "d1": 5, "d2": 8, "d3": 2, "p": 2 }, "format": "value-of-digit" } },
+        { "title": "Zeros hold places", "body": "Twelve and forty-five thousandths is 12.045, not 12.45. Thousandths need three digits after the point, so a 0 holds the tenths place." }
+      ]
+    },
+    {
+      "id": "compare-and-round",
+      "title": "Compare and round",
+      "templates": ["decimals.greatest", "decimals.between", "decimals.round"],
+      "lesson": [
+        { "title": "Compare place by place", "body": "Line the numbers up at the point and compare from the left: ones, then tenths, then hundredths. 0.45 is greater than 0.405, because after the 4 tenths it has 5 hundredths and 0.405 has none. More digits does not mean bigger." },
+        { "title": "Worked example", "example": { "template": "decimals.round", "params": { "w": 4, "e": 6275, "p": 3 }, "format": "plain" } },
+        { "title": "Only the next digit matters", "body": "To round, look only at the digit just after the place you keep. 5 or more rounds up; less than 5 leaves the kept digits as they are." }
+      ]
+    },
+    {
+      "id": "add-and-subtract",
+      "title": "Add and subtract",
+      "templates": ["decimals.add", "decimals.subtract", "decimals.change-money", "decimals.what-is-left"],
+      "lesson": [
+        { "title": "Line up the points", "body": "Write the numbers so their decimal points line up, then add or subtract place by place. Fill empty places with zeros: to take 2.35 from 7, write 7 as 7.00." },
+        { "title": "Worked example", "example": { "template": "decimals.subtract", "params": { "pb": 2, "w2": 2, "f2": 35, "a": 7 }, "format": "difference" } },
+        { "title": "Check by estimating", "body": "7 − 2.35 should be a little less than 5. An answer like 5.35 or 0.465 means something slipped." }
+      ]
+    },
+    {
+      "id": "multiply",
+      "title": "Multiply",
+      "templates": ["decimals.times-powers", "decimals.multiply", "decimals.estimate-product", "decimals.price-per-kilo", "decimals.multiply-money"],
+      "lesson": [
+        { "title": "Moving the point", "body": "Multiplying by 10, 100 or 1000 moves the decimal point 1, 2 or 3 places to the right: 4.56 × 100 = 456. Multiplying by 0.1, 0.01 or 0.001 moves it to the left: 37.2 × 0.01 = 0.372." },
+        { "title": "Worked example", "example": { "template": "decimals.multiply", "params": { "pa": 1, "ai": 24, "bi": 15 }, "format": "product" } },
+        { "title": "Count the places", "body": "Multiply as if there were no points, then count the decimal places in both numbers together. The answer has that many places." }
+      ]
+    },
+    {
+      "id": "divide",
+      "title": "Divide",
+      "templates": ["decimals.divide-powers", "decimals.divide-by-whole", "decimals.divide-by-decimal", "decimals.estimate-quotient"],
+      "lesson": [
+        { "title": "Dividing moves the point too", "body": "Dividing by 10, 100 or 1000 moves the decimal point to the left: 45.6 ÷ 100 = 0.456. Dividing by 0.1 moves it to the right, the same as multiplying by 10." },
+        { "title": "Worked example", "example": { "template": "decimals.divide-by-decimal", "params": { "k": 4, "t": 30 }, "format": "plain" } },
+        { "title": "Make the divisor whole", "body": "To divide by a decimal, multiply both numbers by 10 (or 100) until the divisor is a whole number. The answer does not change: 12 ÷ 0.4 is the same as 120 ÷ 4." }
+      ]
+    },
+    {
+      "id": "word-problems",
+      "title": "Word problems",
+      "templates": ["decimals.share-cost", "decimals.how-many-pieces"],
+      "lesson": [
+        { "title": "Find the question first", "body": "Read to the end to see what is asked, then decide which numbers you need. Some numbers in a problem are there only to distract you." },
+        { "title": "Worked example", "example": { "template": "decimals.how-many-pieces", "params": { "vi": 25, "t": 30, "p": 45 }, "format": "ribbon" } },
+        { "title": "Check it makes sense", "body": "A share is smaller than the total. A number of pieces is a whole number. If an answer breaks a rule like that, go back a step." }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "decimals.digit-value",
+      "competency": "G5.Q2.4",
+      "domain": "NA",
+      "construct": "Value of a digit from its place, to thousandths",
+      "schema": "part-whole",
+      "params": {
+        "w": { "tiers": { "1": [1, 9], "3": [10, 99] } },
+        "d1": { "range": [1, 9] },
+        "d2": { "range": [1, 9] },
+        "d3": { "range": [1, 9] },
+        "p": { "tiers": { "1": [1, 2], "2": [1, 3] } },
+        "g": { "value": "p == 1 ? d1 : p == 2 ? d2 : d3" },
+        "tenPow": { "value": "p == 1 ? 10 : p == 2 ? 100 : 1000" },
+        "place": { "value": "p == 1 ? 'tenths' : p == 2 ? 'hundredths' : 'thousandths'" },
+        "count": { "value": "g == 1 ? (p == 1 ? 'tenth' : p == 2 ? 'hundredth' : 'thousandth') : place" },
+        "n": { "value": "w + d1 / 10 + d2 / 100 + d3 / 1000" }
+      },
+      "where": ["d1 != d2", "d1 != d3", "d2 != d3", "w % 10 != g", "floor(w / 10) != g"],
+      "answer": { "type": "decimal", "value": "g / tenPow" },
+      "formats": [
+        { "id": "value-of-digit", "prompt": "In {fmt(n)}, what is the value of the digit {g}?" },
+        { "id": "worth", "prompt": "What is the {g} worth in {fmt(n)}?" },
+        { "id": "expanded", "prompt": "{fmt(n)} = {w} + {p == 1 ? '?' : fmt(d1 / 10)} + {p == 2 ? '?' : fmt(d2 / 100)} + {p == 3 ? '?' : fmt(d3 / 1000)}. What number goes where the ? is?" }
+      ],
+      "hints": [
+        "After the point the places are tenths, then hundredths, then thousandths.",
+        "In {fmt(n)}, the {g} is in the {place} place.",
+        "{g} {count} is {g} ÷ {tenPow}."
+      ],
+      "steps": [
+        "{fmt(n)} = {w} + {fmt(d1 / 10)} + {fmt(d2 / 100)} + {fmt(d3 / 1000)}",
+        "The {g} is in the {place} place",
+        "{g} {count} = {fmt(answer)}"
+      ],
+      "explain": "The {g} is in the {place} place, so it is worth {fmt(answer)}.",
+      "distractors": [
+        { "value": "g", "error": "gave-the-digit", "feedback": "{fmt(value)} is the digit itself. What a digit is worth depends on its place, and this {g} is in the {place} place." },
+        { "value": "g * 10 / tenPow", "error": "one-place-too-far-left", "feedback": "{fmt(value)} is what the {g} would be worth one place further left. Count again from the point: tenths, hundredths, thousandths." },
+        { "value": "g / (tenPow * 10)", "error": "one-place-too-far-right", "feedback": "{fmt(value)} is what the {g} would be worth one place further right. Count again from the point: tenths, hundredths, thousandths." }
+      ]
+    },
+    {
+      "id": "decimals.write-from-words",
+      "competency": "G5.Q2.5",
+      "domain": "NA",
+      "construct": "Write a decimal read in words, holding empty places with zeros",
+      "schema": "part-whole",
+      "params": {
+        "w": { "tiers": { "1": [1, 20], "3": [21, 500] } },
+        "p": { "tiers": { "1": [1, 2], "2": [2, 3] } },
+        "tenPow": { "value": "p == 1 ? 10 : p == 2 ? 100 : 1000" },
+        "f": { "range": [1, "tenPow - 1"] },
+        "place": { "value": "p == 1 ? 'tenths' : p == 2 ? 'hundredths' : 'thousandths'" },
+        "fDigits": { "value": "f < 10 ? 10 : f < 100 ? 100 : 1000" },
+        "count": { "value": "f == 1 ? (p == 1 ? 'tenth' : p == 2 ? 'hundredth' : 'thousandth') : place" }
+      },
+      "where": ["p == 1 || f % 10 != 0"],
+      "answer": { "type": "decimal", "value": "w + f / tenPow" },
+      "formats": [
+        { "id": "words", "prompt": "Write as a decimal: {words(w)} and {words(f)} {count}." },
+        { "id": "ribbon", "prompt": "A ribbon is {words(w)} and {words(f)} {count} metres long. Write its length as a decimal." },
+        { "id": "digits", "prompt": "Write {w} and {f} {count} as a decimal." }
+      ],
+      "hints": [
+        "The word 'and' marks the decimal point.",
+        "Write {place} with {p} digit{p == 1 ? '' : 's'} after the point.",
+        "So {f} {count} is {fmt(f / tenPow)}."
+      ],
+      "steps": [
+        "Before the point: {w}",
+        "{f} {count} = {fmt(f / tenPow)}",
+        "{w} + {fmt(f / tenPow)} = {fmt(answer)}"
+      ],
+      "explain": "In digits, {words(w)} and {words(f)} {count} is {fmt(answer)}.",
+      "distractors": [
+        { "value": "w + f / fDigits", "error": "missed-a-placeholder-zero", "feedback": "{fmt(value)} puts {f} straight after the point. For {place} there must be {p} digits after the point, so zeros fill the empty places first." },
+        { "value": "w + f / (tenPow * 10)", "error": "one-place-too-many", "feedback": "{fmt(value)} has one place too many after the point. {f} {count} uses exactly {p}." }
+      ]
+    },
+    {
+      "id": "decimals.to-fraction",
+      "competency": "G5.Q2.6",
+      "domain": "NA",
+      "construct": "Write a terminating decimal as a fraction in lowest terms",
+      "schema": "part-whole",
+      "params": {
+        "p": { "tiers": { "1": [1, 2], "3": [2, 3] } },
+        "tenPow": { "value": "p == 1 ? 10 : p == 2 ? 100 : 1000" },
+        "n": { "range": [1, "tenPow - 1"] },
+        "place": { "value": "p == 1 ? 'tenths' : p == 2 ? 'hundredths' : 'thousandths'" },
+        "g": { "value": "gcd(n, tenPow)" }
+      },
+      "where": ["g > 1", "p == 1 || n % 10 != 0"],
+      "answer": { "type": "fraction", "value": "n / tenPow" },
+      "formats": [
+        { "id": "plain", "prompt": "Write {fmt(n / tenPow)} as a fraction in lowest terms." },
+        { "id": "jug", "prompt": "A jug of water is {fmt(n / tenPow)} full. Write how full it is as a fraction in lowest terms." }
+      ],
+      "hints": [
+        "Read the decimal aloud: {fmt(n / tenPow)} is {n} {place}.",
+        "So it is {n}/{tenPow} before simplifying.",
+        "Divide the top and the bottom by {g}."
+      ],
+      "steps": [
+        "{fmt(n / tenPow)} = {n}/{tenPow}",
+        "{n} and {tenPow} can both be divided by {g}",
+        "{n}/{tenPow} = {frac(answer)}"
+      ],
+      "explain": "{fmt(n / tenPow)} = {n}/{tenPow} = {frac(answer)}.",
+      "distractors": [
+        { "value": "n * 10 / tenPow", "error": "one-place-too-few", "feedback": "{frac(value)} reads {fmt(n / tenPow)} as {n} {p == 1 ? 'ones' : p == 2 ? 'tenths' : 'hundredths'}. It has {p} place{p == 1 ? '' : 's'} after the point, so it is {n}/{tenPow}." },
+        { "value": "n / (tenPow * 10)", "error": "one-place-too-many", "feedback": "{frac(value)} has a bottom number ten times too big. {fmt(n / tenPow)} has {p} place{p == 1 ? '' : 's'} after the point, so it is {n}/{tenPow}." }
+      ]
+    },
+    {
+      "id": "decimals.from-fraction",
+      "competency": "G5.Q2.6",
+      "domain": "NA",
+      "construct": "Write a fraction as a terminating decimal",
+      "schema": "part-whole",
+      "params": {
+        "k": { "tiers": { "1": [1, 3], "2": [1, 6], "3": [4, 9] } },
+        "den": { "value": "k == 1 ? 2 : k == 2 ? 4 : k == 3 ? 5 : k == 4 ? 20 : k == 5 ? 25 : k == 6 ? 50 : k == 7 ? 8 : k == 8 ? 40 : 125" },
+        "num": { "range": [1, "den - 1"] },
+        "target": { "value": "10 % den == 0 ? 10 : 100 % den == 0 ? 100 : 1000" },
+        "scale": { "value": "target / den" },
+        "place": { "value": "target == 10 ? 'tenths' : target == 100 ? 'hundredths' : 'thousandths'" },
+        "dot": { "value": "den < 10 ? 10 : den < 100 ? 100 : 1000" },
+        "numDot": { "value": "num < 10 ? 10 : num < 100 ? 100 : 1000" }
+      },
+      "where": ["gcd(num, den) == 1"],
+      "answer": { "type": "decimal", "value": "num / den" },
+      "formats": [
+        { "id": "plain", "prompt": "Write {num}/{den} as a decimal." },
+        { "id": "jug", "prompt": "A jug is {num}/{den} full. Write how full it is as a decimal." }
+      ],
+      "hints": [
+        "A fraction is a division: {num} ÷ {den}.",
+        "Or change the bottom to {target}: multiply the top and the bottom by {scale}.",
+        "{num}/{den} = {num * scale}/{target}, which is {num * scale} {place}."
+      ],
+      "steps": [
+        "{num}/{den} = {num * scale}/{target}",
+        "{num * scale}/{target} is {num * scale} {place}",
+        "{num * scale} {place} = {fmt(answer)}"
+      ],
+      "explain": "{num}/{den} = {num * scale}/{target} = {fmt(answer)}.",
+      "distractors": [
+        { "value": "num + den / dot", "error": "wrote-the-two-numbers", "feedback": "{fmt(value)} writes {num} and {den} with a point between them. A fraction means {num} ÷ {den}." },
+        { "value": "num / numDot", "error": "read-the-top-as-the-decimal", "feedback": "{fmt(value)} would be {num}/{numDot}. Here the bottom is {den}, so change it to {target} first." }
+      ]
+    },
+    {
+      "id": "decimals.greatest",
+      "competency": "G5.Q2.7",
+      "domain": "NA",
+      "construct": "Compare decimals place by place, not by how many digits they have",
+      "schema": "compare",
+      "params": {
+        "w": { "tiers": { "1": [0, 0], "3": [1, 9] } },
+        "x": { "range": [1, 8] },
+        "y": { "range": [1, 9] },
+        "a": { "value": "w + x / 10 + y / 100" },
+        "b": { "value": "w + x / 10 + y / 1000" },
+        "c": { "value": "w + x / 100 + y / 1000" },
+        "d": { "value": "w + x / 10" }
+      },
+      "answer": { "type": "choice", "value": "a", "label": "{fmt(value)}", "order": "mixed" },
+      "formats": [
+        { "id": "greatest", "prompt": "Which number is the greatest?" },
+        { "id": "heaviest", "prompt": "Four bags of rice were weighed, in kilograms. Which bag is the heaviest?" },
+        { "id": "farthest", "prompt": "Four children threw a ball. The distances are in metres. Which throw went farthest?" }
+      ],
+      "hints": [
+        "Line the numbers up at the point and compare from the left.",
+        "All four have the same whole number. Compare the tenths first, then the hundredths.",
+        "Only one of them has {x} tenth{x == 1 ? '' : 's'} and {y} hundredth{y == 1 ? '' : 's'}."
+      ],
+      "steps": [
+        "Tenths: {fmt(c)} has 0; the others have {x}",
+        "Hundredths: {fmt(a)} has {y}; {fmt(b)} and {fmt(d)} have 0",
+        "{fmt(a)} is the greatest"
+      ],
+      "explain": "Place by place, {fmt(a)} > {fmt(b)} > {fmt(d)} > {fmt(c)}.",
+      "distractors": [
+        { "value": "b", "error": "longer-looks-bigger", "feedback": "{fmt(value)} has more digits, but that does not make it bigger. Its hundredths digit is 0, and {fmt(a)} has {y} hundredth{y == 1 ? '' : 's'}." },
+        { "value": "d", "error": "stopped-at-the-tenths", "feedback": "{fmt(value)} has the same tenths as {fmt(a)}, so look at the hundredths: {fmt(a)} has {y} more." },
+        { "value": "c", "error": "read-past-the-zero", "feedback": "{fmt(value)} has 0 tenths, so it is the smallest of the four, not the greatest." }
+      ]
+    },
+    {
+      "id": "decimals.between",
+      "competency": "G5.Q2.7",
+      "domain": "NA",
+      "construct": "Find a decimal between two others",
+      "schema": "compare",
+      "params": {
+        "w": { "tiers": { "1": [1, 9], "3": [10, 99] } },
+        "h": { "range": [11, 89] },
+        "m": { "range": [1, 9] },
+        "lo": { "value": "w + h / 100" },
+        "hi": { "value": "w + (h + 5) / 100" }
+      },
+      "where": ["h % 10 != 0"],
+      "answer": { "type": "choice", "value": "lo + m / 1000", "label": "{fmt(value)}", "order": "mixed" },
+      "formats": [
+        { "id": "between", "prompt": "Which number is between {fmt(lo)} and {fmt(hi)}?" },
+        { "id": "greater-but-less", "prompt": "Which number is greater than {fmt(lo)} but less than {fmt(hi)}?" },
+        { "id": "race", "prompt": "A runner's time was more than {fmt(lo)} seconds and less than {fmt(hi)} seconds. Which could it be?" }
+      ],
+      "hints": [
+        "Write both numbers with three places: {fixed(lo, 3)} and {fixed(hi, 3)}.",
+        "Now compare each choice with them, place by place.",
+        "The number must be more than {fixed(lo, 3)} and less than {fixed(hi, 3)}."
+      ],
+      "steps": [
+        "{fmt(lo)} = {fixed(lo, 3)} and {fmt(hi)} = {fixed(hi, 3)}",
+        "{fmt(answer)} is more than {fixed(lo, 3)}",
+        "{fmt(answer)} is less than {fixed(hi, 3)}"
+      ],
+      "explain": "{fixed(lo, 3)} < {fmt(answer)} < {fixed(hi, 3)}.",
+      "distractors": [
+        { "value": "lo - m / 1000", "error": "below-the-lower", "feedback": "{fmt(value)} is less than {fmt(lo)}, so it is not between them." },
+        { "value": "hi + m / 1000", "error": "above-the-upper", "feedback": "{fmt(value)} is more than {fmt(hi)}, so it is not between them." },
+        { "value": "w + h / 1000", "error": "same-digits-wrong-places", "feedback": "{fmt(value)} has the same digits as {fmt(lo)} but in smaller places. Its tenths digit is 0, so it is less than {fmt(lo)}." }
+      ]
+    },
+    {
+      "id": "decimals.round",
+      "competency": "G5.Q2.8",
+      "domain": "NA",
+      "construct": "Round a decimal to a given place by the digit after it",
+      "schema": "part-whole",
+      "params": {
+        "w": { "tiers": { "1": [1, 20], "3": [21, 999] } },
+        "e": { "range": [1000, 9999] },
+        "p": { "tiers": { "1": [1, 2], "2": [1, 3] } },
+        "n": { "value": "w + e / 10000" },
+        "place": { "value": "p == 1 ? 'tenth' : p == 2 ? 'hundredth' : 'thousandth'" },
+        "next": { "value": "p == 1 ? floor(e / 100) % 10 : p == 2 ? floor(e / 10) % 10 : e % 10" },
+        "tenPow": { "value": "p == 1 ? 10 : p == 2 ? 100 : 1000" }
+      },
+      "where": ["e % 10 != 0"],
+      "answer": { "type": "decimal", "value": "round(n, p)", "maxDecimals": 3 },
+      "formats": [
+        { "id": "plain", "prompt": "Round {fmt(n)} to the nearest {place}." },
+        { "id": "scale", "prompt": "A scale shows {fmt(n)} kg. Round the weight to the nearest {place} of a kilogram." }
+      ],
+      "hints": [
+        "The nearest {place} keeps {p} digit{p == 1 ? '' : 's'} after the point.",
+        "Look only at the digit just after that one: {next}.",
+        "{next} is {next >= 5 ? '5 or more, so the last kept digit goes up by 1' : 'less than 5, so the kept digits stay as they are'}."
+      ],
+      "steps": [
+        "Keep {p} digit{p == 1 ? '' : 's'} after the point in {fmt(n)}",
+        "The next digit is {next}, so {next >= 5 ? 'round up' : 'leave the kept digits as they are'}",
+        "{fmt(n)} rounds to {fmt(answer)}"
+      ],
+      "explain": "The next digit is {next}, so {fmt(n)} to the nearest {place} is {fmt(answer)}.",
+      "distractors": [
+        { "value": "floor(n * tenPow) / tenPow", "error": "cut-off-instead-of-rounding", "feedback": "{fmt(value)} just cuts off the digits. The next digit is {next}, which is 5 or more, so round up." },
+        { "value": "round(n, p + 1)", "error": "rounded-to-the-wrong-place", "feedback": "{fmt(value)} keeps {p + 1} digits after the point. The nearest {place} keeps {p}." },
+        { "value": "n", "error": "did-not-round", "feedback": "{fmt(value)} is the number before rounding. Keep {p} digit{p == 1 ? '' : 's'} after the point." }
+      ]
+    },
+    {
+      "id": "decimals.add",
+      "competency": "G5.Q2.9",
+      "domain": "NA",
+      "construct": "Add decimals with different numbers of places by lining up the points",
+      "schema": "combine",
+      "params": {
+        "pa": { "tiers": { "1": [2, 2], "3": [3, 3] } },
+        "aPow": { "value": "pa == 2 ? 100 : 1000" },
+        "w1": { "tiers": { "1": [1, 9], "2": [1, 30] } },
+        "f1": { "range": [11, "aPow - 1"] },
+        "w2": { "tiers": { "1": [1, 19], "2": [10, 60] } },
+        "f2": { "range": [1, 9] },
+        "a": { "value": "w1 + f1 / aPow" },
+        "b": { "value": "w2 + f2 / 10" }
+      },
+      "where": ["f1 % 10 != 0"],
+      "answer": { "type": "decimal", "value": "a + b" },
+      "formats": [
+        { "id": "sum", "prompt": "{fmt(a)} + {fmt(b)} = ?" },
+        { "id": "walk", "prompt": "Ben walked {fmt(a)} km in the morning and {fmt(b)} km in the afternoon. How far did he walk in all?" },
+        { "id": "sum-of", "prompt": "What is the sum of {fmt(a)} and {fmt(b)}?" }
+      ],
+      "hints": [
+        "Line up the decimal points, not the last digits.",
+        "Write {fmt(b)} as {fixed(b, pa)} so both numbers have {pa} places.",
+        "Now add {fixed(a, pa)} and {fixed(b, pa)} place by place, carrying as usual."
+      ],
+      "steps": [
+        "{fmt(b)} = {fixed(b, pa)}",
+        "{fixed(a, pa)} + {fixed(b, pa)}",
+        "= {fmt(answer)}"
+      ],
+      "explain": "With the points lined up, {fixed(a, pa)} + {fixed(b, pa)} = {fmt(answer)}.",
+      "distractors": [
+        { "value": "a + (w2 * 10 + f2) / aPow", "error": "lined-up-the-last-digits", "feedback": "{fmt(value)} lines up the last digits, so {fmt(b)} was added as if it were {fmt((w2 * 10 + f2) / aPow)}. Line up the points instead." },
+        { "value": "w1 + w2 + (f1 + f2) / aPow", "error": "added-tenths-as-smaller-places", "feedback": "{fmt(value)} adds the {f2} as if it were {f2} {pa == 2 ? 'hundredths' : 'thousandths'}. In {fmt(b)}, the {f2} is {f2} tenths." }
+      ]
+    },
+    {
+      "id": "decimals.subtract",
+      "competency": "G6.Q1.4",
+      "domain": "NA",
+      "construct": "Subtract a decimal of up to four places from a whole number",
+      "schema": "change",
+      "params": {
+        "pb": { "tiers": { "1": [2, 2], "2": [2, 3], "3": [3, 4] } },
+        "bPow": { "value": "pb == 2 ? 100 : pb == 3 ? 1000 : 10000" },
+        "w2": { "tiers": { "1": [1, 8], "3": [10, 80] } },
+        "f2": { "range": [1, "bPow - 1"] },
+        "b": { "value": "w2 + f2 / bPow" },
+        "a": { "range": ["w2 + 1", "w2 + 9"] }
+      },
+      "where": ["f2 % 10 != 0"],
+      "answer": { "type": "decimal", "value": "a - b" },
+      "formats": [
+        { "id": "difference", "prompt": "{a} − {fmt(b)} = ?" },
+        { "id": "rope", "prompt": "A rope is {a} m long. {fmt(b)} m is cut off. How much rope is left?" },
+        { "id": "how-much-more", "prompt": "How much more is {a} than {fmt(b)}?" }
+      ],
+      "hints": [
+        "Write {a} with {pb} places: {fixed(a, pb)}.",
+        "Or count up: from {fmt(b)} to {w2 + 1}, then from {w2 + 1} to {a}.",
+        "{fmt(b)} to {w2 + 1} is {fmt(w2 + 1 - b)}, and {w2 + 1} to {a} is {a - w2 - 1}."
+      ],
+      "steps": [
+        "{a} = {fixed(a, pb)}",
+        "{fmt(b)} up to {w2 + 1} is {fmt(w2 + 1 - b)}; {w2 + 1} up to {a} is {a - w2 - 1}",
+        "{fmt(w2 + 1 - b)} + {a - w2 - 1} = {fmt(answer)}"
+      ],
+      "explain": "{fixed(a, pb)} − {fixed(b, pb)} = {fmt(answer)}.",
+      "distractors": [
+        { "value": "a - w2 + f2 / bPow", "error": "took-away-only-the-whole", "feedback": "{fmt(value)} takes away {w2} and leaves the {fmt(f2 / bPow)} hanging on. The {fmt(f2 / bPow)} must be taken away too." },
+        { "value": "a + b", "error": "added-instead-of-subtracted", "feedback": "{fmt(value)} adds the two numbers. The question takes {fmt(b)} away." }
+      ]
+    },
+    {
+      "id": "decimals.change-money",
+      "competency": "G5.Q2.10",
+      "domain": "NA",
+      "construct": "Two purchases and the change, in pesos and centavos",
+      "schema": "multi-step",
+      "params": {
+        "p1": { "tiers": { "1": [15, 60], "3": [60, 250] }, "step": 0.25 },
+        "p2": { "tiers": { "1": [10, 40], "3": [40, 200] }, "step": 0.25 },
+        "bill": { "choose": [100, 200, 500, 1000] }
+      },
+      "where": ["floor(p1) != p1", "floor(p2) != p2", "p1 + p2 < bill"],
+      "answer": { "type": "decimal", "value": "bill - p1 - p2", "maxDecimals": 2, "prefix": "₱" },
+      "formats": [
+        { "id": "notebook", "prompt": "Mila buys a notebook for {peso(p1)} and a pen for {peso(p2)}. She pays with a {peso(bill)} bill. How much change does she get?" },
+        { "id": "market", "prompt": "At the market, fish costs {peso(p1)} and vegetables cost {peso(p2)}. How much is left from {peso(bill)}?" }
+      ],
+      "hints": [
+        "First find how much was spent in all.",
+        "{peso(p1)} + {peso(p2)} = {peso(p1 + p2)}.",
+        "The change is {peso(bill)} − {peso(p1 + p2)}."
+      ],
+      "steps": [
+        "Spent: {peso(p1)} + {peso(p2)} = {peso(p1 + p2)}",
+        "Change: {peso(bill)} − {peso(p1 + p2)}",
+        "= {peso(answer)}"
+      ],
+      "explain": "{peso(bill)} − ({peso(p1)} + {peso(p2)}) = {peso(answer)}.",
+      "distractors": [
+        { "value": "p1 + p2", "error": "gave-the-amount-spent", "feedback": "{peso(value)} is how much was spent. The question asks what is left of the {peso(bill)}." },
+        { "value": "bill - p1", "error": "left-out-the-second-item", "feedback": "{peso(value)} takes away only the first item. The second one costs money too." },
+        { "value": "bill - p2", "error": "left-out-the-first-item", "feedback": "{peso(value)} takes away only the second item. The first one costs money too." }
+      ]
+    },
+    {
+      "id": "decimals.what-is-left",
+      "competency": "G6.Q1.5",
+      "domain": "NA",
+      "construct": "Take two amounts with different numbers of places from a total",
+      "schema": "multi-step",
+      "params": {
+        "total": { "tiers": { "1": [10, 30], "3": [30, 90] }, "step": 0.5 },
+        "s1": { "range": [1.25, 9.75], "step": 0.25 },
+        "s2": { "range": [1.125, 9.875], "step": 0.125 }
+      },
+      "where": ["s1 + s2 < total", "floor(s2 * 100) != s2 * 100"],
+      "answer": { "type": "decimal", "value": "total - s1 - s2" },
+      "formats": [
+        { "id": "rice", "prompt": "A store has {fmt(total)} kg of rice. It sells {fmt(s1)} kg in the morning and {fmt(s2)} kg in the afternoon. How many kilograms are left?" },
+        { "id": "water", "prompt": "A tank holds {fmt(total)} L of water. {fmt(s1)} L is used for cooking and {fmt(s2)} L for washing. How much water is left?" }
+      ],
+      "hints": [
+        "Add the two amounts used first, lining up the points.",
+        "{fmt(s1)} + {fmt(s2)} = {fmt(s1 + s2)}.",
+        "Then take {fmt(s1 + s2)} from {fmt(total)}."
+      ],
+      "steps": [
+        "Used: {fmt(s1)} + {fmt(s2)} = {fmt(s1 + s2)}",
+        "Left: {fixed(total, 3)} − {fixed(s1 + s2, 3)}",
+        "= {fmt(answer)}"
+      ],
+      "explain": "{fmt(total)} − {fmt(s1)} − {fmt(s2)} = {fmt(answer)}.",
+      "distractors": [
+        { "value": "s1 + s2", "error": "gave-the-amount-used", "feedback": "{fmt(value)} is how much was used. The question asks how much is left." },
+        { "value": "total - s1", "error": "took-away-only-one", "feedback": "{fmt(value)} takes away only the first amount. Both amounts were used." },
+        { "value": "total - s1 + s2", "error": "added-the-second-back", "feedback": "{fmt(value)} takes the first amount away but adds the second one back. Both are taken away." }
+      ]
+    },
+    {
+      "id": "decimals.times-powers",
+      "competency": "G6.Q1.6",
+      "domain": "NA",
+      "construct": "Multiply by 10, 100, 1000 or by 0.1, 0.01, 0.001 by moving the point",
+      "schema": "multiplicative-compare",
+      "params": {
+        "k": { "tiers": { "1": [1, 3], "2": [1, 6] } },
+        "m": { "value": "k == 1 ? 10 : k == 2 ? 100 : k == 3 ? 0.1 : k == 4 ? 1000 : k == 5 ? 0.01 : 0.001" },
+        "shift": { "value": "k == 1 || k == 3 ? 1 : k == 2 || k == 5 ? 2 : 3" },
+        "dir": { "value": "m > 1 ? 'right' : 'left'" },
+        "q": { "tiers": { "1": [1, 1], "2": [1, 2] } },
+        "qPow": { "value": "q == 1 ? 10 : 100" },
+        "w": { "range": [1, 99] },
+        "f": { "range": [1, "qPow - 1"] },
+        "n": { "value": "w + f / qPow" }
+      },
+      "where": ["q == 1 || f % 10 != 0"],
+      "answer": { "type": "decimal", "value": "n * m" },
+      "formats": [
+        { "id": "product", "prompt": "{fmt(n)} × {fmt(m)} = ?" },
+        { "id": "mental", "prompt": "Work it out in your head: {fmt(n)} × {fmt(m)}." }
+      ],
+      "hints": [
+        "Multiplying by {fmt(m)} moves the decimal point {shift} place{shift == 1 ? '' : 's'}.",
+        "{m > 1 ? 'The answer is bigger, so the point moves right.' : 'The answer is smaller, so the point moves left.'}",
+        "Move the point {shift} place{shift == 1 ? '' : 's'} to the {dir} in {fmt(n)}."
+      ],
+      "steps": [
+        "× {fmt(m)} moves the point {shift} place{shift == 1 ? '' : 's'} to the {dir}",
+        "{fmt(n)} becomes {fmt(answer)}",
+        "{fmt(n)} × {fmt(m)} = {fmt(answer)}"
+      ],
+      "explain": "× {fmt(m)} moves the point {shift} place{shift == 1 ? '' : 's'} to the {dir}: {fmt(n)} × {fmt(m)} = {fmt(answer)}.",
+      "distractors": [
+        { "value": "n / m", "error": "moved-the-wrong-way", "feedback": "{fmt(value)} moves the point the wrong way. Multiplying by {fmt(m)} makes the number {m > 1 ? 'bigger' : 'smaller'}." },
+        { "value": "n * m * 10", "error": "ten-times-too-big", "feedback": "{fmt(value)} is ten times too big. × {fmt(m)} moves the point exactly {shift} place{shift == 1 ? '' : 's'} to the {dir}." },
+        { "value": "n * m / 10", "error": "ten-times-too-small", "feedback": "{fmt(value)} is ten times too small. × {fmt(m)} moves the point exactly {shift} place{shift == 1 ? '' : 's'} to the {dir}." }
+      ]
+    },
+    {
+      "id": "decimals.multiply",
+      "competency": "G5.Q3.10",
+      "domain": "NA",
+      "construct": "Multiply decimals and place the point by counting decimal places",
+      "schema": "equal-groups",
+      "params": {
+        "pa": { "tiers": { "1": [1, 1], "3": [1, 2] } },
+        "aPow": { "value": "pa == 1 ? 10 : 100" },
+        "ai": { "tiers": { "1": [11, 49], "3": [11, 99] } },
+        "bi": { "range": [11, 49] },
+        "a": { "value": "ai / aPow" },
+        "b": { "value": "bi / 10" }
+      },
+      "where": ["ai % 10 != 0", "bi % 10 != 0"],
+      "answer": { "type": "decimal", "value": "a * b" },
+      "formats": [
+        { "id": "product", "prompt": "{fmt(a)} × {fmt(b)} = ?" },
+        { "id": "cloth", "prompt": "A strip of cloth is {fmt(a)} m long and {fmt(b)} m wide. What is its area in square metres?" },
+        { "id": "product-of", "prompt": "Find the product of {fmt(a)} and {fmt(b)}." }
+      ],
+      "hints": [
+        "Multiply as if there were no points: {ai} × {bi}.",
+        "{ai} × {bi} = {ai * bi}.",
+        "{fmt(a)} has {pa} decimal place{pa == 1 ? '' : 's'} and {fmt(b)} has 1, so the answer has {pa + 1}."
+      ],
+      "steps": [
+        "{ai} × {bi} = {ai * bi}",
+        "Decimal places: {pa} + 1 = {pa + 1}",
+        "{ai * bi} with {pa + 1} decimal places is {fixed(answer, pa + 1)}"
+      ],
+      "explain": "{ai} × {bi} = {ai * bi}, and with {pa + 1} decimal places that is {fmt(answer)}.",
+      "distractors": [
+        { "value": "ai * bi", "error": "left-out-the-point", "feedback": "{fmt(value)} leaves out the decimal point. The two numbers have {pa + 1} decimal places between them." },
+        { "value": "a * b * 10", "error": "one-place-too-few", "feedback": "{fmt(value)} has one decimal place too few. Count the places in both numbers: {pa + 1}." },
+        { "value": "a * b / 10", "error": "one-place-too-many", "feedback": "{fmt(value)} has one decimal place too many. Count the places in both numbers: {pa + 1}." }
+      ]
+    },
+    {
+      "id": "decimals.estimate-product",
+      "competency": "G5.Q3.9",
+      "domain": "NA",
+      "construct": "Estimate a product by rounding each factor to a whole number",
+      "schema": "equal-groups",
+      "params": {
+        "A": { "tiers": { "1": [2, 9], "3": [11, 30] } },
+        "B": { "range": [3, 9] },
+        "da": { "range": [1, 7] },
+        "db": { "range": [1, 7] },
+        "a": { "value": "A + (da - 4) / 10" },
+        "b": { "value": "B + (db - 4) / 10" }
+      },
+      "where": ["da != 4", "db != 4"],
+      "answer": { "type": "choice", "value": "A * B", "label": "{fmt(value)}", "order": "mixed" },
+      "formats": [
+        { "id": "best-estimate", "prompt": "Which is the best estimate of {fmt(a)} × {fmt(b)}?" },
+        { "id": "about", "prompt": "About how much is {fmt(a)} × {fmt(b)}?" }
+      ],
+      "hints": [
+        "Round each number to the nearest whole number first.",
+        "{fmt(a)} is about {A}, and {fmt(b)} is about {B}.",
+        "Now multiply {A} × {B}."
+      ],
+      "steps": [
+        "{fmt(a)} rounds to {A}",
+        "{fmt(b)} rounds to {B}",
+        "{A} × {B} = {A * B}"
+      ],
+      "explain": "{fmt(a)} × {fmt(b)} is about {A} × {B} = {A * B}.",
+      "distractors": [
+        { "value": "A * B * 10", "error": "ten-times-too-big", "feedback": "{fmt(value)} is ten times too big. {A} × {B} is {A * B}." },
+        { "value": "A * B / 10", "error": "ten-times-too-small", "feedback": "{fmt(value)} is ten times too small. {A} × {B} is {A * B}." },
+        { "value": "A + B", "error": "added-instead-of-multiplied", "feedback": "{fmt(value)} adds the numbers. The question multiplies them." }
+      ]
+    },
+    {
+      "id": "decimals.price-per-kilo",
+      "competency": "G5.Q3.11",
+      "domain": "NA",
+      "construct": "Cost of a decimal number of kilograms at a price per kilogram",
+      "schema": "rate",
+      "params": {
+        "p": { "tiers": { "1": [40, 120], "3": [120, 380] }, "step": 0.5 },
+        "kgi": { "tiers": { "1": [12, 35], "3": [12, 75] } },
+        "kg": { "value": "kgi / 10" },
+        "whole": { "value": "floor(kg)" },
+        "part": { "value": "kg - floor(kg)" }
+      },
+      "where": ["kgi % 10 != 0"],
+      "answer": { "type": "decimal", "value": "p * kg", "maxDecimals": 2, "prefix": "₱" },
+      "formats": [
+        { "id": "fish", "prompt": "Fish costs {peso(p)} a kilo. How much do {fmt(kg)} kilos cost?" },
+        { "id": "galunggong", "prompt": "Galunggong is sold at {peso(p)} per kilogram. What does {fmt(kg)} kg cost?" }
+      ],
+      "hints": [
+        "Cost = price per kilo × number of kilos.",
+        "Split {fmt(kg)} into {whole} and {fmt(part)}.",
+        "{whole} × {peso(p)} = {peso(whole * p)}, and {fmt(part)} × {peso(p)} = {peso(part * p)}."
+      ],
+      "steps": [
+        "{whole} kilo{whole == 1 ? '' : 's'}: {whole} × {peso(p)} = {peso(whole * p)}",
+        "{fmt(part)} kilo: {fmt(part)} × {peso(p)} = {peso(part * p)}",
+        "Total: {peso(whole * p)} + {peso(part * p)} = {peso(answer)}"
+      ],
+      "explain": "{fmt(kg)} × {peso(p)} = {peso(answer)}.",
+      "distractors": [
+        { "value": "p * kgi", "error": "left-out-the-point", "feedback": "{peso(value)} is the price of {kgi} kilos. The point in {fmt(kg)} matters." },
+        { "value": "p * whole", "error": "paid-only-for-whole-kilos", "feedback": "{peso(value)} pays for only {whole} kilo{whole == 1 ? '' : 's'}. The {fmt(part)} kilo costs money too." },
+        { "value": "p + kg", "error": "added-instead-of-multiplied", "feedback": "{peso(value)} adds the price and the weight. Each kilo costs {peso(p)}, so multiply." }
+      ]
+    },
+    {
+      "id": "decimals.multiply-money",
+      "competency": "G6.Q1.7",
+      "domain": "NA",
+      "construct": "Two purchases of several items at decimal prices",
+      "schema": "multi-step",
+      "params": {
+        "n1": { "range": [2, 5] },
+        "p1": { "tiers": { "1": [12, 45], "3": [45, 150] }, "step": 0.25 },
+        "n2": { "range": [2, 5] },
+        "p2": { "tiers": { "1": [5, 30], "3": [30, 120] }, "step": 0.25 }
+      },
+      "where": ["floor(p1) != p1", "floor(p2) != p2", "p1 != p2"],
+      "answer": { "type": "decimal", "value": "n1 * p1 + n2 * p2", "maxDecimals": 2, "prefix": "₱" },
+      "formats": [
+        { "id": "school", "prompt": "Ana buys {n1} notebooks at {peso(p1)} each and {n2} pens at {peso(p2)} each. How much does she pay in all?" },
+        { "id": "canteen", "prompt": "At the canteen, Jun buys {n1} cups of rice at {peso(p1)} each and {n2} bananas at {peso(p2)} each. What is the total?" }
+      ],
+      "hints": [
+        "Find the cost of each kind of item, then add.",
+        "{n1} × {peso(p1)} = {peso(n1 * p1)}.",
+        "{n2} × {peso(p2)} = {peso(n2 * p2)}."
+      ],
+      "steps": [
+        "{n1} × {peso(p1)} = {peso(n1 * p1)}",
+        "{n2} × {peso(p2)} = {peso(n2 * p2)}",
+        "{peso(n1 * p1)} + {peso(n2 * p2)} = {peso(answer)}"
+      ],
+      "explain": "{n1} × {peso(p1)} + {n2} × {peso(p2)} = {peso(answer)}.",
+      "distractors": [
+        { "value": "n1 * p1", "error": "left-out-the-second-item", "feedback": "{peso(value)} is only the first kind of item. Add the cost of the second." },
+        { "value": "p1 + p2", "error": "added-one-of-each", "feedback": "{peso(value)} pays for one of each. There are {n1} of the first and {n2} of the second." },
+        { "value": "(n1 + n2) * p1", "error": "used-one-price-for-all", "feedback": "{peso(value)} prices everything at {peso(p1)}. The second item costs {peso(p2)}." }
+      ]
+    },
+    {
+      "id": "decimals.divide-powers",
+      "competency": "G6.Q1.9",
+      "domain": "NA",
+      "construct": "Divide by 10, 100, 1000 or by 0.1, 0.01 by moving the point",
+      "schema": "multiplicative-compare",
+      "params": {
+        "k": { "tiers": { "1": [1, 3], "2": [1, 5] } },
+        "m": { "value": "k == 1 ? 10 : k == 2 ? 100 : k == 3 ? 0.1 : k == 4 ? 1000 : 0.01" },
+        "shift": { "value": "k == 1 || k == 3 ? 1 : k == 2 || k == 5 ? 2 : 3" },
+        "dir": { "value": "m > 1 ? 'left' : 'right'" },
+        "w": { "tiers": { "1": [1, 99], "3": [100, 999] } },
+        "f": { "range": [1, 9] },
+        "n": { "value": "w + f / 10" }
+      },
+      "answer": { "type": "decimal", "value": "n / m" },
+      "formats": [
+        { "id": "quotient", "prompt": "{fmt(n)} ÷ {fmt(m)} = ?" },
+        { "id": "mental", "prompt": "Work it out in your head: {fmt(n)} ÷ {fmt(m)}." }
+      ],
+      "hints": [
+        "Dividing by {fmt(m)} moves the decimal point {shift} place{shift == 1 ? '' : 's'}.",
+        "{m > 1 ? 'The answer is smaller, so the point moves left.' : 'Dividing by a number less than 1 makes the answer bigger, so the point moves right.'}",
+        "Move the point {shift} place{shift == 1 ? '' : 's'} to the {dir} in {fmt(n)}."
+      ],
+      "steps": [
+        "÷ {fmt(m)} moves the point {shift} place{shift == 1 ? '' : 's'} to the {dir}",
+        "{fmt(n)} becomes {fmt(answer)}",
+        "{fmt(n)} ÷ {fmt(m)} = {fmt(answer)}"
+      ],
+      "explain": "÷ {fmt(m)} moves the point {shift} place{shift == 1 ? '' : 's'} to the {dir}: {fmt(n)} ÷ {fmt(m)} = {fmt(answer)}.",
+      "distractors": [
+        { "value": "n * m", "error": "moved-the-wrong-way", "feedback": "{fmt(value)} moves the point the wrong way. Dividing by {fmt(m)} makes the number {m > 1 ? 'smaller' : 'bigger'}." },
+        { "value": "n / m * 10", "error": "ten-times-too-big", "feedback": "{fmt(value)} is ten times too big. ÷ {fmt(m)} moves the point exactly {shift} place{shift == 1 ? '' : 's'} to the {dir}." },
+        { "value": "n / m / 10", "error": "ten-times-too-small", "feedback": "{fmt(value)} is ten times too small. ÷ {fmt(m)} moves the point exactly {shift} place{shift == 1 ? '' : 's'} to the {dir}." }
+      ]
+    },
+    {
+      "id": "decimals.divide-by-whole",
+      "competency": "G5.Q3.13",
+      "domain": "NA",
+      "construct": "Divide a decimal by a whole number to a terminating quotient",
+      "schema": "equal-groups",
+      "params": {
+        "d": { "tiers": { "1": [2, 5], "3": [3, 9] } },
+        "w": { "range": [1, 20] },
+        "f": { "range": [1, 99] },
+        "q": { "value": "w + f / 100" },
+        "n": { "value": "q * d" }
+      },
+      "where": ["f % 10 != 0"],
+      "answer": { "type": "decimal", "value": "q" },
+      "formats": [
+        { "id": "quotient", "prompt": "{fmt(n)} ÷ {d} = ?" },
+        { "id": "wire", "prompt": "{fmt(n)} m of wire is cut into {d} equal pieces. How long is each piece?" },
+        { "id": "sugar", "prompt": "{fmt(n)} kg of sugar is shared equally among {d} bags. How much goes in each bag?" }
+      ],
+      "hints": [
+        "Divide as you would whole numbers, and keep the point in line.",
+        "The point in the answer goes straight above the point in {fmt(n)}.",
+        "Check by multiplying: {d} × your answer should be {fmt(n)}."
+      ],
+      "steps": [
+        "{fmt(n)} ÷ {d}",
+        "Divide place by place, keeping the point in line",
+        "= {fmt(answer)}"
+      ],
+      "explain": "{fmt(n)} ÷ {d} = {fmt(answer)}, because {d} × {fmt(answer)} = {fmt(n)}.",
+      "distractors": [
+        { "value": "q * 100", "error": "left-out-the-point", "feedback": "{fmt(value)} leaves out the decimal point. {d} × {fmt(value)} is far more than {fmt(n)}." },
+        { "value": "q * 10", "error": "point-one-place-off", "feedback": "{fmt(value)} has the point one place too far right. Put the point straight above the point in {fmt(n)}." },
+        { "value": "n * d", "error": "multiplied-instead-of-divided", "feedback": "{fmt(value)} multiplies by {d}. Sharing into {d} equal parts divides." }
+      ]
+    },
+    {
+      "id": "decimals.divide-by-decimal",
+      "competency": "G6.Q1.8",
+      "domain": "NA",
+      "construct": "Divide by a one-place decimal by making the divisor whole",
+      "schema": "equal-groups",
+      "params": {
+        "k": { "range": [2, 9] },
+        "t": { "tiers": { "1": [2, 20], "3": [11, 60] } },
+        "v": { "value": "k / 10" },
+        "n": { "value": "t * v" }
+      },
+      "answer": { "type": "integer", "value": "t" },
+      "formats": [
+        { "id": "plain", "prompt": "{fmt(n)} ÷ {fmt(v)} = ?" },
+        { "id": "cups", "prompt": "How many {fmt(v)}-litre cups can be filled from {fmt(n)} litres of juice?" }
+      ],
+      "hints": [
+        "Make the divisor a whole number: multiply both numbers by 10.",
+        "{fmt(n)} ÷ {fmt(v)} is the same as {fmt(n * 10)} ÷ {k}.",
+        "Now work out {fmt(n * 10)} ÷ {k}."
+      ],
+      "steps": [
+        "Multiply both by 10: {fmt(n)} ÷ {fmt(v)} = {fmt(n * 10)} ÷ {k}",
+        "{fmt(n * 10)} ÷ {k} = {answer}",
+        "So {fmt(n)} ÷ {fmt(v)} = {answer}"
+      ],
+      "explain": "{fmt(n)} ÷ {fmt(v)} = {fmt(n * 10)} ÷ {k} = {answer}.",
+      "distractors": [
+        { "value": "n / k", "error": "ignored-the-point-in-the-divisor", "feedback": "{fmt(value)} divides by {k}, not by {fmt(v)}. Multiply both numbers by 10 first." },
+        { "value": "n * v", "error": "multiplied-instead-of-divided", "feedback": "{fmt(value)} multiplies by {fmt(v)}. The question divides." }
+      ]
+    },
+    {
+      "id": "decimals.estimate-quotient",
+      "competency": "G5.Q3.12",
+      "domain": "NA",
+      "construct": "Estimate a quotient with compatible whole numbers",
+      "schema": "equal-groups",
+      "params": {
+        "B": { "range": [3, 9] },
+        "Qt": { "tiers": { "1": [3, 9], "3": [6, 20] } },
+        "da": { "range": [1, 7] },
+        "db": { "range": [1, 7] },
+        "a": { "value": "B * Qt + (da - 4) / 10" },
+        "b": { "value": "B + (db - 4) / 10" }
+      },
+      "where": ["da != 4", "db != 4"],
+      "answer": { "type": "choice", "value": "Qt", "label": "{fmt(value)}", "order": "mixed" },
+      "formats": [
+        { "id": "best-estimate", "prompt": "Which is the best estimate of {fmt(a)} ÷ {fmt(b)}?" },
+        { "id": "about", "prompt": "About how much is {fmt(a)} ÷ {fmt(b)}?" }
+      ],
+      "hints": [
+        "Round to whole numbers that divide easily.",
+        "{fmt(b)} is about {B}, and {fmt(a)} is about {B * Qt}.",
+        "Now divide {B * Qt} ÷ {B}."
+      ],
+      "steps": [
+        "{fmt(b)} rounds to {B}",
+        "{fmt(a)} rounds to {B * Qt}",
+        "{B * Qt} ÷ {B} = {Qt}"
+      ],
+      "explain": "{fmt(a)} ÷ {fmt(b)} is about {B * Qt} ÷ {B} = {Qt}.",
+      "distractors": [
+        { "value": "Qt * 10", "error": "ten-times-too-big", "feedback": "{fmt(value)} is ten times too big. {B * Qt} ÷ {B} is {Qt}." },
+        { "value": "Qt / 10", "error": "ten-times-too-small", "feedback": "{fmt(value)} is ten times too small. {B * Qt} ÷ {B} is {Qt}." },
+        { "value": "B * Qt * B", "error": "multiplied-instead-of-divided", "feedback": "{fmt(value)} multiplies the numbers. The question divides them." }
+      ]
+    },
+    {
+      "id": "decimals.share-cost",
+      "competency": "G5.Q4.1",
+      "domain": "NA",
+      "construct": "Total a purchase, then share the cost equally",
+      "schema": "multi-step",
+      "params": {
+        "people": { "range": [2, 6] },
+        "items": { "range": [2, 4] },
+        "price": { "tiers": { "1": [80, 200], "3": [150, 450] }, "step": 0.5 }
+      },
+      "where": ["floor(items * price * 100 / people) == items * price * 100 / people", "floor(price) != price"],
+      "answer": { "type": "decimal", "value": "items * price / people", "maxDecimals": 2, "prefix": "₱" },
+      "formats": [
+        { "id": "pizza", "prompt": "{people} friends buy {items} pizzas at {peso(price)} each and share the cost equally. How much does each friend pay?" },
+        { "id": "donuts", "prompt": "{people} classmates buy {items} boxes of donuts at {peso(price)} a box and split the cost equally. How much does each one pay?" }
+      ],
+      "hints": [
+        "First find the total cost.",
+        "{items} × {peso(price)} = {peso(items * price)}.",
+        "Then share it equally: {peso(items * price)} ÷ {people}."
+      ],
+      "steps": [
+        "Total: {items} × {peso(price)} = {peso(items * price)}",
+        "Each pays: {peso(items * price)} ÷ {people}",
+        "= {peso(answer)}"
+      ],
+      "explain": "{items} × {peso(price)} = {peso(items * price)}, and {peso(items * price)} ÷ {people} = {peso(answer)}.",
+      "distractors": [
+        { "value": "items * price", "error": "gave-the-total", "feedback": "{peso(value)} is the total. Each person pays only a share of it." },
+        { "value": "price / people", "error": "shared-only-one-item", "feedback": "{peso(value)} shares the cost of one item. There are {items} of them." }
+      ]
+    },
+    {
+      "id": "decimals.how-many-pieces",
+      "competency": "G6.Q1.10",
+      "domain": "NA",
+      "construct": "Divide a length by a decimal piece size, ignoring a number the question does not need",
+      "schema": "excess-info",
+      "params": {
+        "vi": { "choose": [25, 50, 75, 125, 150] },
+        "t": { "tiers": { "1": [4, 20], "3": [12, 40] } },
+        "p": { "range": [20, 90] },
+        "v": { "value": "vi / 100" },
+        "len": { "value": "t * v" }
+      },
+      "answer": { "type": "integer", "value": "t" },
+      "formats": [
+        { "id": "ribbon", "prompt": "A {fmt(len)} m ribbon costs {peso(p)}. It is cut into pieces {fmt(v)} m long. How many pieces are there?" },
+        { "id": "juice", "prompt": "A {fmt(len)} L jug of juice costs {peso(p)}. How many {fmt(v)} L cups can it fill?" }
+      ],
+      "hints": [
+        "Which numbers does the question need? The price does not tell you how many.",
+        "How many {fmt(v)}s fit in {fmt(len)}? That is {fmt(len)} ÷ {fmt(v)}.",
+        "Multiply both by 100 to divide whole numbers: {len * 100} ÷ {vi}."
+      ],
+      "steps": [
+        "How many = {fmt(len)} ÷ {fmt(v)}",
+        "= {len * 100} ÷ {vi}",
+        "= {answer}"
+      ],
+      "explain": "{fmt(len)} ÷ {fmt(v)} = {len * 100} ÷ {vi} = {answer}. The price was not needed.",
+      "distractors": [
+        { "value": "p / v", "error": "used-the-price", "feedback": "{fmt(value)} divides the price. The price does not tell you how many; the two amounts do." },
+        { "value": "len * v", "error": "multiplied-instead-of-divided", "feedback": "{fmt(value)} multiplies the two amounts. To find how many fit, divide." }
+      ]
+    }
+  ]
+}

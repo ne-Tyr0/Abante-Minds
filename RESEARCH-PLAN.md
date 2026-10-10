@@ -169,6 +169,9 @@ templates is an afternoon, migrating 300 is a project.
 ## Phase 2 — Content, rebuilt to the blueprint
 
 12. **New topic set from the table of specifications**, replacing the four placeholders.
+    **In progress** — the placeholders are gone and the path lists all 13 topics.
+    `decimals` is written (22 templates in 6 levels, all 20 of its competencies covered);
+    the other 12 are on the path as coming soon.
     Target **≥10 templates per topic**. That number is driven by two independent
     constraints that happen to agree: an 8-week intervention is ~320 attempts and template
     *shapes* go stale long before parameterised numbers do; and a defensible KR-20 needs
@@ -184,10 +187,14 @@ templates is an afternoon, migrating 300 is a project.
 14. **Timed mode and exam simulation.** The real exam is timed and competitive at an 84.50%
     mean. Speed is part of the construct, so latency becomes a learner-facing feature, not
     only a research variable.
-15. **Replace the progression model.** Tier bars and "20 correct per topic" answer the
+15. **Replace the progression model.** **Done 2026-10-10** — a path of levels per topic,
+    cleared at 8 right first time, each opening with a lesson; Home counts down to the exam
+    and shows blueprint coverage. Tier bars and "20 correct per topic" answered the
     wrong question. A learner counting down to 30 January wants blueprint coverage and a
     readiness estimate. Add an exam-date countdown.
-16. **Make the demotion rule configurable, default off.** `rollDay()` currently costs a
+16. **Make the demotion rule configurable, default off.** **Superseded 2026-10-10** — the
+    path removed tiers, and with them demotion: a missed day resets only the streak. If
+    demotion is studied later it comes back as a condition flag (item 24). It used to cost a
     full tier for one missed day. Over a 4–8 week study it is a serious confound, and it is
     itself the most interesting design question here: does streak-linked demotion raise or
     lower return rate? It cannot be studied while hardcoded.

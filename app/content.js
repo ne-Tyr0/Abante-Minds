@@ -133,6 +133,22 @@
     var whole = floorInt(a.n, a.d);
     return whole + " " + (a.n - whole * a.d) + "/" + a.d;
   }
+  /* A whole number in words, as a Grade 6 textbook reads it: "four hundred
+     five", "forty-five". No "and": in reading a decimal, "and" is the point. */
+  var ONES = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten",
+    "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen"];
+  var TENS = ["", "", "twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"];
+  function wordsUnderThousand(n) {
+    var out = [];
+    if (n >= 100) { out.push(ONES[Math.floor(n / 100)] + " hundred"); n %= 100; }
+    if (n >= 20) out.push(TENS[Math.floor(n / 10)] + (n % 10 ? "-" + ONES[n % 10] : ""));
+    else if (n > 0 || !out.length) out.push(ONES[n]);
+    return out.join(" ");
+  }
+  function numberWords(n) {
+    if (n < 1000) return wordsUnderThousand(n);
+    return wordsUnderThousand(Math.floor(n / 1000)) + " thousand" + (n % 1000 ? " " + wordsUnderThousand(n % 1000) : "");
+  }
   /* Money: whole pesos as they are, anything else to two places. */
   function peso(a) {
     var r = rround(a, 2);
@@ -156,6 +172,13 @@
   FUNCS.peso = function (x) { return peso(num(x)); };
   FUNCS.fmt = function (x) { return fmt(num(x)); };
   FUNCS.frac = function (x) { return fracText(num(x)); };
+  /* A number to a fixed count of places, so columns line up: fixed(2.4, 2) is 2.40. */
+  FUNCS.fixed = function (x, dp) { return decimalString(num(x), toNumber(int(dp))); };
+  FUNCS.words = function (x) {
+    x = int(x);
+    if (x.n < 0 || x.n > 999999) throw ContentError("words() takes a whole number from 0 to 999999");
+    return numberWords(x.n);
+  };
   FUNCS.mixed = function (x) { return mixedText(num(x)); };
 
   var RESERVED = { "true": true, "false": true, answer: true, value: true };
@@ -446,6 +469,10 @@
     if (q.type === "choice") {
       var values = [answer].concat(distractors.map(function (d) { return d.exact; }));
       values.sort(cmp);
+      /* In order of size unless that gives the answer away -- "which is the
+         greatest?" would always be the last option -- in which case the
+         options are shuffled, deterministically for the question. */
+      if (t.answer.order === "mixed") shuffle(values, meta.r || rng(hashText(JSON.stringify(scope, ratJSON))));
       q.choiceValues = values;
       q.choices = values.map(function (v) {
         var ls = within(scope);
@@ -456,6 +483,22 @@
     }
     return q;
   }
+
+  function shuffle(list, r) {
+    for (var i = list.length - 1; i > 0; i--) {
+      var j = Math.floor(r() * (i + 1)), tmp = list[i];
+      list[i] = list[j];
+      list[j] = tmp;
+    }
+    return list;
+  }
+  /* FNV-1a: a stable number from text, to seed a pinned question's shuffle. */
+  function hashText(text) {
+    var h = 2166136261;
+    for (var i = 0; i < text.length; i++) h = Math.imul(h ^ text.charCodeAt(i), 16777619) >>> 0;
+    return h;
+  }
+  function ratJSON(k, v) { return isRat(v) ? v.n + "/" + v.d : v; }
 
   /* What follows the typed number: a per cent sign, a unit, or pi. */
   function suffixFor(spec) {
@@ -507,7 +550,7 @@
     var r = rng(seed);
     for (var n = 0; n < MAX_TRIES; n++) {
       var built = build(t, pack, tier, r);
-      if (built) return render(t, pack, built.scope, built.format, { tier: tier, seed: seed >>> 0 });
+      if (built) return render(t, pack, built.scope, built.format, { tier: tier, seed: seed >>> 0, r: r });
     }
     throw ContentError(t.id + ": no usable question in " + MAX_TRIES + " draws at tier " + tier);
   }
@@ -534,43 +577,79 @@
     return render(t, pack, built.scope, built.format, { tier: tier, seed: null, pinned: true });
   }
 
-  /* ---------- packs ---------- */
+  /* ---------- packs ----------
+     A pack is the learner's path: its topics in the order they are met, each
+     split into levels that follow its competencies. A topic not yet written
+     is on the path as "coming soon", so the path shows the whole blueprint
+     from the start rather than pretending to be complete. */
 
   var PACK = null;
   var TOPIC_BY_KEY = Object.create(null);
   var TEMPLATE_BY_ID = Object.create(null);
 
-  /* Installs a pack: a manifest plus one file per topic. The full schema check
-     runs in CI (tests/validate-packs.js); this only refuses a pack that could
-     not work at all, so a broken deploy fails loudly instead of quietly. */
+  /* Installs a pack: a manifest plus one file per written topic (null for one
+     coming soon). The full schema check runs in CI (tests/validate-packs.js);
+     this only refuses a pack that could not work at all, so a broken deploy
+     fails loudly instead of quietly. */
   function use(manifest, topicFiles) {
     if (!manifest || !Array.isArray(manifest.topics)) throw ContentError("manifest has no topics");
     var topics = Object.create(null), templates = Object.create(null), list = [];
     manifest.topics.forEach(function (meta, i) {
       var file = topicFiles[i];
-      if (!file || file.topic !== meta.key) throw ContentError("topic file for '" + meta.key + "' is missing or mislabelled");
-      if (!file.templates || !file.templates.length) throw ContentError("topic '" + meta.key + "' has no templates");
-      file.templates.forEach(function (t) {
-        if (templates[t.id]) throw ContentError("template id used twice: " + t.id);
-        templates[t.id] = t;
-      });
       var topic = {
         key: meta.key, label: meta.label, icon: meta.icon, colorKey: meta.colorKey,
-        templates: file.templates, pinned: file.pinned || []
+        ready: !meta.comingSoon, levels: [], templates: [], pinned: []
       };
+      if (meta.comingSoon) {
+        if (file) throw ContentError("topic '" + meta.key + "' is coming soon but has a file");
+      } else {
+        if (!file || file.topic !== meta.key) throw ContentError("topic file for '" + meta.key + "' is missing or mislabelled");
+        if (!file.templates || !file.templates.length) throw ContentError("topic '" + meta.key + "' has no templates");
+        if (!file.levels || !file.levels.length) throw ContentError("topic '" + meta.key + "' has no levels");
+        file.templates.forEach(function (t) {
+          if (templates[t.id]) throw ContentError("template id used twice: " + t.id);
+          templates[t.id] = t;
+        });
+        topic.levels = file.levels.map(function (lv) {
+          var own = (lv.templates || []).map(function (id) {
+            if (!templates[id]) throw ContentError("level '" + meta.key + "/" + lv.id + "' names unknown template " + id);
+            return templates[id];
+          });
+          if (!own.length) throw ContentError("level '" + meta.key + "/" + lv.id + "' has no templates");
+          var competencies = [];
+          own.forEach(function (t) { if (competencies.indexOf(t.competency) < 0) competencies.push(t.competency); });
+          return { id: lv.id, title: lv.title, templates: own, competencies: competencies, lesson: lv.lesson || [] };
+        });
+        topic.templates = file.templates;
+        topic.pinned = file.pinned || [];
+      }
       topics[meta.key] = topic;
       list.push(topic);
     });
     PACK = {
       subtest: manifest.subtest, version: manifest.version,
-      fallbackFeedback: manifest.fallbackFeedback, formFeedback: manifest.formFeedback || {}
+      fallbackFeedback: manifest.fallbackFeedback, formFeedback: manifest.formFeedback || {},
+      examDate: manifest.examDate || null, blueprintCompetencies: manifest.blueprintCompetencies || 0
     };
     TOPIC_BY_KEY = topics;
     TEMPLATE_BY_ID = templates;
-    AM.content.TOPICS = list.map(function (t) { return { key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey }; });
+    AM.content.TOPICS = list.map(publicTopic);
     AM.content.packVersion = PACK.version;
     AM.content.subtest = PACK.subtest;
+    AM.content.examDate = PACK.examDate;
+    AM.content.blueprintCompetencies = PACK.blueprintCompetencies;
     return AM.content.TOPICS;
+  }
+
+  /* What the screens and the store see of a topic: its place on the path and
+     its levels, never the templates themselves. */
+  function publicTopic(t) {
+    return {
+      key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey, ready: t.ready,
+      levels: t.levels.map(function (lv) {
+        return { id: lv.id, title: lv.title, competencies: lv.competencies.slice(), hasLesson: lv.lesson.length > 0 };
+      })
+    };
   }
 
   function load(base) {
@@ -582,7 +661,7 @@
       });
     }
     return json(base + "manifest.json").then(function (manifest) {
-      return Promise.all(manifest.topics.map(function (t) { return json(base + t.file); }))
+      return Promise.all(manifest.topics.map(function (t) { return t.comingSoon ? null : json(base + t.file); }))
         .then(function (files) { return use(manifest, files); });
     });
   }
@@ -593,35 +672,70 @@
     return t;
   }
 
-  function decorate(q, topic, index) {
-    q.id = topic.key + "-" + index;
+  function levelOf(topicKey, levelId) {
+    var topic = TOPIC_BY_KEY[topicKey];
+    if (!topic || !topic.ready) throw ContentError("no topic '" + topicKey + "' to practise");
+    var level = topic.levels.filter(function (lv) { return lv.id === levelId; })[0];
+    if (!level) throw ContentError("topic '" + topicKey + "' has no level '" + levelId + "'");
+    return { topic: topic, level: level };
+  }
+
+  function decorate(q, topic, level, index) {
+    q.id = topic.key + "-" + level.id + "-" + index;
     q.topicKey = topic.key;
     q.topicLabel = topic.label;
     q.topicIcon = topic.icon;
     q.colorKey = topic.colorKey;
+    q.levelId = level.id;
+    q.levelTitle = level.title;
     return q;
   }
 
-  /* One session: pinned items first, then `count` drawn questions, never the
-     same template twice running. Each question gets its own seed from the
-     session's stream, so any one of them can be regenerated on its own. */
-  function buildSession(topicKey, count, tier, seed) {
+  /* One session of one level: its pinned items first when asked for (a
+     level's first session), then drawn questions from the level's templates
+     up to `count`, never the same template twice running. Each question gets
+     its own seed from the session's stream, so any one of them can be
+     regenerated on its own. */
+  function buildSession(o) {
     if (!PACK) throw ContentError("no content pack installed yet");
-    var topic = TOPIC_BY_KEY[topicKey] || TOPIC_BY_KEY[AM.content.TOPICS[0].key];
-    var r = rng(seed === undefined ? Date.now() : seed);
+    var found = levelOf(o.topic, o.level), topic = found.topic, level = found.level;
+    var r = rng(o.seed === undefined ? Date.now() : o.seed);
     var out = [];
-    topic.pinned.forEach(function (p) {
-      if (out.length < count) out.push(decorate(instanceFrom(template(p.template), PACK, tier, p.params, p.format), topic, out.length));
-    });
-    var last = -1, n = topic.templates.length;
-    while (out.length < count) {
+    if (o.pinned) {
+      topic.pinned.forEach(function (p) {
+        var t = template(p.template);
+        if (out.length < o.count && level.templates.indexOf(t) > -1)
+          out.push(decorate(instanceFrom(t, PACK, o.tier, p.params, p.format), topic, level, out.length));
+      });
+    }
+    var last = -1, n = level.templates.length;
+    while (out.length < o.count) {
       var i = Math.floor(r() * n);
       if (i === last && n > 1) i = (i + 1) % n;
       last = i;
       var qseed = Math.floor(r() * 4294967296) >>> 0;
-      out.push(decorate(generateFrom(topic.templates[i], PACK, tier, qseed), topic, out.length));
+      out.push(decorate(generateFrom(level.templates[i], PACK, o.tier, qseed), topic, level, out.length));
     }
     return out;
+  }
+
+  /* A level's lesson, ready to show: text cards as written, and worked
+     examples rendered from their template with the numbers the lesson fixes,
+     so the example and the practice that follows are the same kind of
+     question. */
+  function lesson(topicKey, levelId) {
+    var level = levelOf(topicKey, levelId).level;
+    return level.lesson.map(function (card) {
+      if (!card.example) return { kind: "text", title: card.title, body: card.body };
+      var q = instanceFrom(template(card.example.template), PACK, 1, card.example.params, card.example.format);
+      return {
+        kind: "example", title: card.title || "Worked example",
+        prompt: q.prompt, steps: q.steps, explain: q.explain,
+        /* Money shows as money (₱149.50), however the learner would type it. */
+        answer: q.type === "choice" ? q.choices[q.answerIndex]
+          : q.unit === PESO ? peso(q.answerExact) : q.unit + q.answerText + q.suffix
+      };
+    });
   }
 
   /* ---------- answers ----------
@@ -691,13 +805,16 @@
     TOPICS: [],
     packVersion: null,
     subtest: null,
+    examDate: null,
+    blueprintCompetencies: 0,
     load: load,
     use: use,
     byKey: function (k) {
       var t = TOPIC_BY_KEY[k];
-      return t ? { key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey } : undefined;
+      return t ? publicTopic(t) : undefined;
     },
     buildSession: buildSession,
+    lesson: lesson,
     isCorrect: isCorrect,
     diagnose: diagnose,
     generate: function (id, tier, seed) { return generateFrom(template(id), PACK, tier, seed); },

@@ -46,17 +46,21 @@ function run() {
     String(now.getMonth() + 1).padStart(2, "0") + "-" +
     String(now.getDate()).padStart(2, "0");
 
+  /* Two decimals levels cleared and the third half done. */
   var LEARNER = {
-    version: 1, installed: true, signedIn: true,
+    version: 2, installed: true, signedIn: true,
     profile: { name: "Ligaya Mendoza", school: "Poblacion, Pilar",
                colorKey: 2, iconKey: "triangle", username: "ligaya.m" },
-    tier: 2, tierProgress: 12, demoted: false, recoveryRun: 0,
-    topics: { money: 18, percent: 12, ratio: 5, measure: 0 },
-    lastTopic: "percent", streakDays: 4,
-    lastActiveDay: today, lastRolledDay: today,
+    levels: {
+      "decimals/place-value": { correct: 8, attempts: 9, cleared: true, lessonSeen: true },
+      "decimals/compare-and-round": { correct: 8, attempts: 11, cleared: true, lessonSeen: true },
+      "decimals/add-and-subtract": { correct: 4, attempts: 6, cleared: false, lessonSeen: true }
+    },
+    lastLevel: { topic: "decimals", level: "add-and-subtract" },
+    streakDays: 4, lastActiveDay: today, lastRolledDay: today,
     week: [true, true, true, true, false, false, false],
-    resetToday: false, totalCorrect: 35,
-    lastSession: { topicLabel: "Percentages", correct: 7, attempted: 10 }
+    resetToday: false, totalCorrect: 20,
+    lastSession: { topicLabel: "Decimals", levelTitle: "Add and subtract", correct: 7, attempted: 10 }
   };
 
   var frame = document.createElement("iframe");
@@ -94,15 +98,18 @@ function run() {
     var AM = w.AM;
     if (!AM) { document.title = "NO-APP"; return; }
 
-    /* The design document's canonical question, shown mid-session so the
-       header reads 3/10 and the feedback actually fits the answer given. */
-    function canonicalAt(topic, i) {
-      AM.app.startPractice(topic);
+    /* One fixed question, 7 − 2.35, shown mid-session in the learner's
+       current level so the header reads 3/10 and the feedback fits the
+       answer given. */
+    function canonicalAt(i) {
+      AM.app.startLevel("decimals", "add-and-subtract");
       var s = AM.app.session;
-      for (var n = 0; n < i; n++) s.questions[n].__scored = true;
-      s.questions[i] = s.questions[0];
+      for (var n = 0; n < i; n++) s.questions[n].__counted = true;
+      var q = AM.content.instance("decimals.subtract", 1, { pb: 2, w2: 2, f2: 35, a: 7 }, "difference");
+      q.id = "canonical";
+      s.questions[i] = q;
       s.index = i;
-      s.entry = s.questions[i].entry ? AM.entry.create(s.questions[i].entry) : null;
+      s.entry = AM.entry.create(q.entry);
       return s;
     }
 
@@ -131,6 +138,7 @@ function run() {
         topics: [{ key: "review", label: "Answer review", icon: "percent", colorKey: 1, file: "-" }]
       }, [{
         topic: "review",
+        levels: [{ id: "all", title: "Answer review", templates: ["review.mixed", "review.percent"] }],
         pinned: [
           { template: "review.mixed", params: { w: 2, a: 3 } },
           { template: "review.percent", params: { a: 7 } }
@@ -160,31 +168,40 @@ function run() {
         AM.app.go("home");
         break;
       case "topics":
-        AM.app.scratch.pickedTopic = "percent";
         AM.app.go("topics");
         break;
+      case "topic":
+        AM.app.openTopic("decimals");
+        break;
+      case "lesson":
+        AM.app.openLesson("decimals", "add-and-subtract");
+        AM.app.scratch.lesson.page = 1; /* the worked example */
+        AM.app.go("lesson");
+        break;
       case "practice":
-        s = canonicalAt("percent", 3); AM.app.go("practice"); typeIn("36");
+        s = canonicalAt(3); AM.app.go("practice"); typeIn("4.65");
         break;
       case "hint":
-        s = canonicalAt("percent", 3); s.showHints = true; s.hintsRevealed = 1; AM.app.go("practice");
+        s = canonicalAt(3); s.showHints = true; s.hintsRevealed = 1; AM.app.go("practice");
         break;
       case "correct":
-        s = canonicalAt("percent", 3); AM.app.go("practice"); typeIn("36"); AM.app.check();
+        s = canonicalAt(3); AM.app.go("practice"); typeIn("4.65"); AM.app.check();
         break;
       case "wrong":
-        s = canonicalAt("percent", 3); AM.app.go("practice"); typeIn("276"); AM.app.check();
+        s = canonicalAt(3); AM.app.go("practice"); typeIn("5.35"); AM.app.check();
         break;
-      case "tierup":
-        AM.store.set({ tier: 3, tierProgress: 0 });
-        AM.app.startPractice("percent");
-        AM.app.session.topicLabel = "Percentages";
-        AM.app.go("tierup");
+      case "levelup":
+        AM.app.startLevel("decimals", "add-and-subtract");
+        var lv = AM.store.get().levels["decimals/add-and-subtract"];
+        lv.correct = 8; lv.cleared = true;
+        AM.store.set({ levels: AM.store.get().levels });
+        AM.app.go("levelup");
         break;
       case "summary":
-        AM.app.startPractice("percent");
+        AM.app.startLevel("decimals", "add-and-subtract");
         AM.app.scratch.result = {
-          topicKey: "percent", topicLabel: "Percentages", colorKey: 2,
+          topicKey: "decimals", topicLabel: "Decimals", colorKey: 1,
+          levelId: "add-and-subtract", levelTitle: "Add and subtract", levelNumber: 3, redo: false,
           attempted: 10, correct: 7, missed: AM.app.session.questions.slice(0, 3), minutes: 9
         };
         AM.app.session = null;
@@ -215,13 +232,13 @@ function run() {
         break;
       /* Not in the PDF: the fraction and per-cent answer fields, for review. */
       case "fraction-entry":
-        useAnswerFixture(); AM.app.startPractice("review"); typeIn("2>3");
+        useAnswerFixture(); AM.app.startLevel("review", "all"); typeIn("2>3");
         break;
       case "fraction-wrong-form":
-        useAnswerFixture(); AM.app.startPractice("review"); typeIn(">11>4"); AM.app.check();
+        useAnswerFixture(); AM.app.startLevel("review", "all"); typeIn(">11>4"); AM.app.check();
         break;
       case "percent-entry":
-        useAnswerFixture(); AM.app.startPractice("review"); AM.app.next(); typeIn("70");
+        useAnswerFixture(); AM.app.startLevel("review", "all"); AM.app.next(); typeIn("70");
         break;
       default:
         document.title = "UNKNOWN-SCREEN";

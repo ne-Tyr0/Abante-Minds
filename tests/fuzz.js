@@ -20,7 +20,7 @@ new Function(read("app/content.js")).call(global);
 const C = global.AM.content;
 const PACK = "content/packs/math/";
 const manifest = JSON.parse(read(PACK + "manifest.json"));
-C.use(manifest, manifest.topics.map((t) => JSON.parse(read(PACK + t.file))));
+C.use(manifest, manifest.topics.map((t) => (t.comingSoon ? null : JSON.parse(read(PACK + t.file)))));
 
 // The keypad's own length limit, from the entry rules the app uses, so the
 // two cannot drift.
@@ -32,19 +32,23 @@ function fail(rule, q, detail) {
   (FAILURES[rule] = FAILURES[rule] || []).push({ topic: q.topicKey, prompt: q.prompt, detail });
 }
 
-// A step a learner cannot follow. Sub-1 decimals like "16 / 40 = 0.4" are fine
-// and teachable, so only long repeating tails count.
-const ugly = (s) => /\d+\.\d{3,}/.test(s);
+// A number a learner cannot follow. The engine works in exact fractions and
+// refuses to print a repeating decimal, so what is left to catch is a decimal
+// longer than the four places the blueprint goes to.
+const ugly = (s) => /\d+\.\d{5,}/.test(s);
 // A negative RESULT ("= -60"). A subtraction sign in "500 - 170" is not one.
 const negative = (s) => /=\s*[-\u2212]\s?\d/.test(s);
 
-const SEEDS = 1000;
+const SEEDS = 600;
 const TIERS = [1, 2, 3, 4];
 let total = 0;
 
-for (const topic of C.TOPICS) {
+const LEVELS = [];
+for (const topic of C.TOPICS) for (const level of topic.levels) LEVELS.push([topic.key, level.id]);
+
+for (const [topic, level] of LEVELS) {
   for (const tier of TIERS) for (let seed = 0; seed < SEEDS; seed++) {
-    for (const q of C.buildSession(topic.key, 10, tier, seed)) {
+    for (const q of C.buildSession({ topic, level, count: 10, tier, seed, pinned: seed % 2 === 0 })) {
       total++;
 
       // 1. the answer must be one a learner can enter: no minus key; a number
@@ -67,7 +71,7 @@ for (const topic of C.TOPICS) {
 
       // 3. no hint or step may show a number a learner cannot follow
       for (const s of [...(q.hints || []), ...(q.steps || [])]) {
-        if (ugly(s)) fail("long repeating decimal in scaffold", q, s);
+        if (ugly(s)) fail("decimal longer than four places in scaffold", q, s);
         if (negative(s)) fail("negative intermediate in scaffold", q, s);
       }
 
@@ -106,7 +110,7 @@ for (const topic of C.TOPICS) {
   }
 }
 
-console.log(`fuzzed ${total.toLocaleString()} questions across ${C.TOPICS.length} topics, tiers ${TIERS.join("-")}, ${SEEDS} seeds each`);
+console.log(`fuzzed ${total.toLocaleString()} questions across ${LEVELS.length} levels, tiers ${TIERS.join("-")}, ${SEEDS} seeds each`);
 
 const rules = Object.keys(FAILURES);
 if (!rules.length) {

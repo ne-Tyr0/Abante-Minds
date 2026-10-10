@@ -44,7 +44,11 @@ const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const TEMPLATE_KEYS = new Set(["id", "competency", "domain", "construct", "schema", "params", "where",
   "answer", "formats", "hints", "steps", "explain", "fallback", "distractors"]);
-const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals", "unit", "form"]);
+const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals", "unit", "form", "order"]);
+const TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file", "comingSoon"]);
+const LEVEL_KEYS = new Set(["id", "title", "templates", "lesson"]);
+const REACHABLE = blueprint.competencies.filter((c) => c.app !== "N").length;
+const BLUEPRINT_TOPIC = Object.fromEntries(blueprint.topics.map((t) => [t.key, t]));
 const FORM_ERRORS = new Set(E.FORM_ERRORS);
 const NUMBER_TYPES_WITH_PLACES = new Set(["decimal", "percent", "unit", "pi-expression"]);
 let usesFractionAnswers = false;
@@ -121,7 +125,7 @@ function checkParams(t) {
   return defined;
 }
 
-function checkTemplate(t, topic, ids, placeholder) {
+function checkTemplate(t, topic, ids) {
   unknownKeys(t, TEMPLATE_KEYS, "template");
   if (typeof t.id !== "string" || !t.id.startsWith(topic + ".") || !KEBAB.test(t.id.slice(topic.length + 1)))
     fail(`id must be '${topic}.' followed by kebab-case`);
@@ -133,7 +137,7 @@ function checkTemplate(t, topic, ids, placeholder) {
   else {
     if (comp.app === "N") fail(`competency ${t.competency} is marked not practicable in the blueprint`);
     if (t.domain !== comp.domain) fail(`domain ${t.domain} does not match ${t.competency}, which is ${comp.domain}`);
-    if (!placeholder && comp.topic !== topic) fail(`competency ${t.competency} belongs to topic '${comp.topic}', not '${topic}'`);
+    if (comp.topic !== topic) fail(`competency ${t.competency} belongs to topic '${comp.topic}', not '${topic}'`);
   }
   if (typeof t.construct !== "string" || !t.construct.trim()) fail("construct must be described");
   if (!SCHEMAS.has(t.schema)) fail(`schema '${t.schema}' is not one of the blueprint's problem schemas`);
@@ -164,6 +168,8 @@ function checkTemplate(t, topic, ids, placeholder) {
     fail("form is only for fraction and mixed answers, and is 'lowest' or 'any'");
   if (a.type === "choice") text(a.label, withValue, "answer label");
   else if ("label" in a) fail("label is only for choice answers");
+  if ("order" in a && (a.type !== "choice" || !["size", "mixed"].includes(a.order)))
+    fail("order is only for choice answers, and is 'size' or 'mixed'");
 
   if (!Array.isArray(t.formats) || !t.formats.length) fail("needs at least one format");
   else {
@@ -205,16 +211,16 @@ function checkTemplate(t, topic, ids, placeholder) {
   }
 }
 
-function checkPinned(p, templatesById, topic) {
+function checkPinned(p, templatesById, topic, what = "pinned") {
   const t = templatesById[p.template];
-  if (!t || !t.id.startsWith(topic + ".")) { fail(`pinned item names unknown template ${p.template}`); return; }
+  if (!t || !t.id.startsWith(topic + ".")) { fail(`${what} item names unknown template ${p.template}`); return; }
   const drawn = Object.keys(t.params).filter((k) => !("value" in t.params[k]));
   const given = Object.keys(p.params || {});
   const missing = drawn.filter((k) => !given.includes(k));
   const extra = given.filter((k) => !drawn.includes(k));
-  if (missing.length) fail(`pinned ${t.id} does not set ${missing.join(", ")}`);
-  if (extra.length) fail(`pinned ${t.id} sets ${extra.join(", ")}, which are not drawn values`);
-  if (p.format && !t.formats.some((f) => f.id === p.format)) fail(`pinned ${t.id}: no format '${p.format}'`);
+  if (missing.length) fail(`${what} ${t.id} does not set ${missing.join(", ")}`);
+  if (extra.length) fail(`${what} ${t.id} sets ${extra.join(", ")}, which are not drawn values`);
+  if (p.format && !t.formats.some((f) => f.id === p.format)) fail(`${what} ${t.id}: no format '${p.format}'`);
   if (missing.length || extra.length) return;
 
   /* Walk the params in order with the pinned values, as the engine does, and
@@ -226,18 +232,76 @@ function checkPinned(p, templatesById, topic) {
       if ("value" in spec) { scope[k] = E.evaluate(spec.value, scope); continue; }
       const v = p.params[k];
       if ("choose" in spec) {
-        if (!spec.choose.includes(v)) fail(`pinned ${t.id}: ${k}=${v} is not one of its choices`);
+        if (!spec.choose.includes(v)) fail(`${what} ${t.id}: ${k}=${v} is not one of its choices`);
       } else {
         const ranges = spec.range ? [spec.range] : Object.values(spec.tiers);
         const ok = typeof v === "number" && ranges.some(([lo, hi]) => E.evaluate(IN_RANGE, {
           v: E.fromLiteral(String(v)), lo: E.evaluate(lo, scope), hi: E.evaluate(hi, scope),
           step: E.fromLiteral(String(spec.step === undefined ? 1 : spec.step))
         }));
-        if (!ok) fail(`pinned ${t.id}: ${k}=${v} is outside the values it draws`);
+        if (!ok) fail(`${what} ${t.id}: ${k}=${v} is outside the values it draws`);
       }
       scope[k] = typeof v === "number" ? E.fromLiteral(String(v)) : v;
     }
-  } catch (e) { fail(`pinned ${t.id}: ${e.message}`); }
+  } catch (e) { fail(`${what} ${t.id}: ${e.message}`); }
+}
+
+/* A topic's levels: the order a learner meets its templates. Every template
+   sits in exactly one level, a level has at least two (so practice varies),
+   and each level opens with a lesson of two or three cards, at least one of
+   them a worked example drawn from the level's own templates. */
+function checkLevels(file, topic, byId) {
+  const levels = file.levels;
+  if (!Array.isArray(levels) || !levels.length) { fail("needs at least one level"); return; }
+  const levelIds = new Set(), placed = new Map();
+  levels.forEach((lv, i) => {
+    const label = `level '${lv.id || i}'`;
+    unknownKeys(lv, LEVEL_KEYS, label);
+    if (typeof lv.id !== "string" || !KEBAB.test(lv.id)) fail(`${label} id must be kebab-case`);
+    if (levelIds.has(lv.id)) fail(`${label} id is used twice`);
+    levelIds.add(lv.id);
+    if (typeof lv.title !== "string" || !lv.title.trim() || /[{}]/.test(lv.title)) fail(`${label} needs a plain title`);
+    if (!Array.isArray(lv.templates) || lv.templates.length < 2) fail(`${label} needs at least two templates`);
+    for (const id of lv.templates || []) {
+      if (!byId[id] || !id.startsWith(topic + ".")) fail(`${label} names unknown template ${id}`);
+      else if (placed.has(id)) fail(`${id} is in level '${placed.get(id)}' and '${lv.id}'`);
+      else placed.set(id, lv.id);
+    }
+    const cards = lv.lesson;
+    if (!Array.isArray(cards) || cards.length < 2 || cards.length > 3) { fail(`${label} lesson must be two or three cards`); return; }
+    let examples = 0;
+    cards.forEach((c, j) => {
+      const cl = `${label} lesson card ${j + 1}`;
+      if (c.example) {
+        examples++;
+        unknownKeys(c, new Set(["title", "example"]), cl);
+        unknownKeys(c.example, new Set(["template", "params", "format"]), cl);
+        if (!(lv.templates || []).includes(c.example.template)) fail(`${cl} uses ${c.example.template}, which is not in this level`);
+        else checkPinned(c.example, byId, topic, "lesson example");
+      } else {
+        unknownKeys(c, new Set(["title", "body"]), cl);
+        if (typeof c.body !== "string" || !c.body.trim() || /[{}]/.test(c.body)) fail(`${cl} needs plain body text`);
+      }
+      if ("title" in c || !c.example) {
+        if (typeof c.title !== "string" || !c.title.trim() || /[{}]/.test(c.title)) fail(`${cl} needs a plain title`);
+      }
+    });
+    if (!examples) fail(`${label} lesson needs a worked example`);
+  });
+  for (const t of file.templates || []) if (!placed.has(t.id)) fail(`${t.id} is in no level`);
+}
+
+/* A written topic covers its part of the blueprint: every competency that
+   can be practised in the app as it is (App Y) has a template, and the topic
+   has at least the templates the blueprint targets. */
+function checkCoverage(file, topic) {
+  const bt = BLUEPRINT_TOPIC[topic];
+  const covered = new Set((file.templates || []).map((t) => t.competency));
+  const needed = blueprint.competencies.filter((c) => c.topic === topic && c.app === "Y");
+  const missing = needed.filter((c) => !covered.has(c.code)).map((c) => c.code);
+  if (missing.length) fail(`no template for ${missing.join(", ")}`);
+  const count = (file.templates || []).length;
+  if (count < bt.templateTarget) fail(`${count} templates; the blueprint targets ${bt.templateTarget}`);
 }
 
 /* ---------- pass 2: generation ---------- */
@@ -297,23 +361,40 @@ for (const packName of packs) {
   if (manifest.subtest !== packName) fail(`subtest '${manifest.subtest}' does not match its folder '${packName}'`);
   if (!/^\d+\.\d+\.\d+$/.test(manifest.version || "")) fail("version must be x.y.z");
   if (typeof manifest.fallbackFeedback !== "string" || !manifest.fallbackFeedback.trim()) fail("fallbackFeedback is required");
-  const placeholder = manifest.placeholder === true;
   usesFractionAnswers = false;
+  if (manifest.examDate !== blueprint.exam.date) fail(`examDate must be the blueprint's exam date, ${blueprint.exam.date}`);
+  if (manifest.blueprintCompetencies !== REACHABLE)
+    fail(`blueprintCompetencies must be ${REACHABLE}, the blueprint's competencies that are not marked N`);
+
+  /* The path is the whole blueprint, each topic once; a topic not yet
+     written is marked comingSoon and has no file. */
+  const keys = (manifest.topics || []).map((t) => t.key);
+  for (const k of BLUEPRINT_TOPICS) if (!keys.includes(k)) fail(`blueprint topic '${k}' is not on the path`);
+  keys.forEach((k, i) => { if (keys.indexOf(k) !== i) fail(`topic '${k}' is on the path twice`); });
 
   const ids = new Set(), byId = {}, files = [];
   for (const topic of manifest.topics || []) {
-    where = `${packName}/${topic.file}`;
+    where = `${packName}/${topic.file || topic.key}`;
+    unknownKeys(topic, TOPIC_KEYS, `topic '${topic.key}'`);
     if (!KEBAB.test(topic.key || "")) fail(`topic key '${topic.key}' must be kebab-case`);
-    if (!placeholder && !BLUEPRINT_TOPICS.has(topic.key)) fail(`topic '${topic.key}' is not in the blueprint`);
+    if (!BLUEPRINT_TOPICS.has(topic.key)) fail(`topic '${topic.key}' is not in the blueprint`);
     if (!ICONS.has(topic.icon)) fail(`icon '${topic.icon}' is not in the icon set`);
     if (![1, 2, 3, 4].includes(topic.colorKey)) fail("colorKey must be 1 to 4");
     if (typeof topic.label !== "string" || !topic.label.trim()) fail("topic needs a label");
+    if (topic.comingSoon) {
+      if (topic.comingSoon !== true) fail("comingSoon is true or absent");
+      if ("file" in topic) fail("a topic coming soon has no file yet");
+      files.push(null);
+      continue;
+    }
+    if (typeof topic.file !== "string") { fail("a written topic needs its file"); files.push(null); continue; }
     const file = JSON.parse(read(`content/packs/${packName}/${topic.file}`));
     files.push(file);
     if (file.topic !== topic.key) fail(`file says topic '${file.topic}', manifest says '${topic.key}'`);
+    unknownKeys(file, new Set(["topic", "levels", "pinned", "templates"]), "topic file");
     for (const t of file.templates || []) {
       where = `${packName}/${topic.file} ${t.id}`;
-      checkTemplate(t, topic.key, ids, placeholder);
+      checkTemplate(t, topic.key, ids);
       byId[t.id] = t;
       templateCount++;
       formatCount += (t.formats || []).length;
@@ -321,6 +402,10 @@ for (const packName of packs) {
     }
     where = `${packName}/${topic.file} pinned`;
     for (const p of file.pinned || []) checkPinned(p, byId, topic.key);
+    where = `${packName}/${topic.file} levels`;
+    checkLevels(file, topic.key, byId);
+    where = `${packName}/${topic.file} coverage`;
+    checkCoverage(file, topic.key);
   }
   /* A fraction answer in the right amount but the wrong form gets the pack's
      own words for that, so a pack with fraction answers must supply them. */
@@ -339,11 +424,22 @@ for (const packName of packs) {
   try { C.use(manifest, files); }
   catch (e) { fail(`engine refused the pack: ${e.message}`); continue; }
   files.forEach((file) => {
+    if (!file) return;
     for (const t of file.templates) {
       where = `${packName} ${t.id}`;
       const pinnedFor = (file.pinned || []).filter((p) => p.template === t.id);
       const rate = sweep(t, pinnedFor);
       if (rate !== undefined) rates.push([t.id, rate]);
+    }
+    /* Every lesson renders, with no slot left unfilled. */
+    for (const lv of file.levels) {
+      where = `${packName} ${file.topic}/${lv.id} lesson`;
+      try {
+        for (const card of C.lesson(file.topic, lv.id)) {
+          const texts = card.kind === "example" ? [card.title, card.prompt, card.answer, card.explain, ...card.steps] : [card.title, card.body];
+          for (const s of texts) if (typeof s !== "string" || !s.trim() || /[{}]/.test(s)) fail(`bad text ${JSON.stringify(s)}`);
+        }
+      } catch (e) { fail(e.message); }
     }
   });
 }
