@@ -58,7 +58,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/content.js` | The question engine: installs a pack, draws numbers, renders questions, checks answers and names mistakes. Expressions are parsed, never `eval`'d, and computed in exact fractions. No questions live in code |
 | `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
 | `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
-| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. Written so far: decimals, fractions. The manifest's `basics` lists the Basics topics; written so far: the times tables (`times.json`). How to write one: `content/packs/README.md` |
+| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. Written so far: decimals, fractions. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`) and the times tables (`times.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
 | `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak |
 | `app/screens.js` | One builder per route |
@@ -173,10 +173,10 @@ Settled with the project owner. Build on them; don't reopen them.
     ratio, percentages, time, area, solids, circles, data, probability, transformations.
     Decimals (22 templates, 6 levels) and fractions (17 templates, 6 levels) are done.
     Each topic needs its answer input first where it uses a type not yet typeable.
-12. **Write the rest of Basics**: adding and subtracting (facts to 20, then two-digit
-    mental), mental math (×10 and ÷10, doubling and halving, splitting a number),
-    pen-and-paper methods (column adding and subtracting, long multiplication and
-    division), and missing-number algebra. The times tables are done (180 facts).
+12. **Write the rest of Basics**: mental math (×10 and ÷10, doubling and halving,
+    splitting a number), pen-and-paper methods (column adding and subtracting, long
+    multiplication and division), and missing-number algebra. Done: adding and
+    subtracting (158 facts and two practice levels) and the times tables (180 facts).
 
 Then research instrumentation (Phase 3) and citability (Phase 4), in `RESEARCH-PLAN.md`.
 

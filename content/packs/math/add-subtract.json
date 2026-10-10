@@ -1,0 +1,853 @@
+{
+  "topic": "add-subtract",
+  "grid": {"title": "Addition table", "sign": "+", "from": 1, "to": 10},
+  "levels": [
+    {
+      "id": "small-sums",
+      "title": "Small sums",
+      "kind": "facts",
+      "templates": ["add-subtract.small", "add-subtract.take-small"],
+      "lesson": [
+        {
+          "title": "Count on from the bigger number",
+          "body": "For 2 + 7, start at 7 and count on 2: 8, 9. Starting from the bigger number means fewer steps."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "add-subtract.small", "params": {"x": 2, "y": 7}, "format": "xy"}
+        },
+        {
+          "title": "Take away by adding",
+          "body": "9 − 2 asks what goes with 2 to make 9. It is 7, because 2 + 7 = 9."
+        }
+      ]
+    },
+    {
+      "id": "make-10",
+      "title": "Make 10",
+      "kind": "facts",
+      "templates": ["add-subtract.make-10", "add-subtract.to-10", "add-subtract.from-10"],
+      "lesson": [
+        {
+          "title": "Pairs that make 10",
+          "body": "1 and 9, 2 and 8, 3 and 7, 4 and 6, 5 and 5. Knowing these pairs makes adding and taking away across 10 quick."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "add-subtract.to-10", "params": {"x": 7}, "format": "missing"}
+        },
+        {"title": "10 take away", "body": "10 − 4 is the number that goes with 4 to make 10: 6."}
+      ]
+    },
+    {
+      "id": "doubles",
+      "title": "Doubles and near doubles",
+      "kind": "facts",
+      "templates": ["add-subtract.doubles", "add-subtract.near-doubles", "add-subtract.halves", "add-subtract.near-halves"],
+      "lesson": [
+        {
+          "title": "Doubles",
+          "body": "6 + 6 = 12, 7 + 7 = 14, 8 + 8 = 16. A double is a number added to itself."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "add-subtract.near-doubles", "params": {"x": 7, "y": 8}, "format": "xy"}
+        },
+        {"title": "Halves", "body": "14 − 7 = 7: take half of a double away and the other half is left."}
+      ]
+    },
+    {
+      "id": "adding-10",
+      "title": "Adding 10",
+      "kind": "facts",
+      "templates": ["add-subtract.ten", "add-subtract.take-ten"],
+      "lesson": [
+        {
+          "title": "A ten and some ones",
+          "body": "10 + 6 is one ten and six ones: 16. Take the 10 away again and the 6 is left."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "add-subtract.take-ten", "params": {"x": 6}, "format": "take"}
+        }
+      ]
+    },
+    {
+      "id": "bridge-10",
+      "title": "Bridge through 10",
+      "kind": "facts",
+      "templates": ["add-subtract.bridge", "add-subtract.take-bridge"],
+      "lesson": [
+        {
+          "title": "Make 10 first",
+          "body": "8 + 5: 8 needs 2 to make 10, and 5 is 2 and 3. So 8 + 5 = 10 + 3 = 13."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "add-subtract.bridge", "params": {"x": 4, "y": 9}, "format": "xy"}
+        },
+        {"title": "Back through 10", "body": "13 − 5: take 3 to get back to 10, then 2 more. 10 − 2 = 8."}
+      ]
+    },
+    {"id": "all", "title": "All the facts", "kind": "review"},
+    {
+      "id": "add-two-digit",
+      "title": "Add two-digit numbers",
+      "templates": ["add-subtract.add-tens", "add-subtract.add-two-digit", "add-subtract.add-nines"],
+      "lesson": [
+        {
+          "title": "Tens, then ones",
+          "body": "To add 47 + 28 in your head, add the tens first: 47 + 20 = 67. Then the ones: 67 + 8 = 75."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "add-subtract.add-two-digit", "params": {"a": 47, "b": 28}, "format": "sum"}
+        },
+        {
+          "title": "Round and adjust",
+          "body": "Adding 29 is adding 30 and taking 1 back: 56 + 29 = 86 − 1 = 85."
+        }
+      ]
+    },
+    {
+      "id": "take-two-digit",
+      "title": "Take away two-digit numbers",
+      "templates": [
+        "add-subtract.take-tens",
+        "add-subtract.take-two-digit",
+        "add-subtract.take-nines",
+        "add-subtract.count-up"
+      ],
+      "lesson": [
+        {
+          "title": "Tens, then ones",
+          "body": "83 − 47: take away the tens first, 83 − 40 = 43, then the ones, 43 − 7 = 36."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "add-subtract.take-two-digit", "params": {"a": 83, "b": 47}, "format": "difference"}
+        },
+        {
+          "title": "Count up when they are close",
+          "body": "For 82 − 78, count up from 78: 2 to reach 80, then 2 more to 82. The difference is 4."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "add-subtract.small",
+      "domain": "NA",
+      "construct": "Add two numbers whose sum is less than 10, counting on from the bigger",
+      "schema": "combine",
+      "grid": true,
+      "params": {"x": {"range": [1, 4]}, "y": {"range": ["x + 2", "9 - x"]}},
+      "answer": {"type": "integer", "value": "x + y"},
+      "formats": [{"id": "xy", "prompt": "{x} + {y} = ?"}, {"id": "yx", "prompt": "{y} + {x} = ?"}],
+      "hints": [
+        "Start from the bigger number and count on.",
+        "Start at {y} and count on {x}.",
+        "{y}, then {x} more: ?"
+      ],
+      "steps": ["Start at the bigger number, {y}", "Count on {x}", "{y} + {x} = {answer}"],
+      "explain": "Start at {y} and count on {x}: {answer}.",
+      "distractors": [
+        {
+          "value": "x + y - 1",
+          "error": "one-short",
+          "feedback": "{value} is one short. Count on {x} from {y} again."
+        },
+        {
+          "value": "x + y + 1",
+          "error": "one-too-many",
+          "feedback": "{value} is one too many. Count on {x} from {y} again."
+        },
+        {
+          "value": "y > x ? y - x : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} is {y} − {x}. + means put the two together."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.take-small",
+      "domain": "NA",
+      "construct": "Take away within 10 by thinking of the adding fact",
+      "schema": "change",
+      "params": {
+        "x": {"range": [1, 4]},
+        "y": {"range": ["x + 2", "9 - x"]},
+        "s": {"choose": [0, 1]},
+        "c": {"value": "x + y"},
+        "taken": {"value": "s == 0 ? x : y"}
+      },
+      "answer": {"type": "integer", "value": "c - taken"},
+      "formats": [{"id": "take", "prompt": "{c} − {taken} = ?"}],
+      "hints": [
+        "Think adding: what goes with {taken} to make {c}?",
+        "{taken} + ? = {c}.",
+        "Count up from {taken} to {c}."
+      ],
+      "steps": [
+        "{c} − {taken} asks what goes with {taken} to make {c}",
+        "{taken} + {answer} = {c}",
+        "So {c} − {taken} = {answer}"
+      ],
+      "explain": "{taken} + {answer} = {c}, so {c} − {taken} = {answer}.",
+      "distractors": [
+        {
+          "value": "c + taken",
+          "error": "added-instead",
+          "feedback": "{value} is {c} + {taken}. − means take away."
+        },
+        {
+          "value": "c - taken + 1",
+          "error": "one-too-many",
+          "feedback": "{value} + {taken} = {value + taken}, which is more than {c}."
+        },
+        {
+          "value": "c - taken - 1",
+          "error": "one-short",
+          "feedback": "{value} + {taken} = {value + taken}, which is less than {c}."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.make-10",
+      "domain": "NA",
+      "construct": "Recall a pair that makes 10",
+      "schema": "combine",
+      "grid": true,
+      "params": {"x": {"range": [1, 4]}, "y": {"range": ["10 - x", "10 - x"]}},
+      "answer": {"type": "integer", "value": "x + y"},
+      "formats": [{"id": "xy", "prompt": "{x} + {y} = ?"}, {"id": "yx", "prompt": "{y} + {x} = ?"}],
+      "hints": [
+        "These two numbers are a pair that makes 10.",
+        "{x} and {y} go together to make 10.",
+        "Count on {x} from {y}."
+      ],
+      "steps": [
+        "{x} and {y} are a pair",
+        "Pairs that make 10: 1 and 9, 2 and 8, 3 and 7, 4 and 6, 5 and 5",
+        "{x} + {y} = {answer}"
+      ],
+      "explain": "{x} and {y} make {answer}.",
+      "distractors": [
+        {
+          "value": "x + y - 1",
+          "error": "one-short",
+          "feedback": "{value} is one short. Count on {x} from {y} again."
+        },
+        {
+          "value": "x + y + 1",
+          "error": "one-too-many",
+          "feedback": "{value} is one too many. Count on {x} from {y} again."
+        },
+        {
+          "value": "y > x ? y - x : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} is {y} − {x}. + means put the two together."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.to-10",
+      "domain": "NA",
+      "construct": "Find the number that makes 10 with another",
+      "schema": "missing-middle",
+      "params": {"x": {"range": [1, 9]}},
+      "answer": {"type": "integer", "value": "10 - x"},
+      "formats": [
+        {"id": "missing", "prompt": "{x} + ? = 10"},
+        {"id": "pair", "prompt": "What goes with {x} to make 10?"}
+      ],
+      "hints": ["Which number goes with {x} to make 10?", "Count up from {x} to 10.", "10 − {x} = ?"],
+      "steps": ["{x} + ? = 10", "Count up from {x} to 10", "{x} + {answer} = 10"],
+      "explain": "{x} + {answer} = 10.",
+      "distractors": [
+        {
+          "value": "10 + x",
+          "error": "added-instead",
+          "feedback": "{value} is 10 + {x}. Find the number that goes with {x} to make 10."
+        },
+        {
+          "value": "11 - x",
+          "error": "one-too-many",
+          "feedback": "{x} + {value} = {x + value}, which is more than 10."
+        },
+        {
+          "value": "9 - x",
+          "error": "one-short",
+          "feedback": "{x} + {value} = {x + value}, which is less than 10."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.from-10",
+      "domain": "NA",
+      "construct": "Take a number away from 10, using the pairs that make 10",
+      "schema": "change",
+      "params": {"taken": {"range": [1, 9]}, "c": {"value": "10"}},
+      "answer": {"type": "integer", "value": "c - taken"},
+      "formats": [{"id": "take", "prompt": "{c} − {taken} = ?"}],
+      "hints": [
+        "Think of the number that goes with {taken} to make 10.",
+        "{taken} + ? = 10.",
+        "Count up from {taken} to 10."
+      ],
+      "steps": [
+        "10 − {taken} asks what goes with {taken} to make 10",
+        "{taken} + {answer} = 10",
+        "So 10 − {taken} = {answer}"
+      ],
+      "explain": "{taken} and {answer} make 10, so 10 − {taken} = {answer}.",
+      "distractors": [
+        {
+          "value": "c + taken",
+          "error": "added-instead",
+          "feedback": "{value} is {c} + {taken}. − means take away."
+        },
+        {
+          "value": "c - taken + 1",
+          "error": "one-too-many",
+          "feedback": "{value} + {taken} = {value + taken}, which is more than {c}."
+        },
+        {
+          "value": "c - taken - 1",
+          "error": "one-short",
+          "feedback": "{value} + {taken} = {value + taken}, which is less than {c}."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.doubles",
+      "domain": "NA",
+      "construct": "Recall a double",
+      "schema": "combine",
+      "grid": true,
+      "params": {"x": {"range": [1, 10]}, "y": {"range": ["x", "x"]}},
+      "answer": {"type": "integer", "value": "x + y"},
+      "formats": [{"id": "xy", "prompt": "{x} + {y} = ?"}, {"id": "yx", "prompt": "{y} + {x} = ?"}],
+      "hints": ["A double is the same number twice.", "Double {x} is {x} + {x}.", "Count on {x} from {x}."],
+      "steps": ["{x} + {x} is double {x}", "Double {x} is 2 × {x}", "= {answer}"],
+      "explain": "Double {x} is {answer}.",
+      "distractors": [
+        {
+          "value": "x + y - 1",
+          "error": "one-short",
+          "feedback": "{value} is one short. Count on {x} from {y} again."
+        },
+        {
+          "value": "x + y + 1",
+          "error": "one-too-many",
+          "feedback": "{value} is one too many. Count on {x} from {y} again."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.near-doubles",
+      "domain": "NA",
+      "construct": "Add two numbers next to each other, from the double",
+      "schema": "combine",
+      "grid": true,
+      "params": {"x": {"range": [1, 9]}, "y": {"range": ["x + 1", "x + 1"]}},
+      "answer": {"type": "integer", "value": "x + y"},
+      "formats": [{"id": "xy", "prompt": "{x} + {y} = ?"}, {"id": "yx", "prompt": "{y} + {x} = ?"}],
+      "hints": [
+        "{x} and {y} are next to each other: use the double.",
+        "Double {x} is {2 * x}.",
+        "{2 * x} and one more = ?"
+      ],
+      "steps": ["Double {x} = {2 * x}", "{y} is one more than {x}", "{2 * x} + 1 = {answer}"],
+      "explain": "Double {x} is {2 * x}, and one more is {answer}.",
+      "distractors": [
+        {
+          "value": "x + y - 1",
+          "error": "one-short",
+          "feedback": "{value} is one short. Count on {x} from {y} again."
+        },
+        {
+          "value": "x + y + 1",
+          "error": "one-too-many",
+          "feedback": "{value} is one too many. Count on {x} from {y} again."
+        },
+        {
+          "value": "y > x ? y - x : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} is {y} − {x}. + means put the two together."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.halves",
+      "domain": "NA",
+      "construct": "Take half of a double away",
+      "schema": "change",
+      "params": {"x": {"range": [1, 10]}, "c": {"value": "2 * x"}, "taken": {"value": "x"}},
+      "answer": {"type": "integer", "value": "c - taken"},
+      "formats": [{"id": "take", "prompt": "{c} − {taken} = ?"}, {"id": "half", "prompt": "Half of {c} = ?"}],
+      "hints": ["{c} is a double.", "{x} + {x} = {c}.", "Take one of the two {x}s away. What is left?"],
+      "steps": ["{c} is double {x}", "{x} + {x} = {c}", "So {c} − {x} = {answer}"],
+      "explain": "{x} + {x} = {c}, so {c} − {x} = {answer}.",
+      "distractors": [
+        {
+          "value": "c + taken",
+          "error": "added-instead",
+          "feedback": "{value} is {c} + {taken}. − means take away."
+        },
+        {
+          "value": "c - taken + 1",
+          "error": "one-too-many",
+          "feedback": "{value} + {taken} = {value + taken}, which is more than {c}."
+        },
+        {
+          "value": "c - taken - 1",
+          "error": "one-short",
+          "feedback": "{value} + {taken} = {value + taken}, which is less than {c}."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.near-halves",
+      "domain": "NA",
+      "construct": "Take away from a near double",
+      "schema": "change",
+      "params": {
+        "x": {"range": [1, 9]},
+        "s": {"choose": [0, 1]},
+        "c": {"value": "2 * x + 1"},
+        "taken": {"value": "s == 0 ? x : x + 1"}
+      },
+      "answer": {"type": "integer", "value": "c - taken"},
+      "formats": [{"id": "take", "prompt": "{c} − {taken} = ?"}],
+      "hints": [
+        "Use the near double: {x} + {x + 1} = {c}.",
+        "Take one of the two numbers away and the other is left.",
+        "{c} − {taken}: which of {x} and {x + 1} is left?"
+      ],
+      "steps": ["{x} + {x + 1} = {c}", "Take away {taken}", "The other one is left: {answer}"],
+      "explain": "{x} + {x + 1} = {c}, so {c} − {taken} = {answer}.",
+      "distractors": [
+        {
+          "value": "c + taken",
+          "error": "added-instead",
+          "feedback": "{value} is {c} + {taken}. − means take away."
+        },
+        {
+          "value": "c - taken + 1",
+          "error": "one-too-many",
+          "feedback": "{value} + {taken} = {value + taken}, which is more than {c}."
+        },
+        {
+          "value": "c - taken - 1",
+          "error": "one-short",
+          "feedback": "{value} + {taken} = {value + taken}, which is less than {c}."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.ten",
+      "domain": "NA",
+      "construct": "Add 10 to a one-digit number",
+      "schema": "combine",
+      "grid": true,
+      "params": {"x": {"range": [1, 8]}, "y": {"choose": [10]}},
+      "answer": {"type": "integer", "value": "x + y"},
+      "formats": [{"id": "xy", "prompt": "{x} + {y} = ?"}, {"id": "yx", "prompt": "{y} + {x} = ?"}],
+      "hints": [
+        "Adding 10 makes a number in the teens.",
+        "10 + {x} is 1 ten and {x} one{x == 1 ? '' : 's'}.",
+        "1 in the tens place, {x} in the ones place."
+      ],
+      "steps": ["10 is 1 ten", "{x} is {x} one{x == 1 ? '' : 's'}", "1 ten and {x} one{x == 1 ? '' : 's'} = {answer}"],
+      "explain": "1 ten and {x} one{x == 1 ? '' : 's'} make {answer}.",
+      "distractors": [
+        {
+          "value": "x + y - 1",
+          "error": "one-short",
+          "feedback": "{value} is one short. Count on {x} from {y} again."
+        },
+        {
+          "value": "x + y + 1",
+          "error": "one-too-many",
+          "feedback": "{value} is one too many. Count on {x} from {y} again."
+        },
+        {
+          "value": "y > x ? y - x : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} is {y} − {x}. + means put the two together."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.take-ten",
+      "domain": "NA",
+      "construct": "Take 10 away from a teen number",
+      "schema": "change",
+      "params": {"x": {"range": [1, 9]}, "c": {"value": "x + 10"}, "taken": {"value": "10"}},
+      "answer": {"type": "integer", "value": "c - taken"},
+      "formats": [{"id": "take", "prompt": "{c} − {taken} = ?"}, {"id": "words", "prompt": "Take 10 away from {c}."}],
+      "hints": [
+        "Taking 10 from a teen number leaves its ones.",
+        "{c} is 1 ten and {x} one{x == 1 ? '' : 's'}.",
+        "Take away the ten. What is left?"
+      ],
+      "steps": [
+        "{c} is 1 ten and {x} one{x == 1 ? '' : 's'}",
+        "Take away the 1 ten",
+        "{x} one{x == 1 ? ' is' : 's are'} left: {answer}"
+      ],
+      "explain": "{c} is 10 and {x}, so {c} − 10 = {answer}.",
+      "distractors": [
+        {
+          "value": "c + taken",
+          "error": "added-instead",
+          "feedback": "{value} is {c} + {taken}. − means take away."
+        },
+        {
+          "value": "c - taken + 1",
+          "error": "one-too-many",
+          "feedback": "{value} + {taken} = {value + taken}, which is more than {c}."
+        },
+        {
+          "value": "c - taken - 1",
+          "error": "one-short",
+          "feedback": "{value} + {taken} = {value + taken}, which is less than {c}."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.bridge",
+      "domain": "NA",
+      "construct": "Add across 10 by making 10 first",
+      "schema": "combine",
+      "grid": true,
+      "params": {"x": {"range": [2, 7]}, "y": {"range": ["max(x + 2, 11 - x)", 9]}},
+      "answer": {"type": "integer", "value": "x + y"},
+      "formats": [{"id": "xy", "prompt": "{x} + {y} = ?"}, {"id": "yx", "prompt": "{y} + {x} = ?"}],
+      "hints": [
+        "Make 10 first, then add what is left.",
+        "{y} needs {10 - y} to make 10, and {x} = {10 - y} + {x + y - 10}.",
+        "10 + {x + y - 10} = ?"
+      ],
+      "steps": ["{y} + {10 - y} = 10", "{x} − {10 - y} = {x + y - 10} left over", "10 + {x + y - 10} = {answer}"],
+      "explain": "{y} + {10 - y} makes 10, and {x + y - 10} more is {answer}.",
+      "distractors": [
+        {
+          "value": "x + y - 1",
+          "error": "one-short",
+          "feedback": "{value} is one short. Count on {x} from {y} again."
+        },
+        {
+          "value": "x + y + 1",
+          "error": "one-too-many",
+          "feedback": "{value} is one too many. Count on {x} from {y} again."
+        },
+        {
+          "value": "y > x ? y - x : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} is {y} − {x}. + means put the two together."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.take-bridge",
+      "domain": "NA",
+      "construct": "Take away across 10 by going back to 10 first",
+      "schema": "change",
+      "params": {
+        "x": {"range": [2, 7]},
+        "y": {"range": ["max(x + 2, 11 - x)", 9]},
+        "s": {"choose": [0, 1]},
+        "c": {"value": "x + y"},
+        "taken": {"value": "s == 0 ? x : y"}
+      },
+      "answer": {"type": "integer", "value": "c - taken"},
+      "formats": [{"id": "take", "prompt": "{c} − {taken} = ?"}],
+      "hints": [
+        "Take away down to 10 first, then the rest.",
+        "{c} − {c - 10} = 10, and {taken} = {c - 10} + {taken - c + 10}.",
+        "10 − {taken - c + 10} = ?"
+      ],
+      "steps": ["{c} − {c - 10} = 10", "{taken - c + 10} more to take away", "10 − {taken - c + 10} = {answer}"],
+      "explain": "{c} − {c - 10} = 10, then 10 − {taken - c + 10} = {answer}.",
+      "distractors": [
+        {
+          "value": "c + taken",
+          "error": "added-instead",
+          "feedback": "{value} is {c} + {taken}. − means take away."
+        },
+        {
+          "value": "c - taken + 1",
+          "error": "one-too-many",
+          "feedback": "{value} + {taken} = {value + taken}, which is more than {c}."
+        },
+        {
+          "value": "c - taken - 1",
+          "error": "one-short",
+          "feedback": "{value} + {taken} = {value + taken}, which is less than {c}."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.add-tens",
+      "domain": "NA",
+      "construct": "Add a multiple of 10 to a two-digit number",
+      "schema": "combine",
+      "params": {
+        "a": {"tiers": {"1": [11, 59], "3": [11, 89]}},
+        "t": {"tiers": {"1": [1, 4], "3": [1, 9]}},
+        "n": {"value": "10 * t"}
+      },
+      "where": ["a % 10 != 0"],
+      "answer": {"type": "integer", "value": "a + n"},
+      "formats": [{"id": "sum", "prompt": "{a} + {n} = ?"}, {"id": "add", "prompt": "Add {n} to {a}."}],
+      "hints": [
+        "Adding {n} adds {t} ten{t == 1 ? '' : 's'}. The ones digit stays {a % 10}.",
+        "{a} has {floor(a / 10)} ten{floor(a / 10) == 1 ? '' : 's'}. {floor(a / 10)} + {t} = {floor(a / 10) + t} tens.",
+        "{floor(a / 10) + t} tens and {a % 10} one{a % 10 == 1 ? '' : 's'} = ?"
+      ],
+      "steps": [
+        "{a} is {floor(a / 10)} ten{floor(a / 10) == 1 ? '' : 's'} and {a % 10} one{a % 10 == 1 ? '' : 's'}",
+        "{floor(a / 10)} ten{floor(a / 10) == 1 ? '' : 's'} + {t} = {floor(a / 10) + t} tens",
+        "{floor(a / 10) + t} tens and {a % 10} one{a % 10 == 1 ? '' : 's'} = {answer}"
+      ],
+      "explain": "{a} + {n} = {answer}: {t} more ten{t == 1 ? '' : 's'}, the same ones.",
+      "distractors": [
+        {
+          "value": "a + t",
+          "error": "added-ones-not-tens",
+          "feedback": "{value} adds {t} one{t == 1 ? '' : 's'}. {n} is {t} ten{t == 1 ? '' : 's'}."
+        },
+        {
+          "value": "t > 1 ? a + n - 10 : -1",
+          "error": "one-ten-short",
+          "feedback": "{value} is {a} + {n - 10}: one ten short."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.add-two-digit",
+      "domain": "NA",
+      "construct": "Add two two-digit numbers in your head: tens, then ones",
+      "schema": "combine",
+      "params": {"a": {"tiers": {"1": [11, 59], "3": [15, 89]}}, "b": {"tiers": {"1": [11, 39], "3": [15, 89]}}},
+      "where": ["b % 10 != 0"],
+      "answer": {"type": "integer", "value": "a + b"},
+      "formats": [
+        {"id": "sum", "prompt": "{a} + {b} = ?"},
+        {"id": "total", "prompt": "Mila has {a} stickers and Ben has {b}. How many do they have together?"}
+      ],
+      "hints": [
+        "Add the tens first, then the ones.",
+        "{a} + {b - b % 10} = {a + b - b % 10}.",
+        "{a + b - b % 10} + {b % 10} = ?"
+      ],
+      "steps": [
+        "Tens: {a} + {b - b % 10} = {a + b - b % 10}",
+        "Ones: {a + b - b % 10} + {b % 10} = {answer}",
+        "So {a} + {b} = {answer}"
+      ],
+      "explain": "{a} + {b - b % 10} = {a + b - b % 10}, and {b % 10} more is {answer}.",
+      "distractors": [
+        {
+          "value": "a % 10 + b % 10 >= 10 ? a + b - 10 : -1",
+          "error": "lost-the-carried-ten",
+          "feedback": "{value} leaves out the ten the ones make: {a % 10} + {b % 10} = {a % 10 + b % 10}."
+        },
+        {
+          "value": "a > b ? a - b : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} is {a} − {b}. + means put them together."
+        },
+        {
+          "value": "a + b - b % 10",
+          "error": "forgot-the-ones",
+          "feedback": "{value} adds only the tens of {b}. Add its {b % 10} ones too."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.add-nines",
+      "domain": "NA",
+      "construct": "Add 9, 19, 29 and so on by adding the next ten and taking 1 back",
+      "schema": "combine",
+      "params": {
+        "a": {"tiers": {"1": [11, 69], "3": [21, 89]}},
+        "k": {"tiers": {"1": [1, 3], "3": [1, 6]}},
+        "b": {"value": "10 * k - 1"}
+      },
+      "answer": {"type": "integer", "value": "a + b"},
+      "formats": [
+        {"id": "sum", "prompt": "{a} + {b} = ?"},
+        {"id": "money", "prompt": "Ana has ₱{a}. She is given ₱{b} more. How much does she have now?"}
+      ],
+      "hints": [
+        "{b} is 1 less than {b + 1}. Add {b + 1}, then take 1 back.",
+        "{a} + {b + 1} = {a + b + 1}.",
+        "{a + b + 1} − 1 = ?"
+      ],
+      "steps": ["{b} = {b + 1} − 1", "{a} + {b + 1} = {a + b + 1}", "{a + b + 1} − 1 = {answer}"],
+      "explain": "{a} + {b + 1} − 1 = {answer}.",
+      "distractors": [
+        {
+          "value": "a + b + 1",
+          "error": "did-not-take-1-back",
+          "feedback": "{value} is {a} + {b + 1}. That adds 1 too many: take it back."
+        },
+        {
+          "value": "a + b - 1",
+          "error": "took-1-too-many",
+          "feedback": "{value} takes away 1 too many: {a} + {b + 1} − 1 = {a + b}."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.take-tens",
+      "domain": "NA",
+      "construct": "Take a multiple of 10 from a two- or three-digit number",
+      "schema": "change",
+      "params": {
+        "a": {"tiers": {"1": [41, 99], "3": [110, 199]}},
+        "t": {"tiers": {"1": [1, 4], "3": [2, 9]}},
+        "n": {"value": "10 * t"}
+      },
+      "where": ["a % 10 != 0", "a - n >= 10"],
+      "answer": {"type": "integer", "value": "a - n"},
+      "formats": [{"id": "difference", "prompt": "{a} − {n} = ?"}, {"id": "take", "prompt": "Take {n} away from {a}."}],
+      "hints": [
+        "Taking away {n} takes away {t} ten{t == 1 ? '' : 's'}. The ones digit stays {a % 10}.",
+        "{a} has {floor(a / 10)} tens. {floor(a / 10)} − {t} = {floor(a / 10) - t} ten{floor(a / 10) - t == 1 ? '' : 's'}.",
+        "{floor(a / 10) - t} ten{floor(a / 10) - t == 1 ? '' : 's'} and {a % 10} one{a % 10 == 1 ? '' : 's'} = ?"
+      ],
+      "steps": [
+        "{a} is {floor(a / 10)} tens and {a % 10} one{a % 10 == 1 ? '' : 's'}",
+        "{floor(a / 10)} tens − {t} = {floor(a / 10) - t} ten{floor(a / 10) - t == 1 ? '' : 's'}",
+        "{floor(a / 10) - t} ten{floor(a / 10) - t == 1 ? '' : 's'} and {a % 10} one{a % 10 == 1 ? '' : 's'} = {answer}"
+      ],
+      "explain": "{a} − {n} = {answer}: {t} fewer ten{t == 1 ? '' : 's'}, the same ones.",
+      "distractors": [
+        {
+          "value": "a - t",
+          "error": "took-ones-not-tens",
+          "feedback": "{value} takes away {t} one{t == 1 ? '' : 's'}. {n} is {t} ten{t == 1 ? '' : 's'}."
+        },
+        {"value": "a + n", "error": "added-instead", "feedback": "{value} is {a} + {n}. − means take away."}
+      ]
+    },
+    {
+      "id": "add-subtract.take-two-digit",
+      "domain": "NA",
+      "construct": "Take a two-digit number from another in your head: tens, then ones",
+      "schema": "change",
+      "params": {"a": {"tiers": {"1": [31, 99], "3": [52, 99]}}, "b": {"tiers": {"1": [11, 29], "3": [15, 49]}}},
+      "where": ["b % 10 != 0", "a > b"],
+      "answer": {"type": "integer", "value": "a - b"},
+      "formats": [
+        {"id": "difference", "prompt": "{a} − {b} = ?"},
+        {"id": "left", "prompt": "A box has {a} mangoes. {b} are sold. How many are left?"}
+      ],
+      "hints": [
+        "Take away the tens first, then the ones.",
+        "{a} − {b - b % 10} = {a - b + b % 10}.",
+        "{a - b + b % 10} − {b % 10} = ?"
+      ],
+      "steps": [
+        "Tens: {a} − {b - b % 10} = {a - b + b % 10}",
+        "Ones: {a - b + b % 10} − {b % 10} = {answer}",
+        "So {a} − {b} = {answer}"
+      ],
+      "explain": "{a} − {b - b % 10} = {a - b + b % 10}, and {b % 10} less is {answer}.",
+      "distractors": [
+        {
+          "value": "a % 10 < b % 10 ? (floor(a / 10) - floor(b / 10)) * 10 + b % 10 - a % 10 : -1",
+          "error": "took-the-smaller-ones-digit",
+          "feedback": "{value} takes {a % 10} from {b % 10} in the ones. Take all of {b} from {a}: {a} − {b - b % 10} = {a - b + b % 10}, then take {b % 10} more."
+        },
+        {"value": "a + b", "error": "added-instead", "feedback": "{value} is {a} + {b}. − means take away."},
+        {
+          "value": "a - b + b % 10",
+          "error": "forgot-the-ones",
+          "feedback": "{value} takes away only the tens of {b}. Take its {b % 10} ones too."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.take-nines",
+      "domain": "NA",
+      "construct": "Take away 9, 19, 29 and so on by taking the next ten and giving 1 back",
+      "schema": "change",
+      "params": {
+        "a": {"tiers": {"1": [31, 99], "3": [52, 99]}},
+        "k": {"tiers": {"1": [1, 3], "3": [1, 5]}},
+        "b": {"value": "10 * k - 1"}
+      },
+      "where": ["a > b + 1"],
+      "answer": {"type": "integer", "value": "a - b"},
+      "formats": [
+        {"id": "difference", "prompt": "{a} − {b} = ?"},
+        {"id": "money", "prompt": "Lito has ₱{a}. He spends ₱{b}. How much is left?"}
+      ],
+      "hints": [
+        "{b} is 1 less than {b + 1}. Take away {b + 1}, then give 1 back.",
+        "{a} − {b + 1} = {a - b - 1}.",
+        "{a - b - 1} + 1 = ?"
+      ],
+      "steps": ["{b} = {b + 1} − 1", "{a} − {b + 1} = {a - b - 1}", "{a - b - 1} + 1 = {answer}"],
+      "explain": "{a} − {b + 1} + 1 = {answer}.",
+      "distractors": [
+        {
+          "value": "a - b - 1",
+          "error": "did-not-give-1-back",
+          "feedback": "{value} is {a} − {b + 1}. That takes 1 too many: give it back."
+        },
+        {
+          "value": "a - b + 1",
+          "error": "gave-back-too-much",
+          "feedback": "{value} gives back 2. Taking {b + 1} took only 1 too many, so give back 1."
+        }
+      ]
+    },
+    {
+      "id": "add-subtract.count-up",
+      "domain": "NA",
+      "construct": "Find the difference between close numbers by counting up through the next ten",
+      "schema": "compare",
+      "params": {
+        "b": {"tiers": {"1": [21, 88], "3": [21, 185]}},
+        "d": {"tiers": {"1": [2, 9], "3": [3, 15]}},
+        "a": {"value": "b + d"},
+        "up": {"value": "ceil(b / 10) * 10"}
+      },
+      "where": ["b % 10 != 0", "floor(a / 10) != floor(b / 10)", "a != up"],
+      "answer": {"type": "integer", "value": "a - b"},
+      "formats": [
+        {"id": "difference", "prompt": "{a} − {b} = ?"},
+        {"id": "between", "prompt": "What is the difference between {a} and {b}?"},
+        {
+          "id": "trip",
+          "prompt": "A jeepney trip is {a} km. Mang Ben has driven {b} km. How many kilometres are left?"
+        }
+      ],
+      "hints": [
+        "The numbers are close: count up from {b} to {a}.",
+        "From {b} to {up} is {up - b}.",
+        "From {up} to {a} is {a - up}. Add the two jumps."
+      ],
+      "steps": ["{b} to {up}: {up - b}", "{up} to {a}: {a - up}", "{up - b} + {a - up} = {answer}"],
+      "explain": "Up {up - b} to {up}, then {a - up} more to {a}: {answer}.",
+      "distractors": [
+        {
+          "value": "a - up",
+          "error": "counted-one-jump",
+          "feedback": "{value} counts only from {up} to {a}. Add the jump from {b} to {up} too."
+        },
+        {
+          "value": "a + b",
+          "error": "added-instead",
+          "feedback": "{value} is {a} + {b}. The difference is how far apart they are."
+        }
+      ]
+    }
+  ]
+}
