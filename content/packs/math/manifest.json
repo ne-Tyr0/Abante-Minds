@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
@@ -26,6 +26,7 @@
   ],
   "basics": [
     { "key": "add-subtract", "label": "Add and subtract", "icon": "add", "colorKey": 1, "file": "add-subtract.json" },
-    { "key": "times", "label": "Times tables", "icon": "streak", "colorKey": 3, "file": "times.json" }
+    { "key": "times", "label": "Times tables", "icon": "streak", "colorKey": 3, "file": "times.json" },
+    { "key": "mental", "label": "Mental math", "icon": "hint", "colorKey": 4, "file": "mental.json" }
   ]
 }
