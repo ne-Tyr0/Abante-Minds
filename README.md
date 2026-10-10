@@ -136,6 +136,10 @@ every topic, so a learner can work without a calculator. Written so far:
 - **Mental math**: six practice levels: times and divide by 10, 100 and 1000; double and
   halve; times 5, 9 and 11; split and multiply; divide in your head; and estimate to
   check an answer.
+- **Pen and paper**: four practice levels: column adding with carrying, column taking
+  away with borrowing (across a zero too), long multiplication, and long division by
+  chunks, with remainders. Each worked step is one column, so a learner sees where the
+  carry or the borrow happens.
 
 The facts topics each have a review level of all their facts.
 

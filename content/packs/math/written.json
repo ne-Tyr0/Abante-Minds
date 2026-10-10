@@ -1,0 +1,511 @@
+{
+  "topic": "written",
+  "levels": [
+    {
+      "id": "column-add",
+      "title": "Column adding",
+      "templates": ["written.column-add", "written.add-three"],
+      "lesson": [
+        {
+          "title": "Line up the places",
+          "body": "Write the numbers one under the other: ones under ones, tens under tens, hundreds under hundreds. Add the ones first."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "written.column-add", "params": {"a": 457, "b": 268}, "format": "sum"}
+        },
+        {
+          "title": "Carry the ten",
+          "body": "When a column adds to 10 or more, write its ones digit and carry the ten to the next column, as a small 1 above it."
+        }
+      ]
+    },
+    {
+      "id": "column-take",
+      "title": "Column taking away",
+      "templates": ["written.column-take", "written.take-across-zero"],
+      "lesson": [
+        {
+          "title": "Borrow when the top is smaller",
+          "body": "In 52 − 27, 2 is less than 7, so borrow a ten: 12 − 7 = 5, and the 5 tens become 4. 4 − 2 = 2. The answer is 25."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "written.column-take", "params": {"a": 523, "b": 278}, "format": "difference"}
+        },
+        {
+          "title": "Borrowing across a zero",
+          "body": "503 has no tens to borrow, so borrow from the hundreds: 503 is 4 hundreds, 9 tens and 13 ones."
+        }
+      ]
+    },
+    {
+      "id": "long-times",
+      "title": "Long multiplication",
+      "templates": ["written.times-one-digit", "written.times-two-digit"],
+      "lesson": [
+        {
+          "title": "Multiply each digit",
+          "body": "324 × 6: 4 × 6 = 24, write 4 carry 2; 2 × 6 + 2 = 14, write 4 carry 1; 3 × 6 + 1 = 19. The answer is 1944."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "written.times-two-digit", "params": {"a": 34, "b": 26}, "format": "product"}
+        },
+        {
+          "title": "Do not drop the zero",
+          "body": "Multiplying by the tens digit means multiplying by tens: in 34 × 26, the tens row is 34 × 20 = 680, not 68."
+        }
+      ]
+    },
+    {
+      "id": "long-divide",
+      "title": "Long division",
+      "templates": ["written.divide-one-digit", "written.remainder", "written.divide-two-digit"],
+      "lesson": [
+        {
+          "title": "Take away chunks",
+          "body": "744 ÷ 6: take away 6 × 100 = 600, leaving 144; take away 6 × 20 = 120, leaving 24; 24 ÷ 6 = 4. The answer is 100 + 20 + 4 = 124."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "written.divide-one-digit", "params": {"d": 4, "q": 206}, "format": "quotient"}
+        },
+        {
+          "title": "Remainders",
+          "body": "157 ÷ 6: 6 × 26 = 156, and 1 is left over. The remainder is 1, which is always less than 6."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "written.column-add",
+      "domain": "NA",
+      "construct": "Add two three-digit numbers in columns, carrying",
+      "schema": "combine",
+      "params": {
+        "a": {"tiers": {"1": [100, 499], "3": [100, 999]}},
+        "b": {"tiers": {"1": [100, 499], "3": [100, 999]}},
+        "a1": {"value": "a % 10"},
+        "a2": {"value": "floor(a / 10) % 10"},
+        "a3": {"value": "floor(a / 100)"},
+        "b1": {"value": "b % 10"},
+        "b2": {"value": "floor(b / 10) % 10"},
+        "b3": {"value": "floor(b / 100)"},
+        "c1": {"value": "floor((a1 + b1) / 10)"},
+        "t": {"value": "a2 + b2 + c1"},
+        "c2": {"value": "floor(t / 10)"},
+        "h": {"value": "a3 + b3 + c2"}
+      },
+      "where": ["a % 10 + b % 10 >= 10 || floor(a / 10) % 10 + floor(b / 10) % 10 >= 10"],
+      "answer": {"type": "integer", "value": "a + b"},
+      "formats": [
+        {"id": "sum", "prompt": "{a} + {b} = ?"},
+        {"id": "votes", "prompt": "In a school vote, {a} pupils chose Ana and {b} chose Ben. How many voted?"}
+      ],
+      "hints": [
+        "Line the numbers up by place value and add the ones first.",
+        "Ones: {a1} + {b1} = {a1 + b1}{c1 > 0 ? '. Write ' : '.'}{c1 > 0 ? fmt((a1 + b1) % 10) : ''}{c1 > 0 ? ' and carry 1 to the tens.' : ''}",
+        "Tens: {a2} + {b2}{c1 > 0 ? ' + 1' : ''} = {t}. Then the hundreds."
+      ],
+      "steps": [
+        "Ones: {a1} + {b1} = {a1 + b1}{c1 > 0 ? ', write ' : ''}{c1 > 0 ? fmt((a1 + b1) % 10) : ''}{c1 > 0 ? ', carry 1' : ''}",
+        "Tens: {a2} + {b2}{c1 > 0 ? ' + 1' : ''} = {t}{c2 > 0 ? ', write ' : ''}{c2 > 0 ? fmt(t % 10) : ''}{c2 > 0 ? ', carry 1' : ''}",
+        "Hundreds: {a3} + {b3}{c2 > 0 ? ' + 1' : ''} = {h}, so the sum is {answer}"
+      ],
+      "explain": "Column by column, carrying where a column makes 10 or more: {a} + {b} = {answer}.",
+      "distractors": [
+        {
+          "value": "c1 + c2 > 0 ? (a1 + b1) % 10 + 10 * ((a2 + b2) % 10) + 100 * (a3 + b3) : -1",
+          "error": "forgot-to-carry",
+          "feedback": "{value} forgets to carry. When a column adds to 10 or more, write the ones and carry 1 to the next column."
+        },
+        {
+          "value": "a > b ? a - b : -1",
+          "error": "took-away-instead",
+          "feedback": "{value} is {a} − {b}. + means add."
+        }
+      ]
+    },
+    {
+      "id": "written.add-three",
+      "domain": "NA",
+      "construct": "Add three three-digit numbers in columns, carrying 1 or 2",
+      "schema": "combine",
+      "params": {
+        "a": {"tiers": {"1": [100, 299], "3": [100, 599]}},
+        "b": {"tiers": {"1": [100, 299], "3": [100, 599]}},
+        "e": {"tiers": {"1": [100, 299], "3": [100, 599]}},
+        "a1": {"value": "a % 10"},
+        "a2": {"value": "floor(a / 10) % 10"},
+        "a3": {"value": "floor(a / 100)"},
+        "b1": {"value": "b % 10"},
+        "b2": {"value": "floor(b / 10) % 10"},
+        "b3": {"value": "floor(b / 100)"},
+        "e1": {"value": "e % 10"},
+        "e2": {"value": "floor(e / 10) % 10"},
+        "e3": {"value": "floor(e / 100)"},
+        "s1": {"value": "a1 + b1 + e1"},
+        "c1": {"value": "floor(s1 / 10)"},
+        "t": {"value": "a2 + b2 + e2 + c1"},
+        "c2": {"value": "floor(t / 10)"},
+        "h": {"value": "a3 + b3 + e3 + c2"}
+      },
+      "where": ["c1 > 0"],
+      "answer": {"type": "integer", "value": "a + b + e"},
+      "formats": [
+        {"id": "sum", "prompt": "{a} + {b} + {e} = ?"},
+        {
+          "id": "harvest",
+          "prompt": "A farm picks {a} mangoes on Monday, {b} on Tuesday and {e} on Wednesday. How many mangoes is that?"
+        }
+      ],
+      "hints": [
+        "Line all three numbers up and add the ones first.",
+        "Ones: {a1} + {b1} + {e1} = {s1}{c1 > 0 ? '. Write ' : '.'}{c1 > 0 ? fmt(s1 % 10) : ''}{c1 > 0 ? ' and carry ' : ''}{c1 > 0 ? fmt(c1) : ''}{c1 > 0 ? '.' : ''}",
+        "Tens: {a2} + {b2} + {e2}{c1 > 0 ? ' + ' : ''}{c1 > 0 ? fmt(c1) : ''} = {t}. Then the hundreds."
+      ],
+      "steps": [
+        "Ones: {a1} + {b1} + {e1} = {s1}{c1 > 0 ? ', write ' : ''}{c1 > 0 ? fmt(s1 % 10) : ''}{c1 > 0 ? ', carry ' : ''}{c1 > 0 ? fmt(c1) : ''}",
+        "Tens: {a2} + {b2} + {e2}{c1 > 0 ? ' + ' : ''}{c1 > 0 ? fmt(c1) : ''} = {t}{c2 > 0 ? ', write ' : ''}{c2 > 0 ? fmt(t % 10) : ''}{c2 > 0 ? ', carry ' : ''}{c2 > 0 ? fmt(c2) : ''}",
+        "Hundreds: {a3} + {b3} + {e3}{c2 > 0 ? ' + ' : ''}{c2 > 0 ? fmt(c2) : ''} = {h}, so the sum is {answer}"
+      ],
+      "explain": "Column by column, carrying what each column makes past 10: {answer}.",
+      "distractors": [
+        {
+          "value": "c1 + c2 > 0 ? s1 % 10 + 10 * ((a2 + b2 + e2) % 10) + 100 * (a3 + b3 + e3) : -1",
+          "error": "forgot-to-carry",
+          "feedback": "{value} forgets to carry. When a column adds to 10 or more, write the ones and carry the tens to the next column."
+        },
+        {"value": "a + b", "error": "left-one-out", "feedback": "{value} adds only {a} and {b}. Add {e} too."}
+      ]
+    },
+    {
+      "id": "written.column-take",
+      "domain": "NA",
+      "construct": "Take away three-digit numbers in columns, borrowing",
+      "schema": "change",
+      "params": {
+        "a": {"tiers": {"1": [300, 999], "3": [300, 999]}},
+        "b": {"tiers": {"1": [100, 299], "3": [100, "a - 1"]}},
+        "a1": {"value": "a % 10"},
+        "a2": {"value": "floor(a / 10) % 10"},
+        "a3": {"value": "floor(a / 100)"},
+        "b1": {"value": "b % 10"},
+        "b2": {"value": "floor(b / 10) % 10"},
+        "b3": {"value": "floor(b / 100)"},
+        "br1": {"value": "a1 < b1 ? 1 : 0"},
+        "r1": {"value": "a1 + 10 * br1 - b1"},
+        "x2": {"value": "a2 - br1"},
+        "br2": {"value": "x2 < b2 ? 1 : 0"},
+        "r2": {"value": "x2 + 10 * br2 - b2"},
+        "r3": {"value": "a3 - br2 - b3"}
+      },
+      "where": ["a > b", "a % 10 < b % 10 || floor(a / 10) % 10 < floor(b / 10) % 10", "floor(a / 10) % 10 != 0"],
+      "answer": {"type": "integer", "value": "a - b"},
+      "formats": [
+        {"id": "difference", "prompt": "{a} − {b} = ?"},
+        {
+          "id": "left",
+          "prompt": "A library has {a} books. {b} are borrowed. How many are left on the shelves?"
+        }
+      ],
+      "hints": [
+        "Line them up and take away the ones first. If the top digit is smaller, borrow from the next column.",
+        "Ones: {a1 + 10 * br1} − {b1} = {r1}{br1 == 1 ? ', after borrowing a ten' : ''}.",
+        "Tens: {x2 + 10 * br2} − {b2} = {r2}{br2 == 1 ? ', after borrowing a hundred' : ''}. Then the hundreds."
+      ],
+      "steps": [
+        "Ones: {br1 == 1 ? 'borrow a ten, ' : ''}{a1 + 10 * br1} − {b1} = {r1}",
+        "Tens: {br2 == 1 ? 'borrow a hundred, ' : ''}{x2 + 10 * br2} − {b2} = {r2}",
+        "Hundreds: {a3 - br2} − {b3} = {r3}, so the answer is {answer}"
+      ],
+      "explain": "Column by column, borrowing where the top digit is smaller: {a} − {b} = {answer}.",
+      "distractors": [
+        {
+          "value": "br1 + br2 > 0 ? 100 * (a3 - b3) + 10 * abs(a2 - b2) + abs(a1 - b1) : -1",
+          "error": "took-smaller-from-bigger",
+          "feedback": "{value} takes the smaller digit from the bigger in each column. When the top digit is smaller, borrow from the next column."
+        },
+        {
+          "value": "br1 + br2 > 0 ? a - b + 10 * br1 + 100 * br2 : -1",
+          "error": "did-not-pay-back",
+          "feedback": "{value} borrows but does not take the 1 away from the column it borrowed from."
+        },
+        {"value": "a + b", "error": "added-instead", "feedback": "{value} is {a} + {b}. − means take away."}
+      ]
+    },
+    {
+      "id": "written.take-across-zero",
+      "domain": "NA",
+      "construct": "Take away from a number with a zero in the tens, borrowing across it",
+      "schema": "change",
+      "params": {
+        "hund": {"tiers": {"1": [3, 9]}},
+        "o": {"range": [0, 8]},
+        "a": {"value": "100 * hund + o"},
+        "b": {"range": [101, "a - 1"]},
+        "a1": {"value": "a % 10"},
+        "a2": {"value": "floor(a / 10) % 10"},
+        "a3": {"value": "floor(a / 100)"},
+        "b1": {"value": "b % 10"},
+        "b2": {"value": "floor(b / 10) % 10"},
+        "b3": {"value": "floor(b / 100)"},
+        "br1": {"value": "a1 < b1 ? 1 : 0"},
+        "r1": {"value": "a1 + 10 * br1 - b1"},
+        "x2": {"value": "a2 - br1"},
+        "br2": {"value": "x2 < b2 ? 1 : 0"},
+        "r2": {"value": "x2 + 10 * br2 - b2"},
+        "r3": {"value": "a3 - br2 - b3"}
+      },
+      "where": ["b % 10 > o", "floor(b / 10) % 10 != 0"],
+      "answer": {"type": "integer", "value": "a - b"},
+      "formats": [
+        {"id": "difference", "prompt": "{a} − {b} = ?"},
+        {"id": "change", "prompt": "Mila has ₱{a}. She spends ₱{b}. How much is left?"}
+      ],
+      "hints": [
+        "Line them up and take away the ones first. If the top digit is smaller, borrow from the next column.",
+        "Ones: {a1 + 10 * br1} − {b1} = {r1}{br1 == 1 ? ', after borrowing a ten' : ''}.",
+        "Tens: {x2 + 10 * br2} − {b2} = {r2}{br2 == 1 ? ', after borrowing a hundred' : ''}. Then the hundreds."
+      ],
+      "steps": [
+        "Ones: {br1 == 1 ? 'borrow a ten, ' : ''}{a1 + 10 * br1} − {b1} = {r1}",
+        "Tens: {br2 == 1 ? 'borrow a hundred, ' : ''}{x2 + 10 * br2} − {b2} = {r2}",
+        "Hundreds: {a3 - br2} − {b3} = {r3}, so the answer is {answer}"
+      ],
+      "explain": "{a} has no tens, so borrowing for the ones comes from the hundreds: {a} − {b} = {answer}.",
+      "distractors": [
+        {
+          "value": "br1 + br2 > 0 ? 100 * (a3 - b3) + 10 * abs(a2 - b2) + abs(a1 - b1) : -1",
+          "error": "took-smaller-from-bigger",
+          "feedback": "{value} takes the smaller digit from the bigger in each column. When the top digit is smaller, borrow from the next column."
+        },
+        {
+          "value": "br1 + br2 > 0 ? a - b + 10 * br1 + 100 * br2 : -1",
+          "error": "did-not-pay-back",
+          "feedback": "{value} borrows but does not take the 1 away from the column it borrowed from."
+        },
+        {"value": "a + b", "error": "added-instead", "feedback": "{value} is {a} + {b}. − means take away."}
+      ]
+    },
+    {
+      "id": "written.times-one-digit",
+      "domain": "NA",
+      "construct": "Multiply a three-digit number by a one-digit number in columns, carrying",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [102, 399], "3": [102, 999]}},
+        "m": {"tiers": {"1": [3, 6], "3": [3, 9]}},
+        "a1": {"value": "a % 10"},
+        "a2": {"value": "floor(a / 10) % 10"},
+        "a3": {"value": "floor(a / 100)"},
+        "p1": {"value": "a1 * m"},
+        "c1": {"value": "floor(p1 / 10)"},
+        "p2": {"value": "a2 * m + c1"},
+        "c2": {"value": "floor(p2 / 10)"},
+        "p3": {"value": "a3 * m + c2"}
+      },
+      "where": ["a % 10 != 0", "c1 + c2 > 0"],
+      "answer": {"type": "integer", "value": "a * m"},
+      "formats": [
+        {"id": "product", "prompt": "{a} × {m} = ?"},
+        {"id": "boxes", "prompt": "A box holds {a} pencils. How many pencils are in {m} boxes?"}
+      ],
+      "hints": [
+        "Multiply each digit by {m}, starting with the ones, and carry as you go.",
+        "Ones: {a1} × {m} = {p1}{c1 > 0 ? '. Write ' : '.'}{c1 > 0 ? fmt(p1 % 10) : ''}{c1 > 0 ? ' and carry ' : ''}{c1 > 0 ? fmt(c1) : ''}{c1 > 0 ? '.' : ''}",
+        "Tens: {a2} × {m}{c1 > 0 ? ' + ' : ''}{c1 > 0 ? fmt(c1) : ''} = {p2}. Then the hundreds."
+      ],
+      "steps": [
+        "Ones: {a1} × {m} = {p1}{c1 > 0 ? ', write ' : ''}{c1 > 0 ? fmt(p1 % 10) : ''}{c1 > 0 ? ', carry ' : ''}{c1 > 0 ? fmt(c1) : ''}",
+        "Tens: {a2} × {m}{c1 > 0 ? ' + ' : ''}{c1 > 0 ? fmt(c1) : ''} = {p2}{c2 > 0 ? ', write ' : ''}{c2 > 0 ? fmt(p2 % 10) : ''}{c2 > 0 ? ', carry ' : ''}{c2 > 0 ? fmt(c2) : ''}",
+        "Hundreds: {a3} × {m}{c2 > 0 ? ' + ' : ''}{c2 > 0 ? fmt(c2) : ''} = {p3}, so the product is {answer}"
+      ],
+      "explain": "Each digit times {m}, carrying as you go: {a} × {m} = {answer}.",
+      "distractors": [
+        {
+          "value": "c1 + c2 > 0 ? p1 % 10 + 10 * ((a2 * m) % 10) + 100 * (a3 * m) : -1",
+          "error": "forgot-the-carries",
+          "feedback": "{value} leaves out the carried numbers. Add each carry to the next column's product."
+        },
+        {
+          "value": "a + m",
+          "error": "added-instead",
+          "feedback": "{value} is {a} + {m}. × means {m} lots of {a}."
+        }
+      ]
+    },
+    {
+      "id": "written.times-two-digit",
+      "domain": "NA",
+      "construct": "Long multiplication: a number times a two-digit number, the ones row then the tens row",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [12, 49], "3": [102, 499]}},
+        "b": {"tiers": {"1": [11, 29], "3": [12, 59]}},
+        "ones": {"value": "a * (b % 10)"},
+        "tens": {"value": "a * (b - b % 10)"}
+      },
+      "where": ["b % 10 != 0"],
+      "answer": {"type": "integer", "value": "a * b"},
+      "formats": [
+        {"id": "product", "prompt": "{a} × {b} = ?"},
+        {"id": "rows", "prompt": "A field has {b} rows of {a} corn plants. How many plants is that?"}
+      ],
+      "hints": [
+        "Multiply by the ones digit, then by the tens, and add the two rows.",
+        "{a} × {b % 10} = {ones}.",
+        "{a} × {b - b % 10} = {tens}. Add the two rows."
+      ],
+      "steps": ["{a} × {b % 10} = {ones}", "{a} × {b - b % 10} = {tens}", "{ones} + {tens} = {answer}"],
+      "explain": "{a} × {b % 10} + {a} × {b - b % 10} = {ones} + {tens} = {answer}.",
+      "distractors": [
+        {
+          "value": "ones + a * floor(b / 10)",
+          "error": "forgot-the-zero",
+          "feedback": "{value} adds {a} × {floor(b / 10)} without its 0. The tens row is {a} × {b - b % 10} = {tens}."
+        },
+        {
+          "value": "ones",
+          "error": "forgot-the-tens-row",
+          "feedback": "{value} is only {a} × {b % 10}. Add the tens row, {a} × {b - b % 10}."
+        }
+      ]
+    },
+    {
+      "id": "written.divide-one-digit",
+      "domain": "NA",
+      "construct": "Divide by a one-digit number by taking away chunks",
+      "schema": "equal-groups",
+      "params": {
+        "d": {"tiers": {"1": [2, 5], "3": [3, 9]}},
+        "q": {"tiers": {"1": [21, 199], "3": [101, 999]}},
+        "n": {"value": "d * q"},
+        "big": {"value": "q - q % 10"},
+        "rest": {"value": "d * (q % 10)"}
+      },
+      "where": ["q % 10 != 0"],
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "quotient", "prompt": "{n} ÷ {d} = ?"},
+        {
+          "id": "share",
+          "prompt": "{n} kg of rice is packed equally into {d} sacks. How many kilograms go in each sack?"
+        }
+      ],
+      "hints": [
+        "Take away a big chunk of {d}s first.",
+        "{d} × {big} = {d * big}, which leaves {rest}.",
+        "{rest} ÷ {d} = {q % 10}. Add the parts."
+      ],
+      "steps": [
+        "Take away {d} × {big} = {d * big}: {n} − {d * big} = {rest}",
+        "{rest} ÷ {d} = {q % 10}",
+        "{big} + {q % 10} = {answer}"
+      ],
+      "explain": "{n} = {d} × {big} + {rest}, so {n} ÷ {d} = {big} + {q % 10} = {answer}.",
+      "distractors": [
+        {
+          "value": "q >= 100 && floor(q / 10) % 10 == 0 ? floor(q / 100) * 10 + q % 10 : -1",
+          "error": "left-out-a-zero",
+          "feedback": "{value} leaves out a 0. When {d} does not go into a digit, write 0 in the answer and carry on."
+        },
+        {
+          "value": "n - d",
+          "error": "took-away-instead",
+          "feedback": "{value} is {n} − {d}. ÷ shares {n} into {d} equal parts."
+        },
+        {
+          "value": "q - q % 10",
+          "error": "stopped-early",
+          "feedback": "{value} is only the first chunk. {rest} is left to divide by {d}."
+        }
+      ]
+    },
+    {
+      "id": "written.remainder",
+      "domain": "NA",
+      "construct": "Find the remainder of a division",
+      "schema": "equal-groups",
+      "params": {
+        "d": {"tiers": {"1": [3, 6], "3": [3, 9]}},
+        "q": {"tiers": {"1": [11, 49], "3": [21, 199]}},
+        "r": {"range": [1, "d - 1"]},
+        "n": {"value": "d * q + r"}
+      },
+      "answer": {"type": "integer", "value": "r"},
+      "formats": [
+        {"id": "remainder", "prompt": "What is the remainder when {n} is divided by {d}?"},
+        {"id": "eggs", "prompt": "{n} eggs are packed in trays of {d}. How many eggs are left over?"}
+      ],
+      "hints": [
+        "Find the biggest multiple of {d} that is not more than {n}.",
+        "{d} × {q} = {d * q}.",
+        "{n} − {d * q} = ?"
+      ],
+      "steps": ["{d} × {q} = {d * q}", "{n} − {d * q} = {r}", "{r} is less than {d}, so the remainder is {answer}"],
+      "explain": "{n} = {d} × {q} + {r}: the remainder is {answer}.",
+      "distractors": [
+        {
+          "value": "q",
+          "error": "gave-the-quotient",
+          "feedback": "{value} is how many times {d} goes into {n}. The question asks what is left over."
+        },
+        {
+          "value": "r + d",
+          "error": "remainder-too-big",
+          "feedback": "{value} is more than {d}: another {d} still fits."
+        }
+      ]
+    },
+    {
+      "id": "written.divide-two-digit",
+      "domain": "NA",
+      "construct": "Divide by a two-digit number by taking away chunks",
+      "schema": "equal-groups",
+      "params": {
+        "d": {"tiers": {"1": [11, 25], "3": [12, 49]}},
+        "q": {"tiers": {"1": [11, 39], "3": [21, 99]}},
+        "n": {"value": "d * q"},
+        "big": {"value": "q - q % 10"},
+        "rest": {"value": "d * (q % 10)"}
+      },
+      "where": ["q % 10 != 0"],
+      "answer": {"type": "integer", "value": "q"},
+      "formats": [
+        {"id": "quotient", "prompt": "{n} ÷ {d} = ?"},
+        {"id": "teams", "prompt": "{n} pupils make teams of {d}. How many teams are there?"}
+      ],
+      "hints": [
+        "Take away a big chunk of {d}s first.",
+        "{d} × {big} = {d * big}, which leaves {rest}.",
+        "{rest} ÷ {d} = {q % 10}. Add the parts."
+      ],
+      "steps": [
+        "Take away {d} × {big} = {d * big}: {n} − {d * big} = {rest}",
+        "{rest} ÷ {d} = {q % 10}",
+        "{big} + {q % 10} = {answer}"
+      ],
+      "explain": "{n} = {d} × {big} + {rest}, so {n} ÷ {d} = {big} + {q % 10} = {answer}.",
+      "distractors": [
+        {
+          "value": "q - 1",
+          "error": "one-too-few",
+          "feedback": "{value} × {d} = {value * d}, which is {d} short of {n}."
+        },
+        {
+          "value": "q + 1",
+          "error": "one-too-many",
+          "feedback": "{value} × {d} = {value * d}, which is more than {n}."
+        },
+        {
+          "value": "q - q % 10",
+          "error": "stopped-early",
+          "feedback": "{value} is only the first chunk. {rest} is left to divide by {d}."
+        }
+      ]
+    }
+  ]
+}
