@@ -1,0 +1,555 @@
+{
+  "topic": "area",
+  "levels": [
+    {
+      "id": "parallelograms-triangles",
+      "title": "Parallelograms and triangles",
+      "templates": ["area.parallelogram", "area.triangle", "area.height"],
+      "lesson": [
+        {
+          "title": "Base times height",
+          "body": "The area of a parallelogram is base × height. The height is the straight-up distance between the base and the opposite side, at a right angle to the base: not the slanted side."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "area.triangle", "params": {"b": 10, "h": 6}, "format": "shape"}
+        },
+        {
+          "title": "A triangle is half",
+          "body": "Two copies of a triangle make a parallelogram, so a triangle's area is base × height ÷ 2."
+        }
+      ]
+    },
+    {
+      "id": "trapezoids",
+      "title": "Trapezoids",
+      "templates": ["area.trapezoid", "area.trapezoid-lot"],
+      "lesson": [
+        {
+          "title": "The trapezoid formula",
+          "body": "A trapezoid has two parallel sides. Its area is (the two parallel sides added) × height ÷ 2: the average width times the height."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "area.trapezoid", "params": {"a": 6, "b": 10, "h": 5}, "format": "shape"}
+        },
+        {
+          "title": "Why it works",
+          "body": "Two copies of a trapezoid, one turned over, make a parallelogram whose base is the two parallel sides together."
+        }
+      ]
+    },
+    {
+      "id": "square-units",
+      "title": "Square units",
+      "templates": ["area.m2-to-cm2", "area.cm2-to-m2", "area.tiles"],
+      "lesson": [
+        {
+          "title": "A square metre",
+          "body": "1 m = 100 cm, so a square metre is 100 cm by 100 cm: 1 m² = 10000 cm², not 100 cm²."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "area.tiles", "params": {"t": 25, "W": 2, "L": 3}, "format": "floor"}
+        },
+        {
+          "title": "Work in one unit",
+          "body": "Before you multiply or divide lengths, make sure they are in the same unit: metres with metres, centimetres with centimetres."
+        }
+      ]
+    },
+    {
+      "id": "composite",
+      "title": "Composite figures",
+      "templates": ["area.l-shape", "area.house-wall", "area.l-perimeter", "area.paint"],
+      "lesson": [
+        {
+          "title": "Split or take away",
+          "body": "Break a figure into rectangles and triangles and add their areas, or take a cut-away part from a bigger rectangle."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "area.l-shape", "params": {"W": 10, "H": 8, "w": 4, "h": 3}, "format": "room"}
+        },
+        {
+          "title": "Perimeter is the way around",
+          "body": "Area counts square units inside; perimeter adds the lengths around the edge. Cutting a corner from a rectangle keeps the same perimeter."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "area.parallelogram",
+      "competency": "G5.Q1.11",
+      "domain": "MG",
+      "construct": "Find the area of a parallelogram, telling the height from the slanted side",
+      "schema": "equal-groups",
+      "params": {
+        "b": {"tiers": {"1": [4, 15], "3": [8, 30]}},
+        "h": {"tiers": {"1": [3, 12], "3": [5, 25]}},
+        "s": {"value": "h + 2"}
+      },
+      "answer": {"type": "unit", "value": "b * h", "unit": "cm²"},
+      "formats": [
+        {
+          "id": "shape",
+          "prompt": "A parallelogram has a base of {b} cm, slanted sides of {s} cm and a height of {h} cm. What is its area?"
+        }
+      ],
+      "hints": [
+        "Area of a parallelogram = base × height.",
+        "The height is the straight-up distance, {h} cm, not the slanted side.",
+        "{b} × {h} = ?"
+      ],
+      "steps": ["Area = base × height", "= {b} × {h}", "= {answer} cm²"],
+      "explain": "{b} × {h} = {answer} cm².",
+      "distractors": [
+        {
+          "value": "b * s",
+          "error": "used-the-slanted-side",
+          "feedback": "{value} cm² uses the slanted side. The height meets the base at a right angle: {h} cm."
+        },
+        {
+          "value": "2 * (b + s)",
+          "error": "gave-the-perimeter",
+          "feedback": "{value} cm is the distance around. Area is base × height."
+        },
+        {
+          "value": "b * h / 2",
+          "error": "halved-it",
+          "feedback": "{value} cm² halves it, as for a triangle. A parallelogram is base × height."
+        }
+      ]
+    },
+    {
+      "id": "area.triangle",
+      "competency": "G5.Q1.11",
+      "domain": "MG",
+      "construct": "Find the area of a triangle",
+      "schema": "equal-groups",
+      "params": {
+        "b": {"tiers": {"1": [4, 16], "3": [6, 30]}},
+        "h": {"tiers": {"1": [3, 12], "3": [5, 24]}},
+        "s": {"value": "h + 1"}
+      },
+      "where": ["b * h % 2 == 0"],
+      "answer": {"type": "unit", "value": "b * h / 2", "unit": "cm²"},
+      "formats": [
+        {
+          "id": "shape",
+          "prompt": "A triangle has a base of {b} cm, a height of {h} cm and a slanted side of {s} cm. What is its area?"
+        },
+        {
+          "id": "flag",
+          "prompt": "A triangular flag is {b} cm along the bottom and {h} cm high. What is its area?"
+        }
+      ],
+      "hints": ["Area of a triangle = base × height ÷ 2.", "{b} × {h} = {b * h}.", "{b * h} ÷ 2 = ?"],
+      "steps": ["Area = base × height ÷ 2", "{b} × {h} = {b * h}", "{b * h} ÷ 2 = {answer} cm²"],
+      "explain": "A triangle is half a parallelogram: {b} × {h} ÷ 2 = {answer} cm².",
+      "distractors": [
+        {
+          "value": "b * h",
+          "error": "forgot-to-halve",
+          "feedback": "{value} cm² is base × height. A triangle is half of that."
+        },
+        {
+          "value": "b * s / 2",
+          "error": "used-a-side-as-height",
+          "feedback": "{value} cm² uses a side as the height. The height is {h} cm, at a right angle to the base."
+        }
+      ]
+    },
+    {
+      "id": "area.height",
+      "competency": "G5.Q1.10",
+      "domain": "MG",
+      "construct": "Find the height of a triangle from its area and base",
+      "schema": "work-backwards",
+      "params": {
+        "b": {"tiers": {"1": [4, 12], "3": [6, 20]}},
+        "h": {"tiers": {"1": [3, 12], "3": [5, 20]}},
+        "A": {"value": "b * h / 2"}
+      },
+      "where": ["b * h % 2 == 0"],
+      "answer": {"type": "unit", "value": "h", "unit": "cm"},
+      "formats": [
+        {
+          "id": "shape",
+          "prompt": "A triangle has an area of {A} cm² and a base of {b} cm. What is its height?"
+        }
+      ],
+      "hints": ["Area = base × height ÷ 2, so base × height = 2 × area.", "2 × {A} = {2 * A}.", "{2 * A} ÷ {b} = ?"],
+      "steps": ["base × height = 2 × {A} = {2 * A}", "height = {2 * A} ÷ {b}", "= {answer} cm"],
+      "explain": "{b} × {answer} ÷ 2 = {A}, so the height is {answer} cm.",
+      "distractors": [
+        {
+          "value": "A / b",
+          "error": "forgot-to-double",
+          "feedback": "{value} cm is {A} ÷ {b}. The area is half of base × height, so double {A} first."
+        },
+        {
+          "value": "A - b",
+          "error": "took-away-instead",
+          "feedback": "{value} cm is {A} − {b}. Undo base × height ÷ 2: double, then divide by {b}."
+        }
+      ]
+    },
+    {
+      "id": "area.trapezoid",
+      "competency": "G5.Q1.11",
+      "domain": "MG",
+      "construct": "Find the area of a trapezoid",
+      "schema": "equal-groups",
+      "params": {
+        "a": {"tiers": {"1": [3, 12], "3": [5, 25]}},
+        "b": {"tiers": {"1": [5, 18], "3": [8, 35]}},
+        "h": {"tiers": {"1": [2, 10], "3": [4, 20]}}
+      },
+      "where": ["a < b", "(a + b) * h % 2 == 0"],
+      "answer": {"type": "unit", "value": "(a + b) * h / 2", "unit": "cm²"},
+      "formats": [
+        {
+          "id": "shape",
+          "prompt": "A trapezoid has parallel sides of {a} cm and {b} cm, and a height of {h} cm. What is its area?"
+        }
+      ],
+      "hints": [
+        "Area of a trapezoid = (sum of the parallel sides) × height ÷ 2.",
+        "{a} + {b} = {a + b}, and {a + b} × {h} = {(a + b) * h}.",
+        "{(a + b) * h} ÷ 2 = ?"
+      ],
+      "steps": ["Parallel sides: {a} + {b} = {a + b}", "× height: {a + b} × {h} = {(a + b) * h}", "÷ 2: {answer} cm²"],
+      "explain": "({a} + {b}) × {h} ÷ 2 = {answer} cm².",
+      "distractors": [
+        {
+          "value": "(a + b) * h",
+          "error": "forgot-to-halve",
+          "feedback": "{value} cm² is (sum of the parallel sides) × height. Halve it."
+        },
+        {
+          "value": "a * b * h / 2",
+          "error": "multiplied-the-sides",
+          "feedback": "{value} cm² multiplies the parallel sides. Add them, then × height ÷ 2."
+        },
+        {
+          "value": "b * h",
+          "error": "used-one-side",
+          "feedback": "{value} cm² uses only the {b} cm side. Use both parallel sides: ({a} + {b}) × {h} ÷ 2."
+        }
+      ]
+    },
+    {
+      "id": "area.trapezoid-lot",
+      "competency": "G6.Q3.8",
+      "domain": "MG",
+      "construct": "Solve a problem with the area of a trapezoid",
+      "schema": "multi-step",
+      "params": {
+        "a": {"tiers": {"1": [6, 20], "3": [10, 40]}},
+        "b": {"tiers": {"1": [10, 30], "3": [15, 60]}},
+        "h": {"tiers": {"1": [4, 12], "3": [6, 25]}}
+      },
+      "where": ["a < b", "(a + b) * h % 2 == 0"],
+      "answer": {"type": "unit", "value": "(a + b) * h / 2", "unit": "m²"},
+      "formats": [
+        {
+          "id": "lot",
+          "prompt": "A rice field is a trapezoid. Its parallel sides are {a} m and {b} m long, and they are {h} m apart. What is its area?"
+        },
+        {
+          "id": "garden",
+          "prompt": "A garden plot is a trapezoid with parallel sides of {a} m and {b} m, {h} m apart. How many square metres is it?"
+        }
+      ],
+      "hints": [
+        "Area of a trapezoid = (sum of the parallel sides) × height ÷ 2.",
+        "{a} + {b} = {a + b}.",
+        "{a + b} × {h} ÷ 2 = ?"
+      ],
+      "steps": ["{a} + {b} = {a + b}", "{a + b} × {h} = {(a + b) * h}", "÷ 2 = {answer} m²"],
+      "explain": "({a} + {b}) × {h} ÷ 2 = {answer} m².",
+      "distractors": [
+        {
+          "value": "(a + b) * h",
+          "error": "forgot-to-halve",
+          "feedback": "{value} m² is (sum of the parallel sides) × height. Halve it."
+        },
+        {
+          "value": "2 * (a + b) + 2 * h",
+          "error": "added-the-sides",
+          "feedback": "{value} adds lengths. Area is (sum of the parallel sides) × height ÷ 2."
+        }
+      ]
+    },
+    {
+      "id": "area.m2-to-cm2",
+      "competency": "G6.Q3.6",
+      "domain": "MG",
+      "construct": "Convert square metres to square centimetres",
+      "schema": "multiplicative-compare",
+      "params": {"m": {"tiers": {"1": [2, 9], "3": [2, 60]}}},
+      "answer": {"type": "unit", "value": "m * 10000", "unit": "cm²"},
+      "formats": [{"id": "convert", "prompt": "{m} m² = ? cm²"}],
+      "hints": [
+        "1 m = 100 cm, so 1 m² is a square 100 cm by 100 cm.",
+        "1 m² = 100 × 100 = 10000 cm².",
+        "{m} × 10000 = ?"
+      ],
+      "steps": ["1 m² = 100 cm × 100 cm", "= 10000 cm²", "{m} m² = {m} × 10000 = {answer} cm²"],
+      "explain": "1 m² = 10000 cm², so {m} m² = {answer} cm².",
+      "distractors": [
+        {
+          "value": "m * 100",
+          "error": "used-100",
+          "feedback": "{value} cm² uses 1 m = 100 cm. A square metre is 100 cm by 100 cm: 10000 cm²."
+        },
+        {
+          "value": "m * 1000",
+          "error": "used-1000",
+          "feedback": "{value} cm² uses 1000. 1 m² = 100 × 100 = 10000 cm²."
+        }
+      ]
+    },
+    {
+      "id": "area.cm2-to-m2",
+      "competency": "G6.Q3.6",
+      "domain": "MG",
+      "construct": "Convert square centimetres to square metres",
+      "schema": "multiplicative-compare",
+      "params": {"k": {"tiers": {"1": [1, 30], "3": [1, 150]}}, "c": {"value": "500 * k"}},
+      "answer": {"type": "unit", "value": "c / 10000", "unit": "m²"},
+      "formats": [{"id": "convert", "prompt": "{c} cm² = ? m²"}],
+      "hints": ["1 m² = 100 × 100 = 10000 cm².", "So divide by 10000.", "{c} ÷ 10000 = ?"],
+      "steps": ["1 m² = 10000 cm²", "{c} ÷ 10000", "= {answer} m²"],
+      "explain": "{c} cm² ÷ 10000 = {answer} m².",
+      "distractors": [
+        {
+          "value": "c / 100",
+          "error": "divided-by-100",
+          "feedback": "{value} m² divides by 100. A square metre is 10000 cm²."
+        },
+        {
+          "value": "c / 1000",
+          "error": "divided-by-1000",
+          "feedback": "{value} m² divides by 1000. A square metre is 10000 cm²."
+        }
+      ]
+    },
+    {
+      "id": "area.tiles",
+      "competency": "G6.Q3.8",
+      "domain": "MG",
+      "construct": "Count square tiles for a floor, converting metres to centimetres",
+      "schema": "multi-step",
+      "params": {
+        "t": {"choose": [20, 25, 50]},
+        "W": {"tiers": {"1": [2, 4], "3": [2, 8]}},
+        "L": {"tiers": {"1": [2, 5], "3": [3, 10]}},
+        "across": {"value": "100 * W / t"},
+        "down": {"value": "100 * L / t"}
+      },
+      "answer": {"type": "integer", "value": "across * down"},
+      "formats": [
+        {
+          "id": "floor",
+          "prompt": "A floor is {W} m by {L} m. How many square tiles, {t} cm on each side, cover it?"
+        }
+      ],
+      "hints": [
+        "Work in centimetres: {W} m = {100 * W} cm and {L} m = {100 * L} cm.",
+        "{100 * W} ÷ {t} = {across} tiles across, {100 * L} ÷ {t} = {down} tiles down.",
+        "{across} × {down} = ?"
+      ],
+      "steps": [
+        "Across: {100 * W} ÷ {t} = {across}",
+        "Down: {100 * L} ÷ {t} = {down}",
+        "{across} × {down} = {answer} tiles"
+      ],
+      "explain": "{across} rows of {down} tiles: {answer} tiles.",
+      "distractors": [
+        {
+          "value": "W * L",
+          "error": "did-not-convert",
+          "feedback": "{value} is the floor in square metres. The tiles are measured in centimetres: convert first."
+        },
+        {
+          "value": "across + down",
+          "error": "added-instead",
+          "feedback": "{value} adds the rows and columns. Multiply them: {across} × {down}."
+        }
+      ]
+    },
+    {
+      "id": "area.l-shape",
+      "competency": "G6.Q3.7",
+      "domain": "MG",
+      "construct": "Find the area of an L-shaped figure by taking a corner away",
+      "schema": "part-whole",
+      "params": {
+        "W": {"tiers": {"1": [6, 12], "3": [8, 20]}},
+        "H": {"tiers": {"1": [5, 10], "3": [7, 18]}},
+        "w": {"range": [2, "W - 2"]},
+        "h": {"range": [2, "H - 2"]}
+      },
+      "answer": {"type": "unit", "value": "W * H - w * h", "unit": "m²"},
+      "formats": [
+        {
+          "id": "room",
+          "prompt": "An L-shaped room is made from a rectangle {W} m by {H} m, with a corner {w} m by {h} m cut away. What is the area of the room?"
+        }
+      ],
+      "hints": [
+        "Find the area of the whole rectangle, then take away the corner.",
+        "{W} × {H} = {W * H} and {w} × {h} = {w * h}.",
+        "{W * H} − {w * h} = ?"
+      ],
+      "steps": [
+        "Whole rectangle: {W} × {H} = {W * H}",
+        "Corner: {w} × {h} = {w * h}",
+        "{W * H} − {w * h} = {answer} m²"
+      ],
+      "explain": "{W * H} − {w * h} = {answer} m².",
+      "distractors": [
+        {
+          "value": "W * H + w * h",
+          "error": "added-the-corner",
+          "feedback": "{value} m² adds the corner. It was cut away: take it off."
+        },
+        {
+          "value": "W * H",
+          "error": "gave-the-whole-rectangle",
+          "feedback": "{value} m² is the whole rectangle. Take away the {w} m by {h} m corner."
+        }
+      ]
+    },
+    {
+      "id": "area.house-wall",
+      "competency": "G6.Q3.7",
+      "domain": "MG",
+      "construct": "Find the area of a rectangle with a triangle on top",
+      "schema": "part-whole",
+      "params": {
+        "w": {"tiers": {"1": [4, 10], "3": [6, 16]}},
+        "h": {"tiers": {"1": [2, 6], "3": [3, 9]}},
+        "t": {"tiers": {"1": [2, 6], "3": [2, 8]}}
+      },
+      "where": ["w * t % 2 == 0"],
+      "answer": {"type": "unit", "value": "w * h + w * t / 2", "unit": "m²"},
+      "formats": [
+        {
+          "id": "wall",
+          "prompt": "The end wall of a house is a rectangle {w} m wide and {h} m high, with a triangle on top that is {w} m wide and {t} m high. What is the area of the wall?"
+        }
+      ],
+      "hints": [
+        "Add the rectangle and the triangle.",
+        "Rectangle: {w} × {h} = {w * h}. Triangle: {w} × {t} ÷ 2 = {w * t / 2}.",
+        "{w * h} + {w * t / 2} = ?"
+      ],
+      "steps": [
+        "Rectangle: {w} × {h} = {w * h}",
+        "Triangle: {w} × {t} ÷ 2 = {w * t / 2}",
+        "{w * h} + {w * t / 2} = {answer} m²"
+      ],
+      "explain": "{w * h} + {w * t / 2} = {answer} m².",
+      "distractors": [
+        {
+          "value": "w * h + w * t",
+          "error": "forgot-to-halve-the-triangle",
+          "feedback": "{value} m² treats the triangle as a rectangle. A triangle is base × height ÷ 2."
+        },
+        {
+          "value": "w * h",
+          "error": "left-out-the-triangle",
+          "feedback": "{value} m² is only the rectangle. Add the triangle on top."
+        }
+      ]
+    },
+    {
+      "id": "area.l-perimeter",
+      "competency": "G6.Q3.8",
+      "domain": "MG",
+      "construct": "Find the perimeter of an L-shaped figure",
+      "schema": "part-whole",
+      "params": {
+        "W": {"tiers": {"1": [6, 12], "3": [8, 20]}},
+        "H": {"tiers": {"1": [5, 10], "3": [7, 18]}},
+        "w": {"range": [2, "W - 2"]},
+        "h": {"range": [2, "H - 2"]}
+      },
+      "answer": {"type": "unit", "value": "2 * (W + H)", "unit": "m"},
+      "formats": [
+        {
+          "id": "lot",
+          "prompt": "An L-shaped lot is made from a rectangle {W} m by {H} m, with a corner {w} m by {h} m cut away. How many metres of fence go around it?"
+        }
+      ],
+      "hints": [
+        "Walk around the outside and add every side.",
+        "The two sides of the notch make up for the corner: across they add to {W}, up they add to {H}.",
+        "So the perimeter is the same as the whole rectangle's: 2 × ({W} + {H})."
+      ],
+      "steps": [
+        "The six sides are {W}, {H}, {W - w}, {h}, {w} and {H - h}",
+        "{W - w} + {w} = {W} and {h} + {H - h} = {H}",
+        "2 × ({W} + {H}) = {answer} m"
+      ],
+      "explain": "Cutting a corner leaves the perimeter the same: 2 × ({W} + {H}) = {answer} m.",
+      "distractors": [
+        {
+          "value": "W + H + w + h",
+          "error": "added-the-four-given",
+          "feedback": "{value} m adds only the four lengths given. Count every side of the L: six of them."
+        },
+        {
+          "value": "2 * (W + H) - w - h",
+          "error": "took-off-the-corner",
+          "feedback": "{value} m takes the corner's sides off. The notch's two inner sides make up for them."
+        },
+        {
+          "value": "W * H - w * h",
+          "error": "gave-the-area",
+          "feedback": "{value} is the area in square metres. The fence goes around: add the sides."
+        }
+      ]
+    },
+    {
+      "id": "area.paint",
+      "competency": "G6.Q3.8",
+      "domain": "MG",
+      "construct": "Solve a painting problem with area",
+      "schema": "multi-step",
+      "params": {
+        "c": {"choose": [4, 5, 6, 8, 10]},
+        "w": {"tiers": {"1": [3, 8], "3": [4, 12]}},
+        "h": {"tiers": {"1": [2, 4], "3": [2, 5]}},
+        "A": {"value": "w * h"}
+      },
+      "where": ["A % c == 0"],
+      "answer": {"type": "integer", "value": "A / c"},
+      "formats": [
+        {
+          "id": "wall",
+          "prompt": "A wall is {w} m long and {h} m high. One can of paint covers {c} m². How many cans are needed to paint the wall once?"
+        }
+      ],
+      "hints": ["First find the area of the wall.", "{w} × {h} = {A} m².", "{A} ÷ {c} = ?"],
+      "steps": ["Area: {w} × {h} = {A} m²", "Each can covers {c} m²", "{A} ÷ {c} = {answer} cans"],
+      "explain": "{A} m² ÷ {c} m² a can = {answer} cans.",
+      "distractors": [
+        {
+          "value": "A",
+          "error": "gave-the-area",
+          "feedback": "{value} m² is the area. Divide by {c} to find the cans."
+        },
+        {
+          "value": "2 * (w + h) % c == 0 ? 2 * (w + h) / c : -1",
+          "error": "used-the-perimeter",
+          "feedback": "{value} uses the distance around the wall. Paint covers the area: {w} × {h}."
+        }
+      ]
+    }
+  ]
+}

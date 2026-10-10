@@ -45,6 +45,9 @@ const negative = (s) => /=\s*[-\u2212]\s?\d/.test(s);
 // A negative number anywhere in the words ("adds -3 pesos", "(−4)"): a minus
 // sign right before a digit, not after one. Signed numbers are Grade 7.
 const signed = (s) => /(^|[\s(])[-\u2212]\d/.test(s);
+// "a 8 m ribbon", "a 11 m rectangle": a number read with a vowel sound
+// (eight, eleven, eighteen, eighty, eight hundred) takes "an".
+const article = (s) => /(^|[\s(])[Aa] (8|11(?!\d)|18(?!\d))/.test(s);
 
 const SEEDS = 600;
 const TIERS = [1, 2, 3, 4];
@@ -120,6 +123,7 @@ function check(q) {
   }
   for (const s of [q.prompt, q.explain, ...(q.hints || []), ...(q.steps || []), ...q.distractors.map((d) => d.feedback)]) {
     if (signed(s)) fail("a negative number in the words", q, s);
+    if (article(s)) fail("'a' before a number read with a vowel sound", q, s);
   }
 
   // 4. multiple choice must be answerable

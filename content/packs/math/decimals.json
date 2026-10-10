@@ -851,8 +851,8 @@
       },
       "answer": { "type": "integer", "value": "t" },
       "formats": [
-        { "id": "ribbon", "prompt": "A {fmt(len)} m ribbon costs {peso(p)}. It is cut into pieces {fmt(v)} m long. How many pieces are there?" },
-        { "id": "juice", "prompt": "A {fmt(len)} L jug of juice costs {peso(p)}. How many {fmt(v)} L cups can it fill?" }
+        { "id": "ribbon", "prompt": "A ribbon {fmt(len)} m long costs {peso(p)}. It is cut into pieces {fmt(v)} m long. How many pieces are there?" },
+        { "id": "juice", "prompt": "A jug holds {fmt(len)} L of juice and costs {peso(p)}. How many {fmt(v)} L cups can it fill?" }
       ],
       "hints": [
         "Which numbers does the question need? The price does not tell you how many.",

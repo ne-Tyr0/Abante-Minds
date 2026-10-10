@@ -7,7 +7,7 @@ built on that project's own design system, imported unchanged.
 
 **Target:** Grade 6 learners sitting the Philippine Science High School National
 Competitive Examination (NCE) on 30 January 2027. The learner follows a path through the
-13 topics of `TABLE-OF-SPECIFICATIONS.md`, level by level; decimals, fractions, order of operations, factors, ratio and percentages are
+13 topics of `TABLE-OF-SPECIFICATIONS.md`, level by level; decimals, fractions, order of operations, factors, ratio, percentages and area are
 written and the rest are on the path as coming soon. Beside the path, a Basics track drills
 the facts under every topic, starting with adding and subtracting and the times tables,
 until they come without a calculator. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and the plan.
@@ -259,8 +259,8 @@ against the fact it holds.
 `tests/fuzz.js` builds whole sessions for every level at every tier (600 seeds each, over a
 million questions), and plays Basics rounds for learners at every stage. It fails if any
 question can produce a negative answer or one too long for the keypad, an incomplete
-scaffold, a hint with an unfollowable number, a negative number anywhere in its words, a
-broken multiple choice, an answer the checker rejects, or a named mistake that does not
+scaffold, a hint with an unfollowable number, a negative number anywhere in its words, "a"
+before a number read with a vowel sound ("a 8 m ribbon"), a broken multiple choice, an answer the checker rejects, or a named mistake that does not
 bring back its own feedback.
 The app is offline, so a bad question cannot be hotfixed on a phone that has already
 installed it; these are the guard.
