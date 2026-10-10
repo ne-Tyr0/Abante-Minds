@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.9.0",
+  "version": "1.10.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
@@ -15,7 +15,7 @@
     { "key": "gemdas", "label": "Order of operations", "icon": "add", "colorKey": 3, "file": "gemdas.json" },
     { "key": "factors", "label": "Factors and primes", "icon": "star", "colorKey": 4, "file": "factors.json" },
     { "key": "ratio", "label": "Ratio and proportion", "icon": "coins", "colorKey": 1, "file": "ratio.json" },
-    { "key": "percent", "label": "Percentages", "icon": "percent", "colorKey": 2, "comingSoon": true },
+    { "key": "percent", "label": "Percentages", "icon": "percent", "colorKey": 2, "file": "percent.json" },
     { "key": "time", "label": "Time", "icon": "clock", "colorKey": 3, "comingSoon": true },
     { "key": "area", "label": "Perimeter and area", "icon": "ruler", "colorKey": 4, "comingSoon": true },
     { "key": "solids", "label": "Solids and volume", "icon": "triangle", "colorKey": 1, "comingSoon": true },
