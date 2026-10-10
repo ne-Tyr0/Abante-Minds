@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.14.0",
+  "version": "1.15.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
@@ -20,7 +20,7 @@
     { "key": "area", "label": "Perimeter and area", "icon": "ruler", "colorKey": 4, "file": "area.json" },
     { "key": "solids", "label": "Solids and volume", "icon": "triangle", "colorKey": 1, "file": "solids.json" },
     { "key": "circles", "label": "Circles", "icon": "retry", "colorKey": 2, "file": "circles.json" },
-    { "key": "data", "label": "Graphs and data", "icon": "level-up", "colorKey": 3, "comingSoon": true },
+    { "key": "data", "label": "Graphs and data", "icon": "level-up", "colorKey": 3, "file": "data.json" },
     { "key": "probability", "label": "Probability", "icon": "hint", "colorKey": 4, "file": "probability.json" },
     { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "comingSoon": true }
   ],

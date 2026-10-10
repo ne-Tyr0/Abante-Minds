@@ -138,6 +138,20 @@ function run() {
       text.split("").forEach(function (k) { if (k === ">") AM.app.nextBox(); else AM.app.type(k); });
     }
 
+    /* One item of the data topic on the practice screen, with its chart:
+       typed (or picked) and, when asked, checked. */
+    function dataItem(level, id, params, given, check) {
+      AM.store.markLessonSeen("data", level);
+      AM.app.startLevel("data", level);
+      var ds = AM.app.session;
+      ds.questions[0] = AM.content.instance(id, 1, params);
+      ds.entry = ds.questions[0].entry ? AM.entry.create(ds.questions[0].entry) : null;
+      AM.app.go("practice");
+      if (typeof given === "number") { ds.picked = given; AM.app.render(); }
+      else if (given) typeIn(given);
+      if (check) AM.app.check();
+    }
+
     /* Fraction and per-cent answers, for reviewing the answer field until a
        real topic in the pack uses them. Installed in memory only. */
     function useAnswerFixture() {
@@ -313,6 +327,28 @@ function run() {
         break;
       case "percent-entry":
         useAnswerFixture(); AM.app.startLevel("review", "all"); AM.app.next(); typeIn("70");
+        break;
+      /* Not in the PDF: the data topic's charts, for review. */
+      case "data-lesson":
+        AM.app.openLesson("data", "reading"); AM.app.lessonPage(1);
+        break;
+      case "data-bar":
+        dataItem("reading", "data.read-bar", { ctx: 3, a1: 9, a2: 4, a3: 6, a4: 3, b1: 5, b2: 8, b3: 6, b4: 4, sr: 2, m: 2 }, "16");
+        break;
+      case "data-line":
+        dataItem("comparing", "data.line-change", { ctx: 1, a1: 3, a2: 5, a3: 4, a4: 8, a5: 9, b1: 6, b2: 6, b3: 7, b4: 5, b5: 3, sr: 1, m: 3 }, "40", true);
+        break;
+      case "data-trend":
+        dataItem("conclusions", "data.trend", { ctx: 1, tr: 3, u1: 2, u2: 1, u3: 2, u4: 1, b: 3 }, 0, true);
+        break;
+      case "data-pie":
+        dataItem("pie-graphs", "data.pie-missing", { ctx: 1, p1: 25, p2: 15, p3: 10, sl: 4 }, "50");
+        break;
+      case "data-pie-degrees":
+        dataItem("problems", "data.pie-count", { ctx: 2, d1: 72, d2: 54, d3: 108, sl: 2, n: 40 }, "54", true);
+        break;
+      case "data-table":
+        dataItem("problems", "data.table-difference", { u1: 5, v1: 25, u2: 6, v2: 5, u3: 25, v3: 28, u4: 0, v4: 30, w: 2 }, "0.5");
         break;
       default:
         document.title = "UNKNOWN-SCREEN";

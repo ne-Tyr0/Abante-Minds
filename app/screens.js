@@ -899,6 +899,7 @@
       content = el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
         el("div.heading-md", null, card.title),
         el("div.body-lg", { style: { fontWeight: 500, textWrap: "pretty" } }, card.prompt),
+        card.chart ? AM.Chart(card.chart) : null,
         steps,
         el("div", {
           style: {
@@ -952,6 +953,9 @@
           el(desktop ? "div.heading-lg" : "div.body-lg", {
             style: desktop ? { textWrap: "pretty" } : { fontWeight: 500, textWrap: "pretty" }
           }, q.prompt));
+    /* The graph stays in view after answering: the explanation reads from it.
+       The desktop layout places its own. */
+    var chartNode = q.chart && !desktop ? el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex" } }, AM.Chart(q.chart)) : null;
 
     /* ----- the answer surface ----- */
     function answerArea() {
@@ -1224,6 +1228,7 @@
       var deskBody = el("div", { style: { flex: 1, display: "flex", justifyContent: "center", padding: gutter() + "px", minHeight: 0, overflowY: "auto" } },
         el("div", { style: { width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: 32 } },
           el("div.heading-lg", { style: { textWrap: "pretty" } }, q.prompt),
+          q.chart ? AM.Chart(q.chart) : null,
           q.type === "choice" ? answerArea() : null,
           row,
           verdict(), explanation(), streakChip(),
@@ -1249,6 +1254,7 @@
          open, so the worked step and the box you type into read in order. */
       body: column([
         promptNode,
+        chartNode,
         (ses.phase === "ask" && !ses.showHints) ? answerArea() : null,
         (ses.phase === "ask" && !ses.showHints)
           ? el("div", { style: { padding: "12px " + gutter() + "px 0", display: "flex" } }, hintButton())

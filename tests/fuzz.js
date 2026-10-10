@@ -121,7 +121,10 @@ function check(q) {
     if (ugly(s)) fail("decimal longer than four places in scaffold", q, s);
     if (negative(s)) fail("negative intermediate in scaffold", q, s);
   }
-  for (const s of [q.prompt, q.explain, ...(q.hints || []), ...(q.steps || []), ...q.distractors.map((d) => d.feedback)]) {
+  /* A chart's words are read too: its title, names and labels, and the
+     description a screen reader speaks. */
+  const chart = q.chart ? [q.chart.title, q.chart.text] : [];
+  for (const s of [q.prompt, q.explain, ...(q.hints || []), ...(q.steps || []), ...q.distractors.map((d) => d.feedback), ...chart]) {
     if (signed(s)) fail("a negative number in the words", q, s);
     if (article(s)) fail("'a' before a number read with a vowel sound", q, s);
   }

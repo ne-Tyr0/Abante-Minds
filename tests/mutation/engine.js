@@ -76,7 +76,20 @@ const M = [
   ["any fact in any level", "    if (found.level.kind === \"practice\" || factsOf(found.level).indexOf(key) < 0)\n      throw ContentError(\"level '\" + topicKey + \"/\" + levelId + \"' has no fact '\" + key + \"'\");", "    factsOf(found.level);"],
   ["one format for every seed", "    var format = t.formats[Math.floor(rng(seed)() * t.formats.length)];", "    var format = t.formats[0];"],
   ["the grid fills one side", "        cells[f.params.y + \",\" + f.params.x] = k;", ""],
-  ["every template on the grid", "        if (!template(f.template).grid) return;", ""]
+  ["every template on the grid", "        if (!template(f.template).grid) return;", ""],
+  // charts
+  ["pick counts from 0", "    return arguments[i.n];", "    return arguments[i.n + 1];"],
+  ["pick past the end", "    if (i.n < 1 || i.n >= arguments.length) throw ContentError(\"pick() has no item \" + i.n);", ""],
+  ["every question gets a chart", "    if (t.chart) q.chart = renderChart(t.chart, scope);", "    q.chart = t.chart ? renderChart(t.chart, scope) : null;"],
+  ["chart top not rounded up", "      var top = mul(FUNCS.max(Q(1), rceil(div(high, step))), step);", "      var top = high;"],
+  ["chart gridlines stop short", "cmp(v, top) <= 0; v = add(v, step)) c.ticks.push", "cmp(v, top) < 0; v = add(v, step)) c.ticks.push"],
+  ["a chart step of 0 allowed", "      if (step.n <= 0) throw ContentError(\"a chart's step must be more than 0\");", ""],
+  ["chart labels ignore the template's", "    return interpolate(spec.label || \"{fmt(value)}\", ls);", "    return interpolate(\"{fmt(value)}\", ls);"],
+  ["hidden slice shown", "          hidden: s.hidden === undefined ? false : bool(evalExpr(s.hidden, scope))", "          hidden: false"],
+  ["hidden slice read out", "        return s.name + \" \" + (s.hidden ? \"not labelled\" : s.label);", "        return s.name + \" \" + s.label;"],
+  ["two series not called double", "(c.series.length > 1 && c.kind !== \"table\" ? \"double \" : \"\")", "\"\""],
+  ["lesson drops the chart", "chart: q.chart || null,", "chart: null,"],
+  ["degree sign spaced", "(spec.unit === \"°\" ? \"\" : \" \") + spec.unit", "\" \" + spec.unit"]
 ];
 
 let caught = 0;

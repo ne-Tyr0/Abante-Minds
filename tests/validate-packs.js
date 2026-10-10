@@ -44,7 +44,7 @@ const KEYPAD_MAX = global.AM.entry.NUMBER_MAX;
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const TEMPLATE_KEYS = new Set(["id", "competency", "domain", "construct", "schema", "params", "where",
-  "answer", "formats", "hints", "steps", "explain", "fallback", "distractors", "grid"]);
+  "answer", "formats", "hints", "steps", "explain", "fallback", "distractors", "grid", "chart"]);
 const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals", "unit", "form", "order"]);
 const TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file", "comingSoon"]);
 const LEVEL_KEYS = new Set(["id", "title", "templates", "lesson", "kind"]);
@@ -58,6 +58,13 @@ const NUMBER_TYPES_WITH_PLACES = new Set(["decimal", "percent", "unit", "pi-expr
 let usesFractionAnswers = false;
 const FORMAT_KEYS = new Set(["id", "prompt", "hints", "steps", "explain"]);
 const DISTRACTOR_KEYS = new Set(["value", "error", "feedback"]);
+const CHART_KEYS = new Set(["kind", "title", "axis", "categories", "series", "step", "label", "unit", "slices"]);
+const CHART_KINDS = ["bar", "line", "pie", "table"];
+const PIE_TOTAL = { "%": 100, "°": 360 };
+/* What fits on a phone: the category names along a graph's bottom share its
+   width, so more categories means shorter names; a graph has 2 to 10 steps
+   up its side, so each step stays far enough apart to read. */
+const CHART_ROOM = 40, CHART_MIN_STEPS = 2, CHART_MAX_STEPS = 10, CHART_NAME_MAX = 16, CHART_TITLE_MAX = 48;
 
 const problems = [];
 let where = "";
@@ -129,6 +136,43 @@ function checkParams(t) {
   return defined;
 }
 
+/* A chart is part of the question, so like the prompt it may only use the
+   drawn values, never the answer. */
+function checkChart(c, params) {
+  if (!c || typeof c !== "object" || Array.isArray(c)) { fail("chart must be an object"); return; }
+  unknownKeys(c, CHART_KEYS, "chart");
+  if (!CHART_KINDS.includes(c.kind)) { fail(`chart kind is one of ${CHART_KINDS.join(", ")}`); return; }
+  text(c.title, params, "chart title");
+  if (c.kind === "pie") {
+    for (const k of ["axis", "categories", "series", "step", "label"]) if (k in c) fail(`a pie graph has no ${k}`);
+    if (!(c.unit in PIE_TOTAL)) fail("a pie graph's unit is % or °");
+    if (!Array.isArray(c.slices) || c.slices.length < 2 || c.slices.length > 6) { fail("a pie graph has 2 to 6 slices"); return; }
+    c.slices.forEach((s, i) => {
+      unknownKeys(s, new Set(["name", "value", "hidden"]), `slice ${i}`);
+      text(s.name, params, `slice ${i} name`);
+      expr(s.value, params, `slice ${i} value`);
+      if ("hidden" in s) expr(s.hidden, params, `slice ${i} hidden`);
+    });
+    return;
+  }
+  for (const k of ["unit", "slices"]) if (k in c) fail(`a ${c.kind} has no ${k}`);
+  text(c.axis, params, "chart axis");
+  if ("label" in c) text(c.label, new Set([...params, "value"]), "chart label");
+  if (c.kind === "table") { if ("step" in c) fail("a table has no step"); }
+  else expr(c.step, params, "chart step");
+  const n = Array.isArray(c.categories) ? c.categories.length : 0;
+  if (n < 2 || n > 8) fail("a chart has 2 to 8 categories");
+  else c.categories.forEach((x, i) => text(x, params, `chart category ${i}`));
+  const most = c.kind === "table" ? 3 : 2;
+  if (!Array.isArray(c.series) || !c.series.length || c.series.length > most) { fail(`a ${c.kind} has 1 to ${most} series`); return; }
+  c.series.forEach((s, i) => {
+    unknownKeys(s, new Set(["name", "values"]), `series ${i}`);
+    text(s.name, params, `series ${i} name`);
+    if (!Array.isArray(s.values) || s.values.length !== n) fail(`series ${i} needs one value per category`);
+    else s.values.forEach((v, j) => expr(v, params, `series ${i} value ${j}`));
+  });
+}
+
 function checkTemplate(t, topic, ids, track = "path") {
   unknownKeys(t, TEMPLATE_KEYS, "template");
   if (typeof t.id !== "string" || !t.id.startsWith(topic + ".") || !KEBAB.test(t.id.slice(topic.length + 1)))
@@ -150,6 +194,7 @@ function checkTemplate(t, topic, ids, track = "path") {
     }
     if ("grid" in t) fail("grid is only for Basics facts");
   }
+  if ("chart" in t) checkChart(t.chart, new Set(Object.keys(t.params || {})));
   if ("grid" in t && t.grid !== true) fail("grid is true or absent");
   if (t.grid) for (const p of ["x", "y"]) {
     if (!t.params || !t.params[p] || "value" in t.params[p]) fail(`a grid template needs a drawn param '${p}' for its cell`);
@@ -424,6 +469,48 @@ function inspect(q, label) {
     if (!(q.answerIndex >= 0 && q.answerIndex < 4)) fail(`${label}: the answer is not among the choices`);
   }
   if (!C.isCorrect(q, q.type === "choice" ? q.answerIndex : q.answerText)) fail(`${label}: the checker rejects its own answer`);
+  if (q.chart) inspectChart(q.chart, label);
+}
+
+/* A chart as the learner would see it: every value readable, every label
+   short enough to fit, and a pie that is one whole. */
+function inspectChart(c, label) {
+  const bad = (msg) => fail(`${label}: chart ${msg}`);
+  const words = [c.title, c.text];
+  if (c.kind === "pie") {
+    words.push(...c.slices.flatMap((s) => [s.name, s.label]));
+    const total = c.slices.reduce((a, s) => a + s.value, 0);
+    if (Math.abs(total - PIE_TOTAL[c.unit]) > 1e-9) bad(`slices add up to ${total}${c.unit}, not ${PIE_TOTAL[c.unit]}${c.unit}`);
+    for (const s of c.slices) {
+      if (!Number.isInteger(s.value)) bad(`slice ${s.name} is ${s.value}${c.unit}, not a whole number`);
+      if (s.value < PIE_TOTAL[c.unit] / 10) bad(`slice ${s.name} is ${s.value}${c.unit}, too thin to label`);
+      if (s.name.length > CHART_NAME_MAX) bad(`slice name '${s.name}' is longer than ${CHART_NAME_MAX} characters`);
+    }
+    if (c.slices.filter((s) => s.hidden).length > 1) bad("hides more than one slice");
+    if (new Set(c.slices.map((s) => s.name)).size !== c.slices.length) bad("names two slices the same");
+  } else {
+    words.push(c.axis, ...c.categories, ...c.series.flatMap((s) => [s.name, ...s.labels]));
+    if (new Set(c.categories).size !== c.categories.length) bad("names two categories the same");
+    if (new Set(c.series.map((s) => s.name)).size !== c.series.length) bad("names two series the same");
+    for (const s of c.series) {
+      if (s.name.length > CHART_NAME_MAX) bad(`series name '${s.name}' is longer than ${CHART_NAME_MAX} characters`);
+      for (const v of s.values) if (!Number.isFinite(v) || v < 0) bad(`has the value ${v}`);
+    }
+    if (c.kind !== "table") {
+      const longest = Math.max(...c.categories.map((x) => x.length));
+      if (longest * c.categories.length > CHART_ROOM)
+        bad(`categories do not fit: ${c.categories.length} of up to ${longest} characters; their count times the longest may be at most ${CHART_ROOM}`);
+      const steps = c.ticks.length - 1;
+      if (steps < CHART_MIN_STEPS || steps > CHART_MAX_STEPS) bad(`has ${steps} steps up its side; it needs ${CHART_MIN_STEPS} to ${CHART_MAX_STEPS}`);
+      words.push(...c.ticks.map((k) => k.label));
+      for (const s of c.series) for (const v of s.values) {
+        const k = v / c.step;
+        if (Math.abs(k - Math.round(k)) > 1e-9) bad(`value ${v} in ${s.name} is between gridlines ${c.step} apart, so it cannot be read`);
+      }
+    }
+  }
+  if (c.title.length > CHART_TITLE_MAX) bad(`title is longer than ${CHART_TITLE_MAX} characters`);
+  for (const s of words) if (typeof s !== "string" || !s.trim() || /[{}]/.test(s)) bad(`has bad text ${JSON.stringify(s)}`);
 }
 
 /* ---------- run ---------- */
@@ -549,6 +636,7 @@ for (const packName of packs) {
         for (const card of C.lesson(file.topic, lv.id)) {
           const texts = card.kind === "example" ? [card.title, card.prompt, card.answer, card.explain, ...card.steps] : [card.title, card.body];
           for (const s of texts) if (typeof s !== "string" || !s.trim() || /[{}]/.test(s)) fail(`bad text ${JSON.stringify(s)}`);
+          if (card.chart) inspectChart(card.chart, card.title);
         }
       } catch (e) { fail(e.message); }
     }
