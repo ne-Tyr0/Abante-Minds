@@ -4,7 +4,7 @@
    lives in localStorage and never leaves the phone. */
 "use strict";
 
-var CACHE = "abante-minds-v18";
+var CACHE = "abante-minds-v19";
 
 var SHELL = [
   "./",
@@ -38,6 +38,7 @@ var SHELL = [
   "content/packs/math/mental.json",
   "content/packs/math/written.json",
   "content/packs/math/missing.json",
+  "content/packs/math/area.json",
   "motion/motion.css",
   "motion/motion.js",
   "assets/abante-minds-mark.png",
