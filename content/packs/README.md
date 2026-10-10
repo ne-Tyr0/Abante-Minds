@@ -16,8 +16,8 @@ content/packs/<subtest>/
   <topic>.json       one file per written topic: its levels, lessons, templates
 ```
 
-Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions` and
-`gemdas` are written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
+Only `math` exists. Its path holds all 13 blueprint topics; `decimals`, `fractions`,
+`gemdas` and `factors` are written and the others are marked `comingSoon`. Beside the path, `basics` lists the Basics
 topics: `add-subtract`, `times`, `mental`, `written` and `missing` are written.
 
 ## Before you commit
@@ -47,7 +47,7 @@ this yet.
   "topics": [
     { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json" },
     { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "file": "fractions.json" },
-    { "key": "factors", "label": "Factors and primes", "icon": "star", "colorKey": 4, "comingSoon": true }
+    { "key": "ratio", "label": "Ratio and proportion", "icon": "coins", "colorKey": 1, "comingSoon": true }
   ]
 }
 ```
