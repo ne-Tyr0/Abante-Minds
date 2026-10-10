@@ -57,7 +57,7 @@ mutant for it, so a test that can never fail does not pass for one.
 |---|---|
 | `app/content.js` | The question engine: installs a pack, draws numbers, renders questions, checks answers and names mistakes. Expressions are parsed, never `eval`'d, and computed in exact fractions. No questions live in code |
 | `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
-| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. Written so far: decimals. How to write one: `content/packs/README.md` |
+| `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. Written so far: decimals, fractions. How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
 | `app/store.js` | All learner state, in `localStorage`: progress level by level, the streak |
 | `app/screens.js` | One builder per route |
@@ -157,10 +157,10 @@ Settled with the project owner. Build on them; don't reopen them.
 
 10. ~~**The path of levels**.~~ **Done** — replaces tiers: levels per topic, lessons,
     the countdown and blueprint coverage on Home (`RESEARCH-PLAN.md` item 15).
-11. **Write the remaining 12 topics**, in path order: fractions, order of operations,
-    factors, ratio, percentages, time, area, solids, circles, data, probability,
-    transformations. Decimals is done (22 templates, 6 levels). Each topic needs its
-    answer input first where it uses a type not yet typeable.
+11. **Write the remaining 11 topics**, in path order: order of operations, factors,
+    ratio, percentages, time, area, solids, circles, data, probability, transformations.
+    Decimals (22 templates, 6 levels) and fractions (17 templates, 6 levels) are done.
+    Each topic needs its answer input first where it uses a type not yet typeable.
 
 Then research instrumentation (Phase 3) and citability (Phase 4), in `RESEARCH-PLAN.md`.
 

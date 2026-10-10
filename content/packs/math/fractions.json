@@ -1,0 +1,730 @@
+{
+  "topic": "fractions",
+  "levels": [
+    {
+      "id": "multiply",
+      "title": "Multiply",
+      "templates": ["fractions.multiply", "fractions.shaded-both", "fractions.part-of-a-part"],
+      "lesson": [
+        { "title": "Multiply straight across", "body": "To multiply two fractions, multiply the numerators, then multiply the denominators: 2/3 × 3/4 = 6/12. Then write the answer in lowest terms: 6/12 = 1/2." },
+        { "title": "Worked example", "example": { "template": "fractions.multiply", "params": { "b": 5, "a": 4, "d": 8, "c": 3 }, "format": "product" } },
+        { "title": "\"Of\" means times", "body": "3/4 of 2/3 means 3/4 × 2/3. When both fractions are less than 1, the answer is smaller than both: you are taking a part of a part." }
+      ]
+    },
+    {
+      "id": "mixed-numbers",
+      "title": "Multiply mixed numbers",
+      "templates": ["fractions.of-a-whole", "fractions.whole-times-fraction", "fractions.mixed-times-mixed"],
+      "lesson": [
+        { "title": "Improper fractions first", "body": "Write a whole number over 1, and change each mixed number to an improper fraction: 2 1/2 = 5/2. Multiply, then change the answer back to a mixed number in lowest terms." },
+        { "title": "Worked example", "example": { "template": "fractions.mixed-times-mixed", "params": { "w1": 2, "b": 2, "a": 1, "w2": 1, "d": 3, "c": 1 }, "format": "product" } },
+        { "title": "A fraction of a whole number", "body": "To find 3/4 of 20, divide 20 into 4 equal parts and take 3 of them: 20 ÷ 4 = 5, and 3 × 5 = 15." }
+      ]
+    },
+    {
+      "id": "multiply-in-steps",
+      "title": "Multiply in steps",
+      "templates": ["fractions.spent-then-spent", "fractions.part-of-a-group", "fractions.part-of-the-total"],
+      "lesson": [
+        { "title": "Of what is left", "body": "When the second fraction is of what is left, find what is left first. Then take the second fraction of that amount, not of the amount you started with." },
+        { "title": "Worked example", "example": { "template": "fractions.spent-then-spent", "params": { "b": 4, "a": 1, "d": 3, "c": 1, "k": 2 }, "format": "allowance" } },
+        { "title": "Check it makes sense", "body": "Money left after spending must be less than you started with, and less than what was left after the first step." }
+      ]
+    },
+    {
+      "id": "divide",
+      "title": "Divide",
+      "templates": ["fractions.how-many-fit", "fractions.divide", "fractions.find-the-whole"],
+      "lesson": [
+        { "title": "How many fit?", "body": "3/4 ÷ 1/8 asks how many eighths fit in three quarters. 3/4 is 6/8, so 6 of them fit." },
+        { "title": "Keep, flip, multiply", "body": "To divide by a fraction, keep the first fraction, flip the second one over, and multiply: 2/5 ÷ 3/4 = 2/5 × 4/3 = 8/15. The flipped fraction is called the reciprocal." },
+        { "title": "Worked example", "example": { "template": "fractions.divide", "params": { "b": 3, "a": 1, "d": 6, "c": 5 }, "format": "quotient" } }
+      ]
+    },
+    {
+      "id": "divide-mixed-numbers",
+      "title": "Divide mixed numbers",
+      "templates": ["fractions.whole-by-fraction", "fractions.fraction-by-whole", "fractions.mixed-by-mixed"],
+      "lesson": [
+        { "title": "Wholes and mixed numbers", "body": "Write a whole number over 1 and change each mixed number to an improper fraction. Then keep, flip, multiply: 3 ÷ 3/4 = 3/1 × 4/3 = 4." },
+        { "title": "Worked example", "example": { "template": "fractions.mixed-by-mixed", "params": { "w1": 3, "b": 2, "a": 1, "w2": 1, "d": 4, "c": 1 }, "format": "quotient" } },
+        { "title": "Bigger or smaller?", "body": "Dividing by a whole number shares, so the answer is smaller: 2/3 ÷ 4 = 1/6. Dividing by a fraction less than 1 counts how many fit, so the answer is bigger: 3 ÷ 3/4 = 4." }
+      ]
+    },
+    {
+      "id": "divide-in-steps",
+      "title": "Divide in steps",
+      "templates": ["fractions.cut-the-rest", "fractions.share-the-rest"],
+      "lesson": [
+        { "title": "Take away first", "body": "When some is used before the rest is cut up or shared, take away what is used first. Then divide what is left." },
+        { "title": "Worked example", "example": { "template": "fractions.cut-the-rest", "params": { "d": 4, "c": 3, "k": 5, "j": 1 }, "format": "ribbon" } },
+        { "title": "Check by multiplying", "body": "5 pieces of 3/4 m make 3 3/4 m, and with the 3/4 m bow that is 4 1/2 m, the length Nena started with." }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "fractions.multiply",
+      "competency": "G5.Q1.8",
+      "domain": "NA",
+      "construct": "Multiply a proper fraction by a proper fraction and give the product in lowest terms",
+      "schema": "equal-groups",
+      "params": {
+        "b": { "tiers": { "1": [2, 6], "3": [3, 10] } },
+        "a": { "range": [1, "b - 1"] },
+        "d": { "tiers": { "1": [2, 6], "3": [3, 10] } },
+        "c": { "range": [1, "d - 1"] },
+        "g": { "value": "gcd(a * c, b * d)" }
+      },
+      "where": ["gcd(a, b) == 1", "gcd(c, d) == 1"],
+      "answer": { "type": "fraction", "value": "a * c / (b * d)" },
+      "formats": [
+        { "id": "product", "prompt": "{frac(a / b)} × {frac(c / d)} = ?" },
+        { "id": "of", "prompt": "What is {frac(a / b)} of {frac(c / d)}?" },
+        { "id": "product-of", "prompt": "Find the product of {frac(a / b)} and {frac(c / d)}." }
+      ],
+      "hints": [
+        "Multiply the numerators together, then the denominators together.",
+        "{a} × {c} = {a * c} and {b} × {d} = {b * d}.",
+        "{a * c}/{b * d}{g > 1 ? ' is not in lowest terms: divide the top and bottom by ' : ' is already in lowest terms'}{g > 1 ? fmt(g) : ''}."
+      ],
+      "steps": [
+        "Numerators: {a} × {c} = {a * c}",
+        "Denominators: {b} × {d} = {b * d}",
+        "{g > 1 ? 'Divide both by ' : 'It is already in lowest terms'}{g > 1 ? fmt(g) : ''}: {frac(answer)}"
+      ],
+      "explain": "{frac(a / b)} × {frac(c / d)} = {a * c}/{b * d}{g > 1 ? ' = ' : ''}{g > 1 ? frac(answer) : ''}.",
+      "distractors": [
+        { "value": "a / b + c / d", "error": "added-the-fractions",
+          "feedback": "{frac(value)} is the sum of the two fractions. To multiply, multiply the numerators together and the denominators together." },
+        { "value": "a * d / (b * c)", "error": "divided-instead",
+          "feedback": "{frac(value)} is {frac(a / b)} ÷ {frac(c / d)}. To multiply, go straight across: {a} × {c} over {b} × {d}." },
+        { "value": "b == d ? a * c / b : 0", "error": "kept-the-denominator",
+          "feedback": "{frac(value)} keeps the denominator {b}, as you would when adding. When multiplying, multiply the denominators too: {b} × {d} = {b * d}." }
+      ]
+    },
+    {
+      "id": "fractions.shaded-both",
+      "competency": "G5.Q1.7",
+      "domain": "NA",
+      "construct": "Read a product of fractions from an area model: the part shaded twice",
+      "schema": "part-whole",
+      "params": {
+        "b": { "tiers": { "1": [2, 5], "3": [3, 8] } },
+        "a": { "range": [1, "b - 1"] },
+        "d": { "tiers": { "1": [2, 5], "3": [3, 8] } },
+        "c": { "range": [1, "d - 1"] },
+        "g": { "value": "gcd(a * c, b * d)" }
+      },
+      "answer": { "type": "fraction", "value": "a * c / (b * d)" },
+      "formats": [
+        { "id": "square", "prompt": "Joy divides a square into {b} equal columns and shades {a} of them yellow. Then she divides it into {d} equal rows and shades {c} of the rows blue. What fraction of the square is shaded both yellow and blue?" },
+        { "id": "bibingka", "prompt": "A tray of bibingka is cut into {b} equal columns and {d} equal rows. The pieces in {a} of the columns have cheese. The pieces in {c} of the rows have salted egg. What fraction of the tray has both cheese and salted egg?" }
+      ],
+      "hints": [
+        "The lines make {b} × {d} = {b * d} equal pieces.",
+        "The pieces with both are where the {a} column{a == 1 ? '' : 's'} and the {c} row{c == 1 ? '' : 's'} cross: {a} × {c} = {a * c} piece{a * c == 1 ? '' : 's'}.",
+        "{a * c} out of {b * d} pieces is {a * c}/{b * d}{g > 1 ? '. Write it in lowest terms.' : '.'}"
+      ],
+      "steps": [
+        "Equal pieces: {b} × {d} = {b * d}",
+        "Pieces with both: {a} × {c} = {a * c}",
+        "{a * c}/{b * d}{g > 1 ? ' = ' : ''}{g > 1 ? frac(answer) : ''}, which is {frac(a / b)} × {frac(c / d)}"
+      ],
+      "explain": "{a * c} of the {b * d} pieces {a * c == 1 ? 'has' : 'have'} both, so the answer is {frac(answer)}: the model shows {frac(a / b)} × {frac(c / d)}.",
+      "distractors": [
+        { "value": "a / b", "error": "counted-only-the-columns",
+          "feedback": "{frac(value)} is the part in the {a} column{a == 1 ? '' : 's'}. Only the pieces that are also in the {c} row{c == 1 ? '' : 's'} count." },
+        { "value": "c / d", "error": "counted-only-the-rows",
+          "feedback": "{frac(value)} is the part in the {c} row{c == 1 ? '' : 's'}. Only the pieces that are also in the {a} column{a == 1 ? '' : 's'} count." },
+        { "value": "(a * d + b * c - a * c) / (b * d)", "error": "counted-either",
+          "feedback": "{frac(value)} counts every piece that has either one. The question asks for the pieces that have both." }
+      ]
+    },
+    {
+      "id": "fractions.part-of-a-part",
+      "competency": "G5.Q1.8",
+      "domain": "NA",
+      "construct": "A fraction of a fraction of a whole, in words",
+      "schema": "part-whole",
+      "params": {
+        "b": { "tiers": { "1": [2, 6], "3": [3, 10] } },
+        "a": { "range": [1, "b - 1"] },
+        "d": { "tiers": { "1": [2, 6], "3": [3, 10] } },
+        "c": { "range": [1, "d - 1"] },
+        "g": { "value": "gcd(a * c, b * d)" }
+      },
+      "where": ["gcd(a, b) == 1", "gcd(c, d) == 1"],
+      "answer": { "type": "fraction", "value": "a * c / (b * d)" },
+      "formats": [
+        { "id": "farm", "prompt": "{frac(a / b)} of Mang Jose's farm is planted with vegetables. {frac(c / d)} of the vegetable part is planted with pechay. What fraction of the whole farm is planted with pechay?" },
+        { "id": "pizza", "prompt": "There is {frac(a / b)} of a pizza left. Paolo eats {frac(c / d)} of what is left. What fraction of the whole pizza does Paolo eat?" },
+        { "id": "savings", "prompt": "Mila saves {frac(a / b)} of her allowance. She puts {frac(c / d)} of her savings in the bank. What fraction of her allowance goes in the bank?" }
+      ],
+      "hints": [
+        "\"Of\" means multiply: {frac(c / d)} of {frac(a / b)} is {frac(c / d)} × {frac(a / b)}.",
+        "{c} × {a} = {a * c} and {d} × {b} = {b * d}.",
+        "{a * c}/{b * d}{g > 1 ? ' is not in lowest terms: divide the top and bottom by ' : ' is already in lowest terms'}{g > 1 ? fmt(g) : ''}."
+      ],
+      "steps": [
+        "{frac(c / d)} of {frac(a / b)} = {frac(c / d)} × {frac(a / b)}",
+        "= {a * c}/{b * d}",
+        "{g > 1 ? 'Divide both by ' : 'It is already in lowest terms'}{g > 1 ? fmt(g) : ''}: {frac(answer)}"
+      ],
+      "explain": "{frac(c / d)} × {frac(a / b)} = {frac(answer)} of the whole.",
+      "distractors": [
+        { "value": "c / d", "error": "gave-the-fraction-of-the-part",
+          "feedback": "{frac(value)} is the fraction of the part. The question asks for a fraction of the whole: {frac(c / d)} of {frac(a / b)}." },
+        { "value": "a / b + c / d", "error": "added-the-fractions",
+          "feedback": "{frac(value)} adds the two fractions. A fraction of a part is found by multiplying: {frac(c / d)} × {frac(a / b)}." }
+      ]
+    },
+    {
+      "id": "fractions.of-a-whole",
+      "competency": "G6.Q1.11",
+      "domain": "NA",
+      "construct": "A fraction of a whole number, where the answer is a whole number",
+      "schema": "part-whole",
+      "params": {
+        "b": { "tiers": { "1": [3, 5], "3": [3, 12] } },
+        "a": { "range": [2, "b - 1"] },
+        "k": { "tiers": { "1": [2, 10], "3": [4, 25] } },
+        "n": { "value": "b * k" }
+      },
+      "where": ["gcd(a, b) == 1"],
+      "answer": { "type": "integer", "value": "a * k" },
+      "formats": [
+        { "id": "of", "prompt": "What is {frac(a / b)} of {n}?" },
+        { "id": "rice", "prompt": "A store has {n} kg of rice. It sells {frac(a / b)} of it. How many kilograms of rice does it sell?" },
+        { "id": "pupils", "prompt": "There are {n} pupils in Grade 6. {frac(a / b)} of them walk to school. How many pupils walk to school?" }
+      ],
+      "hints": [
+        "First find {frac(1 / b)} of {n}: divide {n} by {b}.",
+        "{n} ÷ {b} = {k}.",
+        "{frac(a / b)} is {a} of those parts: {a} × {k}."
+      ],
+      "steps": [
+        "{n} ÷ {b} = {k}",
+        "{a} × {k} = {a * k}",
+        "{frac(a / b)} of {n} is {answer}"
+      ],
+      "explain": "{n} ÷ {b} = {k}, and {a} × {k} = {answer}.",
+      "distractors": [
+        { "value": "k", "error": "found-one-part",
+          "feedback": "{value} is {frac(1 / b)} of {n}. {frac(a / b)} is {a} of those parts." },
+        { "value": "n * a", "error": "did-not-divide",
+          "feedback": "{value} is {n} × {a}. Divide by {b} as well: {frac(a / b)} of {n} is {n} ÷ {b} × {a}." },
+        { "value": "n * b / a", "error": "flipped-the-fraction",
+          "feedback": "{fmt(value)} is {n} ÷ {frac(a / b)}. \"Of\" means multiply: {frac(a / b)} × {n}." }
+      ]
+    },
+    {
+      "id": "fractions.whole-times-fraction",
+      "competency": "G6.Q1.11",
+      "domain": "NA",
+      "construct": "A whole number times a proper fraction, answered as a mixed number",
+      "schema": "equal-groups",
+      "params": {
+        "n": { "tiers": { "1": [2, 6], "3": [3, 12] } },
+        "b": { "tiers": { "1": [2, 6], "3": [3, 12] } },
+        "a": { "range": [1, "b - 1"] },
+        "p": { "value": "n * a / b" }
+      },
+      "where": ["gcd(a, b) == 1", "floor(p) != p", "p > 1"],
+      "answer": { "type": "mixed", "value": "p" },
+      "formats": [
+        { "id": "product", "prompt": "{n} × {frac(a / b)} = ?" },
+        { "id": "juice", "prompt": "Each glass holds {frac(a / b)} L of juice. How many litres do {n} glasses hold?" },
+        { "id": "walk", "prompt": "Ben walks {frac(a / b)} km to school. How far does he walk in {n} trips to school?" }
+      ],
+      "hints": [
+        "Multiply the whole number by the numerator. The denominator stays {b}.",
+        "{n} × {a} = {n * a}, so the product is {n * a}/{b}.",
+        "Change {n * a}/{b} to a mixed number: {n * a} ÷ {b} = {floor(p)} remainder {n * a - floor(p) * b}."
+      ],
+      "steps": [
+        "{n} × {frac(a / b)} = {n * a}/{b}",
+        "{n * a} ÷ {b} = {floor(p)} remainder {n * a - floor(p) * b}",
+        "So {n * a}/{b} = {mixed(answer)}"
+      ],
+      "explain": "{n} × {frac(a / b)} = {n * a}/{b} = {mixed(answer)}.",
+      "distractors": [
+        { "value": "a / b", "error": "multiplied-the-denominator-too",
+          "feedback": "{frac(value)} multiplies the denominator by {n} too, which leaves {frac(a / b)} as it was. Multiply only the numerator: {n} × {a} = {n * a}, over {b}." },
+        { "value": "n + a / b", "error": "added-instead",
+          "feedback": "{mixed(value)} adds {n} and {frac(a / b)}. {n} × {frac(a / b)} means {n} groups of {frac(a / b)}." }
+      ]
+    },
+    {
+      "id": "fractions.mixed-times-mixed",
+      "competency": "G6.Q1.11",
+      "domain": "NA",
+      "construct": "Multiply two mixed numbers through improper fractions",
+      "schema": "equal-groups",
+      "params": {
+        "w1": { "tiers": { "1": [1, 3], "3": [1, 6] } },
+        "b": { "tiers": { "1": [2, 5], "3": [2, 8] } },
+        "a": { "range": [1, "b - 1"] },
+        "w2": { "tiers": { "1": [1, 2], "3": [1, 4] } },
+        "d": { "tiers": { "1": [2, 5], "3": [2, 8] } },
+        "c": { "range": [1, "d - 1"] },
+        "x": { "value": "w1 + a / b" },
+        "y": { "value": "w2 + c / d" },
+        "p": { "value": "x * y" }
+      },
+      "where": ["gcd(a, b) == 1", "gcd(c, d) == 1", "floor(p) != p"],
+      "answer": { "type": "mixed", "value": "p" },
+      "formats": [
+        { "id": "product", "prompt": "{mixed(x)} × {mixed(y)} = ?" },
+        { "id": "garden", "prompt": "A garden is {mixed(x)} m long and {mixed(y)} m wide. What is its area in square metres?" }
+      ],
+      "hints": [
+        "Change both to improper fractions: {mixed(x)} = {frac(x)} and {mixed(y)} = {frac(y)}.",
+        "{w1 * b + a} × {w2 * d + c} = {(w1 * b + a) * (w2 * d + c)} and {b} × {d} = {b * d}.",
+        "Change {(w1 * b + a) * (w2 * d + c)}/{b * d} to a mixed number in lowest terms."
+      ],
+      "steps": [
+        "{mixed(x)} × {mixed(y)} = {frac(x)} × {frac(y)}",
+        "= {(w1 * b + a) * (w2 * d + c)}/{b * d}",
+        "= {mixed(answer)}"
+      ],
+      "explain": "{frac(x)} × {frac(y)} = {(w1 * b + a) * (w2 * d + c)}/{b * d} = {mixed(answer)}.",
+      "distractors": [
+        { "value": "w1 * w2 + a * c / (b * d)", "error": "multiplied-the-parts-separately",
+          "feedback": "{mixed(value)} multiplies the whole numbers and the fractions separately, which leaves out part of the product. Change both to improper fractions first: {frac(x)} × {frac(y)}." },
+        { "value": "x + y", "error": "added-instead",
+          "feedback": "{mixed(value)} is the sum. Multiply instead: {frac(x)} × {frac(y)}." }
+      ]
+    },
+    {
+      "id": "fractions.spent-then-spent",
+      "competency": "G5.Q1.9",
+      "domain": "NA",
+      "construct": "Two spendings, the second a fraction of what is left",
+      "schema": "multi-step",
+      "params": {
+        "b": { "tiers": { "1": [2, 5], "3": [2, 6] } },
+        "a": { "range": [1, "b - 1"] },
+        "d": { "tiers": { "1": [2, 5], "3": [2, 6] } },
+        "c": { "range": [1, "d - 1"] },
+        "k": { "tiers": { "1": [1, 4], "3": [1, 8] } },
+        "m": { "value": "b * d * k * 10" },
+        "first": { "value": "m * a / b" },
+        "left": { "value": "m - first" },
+        "second": { "value": "left * c / d" }
+      },
+      "where": ["gcd(a, b) == 1", "gcd(c, d) == 1", "m <= 2000"],
+      "answer": { "type": "integer", "value": "left - second", "prefix": "₱" },
+      "formats": [
+        { "id": "allowance", "prompt": "Lito has {peso(m)}. He spends {frac(a / b)} of it on a book, then {frac(c / d)} of what is left on a snack. How much money does he have left?" },
+        { "id": "savings", "prompt": "Joy has saved {peso(m)}. She uses {frac(a / b)} of it for a school project and gives {frac(c / d)} of the rest to her brother. How much does she keep?" }
+      ],
+      "hints": [
+        "First find {frac(a / b)} of {peso(m)}: {peso(first)}.",
+        "{peso(m)} − {peso(first)} = {peso(left)} is left. Now find {frac(c / d)} of {peso(left)}.",
+        "{frac(c / d)} of {peso(left)} is {peso(second)}. Take it away from {peso(left)}."
+      ],
+      "steps": [
+        "{frac(a / b)} of {peso(m)} = {peso(first)}, leaving {peso(left)}",
+        "{frac(c / d)} of {peso(left)} = {peso(second)}",
+        "{peso(left)} − {peso(second)} = {peso(answer)}"
+      ],
+      "explain": "{peso(left)} is left after the first step, and {peso(left)} − {peso(second)} = {peso(answer)}.",
+      "distractors": [
+        { "value": "left", "error": "stopped-after-one-step",
+          "feedback": "{peso(value)} is what is left after the first step. Then {frac(c / d)} of that goes too." },
+        { "value": "m - first - m * c / d > 0 ? m - first - m * c / d : -1", "error": "took-both-from-the-start",
+          "feedback": "{peso(value)} takes {frac(c / d)} of the whole {peso(m)}. The second fraction is of what was left, {peso(left)}." },
+        { "value": "second", "error": "gave-the-second-amount",
+          "feedback": "{peso(value)} is the second amount given away. The question asks how much is left." }
+      ]
+    },
+    {
+      "id": "fractions.part-of-a-group",
+      "competency": "G5.Q1.9",
+      "domain": "NA",
+      "construct": "A fraction of a fraction of a group of things, counted",
+      "schema": "multi-step",
+      "params": {
+        "b": { "tiers": { "1": [2, 5], "3": [2, 6] } },
+        "a": { "range": [1, "b - 1"] },
+        "d": { "tiers": { "1": [2, 5], "3": [2, 6] } },
+        "c": { "range": [1, "d - 1"] },
+        "k": { "range": [1, 4] },
+        "n": { "value": "b * d * k" },
+        "part": { "value": "n * a / b" }
+      },
+      "where": ["gcd(a, b) == 1", "gcd(c, d) == 1", "n >= 12", "n <= 60"],
+      "answer": { "type": "integer", "value": "part * c / d" },
+      "formats": [
+        { "id": "club", "prompt": "There are {n} pupils in a class. {frac(a / b)} of them are girls, and {frac(c / d)} of the girls are in the math club. How many girls are in the math club?" },
+        { "id": "mangoes", "prompt": "A basket has {n} mangoes. {frac(a / b)} of them are ripe. Lola uses {frac(c / d)} of the ripe mangoes for shakes. How many mangoes does she use?" }
+      ],
+      "hints": [
+        "First find {frac(a / b)} of {n}.",
+        "{frac(a / b)} of {n} is {part}. Now find {frac(c / d)} of {part}.",
+        "{part} ÷ {d} = {part / d}{c > 1 ? ', then multiply by ' : '.'}{c > 1 ? fmt(c) : ''}{c > 1 ? '.' : ''}"
+      ],
+      "steps": [
+        "{frac(a / b)} of {n} = {part}",
+        "{frac(c / d)} of {part} = {part} ÷ {d}{c > 1 ? ' × ' : ''}{c > 1 ? fmt(c) : ''}",
+        "= {answer}"
+      ],
+      "explain": "{frac(a / b)} of {n} is {part}, and {frac(c / d)} of {part} is {answer}.",
+      "distractors": [
+        { "value": "part", "error": "stopped-after-one-step",
+          "feedback": "{value} is {frac(a / b)} of {n}, the first step. Then take {frac(c / d)} of those {value}." },
+        { "value": "n * c / d", "error": "took-it-of-the-whole-group",
+          "feedback": "{value} is {frac(c / d)} of all {n}. The second fraction is only of the {part}." }
+      ]
+    },
+    {
+      "id": "fractions.part-of-the-total",
+      "competency": "G6.Q1.12",
+      "domain": "NA",
+      "construct": "A fraction of a whole number of mixed-number amounts, in two multiplications",
+      "schema": "multi-step",
+      "params": {
+        "w": { "tiers": { "1": [1, 3], "3": [1, 5] } },
+        "b": { "tiers": { "1": [2, 4], "3": [2, 8] } },
+        "a": { "range": [1, "b - 1"] },
+        "n": { "tiers": { "1": [2, 4], "3": [2, 6] } },
+        "d": { "tiers": { "1": [2, 5], "3": [2, 8] } },
+        "c": { "range": [1, "d - 1"] },
+        "x": { "value": "w + a / b" },
+        "total": { "value": "n * x" },
+        "p": { "value": "total * c / d" }
+      },
+      "where": ["gcd(a, b) == 1", "gcd(c, d) == 1", "floor(p) != p", "p > 1"],
+      "answer": { "type": "mixed", "value": "p" },
+      "formats": [
+        { "id": "rice", "prompt": "A bag holds {mixed(x)} kg of rice. Aling Nena buys {n} bags. She cooks {frac(c / d)} of all the rice for a fiesta. How many kilograms of rice does she cook?" },
+        { "id": "paint", "prompt": "A can holds {mixed(x)} L of paint. Mang Ben opens {n} cans and uses {frac(c / d)} of all the paint on a wall. How many litres does he use?" }
+      ],
+      "hints": [
+        "First find the total: {n} × {mixed(x)}.",
+        "{n} × {frac(x)} = {mixed(total)}. Now find {frac(c / d)} of it.",
+        "{frac(c / d)} × {frac(total)}, then write it as a mixed number in lowest terms."
+      ],
+      "steps": [
+        "{n} × {mixed(x)} = {n} × {frac(x)} = {mixed(total)}",
+        "{frac(c / d)} of {mixed(total)} = {frac(c / d)} × {frac(total)}",
+        "= {mixed(answer)}"
+      ],
+      "explain": "{n} × {mixed(x)} = {mixed(total)} in all, and {frac(c / d)} of {mixed(total)} is {mixed(answer)}.",
+      "distractors": [
+        { "value": "total", "error": "forgot-the-fraction",
+          "feedback": "{mixed(value)} is the total. The question asks for {frac(c / d)} of it." },
+        { "value": "x * c / d", "error": "used-only-one",
+          "feedback": "{mixed(value)} is {frac(c / d)} of just one. First multiply by {n} to find the total." }
+      ]
+    },
+    {
+      "id": "fractions.how-many-fit",
+      "competency": "G5.Q2.1",
+      "domain": "NA",
+      "construct": "Divide by a fraction as counting how many of it fit, with a whole-number answer",
+      "schema": "equal-groups",
+      "params": {
+        "d": { "tiers": { "1": [2, 8], "3": [3, 12] } },
+        "cmax": { "tiers": { "1": [1, 1], "3": [11, 11] } },
+        "c": { "range": [1, "min(cmax, d - 1)"] },
+        "k": { "tiers": { "1": [2, 6], "3": [2, 12] } },
+        "total": { "value": "k * c / d" }
+      },
+      "where": ["gcd(c, d) == 1"],
+      "answer": { "type": "integer", "value": "k" },
+      "formats": [
+        { "id": "count", "prompt": "How many {frac(c / d)}s are in {mixed(total)}?" },
+        { "id": "juice", "prompt": "A pitcher holds {mixed(total)} L of juice. Each glass takes {frac(c / d)} L. How many glasses can be filled?" },
+        { "id": "ribbon", "prompt": "How many pieces, each {frac(c / d)} m long, can be cut from a ribbon {mixed(total)} m long?" }
+      ],
+      "hints": [
+        "Count in small pieces of {frac(1 / d)}.",
+        "{mixed(total)} is {k * c} pieces of {frac(1 / d)}, and {frac(c / d)} is {c} piece{c == 1 ? '' : 's'} of {frac(1 / d)}.",
+        "How many groups of {c} are in {k * c}?"
+      ],
+      "steps": [
+        "{mixed(total)} = {k * c} pieces of {frac(1 / d)}",
+        "{frac(c / d)} = {c} piece{c == 1 ? '' : 's'} of {frac(1 / d)}",
+        "{k * c} ÷ {c} = {answer}"
+      ],
+      "explain": "{mixed(total)} is {k * c} pieces of {frac(1 / d)}, and {k * c} ÷ {c} = {answer}.",
+      "distractors": [
+        { "value": "c == 1 ? d : -1", "error": "counted-how-many-fit-in-one",
+          "feedback": "{fmt(value)} is how many {frac(c / d)}s fit in 1. Here there is {mixed(total)}." },
+        { "value": "total * c / d", "error": "multiplied-instead",
+          "feedback": "{fmt(value)} is {mixed(total)} × {frac(c / d)}. To count how many fit, divide." }
+      ]
+    },
+    {
+      "id": "fractions.divide",
+      "competency": "G5.Q2.2",
+      "domain": "NA",
+      "construct": "Divide a proper fraction by a larger proper fraction using the reciprocal",
+      "schema": "equal-groups",
+      "params": {
+        "b": { "tiers": { "1": [2, 6], "3": [3, 10] } },
+        "a": { "range": [1, "b - 1"] },
+        "d": { "tiers": { "1": [2, 6], "3": [3, 10] } },
+        "c": { "range": [1, "d - 1"] },
+        "g": { "value": "gcd(a * d, b * c)" }
+      },
+      "where": ["gcd(a, b) == 1", "gcd(c, d) == 1", "a * d < b * c"],
+      "answer": { "type": "fraction", "value": "a * d / (b * c)" },
+      "formats": [
+        { "id": "quotient", "prompt": "{frac(a / b)} ÷ {frac(c / d)} = ?" },
+        { "id": "divide", "prompt": "Divide {frac(a / b)} by {frac(c / d)}." }
+      ],
+      "hints": [
+        "Keep the first fraction, flip the second, and multiply.",
+        "{frac(a / b)} ÷ {frac(c / d)} = {frac(a / b)} × {d}/{c}.",
+        "{a} × {d} = {a * d} and {b} × {c} = {b * c}.{g > 1 ? ' Divide the top and bottom by ' : ' That is already in lowest terms.'}{g > 1 ? fmt(g) : ''}{g > 1 ? '.' : ''}"
+      ],
+      "steps": [
+        "Flip {frac(c / d)} to get {d}/{c}",
+        "{frac(a / b)} × {d}/{c} = {a * d}/{b * c}",
+        "{g > 1 ? 'Divide both by ' : 'It is already in lowest terms'}{g > 1 ? fmt(g) : ''}: {frac(answer)}"
+      ],
+      "explain": "{frac(a / b)} × {d}/{c} = {a * d}/{b * c}{g > 1 ? ' = ' : ''}{g > 1 ? frac(answer) : ''}.",
+      "distractors": [
+        { "value": "a * c / (b * d)", "error": "did-not-flip",
+          "feedback": "{frac(value)} multiplies by {frac(c / d)}. To divide, multiply by its reciprocal, {d}/{c}." },
+        { "value": "b * c / (a * d)", "error": "flipped-the-first",
+          "feedback": "{frac(value)} flips the first fraction. Keep {frac(a / b)} as it is and flip the second: × {d}/{c}." }
+      ]
+    },
+    {
+      "id": "fractions.find-the-whole",
+      "competency": "G5.Q2.2",
+      "domain": "NA",
+      "construct": "Find a number from a fraction of it, by dividing fractions",
+      "schema": "work-backwards",
+      "params": {
+        "f": { "tiers": { "1": [2, 6], "3": [3, 9] } },
+        "e": { "range": [1, "f - 1"] },
+        "d": { "tiers": { "1": [2, 5], "3": [2, 8] } },
+        "c": { "range": [1, "d - 1"] },
+        "q": { "value": "e / f * c / d" }
+      },
+      "where": ["gcd(e, f) == 1", "gcd(c, d) == 1"],
+      "answer": { "type": "fraction", "value": "e / f" },
+      "formats": [
+        { "id": "number", "prompt": "{frac(c / d)} of a number is {frac(q)}. What is the number?" },
+        { "id": "wall", "prompt": "Mang Ben has painted {frac(q)} of a wall. That is {frac(c / d)} of the part he plans to paint today. What fraction of the wall does he plan to paint today?" }
+      ],
+      "hints": [
+        "Something times {frac(c / d)} gives {frac(q)}, so divide: {frac(q)} ÷ {frac(c / d)}.",
+        "{frac(q)} ÷ {frac(c / d)} = {frac(q)} × {d}/{c}.",
+        "Multiply, then write the answer in lowest terms."
+      ],
+      "steps": [
+        "{frac(c / d)} of the answer is {frac(q)}",
+        "So the answer is {frac(q)} ÷ {frac(c / d)} = {frac(q)} × {d}/{c}",
+        "= {frac(answer)}"
+      ],
+      "explain": "{frac(q)} ÷ {frac(c / d)} = {frac(answer)}. Check: {frac(c / d)} of {frac(answer)} is {frac(q)}.",
+      "distractors": [
+        { "value": "q * c / d", "error": "multiplied-instead",
+          "feedback": "{frac(value)} is {frac(c / d)} of {frac(q)}. Here {frac(q)} is the part, so divide it by {frac(c / d)} to find the whole." },
+        { "value": "c / d / q", "error": "divided-the-wrong-way",
+          "feedback": "{frac(value)} is {frac(c / d)} ÷ {frac(q)}, the wrong way round. Divide the part, {frac(q)}, by {frac(c / d)}." }
+      ]
+    },
+    {
+      "id": "fractions.whole-by-fraction",
+      "competency": "G6.Q1.13",
+      "domain": "NA",
+      "construct": "Divide a whole number by a proper fraction, with a whole-number answer",
+      "schema": "equal-groups",
+      "params": {
+        "d": { "tiers": { "1": [2, 6], "3": [2, 10] } },
+        "c": { "range": [1, "d - 1"] },
+        "m": { "tiers": { "1": [1, 6], "3": [2, 10] } },
+        "n": { "value": "c * m" }
+      },
+      "where": ["gcd(c, d) == 1", "n >= 2"],
+      "answer": { "type": "integer", "value": "m * d" },
+      "formats": [
+        { "id": "quotient", "prompt": "{n} ÷ {frac(c / d)} = ?" },
+        { "id": "sugar", "prompt": "How many bags of {frac(c / d)} kg can be filled from {n} kg of sugar?" },
+        { "id": "laps", "prompt": "One lap around the plaza is {frac(c / d)} km. How many laps make {n} km?" }
+      ],
+      "hints": [
+        "Dividing by {frac(c / d)} is multiplying by {d}/{c}.",
+        "{n} × {d}/{c} = {n * d}/{c}.",
+        "{n * d} ÷ {c} = ?"
+      ],
+      "steps": [
+        "{n} ÷ {frac(c / d)} = {n} × {d}/{c}",
+        "= {n * d}/{c}",
+        "= {answer}"
+      ],
+      "explain": "{n} × {d}/{c} = {answer}.",
+      "distractors": [
+        { "value": "n * c / d", "error": "multiplied-instead",
+          "feedback": "{fmt(value)} is {n} × {frac(c / d)}. Dividing by a fraction less than 1 gives more than {n}, not less." },
+        { "value": "n * d", "error": "multiplied-by-the-denominator-only",
+          "feedback": "{value} is how many {frac(1 / d)}s are in {n}. Each one here is {frac(c / d)}, so divide by {c} too." }
+      ]
+    },
+    {
+      "id": "fractions.fraction-by-whole",
+      "competency": "G6.Q1.13",
+      "domain": "NA",
+      "construct": "Divide a proper fraction by a whole number: sharing a part",
+      "schema": "equal-groups",
+      "params": {
+        "b": { "tiers": { "1": [2, 6], "3": [2, 10] } },
+        "a": { "range": [1, "b - 1"] },
+        "n": { "tiers": { "1": [2, 5], "3": [2, 9] } },
+        "g": { "value": "gcd(a, b * n)" }
+      },
+      "where": ["gcd(a, b) == 1"],
+      "answer": { "type": "fraction", "value": "a / (b * n)" },
+      "formats": [
+        { "id": "quotient", "prompt": "{frac(a / b)} ÷ {n} = ?" },
+        { "id": "pizza", "prompt": "{frac(a / b)} of a pizza is shared equally by {n} friends. What fraction of the whole pizza does each friend get?" },
+        { "id": "land", "prompt": "Mang Jose divides {frac(a / b)} hectare of land equally among his {n} children. What part of a hectare does each child get?" }
+      ],
+      "hints": [
+        "Dividing by {n} is the same as multiplying by {frac(1 / n)}.",
+        "{frac(a / b)} × {frac(1 / n)} = {a}/{b * n}.",
+        "{a}/{b * n}{g > 1 ? ' is not in lowest terms: divide the top and bottom by ' : ' is already in lowest terms'}{g > 1 ? fmt(g) : ''}."
+      ],
+      "steps": [
+        "{frac(a / b)} ÷ {n} = {frac(a / b)} × {frac(1 / n)}",
+        "= {a}/{b * n}",
+        "{g > 1 ? 'Divide both by ' : 'It is already in lowest terms'}{g > 1 ? fmt(g) : ''}: {frac(answer)}"
+      ],
+      "explain": "{frac(a / b)} × {frac(1 / n)} = {frac(answer)}.",
+      "distractors": [
+        { "value": "a * n / b", "error": "multiplied-instead",
+          "feedback": "{frac(value)} is {frac(a / b)} × {n}. Sharing among {n} makes each part smaller: divide." },
+        { "value": "n * b / a", "error": "divided-the-wrong-way",
+          "feedback": "{frac(value)} is {n} ÷ {frac(a / b)}, the wrong way round. Divide {frac(a / b)} by {n}." }
+      ]
+    },
+    {
+      "id": "fractions.mixed-by-mixed",
+      "competency": "G6.Q1.13",
+      "domain": "NA",
+      "construct": "Divide a mixed number by a mixed number or a fraction, through improper fractions",
+      "schema": "rate",
+      "params": {
+        "w1": { "tiers": { "1": [1, 4], "3": [2, 9] } },
+        "b": { "tiers": { "1": [2, 4], "3": [2, 6] } },
+        "a": { "range": [1, "b - 1"] },
+        "w2": { "tiers": { "1": [0, 1], "3": [0, 3] } },
+        "d": { "tiers": { "1": [2, 4], "3": [2, 6] } },
+        "c": { "range": [1, "d - 1"] },
+        "x": { "value": "w1 + a / b" },
+        "y": { "value": "w2 + c / d" },
+        "p": { "value": "x / y" }
+      },
+      "where": ["gcd(a, b) == 1", "gcd(c, d) == 1", "floor(p) != p", "p > 1"],
+      "answer": { "type": "mixed", "value": "p" },
+      "formats": [
+        { "id": "quotient", "prompt": "{mixed(x)} ÷ {mixed(y)} = ?" },
+        { "id": "walk", "prompt": "Ana walks {mixed(x)} km in {mixed(y)} h at a steady pace. How many kilometres does she walk in 1 h?" }
+      ],
+      "hints": [
+        "Change to improper fractions: {frac(x)} ÷ {frac(y)}.",
+        "Keep, flip, multiply: {frac(x)} × {d}/{w2 * d + c}.",
+        "Multiply, then write the answer as a mixed number in lowest terms."
+      ],
+      "steps": [
+        "{mixed(x)} ÷ {mixed(y)} = {frac(x)} ÷ {frac(y)}",
+        "= {frac(x)} × {d}/{w2 * d + c} = {(w1 * b + a) * d}/{b * (w2 * d + c)}",
+        "= {mixed(answer)}"
+      ],
+      "explain": "{frac(x)} × {d}/{w2 * d + c} = {mixed(answer)}.",
+      "distractors": [
+        { "value": "x * y", "error": "did-not-flip",
+          "feedback": "{mixed(value)} multiplies by {mixed(y)}. To divide, multiply by its reciprocal, {d}/{w2 * d + c}." },
+        { "value": "w2 == 0 ? 0 : w1 / w2 + a * d / (b * c)", "error": "divided-the-parts-separately",
+          "feedback": "{mixed(value)} divides the whole numbers and the fractions separately. Change both to improper fractions first." },
+        { "value": "y / x", "error": "divided-the-wrong-way",
+          "feedback": "{frac(value)} is {mixed(y)} ÷ {mixed(x)}, the wrong way round. Divide {mixed(x)} by {mixed(y)}." }
+      ]
+    },
+    {
+      "id": "fractions.cut-the-rest",
+      "competency": "G6.Q1.14",
+      "domain": "NA",
+      "construct": "Take away a mixed amount, then count how many fraction-sized pieces the rest makes",
+      "schema": "multi-step",
+      "params": {
+        "d": { "tiers": { "1": [2, 4], "3": [2, 8] } },
+        "c": { "range": [1, "d - 1"] },
+        "k": { "tiers": { "1": [2, 8], "3": [4, 15] } },
+        "j": { "tiers": { "1": [1, 3], "3": [1, 6] } },
+        "used": { "value": "j * c / d" },
+        "total": { "value": "(k + j) * c / d" },
+        "rest": { "value": "k * c / d" }
+      },
+      "where": ["gcd(c, d) == 1"],
+      "answer": { "type": "integer", "value": "k" },
+      "formats": [
+        { "id": "ribbon", "prompt": "Nena has {mixed(total)} m of ribbon. She uses {mixed(used)} m for a bow and cuts the rest into pieces {frac(c / d)} m long. How many pieces does she get?" },
+        { "id": "rice", "prompt": "Aling Rosa has {mixed(total)} kg of rice. She cooks {mixed(used)} kg and packs the rest into bags of {frac(c / d)} kg each. How many bags does she fill?" }
+      ],
+      "hints": [
+        "First find what is left: {mixed(total)} − {mixed(used)}.",
+        "{mixed(total)} − {mixed(used)} = {mixed(rest)}. Now divide it by {frac(c / d)}.",
+        "{mixed(rest)} ÷ {frac(c / d)} = {frac(rest)} × {d}/{c}."
+      ],
+      "steps": [
+        "{mixed(total)} − {mixed(used)} = {mixed(rest)}",
+        "{mixed(rest)} ÷ {frac(c / d)} = {frac(rest)} × {d}/{c}",
+        "= {answer}"
+      ],
+      "explain": "{mixed(rest)} is left, and {mixed(rest)} ÷ {frac(c / d)} = {answer}.",
+      "distractors": [
+        { "value": "k + j", "error": "did-not-take-away",
+          "feedback": "{value} divides all of {mixed(total)}. Take away the {mixed(used)} first, then divide." },
+        { "value": "rest", "error": "gave-what-is-left",
+          "feedback": "{mixed(value)} is the amount left. Now find how many {frac(c / d)}s fit in it." }
+      ]
+    },
+    {
+      "id": "fractions.share-the-rest",
+      "competency": "G5.Q2.3",
+      "domain": "NA",
+      "construct": "Take away a fraction, then share the rest equally: subtract, then divide",
+      "schema": "multi-step",
+      "params": {
+        "b": { "tiers": { "1": [3, 6], "3": [3, 12] } },
+        "a": { "range": [2, "b - 1"] },
+        "e": { "range": [1, "a - 1"] },
+        "n": { "tiers": { "1": [2, 4], "3": [2, 6] } },
+        "rest": { "value": "(a - e) / b" }
+      },
+      "where": ["gcd(a, b) == 1"],
+      "answer": { "type": "fraction", "value": "rest / n" },
+      "formats": [
+        { "id": "cake", "prompt": "There is {frac(a / b)} of a cake left. Mila eats {frac(e / b)} of the whole cake and shares the rest equally among {n} friends. What fraction of the whole cake does each friend get?" },
+        { "id": "land", "prompt": "Mang Jose owns {frac(a / b)} hectare of land. He keeps {frac(e / b)} hectare for his house and divides the rest equally among his {n} children. What part of a hectare does each child get?" }
+      ],
+      "hints": [
+        "First find the rest: {frac(a / b)} − {frac(e / b)}.",
+        "{frac(a / b)} − {frac(e / b)} = {frac(rest)}. Now divide it by {n}.",
+        "{frac(rest)} ÷ {n} = {frac(rest)} × {frac(1 / n)}."
+      ],
+      "steps": [
+        "{frac(a / b)} − {frac(e / b)} = {frac(rest)}",
+        "{frac(rest)} ÷ {n} = {frac(rest)} × {frac(1 / n)}",
+        "= {frac(answer)}"
+      ],
+      "explain": "{frac(rest)} is left to share, and {frac(rest)} ÷ {n} = {frac(answer)}.",
+      "distractors": [
+        { "value": "a / b / n", "error": "did-not-take-away",
+          "feedback": "{frac(value)} shares all of {frac(a / b)}. Take away {frac(e / b)} first." },
+        { "value": "rest", "error": "gave-the-rest",
+          "feedback": "{frac(value)} is the part left to share. Divide it among the {n}." },
+        { "value": "rest * n", "error": "multiplied-instead",
+          "feedback": "{frac(value)} multiplies by {n}. Sharing among {n} means dividing." }
+      ]
+    }
+  ]
+}
