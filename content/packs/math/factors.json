@@ -1,0 +1,616 @@
+{
+  "topic": "factors",
+  "levels": [
+    {
+      "id": "divisibility",
+      "title": "Divisibility rules",
+      "templates": ["factors.rule-2-5-10", "factors.rule-3-6-9", "factors.rule-4-8-11-12", "factors.missing-digit"],
+      "lesson": [
+        {
+          "title": "Rules for 2, 5 and 10",
+          "body": "Look at the last digit. A number divides by 2 when it ends in 0, 2, 4, 6 or 8; by 5 when it ends in 0 or 5; by 10 when it ends in 0."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "factors.rule-3-6-9", "params": {"dv": 9, "k": 27}, "format": "which"}
+        },
+        {
+          "title": "Rules for 4, 8, 11 and 12",
+          "body": "4: the last two digits divide by 4. 8: the last three digits divide by 8. 11: the sums of alternate digits are equal or differ by 11. 12: it divides by both 3 and 4."
+        }
+      ]
+    },
+    {
+      "id": "primes",
+      "title": "Primes and prime factors",
+      "templates": [
+        "factors.which-prime",
+        "factors.which-composite",
+        "factors.smallest-prime-factor",
+        "factors.factor-exponent"
+      ],
+      "lesson": [
+        {
+          "title": "Prime or composite",
+          "body": "A prime number has exactly two factors, 1 and itself: 2, 3, 5, 7, 11, 13. A composite number has more, like 12 = 3 × 4. 1 is neither."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "factors.smallest-prime-factor", "params": {"p": 3, "q": 13}, "format": "smallest"}
+        },
+        {
+          "title": "Prime factorisation",
+          "body": "Divide by primes until only primes are left: 72 = 2 × 2 × 2 × 3 × 3 = 2³ × 3². Every number above 1 has exactly one prime factorisation."
+        }
+      ]
+    },
+    {
+      "id": "gcf",
+      "title": "Greatest common factor",
+      "templates": ["factors.gcf", "factors.gcf-word"],
+      "lesson": [
+        {
+          "title": "The GCF",
+          "body": "The GCF of 12 and 18 is the biggest number that divides both: 6. List the factors of each, or use prime factors: 12 = 2 × 2 × 3 and 18 = 2 × 3 × 3 share 2 × 3 = 6."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "factors.gcf", "params": {"g": 6, "x": 2, "y": 3}, "format": "gcf"}
+        },
+        {
+          "title": "Continuous division",
+          "body": "Divide both numbers by a prime they share, again and again: 12 and 18 ÷ 2 gives 6 and 9; ÷ 3 gives 2 and 3, which share nothing. Multiply the primes you used: 2 × 3 = 6."
+        }
+      ]
+    },
+    {
+      "id": "lcm",
+      "title": "Least common multiple",
+      "templates": ["factors.lcm", "factors.lcm-word"],
+      "lesson": [
+        {
+          "title": "The LCM",
+          "body": "The LCM of 4 and 6 is the smallest number both divide into: 12. List the multiples: 4, 8, 12 and 6, 12. The first one in both lists is the LCM."
+        },
+        {
+          "title": "Worked example",
+          "example": {"template": "factors.lcm", "params": {"g": 2, "x": 2, "y": 3}, "format": "lcm"}
+        },
+        {
+          "title": "GCF or LCM?",
+          "body": "Sharing things into the most equal groups: the GCF. Things that repeat and meet again, like buses or visits: the LCM."
+        }
+      ]
+    }
+  ],
+  "templates": [
+    {
+      "id": "factors.rule-2-5-10",
+      "competency": "G5.Q2.11",
+      "domain": "NA",
+      "construct": "Use the last-digit rules for 2, 5 and 10",
+      "schema": "part-whole",
+      "params": {
+        "dv": {"choose": [2, 5, 10]},
+        "k": {
+          "tiers": {"1": ["ceil(100 / dv)", "floor(999 / dv)"], "3": ["ceil(1000 / dv)", "floor(9999 / dv)"]}
+        },
+        "n": {"value": "dv * k"}
+      },
+      "answer": {"type": "choice", "value": "n", "label": "{value}", "order": "mixed"},
+      "formats": [{"id": "which", "prompt": "Which of these numbers can be divided by {dv} exactly?"}],
+      "hints": [
+        "{dv == 2 ? 'A number divides by 2 when its last digit is even: 0, 2, 4, 6 or 8.' : (dv == 5 ? 'A number divides by 5 when its last digit is 0 or 5.' : 'A number divides by 10 when its last digit is 0.')}",
+        "Look only at the last digit of each number.",
+        "{n + 1} ends in {(n + 1) % 10}, so it does not divide by {dv}."
+      ],
+      "steps": [
+        "{dv == 2 ? 'For 2, the last digit must be even' : (dv == 5 ? 'For 5, the last digit must be 0 or 5' : 'For 10, the last digit must be 0')}",
+        "{n} ends in {n % 10}",
+        "So {n} = {dv} × {k}"
+      ],
+      "explain": "{n} ends in {n % 10}, so it divides by {dv}: {n} = {dv} × {k}.",
+      "distractors": [
+        {
+          "value": "n + 1",
+          "error": "picked-one-above",
+          "feedback": "{value} cannot be divided by {dv} exactly: {value} = {dv} × {floor(value / dv)} + {value % dv}."
+        },
+        {
+          "value": "n - 1",
+          "error": "picked-one-below",
+          "feedback": "{value} cannot be divided by {dv} exactly: {value} = {dv} × {floor(value / dv)} + {value % dv}."
+        },
+        {
+          "value": "n + dv + 1",
+          "error": "picked-a-far-one",
+          "feedback": "{value} cannot be divided by {dv} exactly: {value} = {dv} × {floor(value / dv)} + {value % dv}."
+        }
+      ]
+    },
+    {
+      "id": "factors.rule-3-6-9",
+      "competency": "G5.Q2.11",
+      "domain": "NA",
+      "construct": "Use the digit-sum rules for 3, 6 and 9",
+      "schema": "part-whole",
+      "params": {
+        "dv": {"choose": [3, 6, 9]},
+        "k": {
+          "tiers": {"1": ["ceil(100 / dv)", "floor(999 / dv)"], "3": ["ceil(1000 / dv)", "floor(9999 / dv)"]}
+        },
+        "n": {"value": "dv * k"}
+      },
+      "answer": {"type": "choice", "value": "n", "label": "{value}", "order": "mixed"},
+      "formats": [{"id": "which", "prompt": "Which of these numbers can be divided by {dv} exactly?"}],
+      "hints": [
+        "{dv == 3 ? 'A number divides by 3 when its digits add up to a multiple of 3.' : (dv == 9 ? 'A number divides by 9 when its digits add up to a multiple of 9.' : 'A number divides by 6 when it is even and its digits add up to a multiple of 3.')}",
+        "Add up the digits of each number{dv == 6 ? ', and check it is even' : ''}.",
+        "The digits of {n + 1} add up to {floor((n + 1) / 1000) + floor((n + 1) / 100) % 10 + floor((n + 1) / 10) % 10 + (n + 1) % 10}, so {n + 1} does not divide by {dv}."
+      ],
+      "steps": [
+        "{dv == 3 ? 'A number divides by 3 when its digits add up to a multiple of 3.' : (dv == 9 ? 'A number divides by 9 when its digits add up to a multiple of 9.' : 'A number divides by 6 when it is even and its digits add up to a multiple of 3.')}",
+        "The digits of {n} add up to {floor(n / 1000) + floor(n / 100) % 10 + floor(n / 10) % 10 + n % 10}{dv == 6 ? ', and it is even' : ''}",
+        "So {n} = {dv} × {k}"
+      ],
+      "explain": "The digits of {n} add up to {floor(n / 1000) + floor(n / 100) % 10 + floor(n / 10) % 10 + n % 10}, so it divides by {dv}: {n} = {dv} × {k}.",
+      "distractors": [
+        {
+          "value": "n + 1",
+          "error": "picked-one-above",
+          "feedback": "{value} cannot be divided by {dv} exactly: {value} = {dv} × {floor(value / dv)} + {value % dv}."
+        },
+        {
+          "value": "n - 1",
+          "error": "picked-one-below",
+          "feedback": "{value} cannot be divided by {dv} exactly: {value} = {dv} × {floor(value / dv)} + {value % dv}."
+        },
+        {
+          "value": "dv == 3 ? n + 4 : n + 3",
+          "error": "picked-a-near-miss",
+          "feedback": "{value} cannot be divided by {dv} exactly: {value} = {dv} × {floor(value / dv)} + {value % dv}."
+        }
+      ]
+    },
+    {
+      "id": "factors.rule-4-8-11-12",
+      "competency": "G5.Q2.11",
+      "domain": "NA",
+      "construct": "Use the rules for 4, 8, 11 and 12",
+      "schema": "part-whole",
+      "params": {
+        "dv": {"choose": [4, 8, 11, 12]},
+        "k": {"tiers": {"1": ["ceil(1000 / dv)", "floor(9999 / dv)"]}},
+        "n": {"value": "dv * k"},
+        "odd": {"value": "floor(n / 1000) + floor(n / 10) % 10"},
+        "even": {"value": "floor(n / 100) % 10 + n % 10"}
+      },
+      "answer": {"type": "choice", "value": "n", "label": "{value}", "order": "mixed"},
+      "formats": [{"id": "which", "prompt": "Which of these numbers can be divided by {dv} exactly?"}],
+      "hints": [
+        "{dv == 4 ? 'A number divides by 4 when its last two digits do.' : (dv == 8 ? 'A number divides by 8 when its last three digits do.' : (dv == 11 ? 'A number divides by 11 when the sums of its alternate digits are equal or differ by 11.' : 'A number divides by 12 when it divides by both 3 and 4.'))}",
+        "{dv == 4 ? 'Check the last two digits of each number.' : (dv == 8 ? 'Check the last three digits of each number.' : (dv == 11 ? 'Add the 1st and 3rd digits, then the 2nd and 4th.' : 'Check the digit sum for 3 and the last two digits for 4.'))}",
+        "{n - 1} ÷ {dv} leaves {(n - 1) % dv} over, so it is not the one."
+      ],
+      "steps": [
+        "{dv == 4 ? 'A number divides by 4 when its last two digits do.' : (dv == 8 ? 'A number divides by 8 when its last three digits do.' : (dv == 11 ? 'A number divides by 11 when the sums of its alternate digits are equal or differ by 11.' : 'A number divides by 12 when it divides by both 3 and 4.'))}",
+        "{dv == 4 ? 'The last two digits of ' : (dv == 8 ? 'The last three digits of ' : (dv == 11 ? 'The alternate digit sums of ' : 'The digit sum and last two digits of '))}{n} pass the test",
+        "So {n} = {dv} × {k}"
+      ],
+      "explain": "{n} = {dv} × {k}.",
+      "distractors": [
+        {
+          "value": "n + 1",
+          "error": "picked-one-above",
+          "feedback": "{value} cannot be divided by {dv} exactly: {value} = {dv} × {floor(value / dv)} + {value % dv}."
+        },
+        {
+          "value": "n - 1",
+          "error": "picked-one-below",
+          "feedback": "{value} cannot be divided by {dv} exactly: {value} = {dv} × {floor(value / dv)} + {value % dv}."
+        },
+        {
+          "value": "dv == 4 ? n + 2 : (dv == 8 ? n + 4 : (dv == 12 ? n + 6 : n + 10))",
+          "error": "picked-a-near-miss",
+          "feedback": "{value} cannot be divided by {dv} exactly: {value} = {dv} × {floor(value / dv)} + {value % dv}."
+        }
+      ]
+    },
+    {
+      "id": "factors.missing-digit",
+      "competency": "G5.Q2.11",
+      "domain": "NA",
+      "construct": "Find the smallest digit that makes a number divisible by 3 or 9",
+      "schema": "missing-middle",
+      "params": {
+        "dv": {"choose": [3, 9]},
+        "h": {"range": [1, 9]},
+        "o": {"range": [0, 9]},
+        "d": {"value": "(dv - (h + o) % dv) % dv"}
+      },
+      "answer": {"type": "integer", "value": "d"},
+      "formats": [
+        {
+          "id": "box",
+          "prompt": "{h}□{o} can be divided by {dv} exactly. What is the smallest digit that can go in the box?"
+        }
+      ],
+      "hints": [
+        "{dv == 3 ? 'For 3, the digits must add up to a multiple of 3.' : 'For 9, the digits must add up to a multiple of 9.'}",
+        "{h} + {o} = {h + o}. What is the smallest digit that brings it to a multiple of {dv}?",
+        "The next multiple of {dv} from {h + o} is {h + o + d}."
+      ],
+      "steps": [
+        "{h} + □ + {o} must be a multiple of {dv}",
+        "{h} + {o} = {h + o}",
+        "{h + o} + {answer} = {h + o + answer}, a multiple of {dv}: the digit is {answer}"
+      ],
+      "explain": "{h} + {answer} + {o} = {h + o + answer}, a multiple of {dv}, so {h}{answer}{o} divides by {dv}.",
+      "distractors": [
+        {
+          "value": "dv == 3 && d + 3 <= 9 ? d + 3 : (dv == 9 && d == 0 ? 9 : -1)",
+          "error": "not-the-smallest",
+          "feedback": "{value} works too, but it is not the smallest: {answer} also makes the digits add up to a multiple of {dv}."
+        },
+        {
+          "value": "h + o + d",
+          "error": "gave-the-digit-total",
+          "feedback": "{value} is the digit total. The question asks for the digit in the box."
+        }
+      ]
+    },
+    {
+      "id": "factors.which-prime",
+      "competency": "G5.Q2.12",
+      "domain": "NA",
+      "construct": "Pick the prime number from a list",
+      "schema": "part-whole",
+      "params": {
+        "p": {
+          "choose": [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
+        },
+        "c1": {
+          "choose": [9, 15, 21, 25, 27, 33, 35, 39, 45, 49, 51, 55, 57, 63, 65, 69, 75, 77, 81, 85, 87, 91, 93, 95]
+        },
+        "c2": {
+          "choose": [9, 15, 21, 25, 27, 33, 35, 39, 45, 49, 51, 55, 57, 63, 65, 69, 75, 77, 81, 85, 87, 91, 93, 95]
+        }
+      },
+      "answer": {"type": "choice", "value": "p", "label": "{value}", "order": "mixed"},
+      "formats": [{"id": "which", "prompt": "Which of these is a prime number?"}],
+      "hints": [
+        "A prime number has exactly two factors: 1 and itself.",
+        "Check each number for the small factors 2, 3, 5 and 7.",
+        "{p + 1} is even, so 2 divides it: it is not prime."
+      ],
+      "steps": [
+        "A prime divides only by 1 and itself",
+        "Each of the others divides by 2, 3, 5 or 7",
+        "{p} divides only by 1 and {p}: it is prime"
+      ],
+      "explain": "{p} is prime: its only factors are 1 and {p}.",
+      "distractors": [
+        {
+          "value": "c1",
+          "error": "picked-a-composite",
+          "feedback": "{value} is not prime: {value} = {value % 3 == 0 ? 3 : (value % 5 == 0 ? 5 : 7)} × {value / (value % 3 == 0 ? 3 : (value % 5 == 0 ? 5 : 7))}."
+        },
+        {
+          "value": "c2",
+          "error": "picked-another-composite",
+          "feedback": "{value} is not prime: {value} = {value % 3 == 0 ? 3 : (value % 5 == 0 ? 5 : 7)} × {value / (value % 3 == 0 ? 3 : (value % 5 == 0 ? 5 : 7))}."
+        },
+        {
+          "value": "p + 1",
+          "error": "picked-an-even-number",
+          "feedback": "{value} is even, so 2 is a factor: {value} = 2 × {value / 2}."
+        }
+      ]
+    },
+    {
+      "id": "factors.which-composite",
+      "competency": "G5.Q2.12",
+      "domain": "NA",
+      "construct": "Pick the composite number from a list",
+      "schema": "part-whole",
+      "params": {
+        "c": {
+          "choose": [9, 15, 21, 25, 27, 33, 35, 39, 45, 49, 51, 55, 57, 63, 65, 69, 75, 77, 81, 85, 87, 91, 93, 95]
+        },
+        "p1": {
+          "choose": [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
+        },
+        "p2": {
+          "choose": [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
+        },
+        "p3": {
+          "choose": [11, 13, 17, 19, 23, 29, 31, 37, 41, 43, 47, 53, 59, 61, 67, 71, 73, 79, 83, 89, 97]
+        }
+      },
+      "answer": {"type": "choice", "value": "c", "label": "{value}", "order": "mixed"},
+      "formats": [{"id": "which", "prompt": "Which of these is a composite number?"}],
+      "hints": [
+        "A composite number has more than two factors.",
+        "Check each number for the small factors 3, 5 and 7.",
+        "{p1} is prime: nothing but 1 and {p1} divides it. Check the others."
+      ],
+      "steps": [
+        "A composite number has a factor other than 1 and itself",
+        "The other three divide only by 1 and themselves",
+        "{c} = {c % 3 == 0 ? 3 : (c % 5 == 0 ? 5 : 7)} × {c / (c % 3 == 0 ? 3 : (c % 5 == 0 ? 5 : 7))}, so it is composite"
+      ],
+      "explain": "{c} is composite: {c} = {c % 3 == 0 ? 3 : (c % 5 == 0 ? 5 : 7)} × {c / (c % 3 == 0 ? 3 : (c % 5 == 0 ? 5 : 7))}.",
+      "distractors": [
+        {
+          "value": "p1",
+          "error": "picked-a-prime",
+          "feedback": "{value} is prime: its only factors are 1 and {value}."
+        },
+        {
+          "value": "p2",
+          "error": "picked-another-prime",
+          "feedback": "{value} is prime: its only factors are 1 and {value}."
+        },
+        {
+          "value": "p3",
+          "error": "picked-a-third-prime",
+          "feedback": "{value} is prime: its only factors are 1 and {value}."
+        }
+      ]
+    },
+    {
+      "id": "factors.smallest-prime-factor",
+      "competency": "G5.Q2.12",
+      "domain": "NA",
+      "construct": "Find the smallest prime factor of a number",
+      "schema": "part-whole",
+      "params": {"p": {"choose": [2, 3, 5, 7]}, "q": {"choose": [3, 5, 7, 11, 13, 17, 19, 23]}, "n": {"value": "p * q"}},
+      "where": ["q > p"],
+      "answer": {"type": "integer", "value": "p"},
+      "formats": [{"id": "smallest", "prompt": "What is the smallest prime factor of {n}?"}],
+      "hints": [
+        "Try the primes in order: 2, 3, 5, 7.",
+        "{p == 2 ? 'It is even, so try 2.' : 'It is odd, so 2 is not a factor. Try 3, then 5, then 7.'}",
+        "{n} ÷ {p} = {q}."
+      ],
+      "steps": ["{n} = {p} × {q}", "No smaller prime divides {n}", "The smallest prime factor is {answer}"],
+      "explain": "{n} = {p} × {q}, and {p} is the smallest prime that divides it.",
+      "distractors": [
+        {"value": "1", "error": "gave-1", "feedback": "1 is not a prime number. The smallest prime is 2."},
+        {
+          "value": "q",
+          "error": "gave-the-bigger-factor",
+          "feedback": "{value} is a prime factor of {n}, but not the smallest: {n} = {p} × {q}."
+        },
+        {
+          "value": "n",
+          "error": "gave-the-number",
+          "feedback": "{value} is the number itself. Its smallest prime factor is smaller."
+        }
+      ]
+    },
+    {
+      "id": "factors.factor-exponent",
+      "competency": "G6.Q4.11",
+      "domain": "NA",
+      "construct": "Count a prime in a prime factorisation by dividing",
+      "schema": "part-whole",
+      "params": {
+        "i": {"tiers": {"1": [1, 3], "3": [2, 5]}},
+        "j": {"range": [1, 3]},
+        "f": {"choose": [1, 5, 7]},
+        "rest": {"value": "pow(3, j) * f"},
+        "n": {"value": "pow(2, i) * rest"}
+      },
+      "answer": {"type": "integer", "value": "i"},
+      "formats": [
+        {"id": "how-many", "prompt": "In the prime factorisation of {n}, how many times does 2 appear?"},
+        {"id": "power", "prompt": "{n} = 2 to the power of what, times {rest}?"}
+      ],
+      "hints": [
+        "Keep dividing {n} by 2 until the answer is odd.",
+        "{n} ÷ 2 = {n / 2}{i >= 2 ? ', ÷ 2 again = ' : ''}{i >= 2 ? fmt(n / 4) : ''}, …",
+        "{n} = {pow(2, i)} × {rest}, and {rest} is odd."
+      ],
+      "steps": [
+        "Divide by 2 until it is odd: {n} → {rest}",
+        "That took {i} division{i == 1 ? '' : 's'} by 2",
+        "{n} = 2{i > 1 ? sup(i) : ''} × {rest}: 2 appears {i == 1 ? 'once' : fmt(i)}{i == 1 ? '' : ' times'}"
+      ],
+      "explain": "{n} = 2{i > 1 ? sup(i) : ''} × {rest}.",
+      "distractors": [
+        {
+          "value": "i + j + (f > 1 ? 1 : 0)",
+          "error": "counted-all-the-primes",
+          "feedback": "{value} counts every prime factor. Count only the 2s."
+        },
+        {
+          "value": "i > 1 ? pow(2, i) : -1",
+          "error": "gave-the-power",
+          "feedback": "{value} is 2{sup(i)}. The question asks how many 2s: {i}."
+        }
+      ]
+    },
+    {
+      "id": "factors.gcf",
+      "competency": "G6.Q4.11",
+      "domain": "NA",
+      "construct": "Find the GCF of two numbers",
+      "schema": "part-whole",
+      "params": {
+        "g": {"tiers": {"1": [2, 9], "3": [4, 15]}},
+        "x": {"range": [1, 8]},
+        "y": {"range": ["x + 1", 9]},
+        "a": {"value": "g * x"},
+        "b": {"value": "g * y"}
+      },
+      "where": ["gcd(x, y) == 1"],
+      "answer": {"type": "integer", "value": "g"},
+      "formats": [
+        {"id": "gcf", "prompt": "What is the GCF of {a} and {b}?"},
+        {"id": "words", "prompt": "What is the greatest common factor of {a} and {b}?"}
+      ],
+      "hints": [
+        "Find the biggest number that divides both {a} and {b}.",
+        "{a} = {g} × {x} and {b} = {g} × {y}.",
+        "{x} and {y} have no common factor except 1."
+      ],
+      "steps": ["{a} = {g} × {x}", "{b} = {g} × {y}", "{x} and {y} share no factor but 1, so the GCF is {answer}"],
+      "explain": "{a} = {g} × {x} and {b} = {g} × {y}: the GCF is {answer}.",
+      "distractors": [
+        {
+          "value": "g * x * y",
+          "error": "gave-the-lcm",
+          "feedback": "{value} is the LCM, a multiple of both. The GCF is the biggest number that divides both."
+        },
+        {
+          "value": "g % 2 == 0 && g > 2 ? g / 2 : (g % 3 == 0 && g > 3 ? g / 3 : -1)",
+          "error": "not-the-greatest",
+          "feedback": "{value} divides both, but it is not the greatest: {answer} does too."
+        },
+        {
+          "value": "g > 1 ? 1 : -1",
+          "error": "gave-1",
+          "feedback": "1 divides every number. Look for a bigger common factor."
+        }
+      ]
+    },
+    {
+      "id": "factors.gcf-word",
+      "competency": "G6.Q4.13",
+      "domain": "NA",
+      "construct": "Solve a sharing problem with the GCF",
+      "schema": "equal-groups",
+      "params": {
+        "g": {"tiers": {"1": [2, 9], "3": [4, 15]}},
+        "x": {"range": [2, 8]},
+        "y": {"range": ["x + 1", 9]},
+        "a": {"value": "g * x"},
+        "b": {"value": "g * y"}
+      },
+      "where": ["gcd(x, y) == 1"],
+      "answer": {"type": "integer", "value": "g"},
+      "formats": [
+        {
+          "id": "bracelets",
+          "prompt": "Ana has {a} red beads and {b} blue beads. She makes bracelets that are all the same and uses every bead. What is the greatest number of bracelets she can make?"
+        },
+        {
+          "id": "teams",
+          "prompt": "{a} boys and {b} girls are put into teams. Every team has the same number of boys and the same number of girls, and everyone is in a team. What is the greatest number of teams?"
+        }
+      ],
+      "hints": [
+        "The number of groups must divide both {a} and {b}: it is a common factor.",
+        "The greatest number of groups is the GCF of {a} and {b}.",
+        "{a} = {g} × {x} and {b} = {g} × {y}."
+      ],
+      "steps": [
+        "The groups divide both {a} and {b} exactly",
+        "So the number of groups is a common factor; the most is the GCF",
+        "GCF of {a} and {b} = {answer}"
+      ],
+      "explain": "The GCF of {a} and {b} is {answer}, so {answer} groups, each with {x} and {y}.",
+      "distractors": [
+        {
+          "value": "g * x * y",
+          "error": "gave-the-lcm",
+          "feedback": "{value} is the LCM. Sharing into equal groups uses the GCF, the biggest number that divides both."
+        },
+        {
+          "value": "x + y",
+          "error": "gave-one-group",
+          "feedback": "{value} is how many are in each group. The question asks how many groups."
+        }
+      ]
+    },
+    {
+      "id": "factors.lcm",
+      "competency": "G6.Q4.12",
+      "domain": "NA",
+      "construct": "Find the LCM of two numbers",
+      "schema": "multiplicative-compare",
+      "params": {
+        "g": {"tiers": {"1": [2, 6], "3": [2, 12]}},
+        "x": {"range": [1, 8]},
+        "y": {"range": ["x + 1", 9]},
+        "a": {"value": "g * x"},
+        "b": {"value": "g * y"}
+      },
+      "where": ["gcd(x, y) == 1"],
+      "answer": {"type": "integer", "value": "g * x * y"},
+      "formats": [
+        {"id": "lcm", "prompt": "What is the LCM of {a} and {b}?"},
+        {"id": "words", "prompt": "What is the least common multiple of {a} and {b}?"}
+      ],
+      "hints": [
+        "Find the smallest number that both {a} and {b} divide into.",
+        "{a} = {g} × {x} and {b} = {g} × {y}.",
+        "The LCM is {g} × {x} × {y}."
+      ],
+      "steps": ["{a} = {g} × {x}", "{b} = {g} × {y}", "LCM = {g} × {x} × {y} = {answer}"],
+      "explain": "LCM = {g} × {x} × {y} = {answer}: the smallest number both divide into.",
+      "distractors": [
+        {
+          "value": "g > 1 ? a * b : -1",
+          "error": "multiplied-them",
+          "feedback": "{value} is {a} × {b}: a common multiple, but not the least."
+        },
+        {
+          "value": "g",
+          "error": "gave-the-gcf",
+          "feedback": "{value} is the GCF. The LCM is a multiple of both, the smallest one."
+        }
+      ]
+    },
+    {
+      "id": "factors.lcm-word",
+      "competency": "G6.Q4.13",
+      "domain": "NA",
+      "construct": "Solve a meeting-again problem with the LCM",
+      "schema": "multiplicative-compare",
+      "params": {
+        "g": {"tiers": {"1": [2, 5], "3": [2, 10]}},
+        "x": {"range": [2, 6]},
+        "y": {"range": ["x + 1", 7]},
+        "a": {"value": "g * x"},
+        "b": {"value": "g * y"}
+      },
+      "where": ["gcd(x, y) == 1"],
+      "answer": {"type": "integer", "value": "g * x * y"},
+      "formats": [
+        {
+          "id": "buses",
+          "prompt": "A bus leaves every {a} minutes and a jeepney every {b} minutes. Both leave at 6:00. After how many minutes do they next leave together?"
+        },
+        {
+          "id": "visits",
+          "prompt": "Ana visits Lola every {a} days and Ben visits every {b} days. Both visited today. In how many days will they next visit on the same day?"
+        }
+      ],
+      "hints": [
+        "They meet again at a number both {a} and {b} divide into: a common multiple.",
+        "The next time is the least common multiple.",
+        "{a} = {g} × {x}, {b} = {g} × {y}: LCM = {g} × {x} × {y}."
+      ],
+      "steps": [
+        "Both repeat, so they meet at common multiples of {a} and {b}",
+        "The first time is the LCM",
+        "LCM = {g} × {x} × {y} = {answer}"
+      ],
+      "explain": "The LCM of {a} and {b} is {answer}, so they meet again after {answer}.",
+      "distractors": [
+        {
+          "value": "a * b",
+          "error": "multiplied-them",
+          "feedback": "{value} is {a} × {b}: they meet then too, but they meet sooner, at the LCM."
+        },
+        {
+          "value": "g",
+          "error": "gave-the-gcf",
+          "feedback": "{value} is the GCF. Things that repeat meet again at the LCM."
+        }
+      ]
+    }
+  ]
+}
