@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.35.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.36.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -1491,7 +1491,7 @@ Write a per cent as a fraction in lowest terms.
 - **Answer:** fraction
 - **Draws:** `p: 2 to 98 (tiers 1–2), 2 to 98 (tiers 3–4)`
 - **Kept only when:** `g > 1`
-- **Formats:** `write`
+- **Formats:** `write`, `field`
 - **Named mistakes:** `used-tenths`, `turned-it-upside-down`
 - **Example:** Write 62% as a fraction in lowest terms. **Answer: 31/50**
 
@@ -1505,7 +1505,7 @@ Write a per cent as a decimal.
 - **Answer:** decimal
 - **Draws:** `p: 11 to 99 (tiers 1–2), 1 to 250 (tiers 3–4)`
 - **Kept only when:** `p % 10 != 0`
-- **Formats:** `write`
+- **Formats:** `write`, `sales`
 - **Named mistakes:** `moved-one-place`, `did-not-move-the-point`, `moved-three-places`
 - **Example:** Write 66% as a decimal. **Answer: 0.66**
 
@@ -1519,9 +1519,9 @@ Write a fraction as a per cent by making the denominator 100.
 - **Answer:** per cent
 - **Draws:** `b: one of 2, 4, 5, 10, 20, 25, 50`; `a: 1 to b - 1`
 - **Kept only when:** `gcd(a, b) == 1`; `b != 10 || a % 2 == 1`
-- **Formats:** `write`
+- **Formats:** `write`, `walk`
 - **Named mistakes:** `wrote-the-top`, `made-it-out-of-10`
-- **Example:** Write 1/20 as a per cent. **Answer: 5%**
+- **Example:** 1/20 of the pupils in a class walk to school. What per cent of the class is that? **Answer: 5%**
 
 #### `percent.from-decimal`
 
@@ -1705,9 +1705,9 @@ Say how many hours after midnight a 12-hour time is.
 - **Answer:** whole number
 - **Draws:** `h: 1 to 23`; `m: one of 0, 15, 30, 45`
 - **Kept only when:** `h != 12`
-- **Formats:** `hours`
+- **Formats:** `hours`, `message`
 - **Named mistakes:** `forgot-to-add-12`, `added-12-in-the-morning`
-- **Example:** The 24-hour clock counts the hours from midnight. How many whole hours after midnight is 3:00 p.m.? **Answer: 15**
+- **Example:** A text message was sent at 3:00 p.m. on Monday. How many whole hours after midnight was that? **Answer: 15**
 
 #### `time.to-24`
 
@@ -1718,9 +1718,9 @@ Write a 12-hour time in 24-hour time.
 - **Schema:** change (additive)
 - **Answer:** clock time
 - **Draws:** `h: 0 to 23`; `m: 0 to 59`
-- **Formats:** `write`
+- **Formats:** `write`, `timetable`
 - **Named mistakes:** `forgot-to-add-12`, `added-12-in-the-morning`
-- **Example:** Write 3:00 p.m. in 24-hour time. **Answer: 15:00**
+- **Example:** A bus that leaves at 3:00 p.m. is shown on a 24-hour timetable. What time does the timetable show? **Answer: 15:00**
 
 #### `time.to-12`
 
@@ -1731,9 +1731,9 @@ Write a 24-hour time in 12-hour time.
 - **Schema:** change (additive)
 - **Answer:** multiple choice
 - **Draws:** `h: 13 to 21`; `m: 0 to 59`
-- **Formats:** `write`
+- **Formats:** `write`, `movie`
 - **Named mistakes:** `swapped-a-m-and-p-m`, `took-away-10`, `an-hour-out`
-- **Example:** What is 18:00 in 12-hour time? Choices: 6:00 a.m.; 5:00 p.m.; 6:00 p.m.; 8:00 p.m. **Answer: 6:00 p.m.**
+- **Example:** A movie ticket says the show starts at 18:00. What is that in 12-hour time? Choices: 6:00 a.m.; 5:00 p.m.; 6:00 p.m.; 8:00 p.m. **Answer: 6:00 p.m.**
 
 #### `time.which-latest`
 
@@ -3266,7 +3266,7 @@ Find the probability of a total with two dice.
 - **Schema:** multi-step (non-routine)
 - **Answer:** fraction
 - **Draws:** `s: 2 to 12`
-- **Formats:** `dice`
+- **Formats:** `dice`, `game`
 - **Named mistakes:** `treated-totals-as-equal`, `used-one-die`
 - **Example:** Two fair dice are rolled and the numbers are added. What is the probability that the total is 8? **Answer: 5/36**
 
@@ -3280,9 +3280,9 @@ Find how many times to expect an outcome.
 - **Answer:** whole number
 - **Draws:** `parts: one of 4, 5, 8, 10`; `red: 1 to parts - 1`; `m: 2 to 10 (tiers 1–2), 5 to 30 (tiers 3–4)`
 - **Kept only when:** `2 * red != parts`
-- **Formats:** `spinner`
+- **Formats:** `spinner`, `fair`
 - **Named mistakes:** `gave-the-not-red`, `did-not-divide`
-- **Example:** A spinner has 8 equal parts, and 1 of them are red. It is spun 48 times. About how many times would you expect it to land on red? **Answer: 6**
+- **Example:** A spinner game at a school fair has 8 equal parts, and 1 of them is red. If it is spun 48 times, about how many times should it land on red? **Answer: 6**
 
 #### `probability.spinner-and-coin`
 

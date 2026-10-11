@@ -398,6 +398,10 @@
         {
           "id": "dice",
           "prompt": "Two fair dice are rolled and the numbers are added. What is the probability that the total is {s}?"
+        },
+        {
+          "id": "game",
+          "prompt": "In a board game, you roll two fair dice and move the total. What is the probability of moving exactly {s} squares?"
         }
       ],
       "hints": [
@@ -441,7 +445,11 @@
       "formats": [
         {
           "id": "spinner",
-          "prompt": "A spinner has {parts} equal parts, and {red} of them are red. It is spun {t} times. About how many times would you expect it to land on red?"
+          "prompt": "A spinner has {parts} equal parts, and {red} of them {red == 1 ? 'is' : 'are'} red. It is spun {t} times. About how many times would you expect it to land on red?"
+        },
+        {
+          "id": "fair",
+          "prompt": "A spinner game at a school fair has {parts} equal parts, and {red} of them {red == 1 ? 'is' : 'are'} red. If it is spun {t} times, about how many times should it land on red?"
         }
       ],
       "hints": [

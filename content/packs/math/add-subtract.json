@@ -663,7 +663,7 @@
         {
           "value": "a + b - b % 10",
           "error": "forgot-the-ones",
-          "feedback": "{value} adds only the tens of {b}. Add its {b % 10} ones too."
+          "feedback": "{value} adds only the tens of {b}. Add its {b % 10} {b % 10 == 1 ? 'one' : 'ones'} too."
         }
       ]
     },
@@ -768,7 +768,7 @@
         {
           "value": "a - b + b % 10",
           "error": "forgot-the-ones",
-          "feedback": "{value} takes away only the tens of {b}. Take its {b % 10} ones too."
+          "feedback": "{value} takes away only the tens of {b}. Take its {b % 10} {b % 10 == 1 ? 'one' : 'ones'} too."
         }
       ]
     },

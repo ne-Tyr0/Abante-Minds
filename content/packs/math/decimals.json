@@ -365,7 +365,7 @@
       "explain": "With the points lined up, {fixed(a, pa)} + {fixed(b, pa)} = {fmt(answer)}.",
       "distractors": [
         { "value": "a + (w2 * 10 + f2) / aPow", "error": "lined-up-the-last-digits", "feedback": "{fmt(value)} lines up the last digits, so {fmt(b)} was added as if it were {fmt((w2 * 10 + f2) / aPow)}. Line up the points instead." },
-        { "value": "w1 + w2 + (f1 + f2) / aPow", "error": "added-tenths-as-smaller-places", "feedback": "{fmt(value)} adds the {f2} as if it were {f2} {pa == 2 ? 'hundredths' : 'thousandths'}. In {fmt(b)}, the {f2} is {f2} tenths." }
+        { "value": "w1 + w2 + (f1 + f2) / aPow", "error": "added-tenths-as-smaller-places", "feedback": "{fmt(value)} adds the {f2} as if it were {f2} {pa == 2 ? 'hundredth' : 'thousandth'}{f2 == 1 ? '' : 's'}. In {fmt(b)}, the {f2} is {f2} {f2 == 1 ? 'tenth' : 'tenths'}." }
       ]
     },
     {
@@ -748,7 +748,7 @@
       "answer": { "type": "integer", "value": "t" },
       "formats": [
         { "id": "plain", "prompt": "{fmt(n)} ÷ {fmt(v)} = ?" },
-        { "id": "cups", "prompt": "How many {fmt(v)}-litre cups can be filled from {fmt(n)} litres of juice?" }
+        { "id": "cups", "prompt": "How many {fmt(v)}-litre cups can be filled from {fmt(n)} {n == 1 ? 'litre' : 'litres'} of juice?" }
       ],
       "hints": [
         "Make the divisor a whole number: multiply both numbers by 10.",

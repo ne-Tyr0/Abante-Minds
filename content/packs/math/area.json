@@ -564,8 +564,8 @@
         }
       ],
       "hints": ["First find the area of the wall.", "{w} × {h} = {A} m².", "{A} ÷ {c} = ?"],
-      "steps": ["Area: {w} × {h} = {A} m²", "Each can covers {c} m²", "{A} ÷ {c} = {answer} cans"],
-      "explain": "{A} m² ÷ {c} m² a can = {answer} cans.",
+      "steps": ["Area: {w} × {h} = {A} m²", "Each can covers {c} m²", "{A} ÷ {c} = {answer} {answer == 1 ? 'can' : 'cans'}"],
+      "explain": "{A} m² ÷ {c} m² a can = {answer} {answer == 1 ? 'can' : 'cans'}.",
       "distractors": [
         {
           "value": "A",
