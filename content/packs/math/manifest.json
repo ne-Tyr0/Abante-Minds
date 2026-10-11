@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.28.0",
+  "version": "1.29.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",

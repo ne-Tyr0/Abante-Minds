@@ -95,6 +95,10 @@
         {
           "id": "shape",
           "prompt": "A parallelogram has a base of {b} cm, slanted sides of {s} cm and a height of {h} cm. What is its area?"
+        },
+        {
+          "id": "card",
+          "prompt": "A piece of card is cut as a parallelogram with a base of {b} cm, slanted sides of {s} cm and a height of {h} cm. What is its area?"
         }
       ],
       "hints": [
@@ -178,6 +182,10 @@
         {
           "id": "shape",
           "prompt": "A triangle has an area of {A} cm² and a base of {b} cm. What is its height?"
+        },
+        {
+          "id": "flag",
+          "prompt": "A triangular flag has an area of {A} cm² and a base of {b} cm. What is its height?"
         }
       ],
       "hints": ["Area = base × height ÷ 2, so base × height = 2 × area.", "2 × {A} = {2 * A}.", "{2 * A} ÷ {b} = ?"],
@@ -213,6 +221,10 @@
         {
           "id": "shape",
           "prompt": "A trapezoid has parallel sides of {a} cm and {b} cm, and a height of {h} cm. What is its area?"
+        },
+        {
+          "id": "label",
+          "prompt": "A paper label is cut as a trapezoid with parallel sides of {a} cm and {b} cm, and a height of {h} cm. What is its area?"
         }
       ],
       "hints": [
@@ -355,6 +367,10 @@
         {
           "id": "floor",
           "prompt": "A floor is {W} m by {L} m. How many square tiles, {t} cm on each side, cover it?"
+        },
+        {
+          "id": "store",
+          "prompt": "The floor of a sari-sari store is {W} m by {L} m. It is covered with square tiles {t} cm on each side. How many tiles are used?"
         }
       ],
       "hints": [
@@ -398,6 +414,10 @@
         {
           "id": "room",
           "prompt": "An L-shaped room is made from a rectangle {W} m by {H} m, with a corner {w} m by {h} m cut away. What is the area of the room?"
+        },
+        {
+          "id": "garden",
+          "prompt": "A garden is a rectangle {W} m by {H} m, with a corner {w} m by {h} m taken out for a shed. What is the area of the garden?"
         }
       ],
       "hints": [
@@ -441,6 +461,10 @@
         {
           "id": "wall",
           "prompt": "The end wall of a house is a rectangle {w} m wide and {h} m high, with a triangle on top that is {w} m wide and {t} m high. What is the area of the wall?"
+        },
+        {
+          "id": "billboard",
+          "prompt": "A billboard is a rectangle {w} m wide and {h} m high, with a triangle {t} m high on top along its whole width. What is the area of the billboard?"
         }
       ],
       "hints": [
@@ -533,6 +557,10 @@
         {
           "id": "wall",
           "prompt": "A wall is {w} m long and {h} m high. One can of paint covers {c} m². How many cans are needed to paint the wall once?"
+        },
+        {
+          "id": "store",
+          "prompt": "Aling Nena paints one wall of her store, {w} m long and {h} m high. One can of paint covers {c} m². How many cans does she need to paint it once?"
         }
       ],
       "hints": ["First find the area of the wall.", "{w} × {h} = {A} m².", "{A} ÷ {c} = ?"],

@@ -65,7 +65,7 @@
       "lesson": [
         {
           "title": "Ahead and behind",
-          "body": "Countries east of the Philippines are ahead of Manila: Tokyo is 1 hour ahead. Countries to the west are behind: Dubai is 4 hours behind. Ahead, add the hours; behind, take them away."
+          "body": "Countries east of the Philippines are ahead of Manila: Tokyo is 1 hour ahead. Countries to the west are behind: Dubai is 4 hours behind. Ahead, add the hours; behind, take them away. On a time zone map, count the steps from Manila's zone, UTC+8, to the other city's: each step is 1 hour."
         },
         {
           "title": "Worked example",
@@ -302,6 +302,10 @@
         {
           "id": "bus",
           "prompt": "An overnight bus leaves at {clock(s)} and arrives at {clock(e)} the next day. How long is the trip?"
+        },
+        {
+          "id": "province",
+          "prompt": "Lola's night bus to the province leaves at {clock(s)} and arrives at {clock(e)} the next day. How long is the trip?"
         }
       ],
       "hints": [
@@ -440,6 +444,10 @@
         {
           "id": "school",
           "prompt": "Ben must be at school by {clock(e)}. Getting ready takes {hm(r)}, and the walk to school takes {w} minutes. What is the latest time Ben can wake up?"
+        },
+        {
+          "id": "mia",
+          "prompt": "Mia's class starts at {clock(e)}. She needs {hm(r)} to get ready and {w} minutes to walk to school. What is the latest time she can wake up?"
         }
       ],
       "hints": [
