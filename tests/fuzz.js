@@ -51,6 +51,11 @@ const article = (s) => /(^|[\s(])[Aa] (8|11(?!\d)|18(?!\d))/.test(s);
 // "closes at 9:30 p.m.." : two full stops where a sentence ends on an
 // abbreviation. Three in a row is an ellipsis and is left alone.
 const stops = (s) => /(^|[^.])\.\.(?!\.)/.test(s);
+// "1 squares to the left", "1 whole hours", "1 of them are red": a count
+// of one read with a plural. A plural shared by a list ("6 and 1 squares
+// long") is left alone.
+const onePlural = (s) => /(^|[^\d.,/:₱\u2212-])1 of them are\b/.test(s) ||
+  /(^|[^\d.,/:₱\u2212-])(?<!(and|or|,) )1 (whole |equal )?(squares|hours|minutes|seconds|litres|metres|cans|groups|ones|tens|tenths|hundredths|thousandths|pieces|pupils|days|weeks|parts|cubes|tiles|units|steps|turns|sides)\b/.test(s);
 
 const SEEDS = 600;
 const TIERS = [1, 2, 3, 4];
@@ -133,8 +138,12 @@ function check(q) {
     if (signed(s)) fail("a negative number in the words", q, s);
     if (article(s)) fail("'a' before a number read with a vowel sound", q, s);
     if (stops(s)) fail("two full stops in a row", q, s);
+    if (onePlural(s)) fail("a count of one read with a plural", q, s);
   }
-  for (const s of q.choices || []) if (stops(s)) fail("two full stops in a row", q, s);
+  for (const s of q.choices || []) {
+    if (stops(s)) fail("two full stops in a row", q, s);
+    if (onePlural(s)) fail("a count of one read with a plural", q, s);
+  }
 
   // 4. multiple choice must be answerable
   if (q.type === "choice") {

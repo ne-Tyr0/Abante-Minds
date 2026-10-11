@@ -473,21 +473,21 @@
       "formats": [
         {
           "id": "grid",
-          "prompt": "On squared paper, a point is {d} squares to the {side} of a mirror line. It is reflected in the line. How many squares apart are the point and its image?"
+          "prompt": "On squared paper, a point is {d} {d == 1 ? 'square' : 'squares'} to the {side} of a mirror line. It is reflected in the line. How many squares apart are the point and its image?"
         }
       ],
       "hints": [
         "A reflection is as far behind the mirror as the point is in front of it.",
-        "The image is {d} squares on the other side of the line.",
+        "The image is {d} {d == 1 ? 'square' : 'squares'} on the other side of the line.",
         "{d} + {d} = ?"
       ],
-      "steps": ["Point to the line: {d} squares", "Line to the image: {d} squares", "{d} + {d} = {answer}"],
-      "explain": "The image is {d} squares on the other side, so they are {d} + {d} = {answer} squares apart.",
+      "steps": ["Point to the line: {d} {d == 1 ? 'square' : 'squares'}", "Line to the image: {d} {d == 1 ? 'square' : 'squares'}", "{d} + {d} = {answer}"],
+      "explain": "The image is {d} {d == 1 ? 'square' : 'squares'} on the other side, so they are {d} + {d} = {answer} squares apart.",
       "distractors": [
         {
           "value": "d",
           "error": "gave-the-distance-to-the-line",
-          "feedback": "{value} squares is how far the point is from the mirror line. The image is the same distance on the other side: {d} + {d}."
+          "feedback": "{value} {value == 1 ? 'square' : 'squares'} is how far the point is from the mirror line. The image is the same distance on the other side: {d} + {d}."
         }
       ]
     },

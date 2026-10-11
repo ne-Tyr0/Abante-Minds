@@ -92,6 +92,10 @@
         {
           "id": "hours",
           "prompt": "The 24-hour clock counts the hours from midnight. How many whole hours after midnight is {clock12(t)}?"
+        },
+        {
+          "id": "message",
+          "prompt": "A text message was sent at {clock12(t)} on Monday. How many whole hours after midnight was that?"
         }
       ],
       "hints": [
@@ -102,9 +106,9 @@
       "steps": [
         "{clock12(t)} is {h < 12 ? 'before noon' : 'after noon'}",
         "{h < 12 ? 'Before noon the hours stay as they are' : 'After noon, add 12'}",
-        "{h > 12 ? h - 12 : h}{h > 12 ? ' + 12 = ' : ' hours after midnight'}{h > 12 ? fmt(answer) : ''}"
+        "{h > 12 ? h - 12 : h}{h > 12 ? ' + 12 = ' : (h == 1 ? ' hour after midnight' : ' hours after midnight')}{h > 12 ? fmt(answer) : ''}"
       ],
-      "explain": "{clock12(t)} is {answer} whole hours after midnight, so on the 24-hour clock it is {clock(t)}.",
+      "explain": "{clock12(t)} is {answer} whole {answer == 1 ? 'hour' : 'hours'} after midnight, so on the 24-hour clock it is {clock(t)}.",
       "distractors": [
         {
           "value": "h > 12 ? h - 12 : 0 - 1",
@@ -114,7 +118,7 @@
         {
           "value": "h < 12 ? h + 12 : 0 - 1",
           "error": "added-12-in-the-morning",
-          "feedback": "{value} hours after midnight is in the evening. {clock12(t)} is before noon, so it is {answer} hours after midnight."
+          "feedback": "{value} hours after midnight would be after noon. {clock12(t)} is before noon, so it is {answer} {answer == 1 ? 'hour' : 'hours'} after midnight."
         }
       ]
     },
@@ -126,7 +130,13 @@
       "schema": "change",
       "params": {"h": {"range": [0, 23]}, "m": {"range": [0, 59]}, "t": {"value": "h * 60 + m"}},
       "answer": {"type": "time", "value": "t"},
-      "formats": [{"id": "write", "prompt": "Write {clock12(t)} in 24-hour time."}],
+      "formats": [
+        {"id": "write", "prompt": "Write {clock12(t)} in 24-hour time."},
+        {
+          "id": "timetable",
+          "prompt": "A bus that leaves at {clock12(t)} is shown on a 24-hour timetable. What time does the timetable show?"
+        }
+      ],
       "hints": [
         "Is it before noon or after noon?",
         "{h == 0 ? 'Just after midnight, the hours are 00.' : (h < 12 ? 'Before noon, the hours stay as they are.' : (h == 12 ? 'From noon to 1 p.m., the hours stay 12.' : 'After noon, add 12 to the hours.'))}",
@@ -159,7 +169,13 @@
       "schema": "change",
       "params": {"h": {"range": [13, 21]}, "m": {"range": [0, 59]}, "t": {"value": "h * 60 + m"}},
       "answer": {"type": "choice", "value": "t", "label": "{clock12(value)}", "order": "size"},
-      "formats": [{"id": "write", "prompt": "What is {clock(t)} in 12-hour time?"}],
+      "formats": [
+        {"id": "write", "prompt": "What is {clock(t)} in 12-hour time?"},
+        {
+          "id": "movie",
+          "prompt": "A movie ticket says the show starts at {clock(t)}. What is that in 12-hour time?"
+        }
+      ],
       "hints": [
         "{h} is more than 12, so the time is after noon: p.m.",
         "Take 12 away from the hours.",

@@ -223,7 +223,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -268,7 +268,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -313,7 +313,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -428,7 +428,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -473,7 +473,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -588,7 +588,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -633,7 +633,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -751,7 +751,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -796,7 +796,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -915,7 +915,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [
@@ -960,7 +960,7 @@
         {
           "id": "how-many",
           "prompt": "How many {x}s make {n}?",
-          "explain": "{answer} groups of {x} make {n}: {answer} × {x} = {n}."
+          "explain": "{answer} {answer == 1 ? 'group' : 'groups'} of {x} {answer == 1 ? 'makes' : 'make'} {n}: {answer} × {x} = {n}."
         }
       ],
       "hints": [

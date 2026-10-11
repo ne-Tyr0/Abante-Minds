@@ -66,7 +66,13 @@
       "params": {"p": {"tiers": {"1": [2, 98], "3": [2, 98]}}, "g": {"value": "gcd(p, 100)"}},
       "where": ["g > 1"],
       "answer": {"type": "fraction", "value": "p / 100"},
-      "formats": [{"id": "write", "prompt": "Write {p}% as a fraction in lowest terms."}],
+      "formats": [
+        {"id": "write", "prompt": "Write {p}% as a fraction in lowest terms."},
+        {
+          "id": "field",
+          "prompt": "{p}% of a field is planted with rice. What fraction of the field is that, in lowest terms?"
+        }
+      ],
       "hints": [
         "Per cent means out of 100: {p}% = {p}/100.",
         "Simplify {p}/100: divide the top and bottom by {g}.",
@@ -96,7 +102,10 @@
       "params": {"p": {"tiers": {"1": [11, 99], "3": [1, 250]}}},
       "where": ["p % 10 != 0"],
       "answer": {"type": "decimal", "value": "p / 100"},
-      "formats": [{"id": "write", "prompt": "Write {p}% as a decimal."}],
+      "formats": [
+        {"id": "write", "prompt": "Write {p}% as a decimal."},
+        {"id": "sales", "prompt": "A store's sales went up by {p}% this year. Write {p}% as a decimal."}
+      ],
       "hints": [
         "Per cent means hundredths: divide by 100.",
         "Dividing by 100 moves the decimal point two places to the left.",
@@ -131,7 +140,13 @@
       "params": {"b": {"choose": [2, 4, 5, 10, 20, 25, 50]}, "a": {"range": [1, "b - 1"]}},
       "where": ["gcd(a, b) == 1", "b != 10 || a % 2 == 1"],
       "answer": {"type": "percent", "value": "a * 100 / b"},
-      "formats": [{"id": "write", "prompt": "Write {frac(a / b)} as a per cent."}],
+      "formats": [
+        {"id": "write", "prompt": "Write {frac(a / b)} as a per cent."},
+        {
+          "id": "walk",
+          "prompt": "{frac(a / b)} of the pupils in a class walk to school. What per cent of the class is that?"
+        }
+      ],
       "hints": [
         "Make the denominator 100.",
         "100 ÷ {b} = {100 / b}, so multiply the top and the bottom by {100 / b}.",
