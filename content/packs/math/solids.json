@@ -39,7 +39,7 @@
     {
       "id": "volume",
       "title": "Volume",
-      "templates": ["solids.cube-volume", "solids.box-volume", "solids.missing-edge", "solids.cubes-in-box", "solids.extra-parcel"],
+      "templates": ["solids.cube-volume", "solids.box-volume", "solids.missing-edge", "solids.cubes-in-box", "solids.extra-parcel", "solids.count-cubes", "solids.one-more-layer"],
       "lesson": [
         {
           "title": "Length × width × height",
@@ -906,6 +906,112 @@
           "value": "L * 1000 / a",
           "error": "divided-by-the-length-only",
           "feedback": "{fmt(value)} cm divides by the length only. Divide by the whole base, {a} × {b} = {a * b} cm²."
+        }
+      ]
+    },
+    {
+      "id": "solids.count-cubes",
+      "competency": "G5.Q4.11",
+      "domain": "MG",
+      "construct": "Count the cubes in a block by its layers, hidden ones included",
+      "schema": "equal-groups",
+      "params": {
+        "l": {"tiers": {"1": [2, 4], "3": [3, 6]}},
+        "w": {"tiers": {"1": [2, 3], "3": [2, 4]}},
+        "h": {"tiers": {"1": [2, 3], "3": [2, 5]}}
+      },
+      "chart": {"kind": "cubes", "title": "A block of small cubes", "length": "l", "width": "w", "height": "h"},
+      "answer": {"type": "integer", "value": "l * w * h"},
+      "formats": [
+        {
+          "id": "count",
+          "prompt": "This block is built from small cubes, with no gaps inside. How many small cubes make the block?"
+        },
+        {
+          "id": "volume",
+          "prompt": "Each small cube is one unit of volume. What is the volume of the block, in cubes?"
+        }
+      ],
+      "hints": [
+        "Think of the block as layers of cubes, one on top of another.",
+        "The top layer is {l} cubes long and {w} cubes deep: {l} × {w} = {l * w} cubes.",
+        "There are {h} layers: {l * w} × {h} = ?"
+      ],
+      "steps": ["One layer: {l} × {w} = {l * w} cubes", "Layers: {h}", "{l * w} × {h} = {answer} cubes"],
+      "explain": "Each layer has {l} × {w} = {l * w} cubes and there are {h} layers, so the block has {answer} cubes, the hidden ones included.",
+      "distractors": [
+        {
+          "value": "l * w * h - (l - 1) * (w - 1) * (h - 1)",
+          "error": "counted-only-the-cubes-you-see",
+          "feedback": "{value} counts only the cubes you can see. The block is solid: the cubes inside and at the back count too."
+        },
+        {
+          "value": "l * h",
+          "error": "counted-the-front-only",
+          "feedback": "{value} is just the front, {l} × {h}. The block is {w} cubes deep, so there are {w} slices like it."
+        },
+        {
+          "value": "l * h + l * w + w * h",
+          "error": "counted-the-faces",
+          "feedback": "{value} counts the squares on the three faces you can see. Count cubes, layer by layer: {l} × {w} × {h}."
+        },
+        {
+          "value": "l + w + h",
+          "error": "added-the-edges",
+          "feedback": "{value} adds the three edges. Multiply them: {l} × {w} × {h}."
+        }
+      ]
+    },
+    {
+      "id": "solids.one-more-layer",
+      "competency": "G5.Q4.11",
+      "domain": "MG",
+      "construct": "Find how many cubes one more layer on a block takes",
+      "schema": "equal-groups",
+      "params": {
+        "l": {"tiers": {"1": [2, 4], "3": [3, 6]}},
+        "w": {"tiers": {"1": [2, 3], "3": [2, 4]}},
+        "h": {"tiers": {"1": [2, 3], "3": [2, 5]}}
+      },
+      "chart": {"kind": "cubes", "title": "A block of small cubes", "length": "l", "width": "w", "height": "h"},
+      "answer": {"type": "integer", "value": "l * w"},
+      "formats": [
+        {
+          "id": "add",
+          "prompt": "Mira adds one more layer of cubes on top of this block, as long and as deep as the others. How many cubes does she add?"
+        },
+        {
+          "id": "taller",
+          "prompt": "This block of small cubes is made one layer taller. How many more cubes does it need?"
+        }
+      ],
+      "hints": [
+        "A new layer covers the top of the block exactly.",
+        "The top is {l} cubes long and {w} cubes deep.",
+        "{l} × {w} = ?"
+      ],
+      "steps": ["The top of the block: {l} cubes by {w} cubes", "One layer is {l} × {w}", "= {answer} cubes"],
+      "explain": "A layer is {l} × {w} = {answer} cubes, the same as the top of the block.",
+      "distractors": [
+        {
+          "value": "l * w * h",
+          "error": "gave-the-whole-block",
+          "feedback": "{value} is the whole block. One layer is only {l} × {w}."
+        },
+        {
+          "value": "l * w * (h + 1)",
+          "error": "gave-the-new-total",
+          "feedback": "{value} is the whole block with its new layer. The question asks only for the cubes added."
+        },
+        {
+          "value": "l * h",
+          "error": "used-the-front",
+          "feedback": "{value} is the front, {l} × {h}. A new layer lies on top, so it is {l} × {w}."
+        },
+        {
+          "value": "l + w",
+          "error": "added-the-edges",
+          "feedback": "{value} adds the two edges of the top. A layer is {w} rows of {l}: multiply."
         }
       ]
     }

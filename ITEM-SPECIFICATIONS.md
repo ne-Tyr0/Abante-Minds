@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.25.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.26.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -18,14 +18,14 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Percentages | 5% | 3 | 14 | 2 | 30 |
 | Time | 4% | 4 | 13 | 4 | 27 |
 | Perimeter and area | 9% | 4 | 16 | 6 | 35 |
-| Solids and volume | 9% | 5 | 20 | 11 | 50 |
+| Solids and volume | 9% | 5 | 22 | 12 | 58 |
 | Circles | 8% | 4 | 17 | 7 | 36 |
 | Graphs and data | 11% | 5 | 17 | 9 | 37 |
 | Probability | 4% | 3 | 12 | 2 | 24 |
 | Transformations | 5% | 4 | 15 | 3 | 36 |
-| **All** | | **56** | **208** | **91** | **476** |
+| **All** | | **56** | **210** | **92** | **484** |
 
-The path's templates serve 91 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 12 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
+The path's templates serve 92 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 13 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
 Problem schemas on the path:
 
@@ -34,7 +34,7 @@ Problem schemas on the path:
 | change | additive | 17 |
 | combine | additive | 6 |
 | compare | additive | 19 |
-| equal-groups | multiplicative | 29 |
+| equal-groups | multiplicative | 31 |
 | rate | multiplicative | 5 |
 | multiplicative-compare | multiplicative | 21 |
 | part-whole | multiplicative | 55 |
@@ -2014,7 +2014,7 @@ Solve a surface area problem: a box with no lid.
 - **Named mistakes:** `counted-the-lid`, `left-out-the-bottom`
 - **Example:** Ana covers the outside of an open box, 9 cm by 3 cm and 5 cm high, with paper: the bottom and the four sides. How much paper does she need? **Answer: 147 cm²**
 
-**Level 3: Volume** (`volume`, 5 templates)
+**Level 3: Volume** (`volume`, 7 templates)
 
 #### `solids.cube-volume`
 
@@ -2082,6 +2082,32 @@ Find the volume of a box, ignoring its mass and cost.
 - **Formats:** `parcel`
 - **Named mistakes:** `added-the-edges`, `found-the-surface-area`
 - **Example:** A parcel box is 15 cm long, 3 cm wide and 6 cm tall. It weighs 5 kg, and sending it costs ₱250. What is its volume? **Answer: 270 cm³**
+
+#### `solids.count-cubes`
+
+Count the cubes in a block by its layers, hidden ones included.
+
+- **Competency:** G5.Q4.11, estimate volume using non-standard units
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** equal-groups (multiplicative)
+- **Answer:** whole number
+- **Draws:** `l: 2 to 4 (tiers 1–2), 3 to 6 (tiers 3–4)`; `w: 2 to 3 (tiers 1–2), 2 to 4 (tiers 3–4)`; `h: 2 to 3 (tiers 1–2), 2 to 5 (tiers 3–4)`
+- **Formats:** `count`, `volume`
+- **Named mistakes:** `counted-only-the-cubes-you-see`, `counted-the-front-only`, `counted-the-faces`, `added-the-edges`
+- **Example:** Picture: a block built from small cubes with no gaps, 3 cubes long, 2 cubes deep and 3 cubes high. Each small cube is one unit of volume. What is the volume of the block, in cubes? **Answer: 18**
+
+#### `solids.one-more-layer`
+
+Find how many cubes one more layer on a block takes.
+
+- **Competency:** G5.Q4.11, estimate volume using non-standard units
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** equal-groups (multiplicative)
+- **Answer:** whole number
+- **Draws:** `l: 2 to 4 (tiers 1–2), 3 to 6 (tiers 3–4)`; `w: 2 to 3 (tiers 1–2), 2 to 4 (tiers 3–4)`; `h: 2 to 3 (tiers 1–2), 2 to 5 (tiers 3–4)`
+- **Formats:** `add`, `taller`
+- **Named mistakes:** `gave-the-whole-block`, `gave-the-new-total`, `used-the-front`, `added-the-edges`
+- **Example:** Picture: a block built from small cubes with no gaps, 3 cubes long, 2 cubes deep and 3 cubes high. This block of small cubes is made one layer taller. How many more cubes does it need? **Answer: 6**
 
 **Level 4: Units of volume and capacity** (`units`, 3 templates)
 

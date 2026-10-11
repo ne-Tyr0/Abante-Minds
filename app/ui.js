@@ -908,9 +908,35 @@
     return [root];
   }
 
+  /* A block of small cubes drawn at a slant: its front, top and right side,
+     each ruled into the faces of the cubes, so the layers can be counted. */
+  function cubesFigure(c) {
+    var s = 26, dx = s * 0.55, dy = s * 0.45;
+    var L = c.length * s, D = c.width, H = c.height * s, top = D * dy;
+    var W = L + D * dx, T = top + H;
+    var root = svg("svg", { viewBox: "-3 -3 " + (W + 6) + " " + (T + 6), width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    root.style.maxWidth = Math.min(360, Math.round(W * 1.4)) + "px";
+    root.style.margin = "0 auto";
+    var edge = "stroke: var(--brand-blue-600); stroke-width: 1.5; stroke-linejoin: round";
+    var face = function (pts, fill) {
+      root.appendChild(svg("polygon", { points: pts.map(function (p) { return p.join(","); }).join(" "), style: "fill: " + fill + "; " + edge }));
+    };
+    var rule = function (a, b) { root.appendChild(svg("line", { x1: a[0], y1: a[1], x2: b[0], y2: b[1], style: edge })); };
+    face([[0, top], [L, top], [L, T], [0, T]], "var(--brand-blue-100)");
+    face([[0, top], [L, top], [W, 0], [D * dx, 0]], "var(--surface-200)");
+    face([[L, top], [W, 0], [W, H], [L, T]], "var(--skill-1-100)");
+    var i, k;
+    for (i = 1; i < c.length; i++) { rule([i * s, top], [i * s, T]); rule([i * s, top], [i * s + D * dx, 0]); }
+    for (k = 1; k < c.height; k++) { rule([0, top + k * s], [L, top + k * s]); rule([L, top + k * s], [W, k * s]); }
+    for (k = 1; k < D; k++) { rule([k * dx, top - k * dy], [L + k * dx, top - k * dy]); rule([L + k * dx, top - k * dy], [L + k * dx, T - k * dy]); }
+    return [root];
+  }
+
   /* A picture with no frame or title, for an answer tile. */
   function figureParts(c) {
-    return c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c) : c.kind === "mirror" ? mirrorFigure(c) : gridFigure(c);
+    return c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c) : c.kind === "mirror" ? mirrorFigure(c)
+      : c.kind === "cubes" ? cubesFigure(c) : gridFigure(c);
   }
 
   function Chart(c) {
@@ -921,7 +947,8 @@
     };
     if (c.kind === "table") return el("div.am-chart", { style: box }, tableChart(c));
     var parts = c.kind === "pie" ? pieChart(c) : c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c)
-      : c.kind === "mirror" ? mirrorFigure(c) : c.kind === "grid" ? gridFigure(c) : axisChart(c, "am-chart-" + (++chartCount));
+      : c.kind === "mirror" ? mirrorFigure(c) : c.kind === "grid" ? gridFigure(c) : c.kind === "cubes" ? cubesFigure(c)
+      : axisChart(c, "am-chart-" + (++chartCount));
     return el("figure.am-chart", { role: "img", "aria-label": c.text, style: box },
       el("div.label", { "aria-hidden": "true", style: { color: "var(--ink-900)" } }, c.title), parts);
   }
