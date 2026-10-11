@@ -272,6 +272,7 @@ node tests/progress.js
 node tests/validate-packs.js
 node tests/fuzz.js
 node tests/item-spec.js
+node tests/replay.js
 node tests/invariants.js
 ```
 
@@ -315,6 +316,13 @@ drawn by the engine. `node tools/item-spec.js` writes it from the packs, and CI 
 the file and the packs disagree, so it can be cited as the instrument. `--csv` prints the
 same as one row per template, for a spreadsheet or a panel of expert raters.
 `tests/item-spec.js` pins what the generator says.
+
+`node tools/replay.js attempts.json` reprints the questions in an attempt log (the app keeps
+it under `abante-minds/attempts`) exactly as they were asked: each row is rebuilt from its
+template, tier and seed, or its Basics fact, by the same engine, with the answer given and
+the mistake it matched. A row asked with another pack version, in another format, or that
+the rebuilt question would mark differently is flagged. `--csv` gives one row per attempt.
+`tests/replay.js` pins it.
 
 `tests/invariants.js` checks the repository rules that would otherwise fail silently: every
 precached path exists, everything the page loads is precached, every question-pack file is

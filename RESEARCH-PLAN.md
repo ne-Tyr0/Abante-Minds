@@ -236,7 +236,10 @@ templates is an afternoon, migrating 300 is a project.
 20. **Fixed Forms A and B**: ~20 pinned seeds each, matched template-for-template so the
     forms are equivalent. Adaptive generated items cannot serve as a measure; this is what
     makes a pretest–posttest design possible.
-21. **`tools/replay.js`**: reprints the exact items a participant saw, from the seeds. A
+21. **`tools/replay.js`**: reprints the exact items a participant saw, from the seeds. **Done
+    2026-10-11**: it reads the attempt log as the app keeps it, flags any row asked with
+    another pack version, in another format, or marked differently by the rebuilt question,
+    and `--csv` gives one row per attempt. A
     thesis must attach its instrument as an appendix, and a reviewer can verify the
     stimulus set — which few student instruments can offer.
 22. **`tools/psychometrics.js`**: item difficulty (p-values), discrimination indices, KR-20
