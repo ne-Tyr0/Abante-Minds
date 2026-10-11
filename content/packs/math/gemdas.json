@@ -23,7 +23,7 @@
     {
       "id": "decimals-fractions",
       "title": "With decimals and fractions",
-      "templates": ["gemdas.decimal-ops", "gemdas.decimal-brackets", "gemdas.fraction-ops"],
+      "templates": ["gemdas.decimal-ops", "gemdas.decimal-brackets", "gemdas.fraction-ops", "gemdas.fraction-brackets"],
       "lesson": [
         {
           "title": "The same order",
@@ -693,6 +693,49 @@
           "value": "o3",
           "error": "picked-a-smaller-power-c",
           "feedback": "{(value == 16 ? 4 : (value == 25 ? 5 : (value == 27 ? 3 : (value == 32 ? 2 : (value == 36 ? 6 : (value == 49 ? 7 : (value == 64 ? 4 : (value == 81 ? 3 : (value == 100 ? 10 : (value == 121 ? 11 : (value == 125 ? 5 : (value == 128 ? 2 : (value == 216 ? 6 : (value == 225 ? 15 : (value == 243 ? 3 : (value == 256 ? 2 : 0))))))))))))))))}{sup((value == 16 ? 2 : (value == 25 ? 2 : (value == 27 ? 3 : (value == 32 ? 5 : (value == 36 ? 2 : (value == 49 ? 2 : (value == 64 ? 3 : (value == 81 ? 4 : (value == 100 ? 2 : (value == 121 ? 2 : (value == 125 ? 3 : (value == 128 ? 7 : (value == 216 ? 3 : (value == 225 ? 2 : (value == 243 ? 5 : (value == 256 ? 8 : 0)))))))))))))))))} = {value}, less than {(g == 16 ? 4 : (g == 25 ? 5 : (g == 27 ? 3 : (g == 32 ? 2 : (g == 36 ? 6 : (g == 49 ? 7 : (g == 64 ? 4 : (g == 81 ? 3 : (g == 100 ? 10 : (g == 121 ? 11 : (g == 125 ? 5 : (g == 128 ? 2 : (g == 216 ? 6 : (g == 225 ? 15 : (g == 243 ? 3 : (g == 256 ? 2 : 0))))))))))))))))}{sup((g == 16 ? 2 : (g == 25 ? 2 : (g == 27 ? 3 : (g == 32 ? 5 : (g == 36 ? 2 : (g == 49 ? 2 : (g == 64 ? 3 : (g == 81 ? 4 : (g == 100 ? 2 : (g == 121 ? 2 : (g == 125 ? 3 : (g == 128 ? 7 : (g == 216 ? 3 : (g == 225 ? 2 : (g == 243 ? 5 : (g == 256 ? 8 : 0)))))))))))))))))} = {g}."
+        }
+      ]
+    },
+    {
+      "id": "gemdas.fraction-brackets",
+      "competency": "G5.Q4.2",
+      "domain": "NA",
+      "construct": "GMDAS with fractions: the brackets before multiplying",
+      "schema": "multi-step",
+      "params": {
+        "pb": {"choose": [2, 3, 4, 5, 6, 8]},
+        "pa": {"range": [1, "pb - 1"]},
+        "qb": {"choose": [2, 3, 4, 5, 6, 8]},
+        "qa": {"range": [1, "qb - 1"]},
+        "r": {"tiers": {"1": [2, 4], "3": [2, 6]}},
+        "p": {"value": "pa / pb"},
+        "q": {"value": "qa / qb"},
+        "s": {"value": "(p + q) * r"}
+      },
+      "where": ["gcd(pa, pb) == 1", "gcd(qa, qb) == 1", "floor(s) != s", "s > 1"],
+      "answer": {"type": "mixed", "value": "s"},
+      "formats": [{"id": "expression", "prompt": "({frac(p)} + {frac(q)}) × {r} = ?"}],
+      "hints": [
+        "Work out the brackets first.",
+        "{frac(p)} + {frac(q)} = {frac(p + q)}.",
+        "{frac(p + q)} × {r} = ? Write it as a mixed number."
+      ],
+      "steps": [
+        "Brackets first: {frac(p)} + {frac(q)} = {frac(p + q)}",
+        "Then multiply: {frac(p + q)} × {r} = {frac(s)}",
+        "= {mixed(answer)}"
+      ],
+      "explain": "({frac(p)} + {frac(q)}) × {r} = {frac(p + q)} × {r} = {mixed(answer)}.",
+      "distractors": [
+        {
+          "value": "p + q * r",
+          "error": "ignored-the-brackets",
+          "feedback": "{mixed(value)} multiplies first. The brackets come first: add {frac(p)} + {frac(q)}, then multiply by {r}."
+        },
+        {
+          "value": "p * r + q",
+          "error": "multiplied-one-part",
+          "feedback": "{mixed(value)} multiplies only {frac(p)} by {r}. Everything in the brackets is multiplied: ({frac(p)} + {frac(q)}) × {r}."
         }
       ]
     }

@@ -4,7 +4,7 @@
     {
       "id": "24-hour",
       "title": "The 24-hour clock",
-      "templates": ["time.hours-after-midnight", "time.to-24", "time.to-12"],
+      "templates": ["time.hours-after-midnight", "time.to-24", "time.to-12", "time.which-latest"],
       "lesson": [
         {
           "title": "Two clocks",
@@ -770,6 +770,62 @@
           "value": "k + 1",
           "error": "counted-the-columns",
           "feedback": "{value} counts the columns from Manila to {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}, both included. Count the steps between them: {k}."
+        }
+      ]
+    },
+    {
+      "id": "time.which-latest",
+      "competency": "G5.Q1.2",
+      "domain": "MG",
+      "construct": "Compare times written in 12-hour and 24-hour form",
+      "schema": "compare",
+      "params": {
+        "H": {"range": [19, 22]},
+        "m": {"range": [5, 40], "step": 5},
+        "k": {"range": [1, 2]},
+        "tA": {"value": "H * 60 + m"},
+        "tB": {"value": "pick(k, H * 60 + m - 15, H * 60 + m + 15)"},
+        "tC": {"value": "(H - 11) * 60 + m + 10"},
+        "tD": {"value": "(H - 1) * 60 + m"},
+        "vA": {"value": "2 * tA + 1"},
+        "vB": {"value": "2 * tB"},
+        "vC": {"value": "2 * tC + 1"},
+        "vD": {"value": "2 * tD"},
+        "o1": {"value": "pick(k, vB, vA)"}
+      },
+      "answer": {
+        "type": "choice",
+        "value": "pick(k, vA, vB)",
+        "label": "{value % 2 == 1 ? clock12((value - 1) / 2) : clock(value / 2)}",
+        "order": "mixed"
+      },
+      "formats": [{"id": "latest", "prompt": "Which of these times is the latest in the day?"}],
+      "hints": [
+        "Change them all to the 24-hour clock to compare.",
+        "For p.m. times, add 12 to the hour; a.m. times keep theirs.",
+        "In 24-hour time they are {clock(tC)}, {clock(tD)}, {clock(tA)} and {clock(tB)}."
+      ],
+      "steps": [
+        "{clock12(tA)} = {clock(tA)}; {clock12(tC)} = {clock(tC)}",
+        "Compare: {clock(tC)}, {clock(tD)}, {clock(tA)}, {clock(tB)}",
+        "The latest is {answer % 2 == 1 ? clock12((answer - 1) / 2) : clock(answer / 2)}"
+      ],
+      "explain": "In 24-hour time they are {clock(tC)}, {clock(tD)}, {clock(tA)} and {clock(tB)}, so the latest is {answer % 2 == 1 ? clock12((answer - 1) / 2) : clock(answer / 2)}{answer % 2 == 1 ? '' : '.'}",
+      "distractors": [
+        {
+          "value": "o1",
+          "error": "missed-by-minutes",
+          "feedback": "{value % 2 == 1 ? clock12((value - 1) / 2) : clock(value / 2)}{value % 2 == 1 ? ' is ' : ''}{value % 2 == 1 ? clock(floor(value / 2)) : ''}{value % 2 == 1 ? ' on the 24-hour clock,' : ' is'} earlier than {clock(max(tA, tB))}."
+        },
+        {
+          "value": "vC",
+          "error": "took-a-morning-time",
+          "feedback": "{value % 2 == 1 ? clock12((value - 1) / 2) : clock(value / 2)} is in the morning, {clock(floor(value / 2))} on the 24-hour clock: earlier than {clock(max(tA, tB))}."
+        },
+        {
+          "value": "vD",
+          "error": "picked-an-earlier-hour",
+          "feedback": "{value % 2 == 1 ? clock12((value - 1) / 2) : clock(value / 2)} is earlier than {clock(max(tA, tB))}: an earlier hour."
         }
       ]
     }

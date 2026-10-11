@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.33.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.34.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -11,19 +11,19 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Topic | Weight | Levels | Templates | Competencies | Named mistakes |
 |---|---:|---:|---:|---:|---:|
 | Decimals | 13% | 6 | 26 | 20 | 68 |
-| Fractions | 11% | 6 | 21 | 10 | 51 |
-| Order of operations | 9% | 4 | 16 | 5 | 37 |
+| Fractions | 11% | 6 | 23 | 10 | 56 |
+| Order of operations | 9% | 4 | 17 | 5 | 39 |
 | Factors and primes | 4% | 4 | 16 | 5 | 41 |
 | Ratio and proportion | 8% | 4 | 16 | 7 | 35 |
 | Percentages | 5% | 3 | 15 | 2 | 33 |
-| Time | 4% | 4 | 15 | 5 | 32 |
+| Time | 4% | 4 | 16 | 5 | 35 |
 | Perimeter and area | 9% | 4 | 18 | 6 | 40 |
-| Solids and volume | 9% | 5 | 26 | 13 | 68 |
+| Solids and volume | 9% | 5 | 27 | 13 | 71 |
 | Circles | 8% | 4 | 18 | 7 | 39 |
-| Graphs and data | 11% | 5 | 18 | 9 | 39 |
-| Probability | 4% | 3 | 13 | 2 | 27 |
-| Transformations | 5% | 4 | 15 | 3 | 36 |
-| **All** | | **56** | **233** | **94** | **546** |
+| Graphs and data | 11% | 5 | 19 | 9 | 42 |
+| Probability | 4% | 3 | 14 | 2 | 30 |
+| Transformations | 5% | 4 | 16 | 3 | 38 |
+| **All** | | **56** | **241** | **94** | **567** |
 
 The path's templates serve 94 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 15 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
@@ -33,14 +33,14 @@ Problem schemas on the path:
 |---|---|---:|
 | change | additive | 18 |
 | combine | additive | 6 |
-| compare | additive | 28 |
-| equal-groups | multiplicative | 33 |
-| rate | multiplicative | 6 |
+| compare | additive | 30 |
+| equal-groups | multiplicative | 35 |
+| rate | multiplicative | 7 |
 | multiplicative-compare | multiplicative | 24 |
 | part-whole | multiplicative | 57 |
-| work-backwards | non-routine | 9 |
+| work-backwards | non-routine | 10 |
 | missing-middle | non-routine | 4 |
-| multi-step | non-routine | 39 |
+| multi-step | non-routine | 41 |
 | excess-info | non-routine | 9 |
 
 Basics: 99 templates in 7 topics, practised beside the path and not counted towards the blueprint.
@@ -427,7 +427,7 @@ Share an amount equally, then take away what each one spends.
 
 Blueprint weight 11%.
 
-**Level 1: Multiply** (`multiply`, 3 templates)
+**Level 1: Multiply** (`multiply`, 4 templates)
 
 #### `fractions.multiply`
 
@@ -469,6 +469,20 @@ A fraction of a fraction of a whole, in words.
 - **Formats:** `farm`, `pizza`, `savings`
 - **Named mistakes:** `gave-the-fraction-of-the-part`, `added-the-fractions`
 - **Example:** Mila saves 1/5 of her allowance. She puts 3/4 of her savings in the bank. What fraction of her allowance goes in the bank? **Answer: 3/20**
+
+#### `fractions.rectangle-area`
+
+Find the area of a rectangle whose sides are fractions of a metre.
+
+- **Competency:** G5.Q1.8, multiply a fraction by a fraction
+- **Domain:** NA, Number and Algebra
+- **Schema:** equal-groups (multiplicative)
+- **Answer:** fraction
+- **Draws:** `b: 2 to 9`; `a: 1 to b - 1`; `d: 2 to 9`; `c: 1 to d - 1`
+- **Kept only when:** `gcd(a, b) == 1`; `gcd(c, d) == 1`
+- **Formats:** `cloth`, `tile`
+- **Named mistakes:** `added-tops-and-bottoms`, `added-the-sides`
+- **Example:** A tile is 1/7 m by 5/6 m. What is its area, in square metres? **Answer: 5/42**
 
 **Level 2: Multiply mixed numbers** (`mixed-numbers`, 4 templates)
 
@@ -585,7 +599,7 @@ Take a fraction of part of a group, ignoring the size of the whole group.
 - **Named mistakes:** `used-the-whole-group`, `gave-the-rest`
 - **Example:** A garden has 44 plants, and 24 of them are tomato plants. 1/4 of the tomato plants have flowers. How many tomato plants have flowers? **Answer: 6**
 
-**Level 4: Divide** (`divide`, 3 templates)
+**Level 4: Divide** (`divide`, 4 templates)
 
 #### `fractions.how-many-fit`
 
@@ -628,6 +642,20 @@ Find a number from a fraction of it, by dividing fractions.
 - **Formats:** `number`, `wall`
 - **Named mistakes:** `multiplied-instead`, `divided-the-wrong-way`
 - **Example:** Mang Ben has painted 3/20 of a wall. That is 3/4 of the part he plans to paint today. What fraction of the wall does he plan to paint today? **Answer: 1/5**
+
+#### `fractions.reciprocal`
+
+Divide by a fraction by multiplying by its reciprocal.
+
+- **Competency:** G5.Q2.2, divide a fraction by a fraction
+- **Domain:** NA, Number and Algebra
+- **Schema:** equal-groups (multiplicative)
+- **Answer:** multiple choice
+- **Draws:** `b: 3 to 9`; `a: 2 to b - 1`
+- **Kept only when:** `gcd(a, b) == 1`
+- **Formats:** `same`
+- **Named mistakes:** `kept-the-fraction`, `turned-only-the-bottom`, `gave-the-bottom`
+- **Example:** Dividing by 2/7 is the same as multiplying by which number? Choices: 1/7; 2/7; 7/2; 7. **Answer: 7/2**
 
 **Level 5: Divide mixed numbers** (`divide-mixed-numbers`, 4 templates)
 
@@ -804,7 +832,7 @@ Write and work out a shopping total with GMDAS.
 - **Named mistakes:** `worked-left-to-right`, `bought-one`
 - **Example:** Ben buys a drink for ₱21 and 2 pieces of bread at ₱13 each: 21 + 2 × 13. How much does he spend? **Answer: ₱47**
 
-**Level 2: With decimals and fractions** (`decimals-fractions`, 3 templates)
+**Level 2: With decimals and fractions** (`decimals-fractions`, 4 templates)
 
 #### `gemdas.decimal-ops`
 
@@ -847,6 +875,20 @@ GMDAS with fractions: multiply before adding.
 - **Formats:** `expression`
 - **Named mistakes:** `worked-left-to-right`, `added-everything`
 - **Example:** 1/5 + 4/5 × 4 = ? **Answer: 3 2/5**
+
+#### `gemdas.fraction-brackets`
+
+GMDAS with fractions: the brackets before multiplying.
+
+- **Competency:** G5.Q4.2, three or more operations with fractions and decimals (GMDAS)
+- **Domain:** NA, Number and Algebra
+- **Schema:** multi-step (non-routine)
+- **Answer:** mixed number
+- **Draws:** `pb: one of 2, 3, 4, 5, 6, 8`; `pa: 1 to pb - 1`; `qb: one of 2, 3, 4, 5, 6, 8`; `qa: 1 to qb - 1`; `r: 2 to 4 (tiers 1–2), 2 to 6 (tiers 3–4)`
+- **Kept only when:** `gcd(pa, pb) == 1`; `gcd(qa, qb) == 1`; `floor(s) != s`; `s > 1`
+- **Formats:** `expression`
+- **Named mistakes:** `ignored-the-brackets`, `multiplied-one-part`
+- **Example:** (1/3 + 1/2) × 3 = ? **Answer: 2 1/2**
 
 **Level 3: Exponents** (`exponents`, 4 templates)
 
@@ -1637,7 +1679,7 @@ Find a percent increase from the old and new prices.
 
 Blueprint weight 4%.
 
-**Level 1: The 24-hour clock** (`24-hour`, 3 templates)
+**Level 1: The 24-hour clock** (`24-hour`, 4 templates)
 
 #### `time.hours-after-midnight`
 
@@ -1678,6 +1720,19 @@ Write a 24-hour time in 12-hour time.
 - **Formats:** `write`
 - **Named mistakes:** `swapped-a-m-and-p-m`, `took-away-10`, `an-hour-out`
 - **Example:** What is 18:00 in 12-hour time? Choices: 6:00 a.m.; 5:00 p.m.; 6:00 p.m.; 8:00 p.m. **Answer: 6:00 p.m.**
+
+#### `time.which-latest`
+
+Compare times written in 12-hour and 24-hour form.
+
+- **Competency:** G5.Q1.2, convert 12-hour time to 24-hour time and back
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** compare (additive)
+- **Answer:** multiple choice
+- **Draws:** `H: 19 to 22`; `m: 5 to 40 in steps of 5`; `k: 1 to 2`
+- **Formats:** `latest`
+- **Named mistakes:** `missed-by-minutes`, `took-a-morning-time`, `picked-an-earlier-hour`
+- **Example:** Which of these times is the latest in the day? Choices: 20:05; 10:15 a.m.; 9:05 p.m.; 21:20. **Answer: 21:20**
 
 **Level 2: How long?** (`how-long`, 4 templates)
 
@@ -2420,7 +2475,7 @@ Convert millilitres to litres.
 - **Named mistakes:** `divided-by-100`, `multiplied`
 - **Example:** A bottle holds 6000 mL of water. How many litres is that? **Answer: 6 L**
 
-**Level 5: Capacity problems** (`capacity`, 3 templates)
+**Level 5: Capacity problems** (`capacity`, 4 templates)
 
 #### `solids.tank-litres`
 
@@ -2462,6 +2517,20 @@ Find how deep water stands from its volume in litres and the floor of the tank.
 - **Formats:** `tank`, `box`
 - **Named mistakes:** `used-100-cm3-a-litre`, `divided-by-the-length-only`
 - **Example:** A water container shaped like a box has a base 50 cm by 20 cm. It holds 18 L of water. How high does the water reach, in centimetres? **Answer: 18 cm**
+
+#### `solids.fill-time`
+
+Find how long a tap takes to fill a tank: litres, then minutes.
+
+- **Competency:** G6.Q3.5, solve problems involving capacity
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** rate (multiplicative)
+- **Answer:** whole number
+- **Draws:** `a: one of 40, 50, 60, 80, 100`; `b: one of 20, 25, 40, 50`; `c: one of 20, 25, 40, 50`; `r: one of 2, 4, 5, 8, 10`
+- **Kept only when:** `floor(L) == L && L % r == 0`
+- **Formats:** `tap`
+- **Named mistakes:** `gave-the-litres`, `did-not-convert`, `multiplied`
+- **Example:** A tank is 60 cm long, 50 cm wide and 25 cm high. A tap fills it at 5 L a minute. How many minutes does it take to fill the empty tank? **Answer: 15**
 
 ### 10. Circles (`circles`)
 
@@ -2773,7 +2842,7 @@ Read one value from a table by its row and column.
 - **Named mistakes:** `read-the-other-grade`, `read-another-day`
 - **Example:** Table: Books borrowed from the library (Day). Monday: Grade 5 21, Grade 6 22. Tuesday: Grade 5 10, Grade 6 19. Wednesday: Grade 5 13, Grade 6 10. Thursday: Grade 5 22, Grade 6 7. The table shows the books Grade 5 and Grade 6 borrowed from the library. How many books did Grade 5 borrow on Thursday? **Answer: 22**
 
-**Level 2: Comparing and adding** (`comparing`, 3 templates)
+**Level 2: Comparing and adding** (`comparing`, 4 templates)
 
 #### `data.bar-difference`
 
@@ -2816,6 +2885,20 @@ Add the values of one series of a double bar graph.
 - **Formats:** `total`
 - **Named mistakes:** `left-one-out`, `added-both-series`
 - **Example:** Double bar graph: Mangoes sold (Kilograms). Aling Rosa: Mon 2, Tue 12, Wed 20, Thu 20. Mang Ben: Mon 6, Tue 14, Wed 16, Thu 10. The graph shows the kilograms of mangoes Aling Rosa and Mang Ben sold. How many kilograms of mangoes did Mang Ben sell from Monday to Thursday? **Answer: 46**
+
+#### `data.compare-totals`
+
+Add each series of a double bar graph, then compare the totals.
+
+- **Competency:** G5.Q3.6, solve problems using double bar or line graph data
+- **Domain:** DP, Data and Probability
+- **Schema:** multi-step (non-routine)
+- **Answer:** whole number
+- **Draws:** `a1: 1 to 10`; `a2: 1 to 10`; `a3: 1 to 10`; `a4: 1 to 10`; `b1: 1 to 10`; `b2: 1 to 10`; `b3: 1 to 10`; `b4: 1 to 10`
+- **Kept only when:** `A != B`; `max(a1, a2, a3, a4, b1, b2, b3, b4) >= 4`
+- **Formats:** `books`
+- **Named mistakes:** `gave-one-total`, `added-both`, `compared-one-month`
+- **Example:** Double bar graph: Books borrowed (Books). Grade 5: Jun 35, Jul 5, Aug 30, Sep 50. Grade 6: Jun 50, Jul 15, Aug 35, Sep 40. The graph shows the books Grade 5 and Grade 6 borrowed from the library from June to September. Altogether, how many more books did Grade 6 borrow than Grade 5? **Answer: 20**
 
 **Level 3: Drawing conclusions** (`conclusions`, 3 templates)
 
@@ -2978,7 +3061,7 @@ Find the average of the values in a table.
 
 Blueprint weight 4%.
 
-**Level 1: How likely?** (`how-likely`, 3 templates)
+**Level 1: How likely?** (`how-likely`, 4 templates)
 
 #### `probability.likely`
 
@@ -3021,6 +3104,19 @@ Give a probability as a per cent.
 - **Formats:** `tickets`
 - **Named mistakes:** `gave-the-count`, `gave-the-chance-of-losing`
 - **Example:** A box has 20 raffle tickets, and 1 of them win a prize. What is the probability of picking a winning ticket, as a per cent? **Answer: 5%**
+
+#### `probability.die-certain`
+
+Tell an impossible or a certain event from the faces of a die.
+
+- **Competency:** G5.Q3.7, describe probability as the chance of an event occurring
+- **Domain:** DP, Data and Probability
+- **Schema:** compare (additive)
+- **Answer:** multiple choice
+- **Draws:** `q: 1 to 2`
+- **Formats:** `die`
+- **Named mistakes:** `picked-the-opposite`, `picked-as-likely-as-not`, `picked-an-unlikely-event`
+- **Example:** A fair die with faces 1 to 6 is rolled. Which of these is certain? Choices: Rolling a 6; Rolling an even number; Rolling a number less than 7; Rolling a 7. **Answer: Rolling a number less than 7**
 
 **Level 2: Listing outcomes** (`outcomes`, 6 templates)
 
@@ -3164,7 +3260,7 @@ Find a probability for a spinner and a coin together, by counting outcomes.
 
 Blueprint weight 5%.
 
-**Level 1: Angles at a point** (`angles-at-a-point`, 3 templates)
+**Level 1: Angles at a point** (`angles-at-a-point`, 4 templates)
 
 #### `transform.regular-angle`
 
@@ -3204,6 +3300,20 @@ Find the gap left when a regular shape cannot fill a point.
 - **Formats:** `gap`
 - **Named mistakes:** `gave-the-angles-used`, `gave-one-angle`
 - **Example:** Picture: 2 regular decagons round a point, with a gap left. As many copies of a regular decagon as will fit are placed round a point, without overlapping. How big is the gap that is left? **Answer: 72°**
+
+#### `transform.third-angle`
+
+Find the third angle round a point from the other two.
+
+- **Competency:** G6.Q1.1, explore whether or not a shape tessellates
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** work-backwards (non-routine)
+- **Answer:** number with a unit, in °
+- **Draws:** `a: 100 to 170 in steps of 5`; `b: 60 to 150 in steps of 5`
+- **Kept only when:** `a + b < 340`; `a + b > 200`
+- **Formats:** `point`, `tiles`
+- **Named mistakes:** `gave-the-sum`, `took-away-one`
+- **Example:** Three tiles meet at a point on a floor, with no gap. Two of their corners are 145° and 60°. What is the angle of the third corner? **Answer: 155°**
 
 **Level 2: Which shapes tile?** (`which-tile`, 3 templates)
 

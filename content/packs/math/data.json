@@ -39,7 +39,7 @@
     {
       "id": "comparing",
       "title": "Comparing and adding",
-      "templates": ["data.bar-difference", "data.line-change", "data.bar-total"],
+      "templates": ["data.bar-difference", "data.line-change", "data.bar-total", "data.compare-totals"],
       "lesson": [
         {
           "title": "How many more?",
@@ -1372,6 +1372,68 @@
           "value": "pick(d % 4 + 1, pick(g, u1, v1), pick(g, u2, v2), pick(g, u3, v3), pick(g, u4, v4))",
           "error": "read-another-day",
           "feedback": "{value} is Grade {g + 4}'s number for {pick(d % 4 + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday')}. Use the row for {pick(d, 'Monday', 'Tuesday', 'Wednesday', 'Thursday')}."
+        }
+      ]
+    },
+    {
+      "id": "data.compare-totals",
+      "competency": "G5.Q3.6",
+      "domain": "DP",
+      "construct": "Add each series of a double bar graph, then compare the totals",
+      "schema": "multi-step",
+      "params": {
+        "a1": {"range": [1, 10]},
+        "a2": {"range": [1, 10]},
+        "a3": {"range": [1, 10]},
+        "a4": {"range": [1, 10]},
+        "b1": {"range": [1, 10]},
+        "b2": {"range": [1, 10]},
+        "b3": {"range": [1, 10]},
+        "b4": {"range": [1, 10]},
+        "A": {"value": "5 * (a1 + a2 + a3 + a4)"},
+        "B": {"value": "5 * (b1 + b2 + b3 + b4)"}
+      },
+      "where": ["A != B", "max(a1, a2, a3, a4, b1, b2, b3, b4) >= 4"],
+      "chart": {
+        "kind": "bar",
+        "title": "Books borrowed",
+        "axis": "Books",
+        "step": "5",
+        "categories": ["Jun", "Jul", "Aug", "Sep"],
+        "series": [
+          {"name": "Grade 5", "values": ["a1 * 5", "a2 * 5", "a3 * 5", "a4 * 5"]},
+          {"name": "Grade 6", "values": ["b1 * 5", "b2 * 5", "b3 * 5", "b4 * 5"]}
+        ]
+      },
+      "answer": {"type": "integer", "value": "abs(A - B)"},
+      "formats": [
+        {
+          "id": "books",
+          "prompt": "The graph shows the books Grade 5 and Grade 6 borrowed from the library from June to September. Altogether, how many more books did {A > B ? 'Grade 5' : 'Grade 6'} borrow than {A > B ? 'Grade 6' : 'Grade 5'}?"
+        }
+      ],
+      "hints": ["Add each grade's four bars.", "Grade 5: {A}. Grade 6: {B}.", "{max(A, B)} − {min(A, B)} = ?"],
+      "steps": [
+        "Grade 5: {5 * a1} + {5 * a2} + {5 * a3} + {5 * a4} = {A}",
+        "Grade 6: {5 * b1} + {5 * b2} + {5 * b3} + {5 * b4} = {B}",
+        "{max(A, B)} − {min(A, B)} = {answer}"
+      ],
+      "explain": "Grade 5 borrowed {A} books and Grade 6 {B}, so {A > B ? 'Grade 5' : 'Grade 6'} borrowed {answer} more.",
+      "distractors": [
+        {
+          "value": "max(A, B)",
+          "error": "gave-one-total",
+          "feedback": "{value} is {A > B ? 'Grade 5' : 'Grade 6'}'s total. How many more means taking away {A > B ? 'Grade 6' : 'Grade 5'}'s, {min(A, B)}."
+        },
+        {
+          "value": "A + B",
+          "error": "added-both",
+          "feedback": "{value} adds both totals. How many more is a difference."
+        },
+        {
+          "value": "5 * abs(a4 - b4)",
+          "error": "compared-one-month",
+          "feedback": "{value} is the difference in September only. Add each grade's four months first."
         }
       ]
     }

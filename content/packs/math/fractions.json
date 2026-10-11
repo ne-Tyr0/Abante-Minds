@@ -4,7 +4,7 @@
     {
       "id": "multiply",
       "title": "Multiply",
-      "templates": ["fractions.multiply", "fractions.shaded-both", "fractions.part-of-a-part"],
+      "templates": ["fractions.multiply", "fractions.shaded-both", "fractions.part-of-a-part", "fractions.rectangle-area"],
       "lesson": [
         { "title": "Multiply straight across", "body": "To multiply two fractions, multiply the numerators, then multiply the denominators: 2/3 × 3/4 = 6/12. Then write the answer in lowest terms: 6/12 = 1/2." },
         { "title": "Worked example", "example": { "template": "fractions.multiply", "params": { "b": 5, "a": 4, "d": 8, "c": 3 }, "format": "product" } },
@@ -34,7 +34,7 @@
     {
       "id": "divide",
       "title": "Divide",
-      "templates": ["fractions.how-many-fit", "fractions.divide", "fractions.find-the-whole"],
+      "templates": ["fractions.how-many-fit", "fractions.divide", "fractions.find-the-whole", "fractions.reciprocal"],
       "lesson": [
         { "title": "How many fit?", "body": "3/4 ÷ 1/8 asks how many eighths fit in three quarters. 3/4 is 6/8, so 6 of them fit." },
         { "title": "Keep, flip, multiply", "body": "To divide by a fraction, keep the first fraction, flip the second one over, and multiply: 2/5 ÷ 3/4 = 2/5 × 4/3 = 8/15. The flipped fraction is called the reciprocal." },
@@ -932,6 +932,89 @@
           "value": "k / d - n",
           "error": "took-away",
           "feedback": "{mixed(value)} takes {n} away. Sharing among {n} means dividing."
+        }
+      ]
+    },
+    {
+      "id": "fractions.rectangle-area",
+      "competency": "G5.Q1.8",
+      "domain": "NA",
+      "construct": "Find the area of a rectangle whose sides are fractions of a metre",
+      "schema": "equal-groups",
+      "params": {
+        "b": {"range": [2, 9]},
+        "a": {"range": [1, "b - 1"]},
+        "d": {"range": [2, 9]},
+        "c": {"range": [1, "d - 1"]}
+      },
+      "where": ["gcd(a, b) == 1", "gcd(c, d) == 1"],
+      "answer": {"type": "fraction", "value": "a * c / (b * d)"},
+      "formats": [
+        {
+          "id": "cloth",
+          "prompt": "A tablecloth is {frac(a / b)} m long and {frac(c / d)} m wide. What is its area, in square metres?"
+        },
+        {
+          "id": "tile",
+          "prompt": "A tile is {frac(a / b)} m by {frac(c / d)} m. What is its area, in square metres?"
+        }
+      ],
+      "hints": [
+        "Area of a rectangle = length × width.",
+        "{frac(a / b)} × {frac(c / d)}: multiply the tops and multiply the bottoms.",
+        "{a} × {c} = {a * c} and {b} × {d} = {b * d}."
+      ],
+      "steps": ["Area = {frac(a / b)} × {frac(c / d)}", "= {a * c}/{b * d}", "= {frac(answer)} square metres"],
+      "explain": "{frac(a / b)} × {frac(c / d)} = {frac(answer)} square metres.",
+      "distractors": [
+        {
+          "value": "(a + c) / (b + d)",
+          "error": "added-tops-and-bottoms",
+          "feedback": "{frac(value)} adds the tops and the bottoms. Multiply them: {a} × {c} over {b} × {d}."
+        },
+        {
+          "value": "a / b + c / d",
+          "error": "added-the-sides",
+          "feedback": "{frac(value)} adds the length and the width. Area multiplies them."
+        }
+      ]
+    },
+    {
+      "id": "fractions.reciprocal",
+      "competency": "G5.Q2.2",
+      "domain": "NA",
+      "construct": "Divide by a fraction by multiplying by its reciprocal",
+      "schema": "equal-groups",
+      "params": {"b": {"range": [3, 9]}, "a": {"range": [2, "b - 1"]}},
+      "where": ["gcd(a, b) == 1"],
+      "answer": {"type": "choice", "value": "b / a", "label": "{frac(value)}", "order": "size"},
+      "formats": [{"id": "same", "prompt": "Dividing by {frac(a / b)} is the same as multiplying by which number?"}],
+      "hints": [
+        "To divide by a fraction, multiply by its reciprocal.",
+        "The reciprocal swaps the top and the bottom.",
+        "{frac(a / b)} turned over is {b}/{a}."
+      ],
+      "steps": [
+        "Dividing by a fraction = multiplying by its reciprocal",
+        "Swap the top and the bottom of {frac(a / b)}",
+        "= {frac(answer)}"
+      ],
+      "explain": "Dividing by {frac(a / b)} is the same as multiplying by {frac(answer)}: the top and the bottom swap.",
+      "distractors": [
+        {
+          "value": "a / b",
+          "error": "kept-the-fraction",
+          "feedback": "{frac(value)} is the same fraction. Dividing by it is the same as multiplying by it turned over: {frac(b / a)}."
+        },
+        {
+          "value": "1 / b",
+          "error": "turned-only-the-bottom",
+          "feedback": "{frac(value)} keeps only the bottom. Swap the top and the bottom: {frac(b / a)}."
+        },
+        {
+          "value": "b",
+          "error": "gave-the-bottom",
+          "feedback": "{value} is just the bottom number. The reciprocal of {frac(a / b)} is {frac(b / a)}."
         }
       ]
     }

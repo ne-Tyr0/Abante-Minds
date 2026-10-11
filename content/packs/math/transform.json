@@ -4,7 +4,7 @@
     {
       "id": "angles-at-a-point",
       "title": "Angles at a point",
-      "templates": ["transform.regular-angle", "transform.around-a-point", "transform.gap-at-a-point"],
+      "templates": ["transform.regular-angle", "transform.around-a-point", "transform.gap-at-a-point", "transform.third-angle"],
       "lesson": [
         {
           "title": "Fitting round a point",
@@ -856,6 +856,41 @@
           "value": "4",
           "error": "flipped-instead-of-turned",
           "feedback": "That picture flips the shape over, like a reflection. A rotation turns it about the dot without flipping it."
+        }
+      ]
+    },
+    {
+      "id": "transform.third-angle",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Find the third angle round a point from the other two",
+      "schema": "work-backwards",
+      "params": {"a": {"range": [100, 170], "step": 5}, "b": {"range": [60, 150], "step": 5}},
+      "where": ["a + b < 340", "a + b > 200"],
+      "answer": {"type": "unit", "value": "360 - a - b", "unit": "°"},
+      "formats": [
+        {
+          "id": "point",
+          "prompt": "Three angles meet at a point. Two of them are {a}° and {b}°. What is the third?"
+        },
+        {
+          "id": "tiles",
+          "prompt": "Three tiles meet at a point on a floor, with no gap. Two of their corners are {a}° and {b}°. What is the angle of the third corner?"
+        }
+      ],
+      "hints": ["The angles round a point add up to 360°.", "{a}° + {b}° = {a + b}°.", "360° − {a + b}° = ?"],
+      "steps": ["Round a point: 360°", "{a}° + {b}° = {a + b}°", "360° − {a + b}° = {answer}°"],
+      "explain": "The angles round a point make 360°, so the third is 360° − {a}° − {b}° = {answer}°.",
+      "distractors": [
+        {
+          "value": "a + b",
+          "error": "gave-the-sum",
+          "feedback": "{value}° is the two angles added. Take them away from 360°."
+        },
+        {
+          "value": "360 - a",
+          "error": "took-away-one",
+          "feedback": "{value}° takes away only {a}°. Take both away from 360°."
         }
       ]
     }

@@ -4,7 +4,7 @@
     {
       "id": "how-likely",
       "title": "How likely?",
-      "templates": ["probability.likely", "probability.not-happen", "probability.percent-chance"],
+      "templates": ["probability.likely", "probability.not-happen", "probability.percent-chance", "probability.die-certain"],
       "lesson": [
         {
           "title": "Words for chance",
@@ -610,6 +610,54 @@
           "value": "f / (p + 2)",
           "error": "added-the-outcomes",
           "feedback": "{frac(value)} adds the {p} numbers and the 2 sides. Multiply them: {2 * p} outcomes."
+        }
+      ]
+    },
+    {
+      "id": "probability.die-certain",
+      "competency": "G5.Q3.7",
+      "domain": "DP",
+      "construct": "Tell an impossible or a certain event from the faces of a die",
+      "schema": "compare",
+      "params": {"q": {"range": [1, 2]}},
+      "answer": {
+        "type": "choice",
+        "value": "q",
+        "label": "{pick(value, 'Rolling a 7', 'Rolling a number less than 7', 'Rolling an even number', 'Rolling a 6')}",
+        "order": "mixed"
+      },
+      "formats": [
+        {
+          "id": "die",
+          "prompt": "A fair die with faces 1 to 6 is rolled. Which of these is {q == 1 ? 'impossible' : 'certain'}?"
+        }
+      ],
+      "hints": [
+        "A die shows 1, 2, 3, 4, 5 or 6.",
+        "Impossible means it can never happen; certain means it happens every time.",
+        "{q == 1 ? 'Which one can never happen?' : 'Which one happens on every roll?'}"
+      ],
+      "steps": [
+        "The faces: 1 to 6",
+        "{q == 1 ? 'No face shows 7' : 'Every face is less than 7'}",
+        "So {pick(q, 'rolling a 7 is impossible', 'rolling a number less than 7 is certain')}"
+      ],
+      "explain": "{pick(q, 'No face shows 7, so rolling a 7 is impossible.', 'Every face, 1 to 6, is less than 7, so rolling a number less than 7 is certain.')}",
+      "distractors": [
+        {
+          "value": "3 - q",
+          "error": "picked-the-opposite",
+          "feedback": "{pick(value, 'Rolling a 7 can never happen: it is impossible.', 'Rolling a number less than 7 happens every time: it is certain.', 'Rolling an even number happens on 3 faces out of 6: as likely as not.', 'Rolling a 6 happens on 1 face out of 6: unlikely, but possible.')}"
+        },
+        {
+          "value": "3",
+          "error": "picked-as-likely-as-not",
+          "feedback": "{pick(value, 'Rolling a 7 can never happen: it is impossible.', 'Rolling a number less than 7 happens every time: it is certain.', 'Rolling an even number happens on 3 faces out of 6: as likely as not.', 'Rolling a 6 happens on 1 face out of 6: unlikely, but possible.')}"
+        },
+        {
+          "value": "4",
+          "error": "picked-an-unlikely-event",
+          "feedback": "{pick(value, 'Rolling a 7 can never happen: it is impossible.', 'Rolling a number less than 7 happens every time: it is certain.', 'Rolling an even number happens on 3 faces out of 6: as likely as not.', 'Rolling a 6 happens on 1 face out of 6: unlikely, but possible.')}"
         }
       ]
     }
