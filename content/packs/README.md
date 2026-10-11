@@ -26,9 +26,11 @@ topics: `add-subtract`, `times`, `mental`, `written`, `missing`, `equivalents` a
 ```bash
 node tests/validate-packs.js   # the schema, the blueprint, then every template generated
 node tests/fuzz.js             # whole sessions, every level and tier
+node tools/item-spec.js        # rewrite ITEM-SPECIFICATIONS.md to match
 ```
 
-Both run in CI. A pack file is precached, so any change to one also needs the `CACHE`
+All three run in CI; the last as `--check`, which fails while `ITEM-SPECIFICATIONS.md`
+disagrees with the packs. A pack file is precached, so any change to one also needs the `CACHE`
 bump in `sw.js`, and a new file must be added to `SHELL` there.
 
 Bump the manifest's `version` whenever a change alters the questions a template produces.

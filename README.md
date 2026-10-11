@@ -271,6 +271,7 @@ node tests/insights.js
 node tests/progress.js
 node tests/validate-packs.js
 node tests/fuzz.js
+node tests/item-spec.js
 node tests/invariants.js
 ```
 
@@ -307,6 +308,13 @@ checker rejects, or a named mistake that does not bring back its own feedback. I
 question's chart too.
 The app is offline, so a bad question cannot be hotfixed on a phone that has already
 installed it; these are the guard.
+
+`ITEM-SPECIFICATIONS.md` describes every template: the competency it serves, its construct
+and schema, the answer, what it draws at each tier, the mistakes it names, and an example
+drawn by the engine. `node tools/item-spec.js` writes it from the packs, and CI fails while
+the file and the packs disagree, so it can be cited as the instrument. `--csv` prints the
+same as one row per template, for a spreadsheet or a panel of expert raters.
+`tests/item-spec.js` pins what the generator says.
 
 `tests/invariants.js` checks the repository rules that would otherwise fail silently: every
 precached path exists, everything the page loads is precached, every question-pack file is

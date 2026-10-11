@@ -242,7 +242,10 @@ templates is an afternoon, migrating 300 is a project.
 23. **Item specification table, generated from the packs** so it cannot drift. Per
     template: competency code, construct, schema type, tier ranges, distractor error codes.
     This is what a methodology chapter cites and what expert validators rate to produce a
-    content validity index.
+    content validity index. **Done 2026-10-11**: `ITEM-SPECIFICATIONS.md`, written by
+    `node tools/item-spec.js`, with an example item per template drawn by the engine; CI
+    fails while it disagrees with the packs. `--csv` gives one row per template for the
+    raters' spreadsheet.
 24. **Condition flags** (`#cfg=` or `research.json`): hint-first vs worked-example-first,
     demotion on/off, spaced review on/off, timed vs untimed. Recorded in every log row.
     Without these there is no manipulation to study.
