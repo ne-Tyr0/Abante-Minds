@@ -23,7 +23,7 @@
     {
       "id": "outcomes",
       "title": "Listing outcomes",
-      "templates": ["probability.die", "probability.bag", "probability.spinner", "probability.cards"],
+      "templates": ["probability.die", "probability.bag", "probability.spinner", "probability.cards", "probability.better-bag", "probability.how-many-in-bag"],
       "lesson": [
         {
           "title": "Wanted out of all",
@@ -461,6 +461,107 @@
           "value": "t * red",
           "error": "did-not-divide",
           "feedback": "{value} is {t} × {red}. Take {red}/{parts} of {t}: divide by {parts} too."
+        }
+      ]
+    },
+    {
+      "id": "probability.better-bag",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Compare the chance of red in two bags of different sizes",
+      "schema": "compare",
+      "params": {
+        "r2": {"range": [1, 4]},
+        "n2": {"range": ["r2 + 1", "r2 + 4"]},
+        "r1": {"range": ["r2 + 1", "r2 + 6"]},
+        "n1": {"range": ["r1 + 2", 20]},
+        "s": {"range": [0, 1]},
+        "aR": {"value": "s == 1 ? r2 : r1"},
+        "aN": {"value": "s == 1 ? n2 : n1"},
+        "bR": {"value": "s == 1 ? r1 : r2"},
+        "bN": {"value": "s == 1 ? n1 : n2"},
+        "best": {"value": "s == 1 ? 1 : 2"}
+      },
+      "where": ["r1 * n2 < r2 * n1"],
+      "answer": {
+        "type": "choice",
+        "value": "best",
+        "label": "{pick(value, 'Bag A', 'Bag B', 'Both the same', 'You cannot tell')}",
+        "order": "size"
+      },
+      "formats": [
+        {
+          "id": "bags",
+          "prompt": "Bag A has {aR} red marble{aR == 1 ? '' : 's'} out of {aN}. Bag B has {bR} red marble{bR == 1 ? '' : 's'} out of {bN}. You pick one marble from one bag without looking. Which bag gives a better chance of red?"
+        }
+      ],
+      "hints": [
+        "The chance of red is the red marbles out of all the marbles in that bag.",
+        "Bag A: {aR}/{aN}. Bag B: {bR}/{bN}.",
+        "It is not 'You cannot tell': write both chances with the same bottom number and compare."
+      ],
+      "steps": [
+        "Bag A: {aR}/{aN} = {aR * bN}/{aN * bN}",
+        "Bag B: {bR}/{bN} = {bR * aN}/{aN * bN}",
+        "{best == 1 ? 'Bag A' : 'Bag B'} gives the better chance"
+      ],
+      "explain": "With the same bottom number, {aN * bN}, Bag A gives {aR * bN} and Bag B gives {bR * aN}. {best == 1 ? 'Bag A' : 'Bag B'} is better, even though {best == 1 ? 'Bag B' : 'Bag A'} has more red marbles.",
+      "distractors": [
+        {
+          "value": "3 - best",
+          "error": "picked-the-bag-with-more-red",
+          "feedback": "{pick(value, 'Bag A', 'Bag B', 'Both the same', 'You cannot tell')} has more red marbles, but also more marbles in all. Compare the chances, {aR}/{aN} and {bR}/{bN}, not the counts."
+        },
+        {
+          "value": "3",
+          "error": "said-both-the-same",
+          "feedback": "The chances are {aR}/{aN} and {bR}/{bN}, which are not equal. Write them with the same bottom number to see which is bigger."
+        },
+        {
+          "value": "4",
+          "error": "said-you-cannot-tell",
+          "feedback": "You can tell: the chance in each bag is its red marbles out of all its marbles, {aR}/{aN} and {bR}/{bN}. Compare them."
+        }
+      ]
+    },
+    {
+      "id": "probability.how-many-in-bag",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Work back from a probability and a count to the number of outcomes",
+      "schema": "work-backwards",
+      "params": {
+        "num": {"choose": [1, 2, 3]},
+        "den": {"choose": [3, 4, 5, 6]},
+        "k": {"range": [2, 8]},
+        "r": {"value": "num * k"},
+        "n": {"value": "den * k"}
+      },
+      "where": ["gcd(num, den) == 1", "num < den"],
+      "answer": {"type": "integer", "value": "n"},
+      "formats": [
+        {
+          "id": "marbles",
+          "prompt": "A bag holds red and blue marbles. The probability of picking red is {num}/{den}. There are {r} red marbles. How many marbles are in the bag?"
+        }
+      ],
+      "hints": [
+        "A probability of {num}/{den} means {num} out of every {den} marbles {num == 1 ? 'is' : 'are'} red.",
+        "{r} ÷ {num} = {k}, so there are {k} groups of {den} marbles, each with {num} red.",
+        "{k} × {den} = ?"
+      ],
+      "steps": ["{num} out of every {den} {num == 1 ? 'is' : 'are'} red", "{r} ÷ {num} = {k} groups", "{k} × {den} = {answer} marbles"],
+      "explain": "{r} red marbles are {num}/{den} of the bag, so it holds {r} ÷ {num} × {den} = {answer} marbles.",
+      "distractors": [
+        {
+          "value": "n - r",
+          "error": "gave-the-blue",
+          "feedback": "{value} is the blue marbles. The question asks for all the marbles, red and blue together."
+        },
+        {
+          "value": "r * den",
+          "error": "multiplied-by-the-bottom",
+          "feedback": "{value} is {r} × {den}. Only {num} in every {den} are red: divide {r} by {num} first."
         }
       ]
     }
