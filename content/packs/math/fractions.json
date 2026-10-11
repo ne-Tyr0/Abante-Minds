@@ -54,7 +54,7 @@
     {
       "id": "divide-in-steps",
       "title": "Divide in steps",
-      "templates": ["fractions.cut-the-rest", "fractions.share-the-rest", "fractions.pour-together"],
+      "templates": ["fractions.cut-the-rest", "fractions.share-the-rest", "fractions.pour-together", "fractions.cost-of-several"],
       "lesson": [
         { "title": "Take away first", "body": "When some is used before the rest is cut up or shared, take away what is used first. Then divide what is left." },
         { "title": "Worked example", "example": { "template": "fractions.cut-the-rest", "params": { "d": 4, "c": 3, "k": 5, "j": 1 }, "format": "ribbon" } },
@@ -1015,6 +1015,57 @@
           "value": "b",
           "error": "gave-the-bottom",
           "feedback": "{value} is just the bottom number. The reciprocal of {frac(a / b)} is {frac(b / a)}."
+        }
+      ]
+    },
+    {
+      "id": "fractions.cost-of-several",
+      "competency": "G6.Q1.14",
+      "domain": "NA",
+      "construct": "Find the price of 1 kg by dividing by a fraction, then the cost of several kilograms",
+      "schema": "multi-step",
+      "params": {
+        "b": {"range": [2, 5]},
+        "a": {"range": [1, "b - 1"]},
+        "k": {"range": [4, 40]},
+        "P": {"value": "5 * k * b"},
+        "price": {"value": "P * a / b"},
+        "n": {"range": [2, 5]}
+      },
+      "where": ["gcd(a, b) == 1", "P >= 100 && P <= 400", "n * a != b"],
+      "answer": {"type": "integer", "value": "P * n", "prefix": "₱"},
+      "formats": [
+        {
+          "id": "pork",
+          "prompt": "{frac(a / b)} kg of pork costs {peso(price)}. At the same price, how much do {n} kg cost?"
+        },
+        {
+          "id": "chicken",
+          "prompt": "Aling Rosa sells {frac(a / b)} kg of chicken for {peso(price)}. How much would {n} kg cost?"
+        }
+      ],
+      "hints": [
+        "First find the price of 1 kg: {peso(price)} ÷ {frac(a / b)}.",
+        "{peso(price)} ÷ {frac(a / b)} = {peso(price)} × {b}/{a} = {peso(P)}.",
+        "{peso(P)} × {n} = ?"
+      ],
+      "steps": ["1 kg: {peso(price)} ÷ {frac(a / b)} = {peso(P)}", "{n} kg: {peso(P)} × {n}", "= {peso(answer)}"],
+      "explain": "1 kg costs {peso(price)} ÷ {frac(a / b)} = {peso(P)}, so {n} kg cost {peso(answer)}.",
+      "distractors": [
+        {
+          "value": "P",
+          "error": "gave-the-price-of-one",
+          "feedback": "{peso(value)} is the price of 1 kg. The question asks for {n} kg."
+        },
+        {
+          "value": "price * n",
+          "error": "multiplied-the-part-price",
+          "feedback": "{peso(value)} is {n} times the price of {frac(a / b)} kg. Find the price of 1 kg first: {peso(price)} ÷ {frac(a / b)}."
+        },
+        {
+          "value": "price * a / b * n",
+          "error": "multiplied-by-the-fraction",
+          "feedback": "{peso(value)} multiplies by {frac(a / b)}. To find the price of 1 kg, divide by it."
         }
       ]
     }
