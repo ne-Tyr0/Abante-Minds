@@ -8,7 +8,7 @@
       "lesson": [
         {
           "title": "Prisms and pyramids",
-          "body": "A prism has two equal bases joined by rectangles. A pyramid has one base and triangles that meet at a point."
+          "body": "A prism has two equal bases joined by rectangles. A pyramid has one base and triangles that meet at a point. A cylinder has two circle ends and a cone has one, each with a curved surface; a sphere is curved all over."
         },
         {
           "title": "Worked example",
@@ -43,7 +43,7 @@
       "lesson": [
         {
           "title": "Length × width × height",
-          "body": "Volume is the space inside, counted in cubes. A box 4 cm by 3 cm by 2 cm holds 4 × 3 × 2 = 24 cubes of 1 cm³."
+          "body": "Volume is the space inside, counted in cubes. A box 4 cm by 3 cm by 2 cm holds 4 × 3 × 2 = 24 cubes of 1 cm³. In a picture of a block, count one layer and multiply by the number of layers: the cubes you cannot see count too."
         },
         {
           "title": "Worked example",
@@ -194,6 +194,10 @@
         {
           "id": "wire",
           "prompt": "A wire frame is made in the shape of a cube with edges {s} cm long. How many centimetres of wire does it use?"
+        },
+        {
+          "id": "lito",
+          "prompt": "Lito makes the edges of a cube out of wire. Each edge is {s} cm long. How many centimetres of wire does he use?"
         }
       ],
       "hints": ["A cube has 12 edges, all the same length.", "Each edge is {s} cm.", "12 × {s} = ?"],
@@ -234,6 +238,10 @@
         {
           "id": "frame",
           "prompt": "A box frame is {a} cm long, {b} cm wide and {c} cm high. How many centimetres of stick are needed for all its edges?"
+        },
+        {
+          "id": "ribbon",
+          "prompt": "Ribbon is glued along every edge of a gift box {a} cm long, {b} cm wide and {c} cm high. How many centimetres of ribbon are used?"
         }
       ],
       "hints": [
@@ -270,7 +278,13 @@
       "params": {"s": {"tiers": {"1": [2, 10], "3": [4, 25]}}},
       "where": ["s != 6"],
       "answer": {"type": "unit", "value": "6 * s * s", "unit": "cm²"},
-      "formats": [{"id": "cube", "prompt": "A cube has edges {s} cm long. What is its surface area?"}],
+      "formats": [
+        {"id": "cube", "prompt": "A cube has edges {s} cm long. What is its surface area?"},
+        {
+          "id": "paper",
+          "prompt": "How much paper covers all six faces of a cube with {s} cm edges, with no overlap?"
+        }
+      ],
       "hints": ["A cube has 6 faces, each a square.", "Each face is {s} × {s} = {s * s} cm².", "6 × {s * s} = ?"],
       "steps": ["One face: {s} × {s} = {s * s} cm²", "6 faces", "6 × {s * s} = {answer} cm²"],
       "explain": "6 faces of {s * s} cm²: {answer} cm².",
@@ -305,6 +319,10 @@
         {
           "id": "box",
           "prompt": "A box is {a} cm long, {b} cm wide and {c} cm high. What is its surface area?"
+        },
+        {
+          "id": "wrap",
+          "prompt": "How much paper covers a box {a} cm long, {b} cm wide and {c} cm high exactly, with no overlap?"
         }
       ],
       "hints": [
@@ -387,7 +405,13 @@
       "params": {"s": {"tiers": {"1": [2, 10], "3": [3, 30]}}},
       "where": ["s != 6"],
       "answer": {"type": "unit", "value": "s * s * s", "unit": "cm³"},
-      "formats": [{"id": "cube", "prompt": "A cube has edges {s} cm long. What is its volume?"}],
+      "formats": [
+        {"id": "cube", "prompt": "A cube has edges {s} cm long. What is its volume?"},
+        {
+          "id": "space",
+          "prompt": "A box shaped like a cube has edges of {s} cm. How much space is inside it?"
+        }
+      ],
       "hints": ["Volume of a cube = edge × edge × edge.", "{s} × {s} = {s * s}.", "{s * s} × {s} = ?"],
       "steps": ["Volume = {s} × {s} × {s}", "{s} × {s} = {s * s}", "{s * s} × {s} = {answer} cm³"],
       "explain": "{s} × {s} × {s} = {answer} cm³.",
@@ -461,6 +485,10 @@
         {
           "id": "box",
           "prompt": "A box has a volume of {V} cm³. It is {a} cm long and {b} cm wide. How high is it?"
+        },
+        {
+          "id": "sand",
+          "prompt": "A small box holds {V} cm³ of sand when full. Its base is {a} cm by {b} cm. How high is it?"
         }
       ],
       "hints": [
@@ -503,6 +531,11 @@
         {
           "id": "cubes",
           "prompt": "How many cubes with {e} cm edges fit exactly in a box {a} cm long, {b} cm wide and {c} cm high?"
+        },
+        {
+          "id": "blocks",
+          "prompt": "Wooden blocks shaped like cubes, with {e} cm edges, are packed into a box {a} cm long, {b} cm wide and {c} cm high, with no gaps. How many blocks fill it?",
+          "explain": "{p} × {q} × {r} = {answer} blocks."
         }
       ],
       "hints": [
@@ -651,6 +684,10 @@
         {
           "id": "tank",
           "prompt": "A fish tank is {a} cm long, {b} cm wide and {c} cm high. How many litres of water does it hold when full?"
+        },
+        {
+          "id": "aquarium",
+          "prompt": "An aquarium is {a} cm long, {b} cm wide and {c} cm high. How many litres of water fill it?"
         }
       ],
       "hints": [
@@ -692,6 +729,10 @@
         {
           "id": "pails",
           "prompt": "A tank is {a} cm long, {b} cm wide and {c} cm high. A pail holds {p} L. How many pails of water fill the tank?"
+        },
+        {
+          "id": "mang-ben",
+          "prompt": "Mang Ben fills a tank {a} cm long, {b} cm wide and {c} cm high, using a pail that holds {p} L. How many pails of water does it take?"
         }
       ],
       "hints": [

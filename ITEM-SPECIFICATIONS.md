@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.28.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.29.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -1553,9 +1553,9 @@ Find a length of time across midnight.
 - **Schema:** change (additive)
 - **Answer:** multiple choice
 - **Draws:** `s: 1140 to 1410 in steps of 5`; `e: 60 to 480 in steps of 5`
-- **Formats:** `bus`
+- **Formats:** `bus`, `province`
 - **Named mistakes:** `took-the-times-the-wrong-way`, `stopped-at-midnight`, `an-hour-short`
-- **Example:** An overnight bus leaves at 21:25 and arrives at 07:55 the next day. How long is the trip? Choices: 10 hours 30 minutes; 9 hours 30 minutes; 2 hours 35 minutes; 13 hours 30 minutes. **Answer: 10 hours 30 minutes**
+- **Example:** Lola's night bus to the province leaves at 21:25 and arrives at 07:55 the next day. How long is the trip? Choices: 2 hours 35 minutes; 10 hours 30 minutes; 13 hours 30 minutes; 9 hours 30 minutes. **Answer: 10 hours 30 minutes**
 
 #### `time.extra-bus`
 
@@ -1610,9 +1610,9 @@ Work back from a deadline through two lengths of time.
 - **Schema:** work-backwards (non-routine)
 - **Answer:** clock time
 - **Draws:** `e: 420 to 480 in steps of 5`; `r: 40 to 90 in steps of 5`; `w: 10 to 35 in steps of 5`
-- **Formats:** `school`
+- **Formats:** `school`, `mia`
 - **Named mistakes:** `forgot-the-walk`, `forgot-getting-ready`
-- **Example:** Ben must be at school by 07:40. Getting ready takes 40 minutes, and the walk to school takes 25 minutes. What is the latest time Ben can wake up? **Answer: 06:35**
+- **Example:** Mia's class starts at 07:40. She needs 40 minutes to get ready and 25 minutes to walk to school. What is the latest time she can wake up? **Answer: 06:35**
 
 **Level 4: Time zones** (`time-zones`, 5 templates)
 
@@ -1700,9 +1700,9 @@ Find the area of a parallelogram, telling the height from the slanted side.
 - **Schema:** equal-groups (multiplicative)
 - **Answer:** number with a unit, in cm²
 - **Draws:** `b: 4 to 15 (tiers 1–2), 8 to 30 (tiers 3–4)`; `h: 3 to 12 (tiers 1–2), 5 to 25 (tiers 3–4)`
-- **Formats:** `shape`
+- **Formats:** `shape`, `card`
 - **Named mistakes:** `used-the-slanted-side`, `gave-the-perimeter`, `halved-it`
-- **Example:** A parallelogram has a base of 11 cm, slanted sides of 5 cm and a height of 3 cm. What is its area? **Answer: 33 cm²**
+- **Example:** A piece of card is cut as a parallelogram with a base of 11 cm, slanted sides of 5 cm and a height of 3 cm. What is its area? **Answer: 33 cm²**
 
 #### `area.triangle`
 
@@ -1728,9 +1728,9 @@ Find the height of a triangle from its area and base.
 - **Answer:** number with a unit, in cm
 - **Draws:** `b: 4 to 12 (tiers 1–2), 6 to 20 (tiers 3–4)`; `h: 3 to 12 (tiers 1–2), 5 to 20 (tiers 3–4)`
 - **Kept only when:** `b * h % 2 == 0`
-- **Formats:** `shape`
+- **Formats:** `shape`, `flag`
 - **Named mistakes:** `forgot-to-double`, `took-away-instead`
-- **Example:** A triangle has an area of 48 cm² and a base of 8 cm. What is its height? **Answer: 12 cm**
+- **Example:** A triangular flag has an area of 48 cm² and a base of 8 cm. What is its height? **Answer: 12 cm**
 
 #### `area.extra-side`
 
@@ -1784,9 +1784,9 @@ Find the area of a trapezoid.
 - **Answer:** number with a unit, in cm²
 - **Draws:** `a: 3 to 12 (tiers 1–2), 5 to 25 (tiers 3–4)`; `b: 5 to 18 (tiers 1–2), 8 to 35 (tiers 3–4)`; `h: 2 to 10 (tiers 1–2), 4 to 20 (tiers 3–4)`
 - **Kept only when:** `a < b`; `(a + b) * h % 2 == 0`
-- **Formats:** `shape`
+- **Formats:** `shape`, `label`
 - **Named mistakes:** `forgot-to-halve`, `multiplied-the-sides`, `used-one-side`
-- **Example:** A trapezoid has parallel sides of 12 cm and 18 cm, and a height of 4 cm. What is its area? **Answer: 60 cm²**
+- **Example:** A paper label is cut as a trapezoid with parallel sides of 12 cm and 18 cm, and a height of 4 cm. What is its area? **Answer: 60 cm²**
 
 #### `area.trapezoid-lot`
 
@@ -1852,9 +1852,9 @@ Count square tiles for a floor, converting metres to centimetres.
 - **Schema:** multi-step (non-routine)
 - **Answer:** whole number
 - **Draws:** `t: one of 20, 25, 50`; `W: 2 to 4 (tiers 1–2), 2 to 8 (tiers 3–4)`; `L: 2 to 5 (tiers 1–2), 3 to 10 (tiers 3–4)`
-- **Formats:** `floor`
+- **Formats:** `floor`, `store`
 - **Named mistakes:** `did-not-convert`, `added-instead`
-- **Example:** A floor is 2 m by 4 m. How many square tiles, 25 cm on each side, cover it? **Answer: 128**
+- **Example:** The floor of a sari-sari store is 2 m by 4 m. It is covered with square tiles 25 cm on each side. How many tiles are used? **Answer: 128**
 
 **Level 4: Composite figures** (`composite`, 4 templates)
 
@@ -1867,9 +1867,9 @@ Find the area of an L-shaped figure by taking a corner away.
 - **Schema:** part-whole (multiplicative)
 - **Answer:** number with a unit, in m²
 - **Draws:** `W: 6 to 12 (tiers 1–2), 8 to 20 (tiers 3–4)`; `H: 5 to 10 (tiers 1–2), 7 to 18 (tiers 3–4)`; `w: 2 to W - 2`; `h: 2 to H - 2`
-- **Formats:** `room`
+- **Formats:** `room`, `garden`
 - **Named mistakes:** `added-the-corner`, `gave-the-whole-rectangle`
-- **Example:** An L-shaped room is made from a rectangle 10 m by 5 m, with a corner 5 m by 3 m cut away. What is the area of the room? **Answer: 35 m²**
+- **Example:** A garden is a rectangle 10 m by 5 m, with a corner 5 m by 3 m taken out for a shed. What is the area of the garden? **Answer: 35 m²**
 
 #### `area.house-wall`
 
@@ -1881,9 +1881,9 @@ Find the area of a rectangle with a triangle on top.
 - **Answer:** number with a unit, in m²
 - **Draws:** `w: 4 to 10 (tiers 1–2), 6 to 16 (tiers 3–4)`; `h: 2 to 6 (tiers 1–2), 3 to 9 (tiers 3–4)`; `t: 2 to 6 (tiers 1–2), 2 to 8 (tiers 3–4)`
 - **Kept only when:** `w * t % 2 == 0`
-- **Formats:** `wall`
+- **Formats:** `wall`, `billboard`
 - **Named mistakes:** `forgot-to-halve-the-triangle`, `left-out-the-triangle`
-- **Example:** The end wall of a house is a rectangle 8 m wide and 2 m high, with a triangle on top that is 8 m wide and 4 m high. What is the area of the wall? **Answer: 32 m²**
+- **Example:** A billboard is a rectangle 8 m wide and 2 m high, with a triangle 4 m high on top along its whole width. What is the area of the billboard? **Answer: 32 m²**
 
 #### `area.l-perimeter`
 
@@ -1908,7 +1908,7 @@ Solve a painting problem with area.
 - **Answer:** whole number
 - **Draws:** `c: one of 4, 5, 6, 8, 10`; `w: 3 to 8 (tiers 1–2), 4 to 12 (tiers 3–4)`; `h: 2 to 4 (tiers 1–2), 2 to 5 (tiers 3–4)`
 - **Kept only when:** `A % c == 0`
-- **Formats:** `wall`
+- **Formats:** `wall`, `store`
 - **Named mistakes:** `gave-the-area`, `used-the-perimeter`
 - **Example:** A wall is 4 m long and 4 m high. One can of paint covers 8 m². How many cans are needed to paint the wall once? **Answer: 2**
 
@@ -1953,7 +1953,7 @@ Find the total length of a cube's edges.
 - **Schema:** equal-groups (multiplicative)
 - **Answer:** number with a unit, in cm
 - **Draws:** `s: 2 to 12 (tiers 1–2), 5 to 40 (tiers 3–4)`
-- **Formats:** `wire`
+- **Formats:** `wire`, `lito`
 - **Named mistakes:** `counted-faces`, `counted-vertices`, `counted-one-face`
 - **Example:** A wire frame is made in the shape of a cube with edges 8 cm long. How many centimetres of wire does it use? **Answer: 96 cm**
 
@@ -1967,9 +1967,9 @@ Find the total length of a rectangular prism's edges.
 - **Answer:** number with a unit, in cm
 - **Draws:** `a: 3 to 12 (tiers 1–2), 5 to 30 (tiers 3–4)`; `b: 2 to 10 (tiers 1–2), 4 to 25 (tiers 3–4)`; `c: 2 to 8 (tiers 1–2), 3 to 20 (tiers 3–4)`
 - **Kept only when:** `a != b`; `b != c`; `a != c`
-- **Formats:** `frame`
+- **Formats:** `frame`, `ribbon`
 - **Named mistakes:** `counted-one-of-each`, `counted-two-of-each`, `gave-the-volume`
-- **Example:** A box frame is 9 cm long, 2 cm wide and 5 cm high. How many centimetres of stick are needed for all its edges? **Answer: 64 cm**
+- **Example:** Ribbon is glued along every edge of a gift box 9 cm long, 2 cm wide and 5 cm high. How many centimetres of ribbon are used? **Answer: 64 cm**
 
 #### `solids.solid-from-faces`
 
@@ -2035,7 +2035,7 @@ Find the surface area of a cube.
 - **Answer:** number with a unit, in cm²
 - **Draws:** `s: 2 to 10 (tiers 1–2), 4 to 25 (tiers 3–4)`
 - **Kept only when:** `s != 6`
-- **Formats:** `cube`
+- **Formats:** `cube`, `paper`
 - **Named mistakes:** `gave-the-volume`, `gave-one-face`, `counted-four-faces`
 - **Example:** A cube has edges 7 cm long. What is its surface area? **Answer: 294 cm²**
 
@@ -2049,9 +2049,9 @@ Find the surface area of a rectangular prism.
 - **Answer:** number with a unit, in cm²
 - **Draws:** `a: 3 to 10 (tiers 1–2), 5 to 20 (tiers 3–4)`; `b: 2 to 8 (tiers 1–2), 4 to 15 (tiers 3–4)`; `c: 2 to 6 (tiers 1–2), 3 to 12 (tiers 3–4)`
 - **Kept only when:** `a != b`; `b != c`
-- **Formats:** `box`
+- **Formats:** `box`, `wrap`
 - **Named mistakes:** `counted-one-of-each`, `gave-the-volume`
-- **Example:** A box is 8 cm long, 2 cm wide and 4 cm high. What is its surface area? **Answer: 112 cm²**
+- **Example:** How much paper covers a box 8 cm long, 2 cm wide and 4 cm high exactly, with no overlap? **Answer: 112 cm²**
 
 #### `solids.open-box`
 
@@ -2079,7 +2079,7 @@ Find the volume of a cube.
 - **Answer:** number with a unit, in cm³
 - **Draws:** `s: 2 to 10 (tiers 1–2), 3 to 30 (tiers 3–4)`
 - **Kept only when:** `s != 6`
-- **Formats:** `cube`
+- **Formats:** `cube`, `space`
 - **Named mistakes:** `multiplied-by-3`, `gave-the-surface-area`, `gave-one-face`
 - **Example:** A cube has edges 7 cm long. What is its volume? **Answer: 343 cm³**
 
@@ -2105,9 +2105,9 @@ Find a missing edge from the volume.
 - **Schema:** work-backwards (non-routine)
 - **Answer:** number with a unit, in cm
 - **Draws:** `a: 2 to 10 (tiers 1–2), 4 to 20 (tiers 3–4)`; `b: 2 to 8 (tiers 1–2), 3 to 15 (tiers 3–4)`; `c: 2 to 9 (tiers 1–2), 3 to 15 (tiers 3–4)`
-- **Formats:** `box`
+- **Formats:** `box`, `sand`
 - **Named mistakes:** `took-away-instead`, `divided-by-one-edge`
-- **Example:** A box has a volume of 84 cm³. It is 7 cm long and 2 cm wide. How high is it? **Answer: 6 cm**
+- **Example:** A small box holds 84 cm³ of sand when full. Its base is 7 cm by 2 cm. How high is it? **Answer: 6 cm**
 
 #### `solids.cubes-in-box`
 
@@ -2118,9 +2118,9 @@ Count how many small cubes fit in a box.
 - **Schema:** multi-step (non-routine)
 - **Answer:** whole number
 - **Draws:** `e: one of 2, 3, 5`; `p: 2 to 6`; `q: 2 to 6`; `r: 1 to 5`
-- **Formats:** `cubes`
+- **Formats:** `cubes`, `blocks`
 - **Named mistakes:** `gave-the-box-volume`, `divided-by-the-edge`
-- **Example:** How many cubes with 3 cm edges fit exactly in a box 6 cm long, 12 cm wide and 15 cm high? **Answer: 40**
+- **Example:** Wooden blocks shaped like cubes, with 3 cm edges, are packed into a box 6 cm long, 12 cm wide and 15 cm high, with no gaps. How many blocks fill it? **Answer: 40**
 
 #### `solids.extra-parcel`
 
@@ -2214,9 +2214,9 @@ Find how many litres a tank holds.
 - **Schema:** multi-step (non-routine)
 - **Answer:** number with a unit, in L
 - **Draws:** `a: one of 20, 25, 30, 40, 50, 60`; `b: one of 10, 20, 25, 30, 40`; `c: one of 10, 15, 20, 25, 30, 40`
-- **Formats:** `tank`
+- **Formats:** `tank`, `aquarium`
 - **Named mistakes:** `did-not-convert`, `divided-by-100`
-- **Example:** A fish tank is 40 cm long, 10 cm wide and 25 cm high. How many litres of water does it hold when full? **Answer: 10 L**
+- **Example:** An aquarium is 40 cm long, 10 cm wide and 25 cm high. How many litres of water fill it? **Answer: 10 L**
 
 #### `solids.pails`
 
@@ -2228,9 +2228,9 @@ Find how many containers fill a tank.
 - **Answer:** whole number
 - **Draws:** `p: one of 2, 4, 5, 8, 10`; `a: one of 40, 50, 60, 80, 100`; `b: one of 20, 25, 40, 50`; `c: one of 20, 25, 40, 50`
 - **Kept only when:** `floor(L) == L && L % p == 0`
-- **Formats:** `pails`
+- **Formats:** `pails`, `mang-ben`
 - **Named mistakes:** `gave-the-litres`, `did-not-convert`
-- **Example:** A tank is 40 cm long, 40 cm wide and 50 cm high. A pail holds 8 L. How many pails of water fill the tank? **Answer: 10**
+- **Example:** Mang Ben fills a tank 40 cm long, 40 cm wide and 50 cm high, using a pail that holds 8 L. How many pails of water does it take? **Answer: 10**
 
 #### `solids.water-depth`
 
@@ -2328,7 +2328,7 @@ Find how far a wheel rolls in one turn, with π = 22/7.
 - **Schema:** multiplicative-compare (multiplicative)
 - **Answer:** number with a unit, in cm
 - **Draws:** `k: 1 to 6 (tiers 1–2), 2 to 14 (tiers 3–4)`
-- **Formats:** `wheel`
+- **Formats:** `wheel`, `wheelbarrow`
 - **Named mistakes:** `used-the-diameter-as-radius`, `gave-the-diameter`
 - **Example:** Use π = 22/7. A wheel has a diameter of 28 cm. How far does it roll in one full turn? **Answer: 88 cm**
 
