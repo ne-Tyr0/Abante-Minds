@@ -729,7 +729,7 @@ const FIGS = {
   manifest: Object.assign({}, PACK.manifest, { topics: [{ key: "g", label: "Figures", icon: "star", colorKey: 1, file: "g.json" }] }),
   files: [{
     topic: "g",
-    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side", "g.grid", "g.move", "g.pick", "g.same"] }],
+    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side", "g.grid", "g.move", "g.pick", "g.same", "g.cubes"] }],
     templates: [
       T("g.tiling", { params: ONE_TO(6), chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "5", count: "a" }] } }),
       T("g.two", { chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "8", count: "2" }, { sides: "4", count: "1" }] } }),
@@ -746,6 +746,7 @@ const FIGS = {
           points: [["1", "1"], ["2", "1"], ["1", "3"]], image: [["value + 1", "1"], ["value + 2", "1"], ["value + 1", "3"]] } },
         distractors: [{ value: "2", error: "two", feedback: "Two." }, { value: "3", error: "three", feedback: "Three." }, { value: "4", error: "four", feedback: "Four." }]
       }),
+      T("g.cubes", { params: ONE_TO(9), chart: { kind: "cubes", title: "Block", length: "a", width: "2", height: "1" } }),
       /* ...and a figure that ignores the value, so every option looks the same. */
       T("g.same", {
         answer: { type: "choice", value: "1", order: "mixed", figure: { kind: "grid", cols: "6", rows: "4",
@@ -809,6 +810,14 @@ test("picture choices: each option drawn with its own value, lettered, and named
   const c = C.instance("t.choice", 1, { a: 2, b: 3 });
   assert.strictEqual(C.choiceText(c, c.answerIndex), "6 things", "an option in words is its label");
   assert.ok(!("choiceFigures" in c));
+});
+test("figures: a block of small cubes, counted along each edge", () => {
+  C.use(FIGS.manifest, FIGS.files);
+  const b = C.instance("g.cubes", 1, { a: 4 }).chart;
+  assert.deepStrictEqual([b.length, b.width, b.height], [4, 2, 1]);
+  assert.strictEqual(b.text, "Picture: a block built from small cubes with no gaps, 4 cubes long, 2 cubes deep and 1 cube high.");
+  throws(() => C.instance("g.cubes", 1, { a: 9 }), /a block's length in cubes is 1 to 8/);
+  C.use(PACK.manifest, PACK.files);
 });
 test("figures: a clock face and a mirror line", () => {
   C.use(FIGS.manifest, FIGS.files);

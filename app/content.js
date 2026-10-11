@@ -564,8 +564,9 @@
     return v;
   }
   /* A picture: shapes round a point, a clock face, a mirror line on squared
-     paper, or a shape drawn on a grid with its corners on grid points --
-     with, for a move, its image, the mirror line or the point it turns about. */
+     paper, a shape drawn on a grid with its corners on grid points -- with,
+     for a move, its image, the mirror line or the point it turns about -- or
+     a block built from small cubes. */
   function renderFigure(spec, scope, c) {
     if (spec.kind === "tiling") {
       var used = 0;
@@ -603,6 +604,13 @@
         c.text += " A dot marks the point " + spot(c.dot) + ".";
       }
       c.text += " Each square is 1 square unit.";
+    } else if (spec.kind === "cubes") {
+      c.length = whole(spec.length, scope, 1, 8, "a block's length in cubes");
+      c.width = whole(spec.width, scope, 1, 6, "a block's depth in cubes");
+      c.height = whole(spec.height, scope, 1, 6, "a block's height in cubes");
+      var cubes = function (n) { return n + (n === 1 ? " cube" : " cubes"); };
+      c.text = "Picture: a block built from small cubes with no gaps, " + cubes(c.length) + " long, " + cubes(c.width) + " deep and " +
+        cubes(c.height) + " high.";
     } else if (spec.kind === "clock") {
       c.hand = whole(spec.hand, scope, 1, 12, "a clock hand");
       c.text = "Picture: a clock face, with its hand pointing to " + c.hand + ".";
@@ -622,7 +630,7 @@
   }
   function renderChart(spec, scope) {
     var c = { kind: spec.kind, title: interpolate(spec.title, scope) };
-    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror" || spec.kind === "grid") return renderFigure(spec, scope, c);
+    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror" || spec.kind === "grid" || spec.kind === "cubes") return renderFigure(spec, scope, c);
     if (spec.kind === "pie") {
       c.unit = spec.unit;
       c.slices = spec.slices.map(function (s) {

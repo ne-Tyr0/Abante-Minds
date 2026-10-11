@@ -59,11 +59,12 @@ let usesFractionAnswers = false;
 const FORMAT_KEYS = new Set(["id", "prompt", "hints", "steps", "explain"]);
 const DISTRACTOR_KEYS = new Set(["value", "error", "feedback"]);
 const CHART_KEYS = new Set(["kind", "title", "axis", "categories", "series", "step", "label", "unit", "slices",
-  "shapes", "hand", "distance", "side", "cols", "rows", "points", "image", "line", "dot"]);
-const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror", "grid"];
+  "shapes", "hand", "distance", "side", "cols", "rows", "points", "image", "line", "dot", "length", "width", "height"]);
+const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror", "grid", "cubes"];
 /* A picture takes only its own fields: the shapes round a point, the hour a
    clock hand points to, or a point's distance and side from a mirror line. */
-const FIGURE_FIELDS = { tiling: ["shapes"], clock: ["hand"], mirror: ["distance", "side"], grid: ["cols", "rows", "points", "image", "line", "dot"] };
+const FIGURE_FIELDS = { tiling: ["shapes"], clock: ["hand"], mirror: ["distance", "side"], grid: ["cols", "rows", "points", "image", "line", "dot"],
+  cubes: ["length", "width", "height"] };
 const GRAPH_ONLY = ["axis", "categories", "series", "step", "label", "unit", "slices"];
 const PIE_TOTAL = { "%": 100, "°": 360 };
 /* What fits on a phone: the category names along a graph's bottom share its
@@ -566,7 +567,9 @@ function inspectChart(c, label, option) {
     }
     if (c.slices.filter((s) => s.hidden).length > 1) bad("hides more than one slice");
     if (new Set(c.slices.map((s) => s.name)).size !== c.slices.length) bad("names two slices the same");
-  } else {
+  } else if (c.kind !== "cubes") {
+    /* A block of cubes has only its words to read: the engine keeps each
+       count in range. Everything else here is a graph or a table. */
     words.push(c.axis, ...c.categories, ...c.series.flatMap((s) => [s.name, ...s.labels]));
     if (new Set(c.categories).size !== c.categories.length) bad("names two categories the same");
     if (new Set(c.series.map((s) => s.name)).size !== c.series.length) bad("names two series the same");
