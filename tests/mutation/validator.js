@@ -33,6 +33,7 @@ const ttpl = (j, id) => j.templates.find((t) => t.id === "times." + id);
 const PIECES = { template: "decimals.how-many-pieces", params: { vi: 25, t: 30, p: 45 } };
 const DA = "data.json", TR = "transform.json";
 const figure = (j, id) => j.templates.find((t) => t.id === "transform." + id).chart;
+const pick = (j, move) => j.templates.find((t) => t.id === "transform.pick-the-" + move);
 const chart = (j, id) => j.templates.find((t) => t.id === "data." + id).chart;
 const pin = (j, p) => { j.pinned = [Object.assign({}, PIECES, p, { params: Object.assign({}, PIECES.params, p && p.params) })]; };
 
@@ -237,6 +238,17 @@ const MUTANTS = [
   ["clock with no hand", TR, (j) => { delete figure(j, "clock-turn").hand; }, "chart hand must be an expression"],
   ["point off the paper", TR, (j) => { figure(j, "mirror-distance").distance = "d + 10"; }, "the distance from the mirror line is 1 to 10"],
   ["picture that uses the answer", TR, (j) => { figure(j, "clock-turn").hand = "answer"; }, "chart hand uses 'answer'"],
+  ["picture option on a typed answer", TR, (j) => { const t = j.templates.find((x) => x.id === "transform.regular-angle"); t.answer.figure = pick(j, "flip").answer.figure; }, "figure is only for choice answers"],
+  ["picture options with a label", TR, (j) => { pick(j, "flip").answer.label = "{value}"; }, "a choice of pictures has no label"],
+  ["picture options in order of size", TR, (j) => { pick(j, "flip").answer.order = "size"; }, "a choice of pictures has order 'mixed'"],
+  ["picture option with a title", TR, (j) => { pick(j, "flip").answer.figure.title = "Option"; }, "a picture option has no title"],
+  ["picture option that is a graph", TR, (j) => { pick(j, "flip").answer.figure.kind = "bar"; }, "a picture option is a"],
+  ["image short of a corner", TR, (j) => { pick(j, "flip").answer.figure.image.pop(); }, "an image has as many corners as its shape"],
+  ["mirror line of one end", TR, (j) => { pick(j, "flip").chart.line.pop(); }, "a mirror line is [from, to]"],
+  ["dot that is not a point", TR, (j) => { pick(j, "turn").chart.dot = ["px"]; }, "dot 0 is [across, up]"],
+  ["image stretched", TR, (j) => { pick(j, "slide").answer.figure.image[1][0] = "x0 + w + a + 1"; }, "image is not the shape moved"],
+  ["mirror line with no length", TR, (j) => { pick(j, "flip").chart.line[1] = ["m", "0"]; }, "mirror line has no length"],
+  ["lesson that shows picture options", TR, (j) => { lvl(j, "moves").lesson.find((c) => c.example).example = { template: "transform.pick-the-turn", format: "turn", params: { w: 3, t: 1, h: 2, dir: 1 } }; }, "whose options are pictures"],
   ["grid shape of two corners", "area.json", (j) => { const c = j.templates.find((t) => t.id === "area.grid-triangle").chart; c.points = c.points.slice(0, 2); }, "a grid picture has a shape of 3 to 6 corners"],
   ["grid shape with no area", "area.json", (j) => { j.templates.find((t) => t.id === "area.grid-triangle").chart.points[2] = ["b + 1", "1"]; }, "shape has no area"],
   ["grid corner off the paper", "area.json", (j) => { j.templates.find((t) => t.id === "area.grid-triangle").chart.points[1] = ["b + 3", "1"]; }, "a corner's distance across is 0 to"],

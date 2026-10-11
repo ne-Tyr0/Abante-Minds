@@ -45,7 +45,7 @@ const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const TEMPLATE_KEYS = new Set(["id", "competency", "domain", "construct", "schema", "params", "where",
   "answer", "formats", "hints", "steps", "explain", "fallback", "distractors", "grid", "chart"]);
-const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals", "unit", "form", "order"]);
+const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals", "unit", "form", "order", "figure"]);
 const TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file", "comingSoon", "weight"]);
 const LEVEL_KEYS = new Set(["id", "title", "templates", "lesson", "kind"]);
 const BASICS_TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file"]);
@@ -59,11 +59,11 @@ let usesFractionAnswers = false;
 const FORMAT_KEYS = new Set(["id", "prompt", "hints", "steps", "explain"]);
 const DISTRACTOR_KEYS = new Set(["value", "error", "feedback"]);
 const CHART_KEYS = new Set(["kind", "title", "axis", "categories", "series", "step", "label", "unit", "slices",
-  "shapes", "hand", "distance", "side", "cols", "rows", "points"]);
+  "shapes", "hand", "distance", "side", "cols", "rows", "points", "image", "line", "dot"]);
 const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror", "grid"];
 /* A picture takes only its own fields: the shapes round a point, the hour a
    clock hand points to, or a point's distance and side from a mirror line. */
-const FIGURE_FIELDS = { tiling: ["shapes"], clock: ["hand"], mirror: ["distance", "side"], grid: ["cols", "rows", "points"] };
+const FIGURE_FIELDS = { tiling: ["shapes"], clock: ["hand"], mirror: ["distance", "side"], grid: ["cols", "rows", "points", "image", "line", "dot"] };
 const GRAPH_ONLY = ["axis", "categories", "series", "step", "label", "unit", "slices"];
 const PIE_TOTAL = { "%": 100, "°": 360 };
 /* What fits on a phone: the category names along a graph's bottom share its
@@ -142,12 +142,17 @@ function checkParams(t) {
 }
 
 /* A chart is part of the question, so like the prompt it may only use the
-   drawn values, never the answer. */
-function checkChart(c, params) {
+   drawn values, never the answer. A picture option is drawn the same way,
+   once per option, with that option's value; it has no title, since its
+   letter names it. */
+function checkChart(c, params, option) {
   if (!c || typeof c !== "object" || Array.isArray(c)) { fail("chart must be an object"); return; }
   unknownKeys(c, CHART_KEYS, "chart");
   if (!CHART_KINDS.includes(c.kind)) { fail(`chart kind is one of ${CHART_KINDS.join(", ")}`); return; }
-  text(c.title, params, "chart title");
+  if (option) {
+    if (!(c.kind in FIGURE_FIELDS)) { fail(`a picture option is a ${Object.keys(FIGURE_FIELDS).join(", ")} picture, not a ${c.kind}`); return; }
+    if ("title" in c) fail("a picture option has no title: its letter names it");
+  } else text(c.title, params, "chart title");
   if (c.kind in FIGURE_FIELDS) {
     const own = FIGURE_FIELDS[c.kind];
     for (const k of [...GRAPH_ONLY, ...Object.values(FIGURE_FIELDS).flat()]) if (k in c && !own.includes(k)) fail(`a ${c.kind} picture has no ${k}`);
@@ -162,11 +167,22 @@ function checkChart(c, params) {
       expr(c.cols, params, "chart cols");
       expr(c.rows, params, "chart rows");
       if (!Array.isArray(c.points) || c.points.length < 3 || c.points.length > 6) { fail("a grid picture has a shape of 3 to 6 corners"); return; }
-      c.points.forEach((p, i) => {
-        if (!Array.isArray(p) || p.length !== 2) { fail(`corner ${i} is [across, up]`); return; }
-        expr(p[0], params, `corner ${i} across`);
-        expr(p[1], params, `corner ${i} up`);
+      const spots = (list, what) => list.forEach((p, i) => {
+        if (!Array.isArray(p) || p.length !== 2) { fail(`${what} ${i} is [across, up]`); return; }
+        expr(p[0], params, `${what} ${i} across`);
+        expr(p[1], params, `${what} ${i} up`);
       });
+      spots(c.points, "corner");
+      /* A move: the image has the shape's corners, in the same order. */
+      if ("image" in c) {
+        if (!Array.isArray(c.image) || c.image.length !== c.points.length) fail("an image has as many corners as its shape");
+        else spots(c.image, "image corner");
+      }
+      if ("line" in c) {
+        if (!Array.isArray(c.line) || c.line.length !== 2) fail("a mirror line is [from, to]");
+        else spots(c.line, "line end");
+      }
+      if ("dot" in c) spots([c.dot], "dot");
     } else for (const k of own) expr(c[k], params, `chart ${k}`);
     return;
   }
@@ -254,7 +270,15 @@ function checkTemplate(t, topic, ids, track = "path") {
   if (fractional) usesFractionAnswers = true;
   if ("form" in a && (!fractional || !["lowest", "any"].includes(a.form)))
     fail("form is only for fraction and mixed answers, and is 'lowest' or 'any'");
-  if (a.type === "choice") text(a.label, withValue, "answer label");
+  if ("figure" in a) {
+    /* Options that are pictures: drawn per option, told apart by letter, and
+       mixed, since in order of size the right picture would always sit in
+       the same place. */
+    if (a.type !== "choice") fail("figure is only for choice answers");
+    if ("label" in a) fail("a choice of pictures has no label: its options are lettered");
+    if (a.order !== "mixed") fail("a choice of pictures has order 'mixed'");
+    checkChart(a.figure, withValue, true);
+  } else if (a.type === "choice") text(a.label, withValue, "answer label");
   else if ("label" in a) fail("label is only for choice answers");
   if ("order" in a && (a.type !== "choice" || !["size", "mixed"].includes(a.order)))
     fail("order is only for choice answers, and is 'size' or 'mixed'");
@@ -383,6 +407,8 @@ function checkLevels(file, topic, byId, track = "path") {
         unknownKeys(c, new Set(["title", "example"]), cl);
         unknownKeys(c.example, new Set(["template", "params", "format"]), cl);
         if (!(lv.templates || []).includes(c.example.template)) fail(`${cl} uses ${c.example.template}, which is not in this level`);
+        else if (byId[c.example.template].answer && byId[c.example.template].answer.figure)
+          fail(`${cl} uses ${c.example.template}, whose options are pictures; a worked example gives its answer in words`);
         else checkPinned(c.example, byId, topic, "lesson example");
       } else {
         unknownKeys(c, new Set(["title", "body"]), cl);
@@ -495,6 +521,10 @@ function inspect(q, label) {
   if (q.type === "choice") {
     if (q.choices.length !== 4 || new Set(q.choices).size !== 4) fail(`${label}: choices are not four different options`);
     if (!(q.answerIndex >= 0 && q.answerIndex < 4)) fail(`${label}: the answer is not among the choices`);
+    if (q.choiceFigures) {
+      if (q.choiceFigures.length !== 4 || new Set(q.choiceFigures.map((f) => f.text)).size !== 4) fail(`${label}: picture options are not four different pictures`);
+      q.choiceFigures.forEach((f, i) => inspectChart(f, `${label} option ${q.choices[i]}`, true));
+    }
   }
   if (!C.isCorrect(q, q.type === "choice" ? q.answerIndex : q.answerText)) fail(`${label}: the checker rejects its own answer`);
   if (q.chart) inspectChart(q.chart, label);
@@ -502,9 +532,9 @@ function inspect(q, label) {
 
 /* A chart as the learner would see it: every value readable, every label
    short enough to fit, and a pie that is one whole. */
-function inspectChart(c, label) {
+function inspectChart(c, label, option) {
   const bad = (msg) => fail(`${label}: chart ${msg}`);
-  const words = [c.title, c.text];
+  const words = option ? [c.text] : [c.title, c.text];
   if (c.kind === "tiling") {
     if (!(c.gap >= 0)) bad(`shapes overlap round the point`);
     words.push(...c.shapes.map((s) => s.name));
@@ -515,6 +545,14 @@ function inspectChart(c, label) {
     const twice = c.points.reduce((a, p, i) => a + p[0] * c.points[(i + 1) % c.points.length][1] - c.points[(i + 1) % c.points.length][0] * p[1], 0);
     if (twice === 0) bad("shape has no area");
     if (new Set(c.points.map((p) => p.join(","))).size !== c.points.length) bad("shape has a corner twice");
+    /* A slide, flip or turn keeps every distance: corner by corner, the
+       image is the shape moved, not stretched or redrawn. */
+    if (c.image) {
+      const far = (ps, i, j) => (ps[i][0] - ps[j][0]) ** 2 + (ps[i][1] - ps[j][1]) ** 2;
+      const kept = c.points.every((p, i) => c.points.every((q, j) => far(c.points, i, j) === far(c.image, i, j)));
+      if (!kept) bad("image is not the shape moved: the distances between its corners differ");
+    }
+    if (c.line && c.line[0].join(",") === c.line[1].join(",")) bad("mirror line has no length");
   } else if (c.kind === "mirror") {
     if (!["left", "right"].includes(c.side)) bad(`point is to the ${c.side} of the line`);
   } else if (c.kind === "pie") {

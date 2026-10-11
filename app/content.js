@@ -527,7 +527,12 @@
          options are shuffled, deterministically for the question. */
       if (t.answer.order === "mixed") shuffle(values, meta.r || rng(hashText(JSON.stringify(scope, ratJSON))));
       q.choiceValues = values;
-      q.choices = values.map(function (v) {
+      /* Options that are pictures are told apart by letter, and each
+         picture's words are its name for a screen reader. */
+      if (t.answer.figure) {
+        q.choiceFigures = values.map(function (v) { return optionFigure(t, scope, v); });
+        q.choices = values.map(function (v, i) { return LETTERS.charAt(i); });
+      } else q.choices = values.map(function (v) {
         var ls = within(scope);
         ls.value = v;
         return interpolate(t.answer.label || "{fmt(value)}", ls);
@@ -559,7 +564,8 @@
     return v;
   }
   /* A picture: shapes round a point, a clock face, a mirror line on squared
-     paper, or a shape drawn on a grid with its corners on grid points. */
+     paper, or a shape drawn on a grid with its corners on grid points --
+     with, for a move, its image, the mirror line or the point it turns about. */
   function renderFigure(spec, scope, c) {
     if (spec.kind === "tiling") {
       var used = 0;
@@ -577,11 +583,26 @@
     } else if (spec.kind === "grid") {
       c.cols = whole(spec.cols, scope, 2, 16, "a grid's width");
       c.rows = whole(spec.rows, scope, 2, 12, "a grid's height");
-      c.points = spec.points.map(function (p) {
+      var onGrid = function (p) {
         return [whole(p[0], scope, 0, c.cols, "a corner's distance across"), whole(p[1], scope, 0, c.rows, "a corner's height")];
-      });
+      };
+      var spot = function (p) { return p[0] + " across and " + p[1] + " up"; };
+      c.points = spec.points.map(onGrid);
       c.text = "Picture: squared paper " + c.cols + " squares across and " + c.rows + " up, with a shape whose corners are at " +
-        c.points.map(function (p) { return p[0] + " across and " + p[1] + " up"; }).join("; ") + ". Each square is 1 square unit.";
+        c.points.map(spot).join("; ") + ".";
+      if (spec.image) {
+        c.image = spec.image.map(onGrid);
+        c.text += " Its image after the move has corners at " + c.image.map(spot).join("; ") + ".";
+      }
+      if (spec.line) {
+        c.line = spec.line.map(onGrid);
+        c.text += " A mirror line runs from " + spot(c.line[0]) + " to " + spot(c.line[1]) + ".";
+      }
+      if (spec.dot) {
+        c.dot = onGrid(spec.dot);
+        c.text += " A dot marks the point " + spot(c.dot) + ".";
+      }
+      c.text += " Each square is 1 square unit.";
     } else if (spec.kind === "clock") {
       c.hand = whole(spec.hand, scope, 1, 12, "a clock hand");
       c.text = "Picture: a clock face, with its hand pointing to " + c.hand + ".";
@@ -684,7 +705,9 @@
   }
 
   /* A choice item needs four different, sensible options, every one of them a
-     named mistake. Rather than invent a filler option, draw again. */
+     named mistake. Rather than invent a filler option, draw again. Options
+     that are pictures must also look different: a shape that matches its own
+     mirror image would draw the flip and the slide the same. */
   function choiceUsable(t, scope) {
     var vals = [scope.answer];
     for (var i = 0; i < (t.distractors || []).length; i++) {
@@ -694,7 +717,21 @@
     }
     for (var a = 0; a < vals.length; a++)
       for (var b = a + 1; b < vals.length; b++) if (eq(vals[a], vals[b])) return false;
+    if (t.answer.figure) {
+      var drawn = vals.map(function (x) { return optionFigure(t, scope, x).text; });
+      for (var p = 0; p < drawn.length; p++)
+        for (var q = p + 1; q < drawn.length; q++) if (drawn[p] === drawn[q]) return false;
+    }
     return true;
+  }
+
+  /* One option of a picture choice: the template's figure, drawn with that
+     option's value. */
+  var LETTERS = "ABCD";
+  function optionFigure(t, scope, v) {
+    var ls = within(scope);
+    ls.value = v;
+    return renderFigure(t.answer.figure, ls, { kind: t.answer.figure.kind, title: "" });
   }
 
   function build(t, pack, tier, r, fixed, formatId) {
@@ -1228,6 +1265,8 @@
     grid: grid,
     isCorrect: isCorrect,
     diagnose: diagnose,
+    /* An option as words: its label, or for a picture, which picture. */
+    choiceText: function (q, i) { return q.choiceFigures ? "Picture " + q.choices[i] : q.choices[i]; },
     generate: function (id, tier, seed) { return generateFrom(template(id), PACK, tier, seed); },
     instance: function (id, tier, params, formatId) { return instanceFrom(template(id), PACK, tier, params, formatId); },
     firstDraw: function (id, tier, seed) { return firstDrawFrom(template(id), tier, seed); },

@@ -274,20 +274,26 @@
     wrong:    { bg: "var(--danger-100)",     edge: "var(--danger-700)",     ink: "var(--danger-700)" }
   };
 
+  /* An option to tap: words, or a picture with its letter under it. A
+     picture's words name it for a screen reader. */
   function AnswerTile(o) {
     var face = TILE_FACES[o.state] || TILE_FACES.idle;
+    var mark = el("span", { style: { display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--space-2)" } },
+      el("span", null, o.text),
+      o.state === "correct" ? icon("check", 22, { glyph: true }) : null,
+      o.state === "wrong" ? icon("x", 22, { glyph: true }) : null);
     return el("button.am-reset.am-pressable.am-answer-tile.heading-md", {
       type: "button", onClick: o.onClick, disabled: !!o.disabled,
       dataset: { state: o.state },
       "aria-pressed": o.state === "selected" ? "true" : "false",
+      "aria-label": o.figure ? "Picture " + o.text + ". " + o.figure.text : null,
       style: {
         "--am-edge": face.edge, background: face.bg, color: face.ink,
         borderRadius: "var(--radius-sm)", minHeight: o.tall ? 76 : "var(--tap-button)",
-        display: "flex", alignItems: "center", justifyContent: "center", gap: "var(--space-2)"
+        display: "flex", flexDirection: o.figure ? "column" : "row", alignItems: o.figure ? "stretch" : "center",
+        justifyContent: "center", gap: "var(--space-2)", padding: o.figure ? "var(--space-2)" : null
       }
-    }, el("span", null, o.text),
-       o.state === "correct" ? icon("check", 22, { glyph: true }) : null,
-       o.state === "wrong" ? icon("x", 22, { glyph: true }) : null);
+    }, o.figure ? el("span", { "aria-hidden": "true", style: { display: "block", width: "100%", maxWidth: 240, margin: "0 auto" } }, figureParts(o.figure)) : null, mark);
   }
 
   /* The keypad is the only way into a computation answer: no options, no
@@ -879,15 +885,32 @@
     for (var i = 0; i <= c.cols; i++) root.appendChild(svg("line", { x1: i * cell, x2: i * cell, y1: 0, y2: H, style: "stroke: var(--surface-300); stroke-width: 1" }));
     for (var j = 0; j <= c.rows; j++) root.appendChild(svg("line", { x1: 0, x2: W, y1: j * cell, y2: j * cell, style: "stroke: var(--surface-300); stroke-width: 1" }));
     var at = function (p) { return [p[0] * cell, H - p[1] * cell]; };
-    root.appendChild(svg("polygon", {
-      points: c.points.map(function (p) { return at(p).join(","); }).join(" "),
-      style: "fill: var(--brand-blue-100); fill-opacity: 0.85; stroke: var(--brand-blue-600); stroke-width: 2.5; stroke-linejoin: round"
-    }));
-    c.points.forEach(function (p) {
+    var shape = function (pts, style) {
+      return svg("polygon", { points: pts.map(function (p) { return at(p).join(","); }).join(" "), style: style });
+    };
+    var solid = "fill: var(--brand-blue-100); fill-opacity: 0.85; stroke: var(--brand-blue-600); stroke-width: 2.5; stroke-linejoin: round";
+    /* After a move the shape it started as is dashed, and its image is the
+       one coloured in. */
+    root.appendChild(shape(c.points, c.image ? "fill: none; stroke: var(--ink-600); stroke-width: 2; stroke-dasharray: 6 4; stroke-linejoin: round" : solid));
+    if (c.line) {
+      var ends = c.line.map(at);
+      root.appendChild(svg("line", { x1: ends[0][0], y1: ends[0][1], x2: ends[1][0], y2: ends[1][1], style: "stroke: var(--skill-3-600); stroke-width: 3; stroke-dasharray: 8 5" }));
+    }
+    if (c.image) root.appendChild(shape(c.image, solid));
+    (c.image || c.points).forEach(function (p) {
       var xy = at(p);
       root.appendChild(svg("circle", { cx: xy[0], cy: xy[1], r: 3.5, style: "fill: var(--brand-blue-600)" }));
     });
+    if (c.dot) {
+      var d = at(c.dot);
+      root.appendChild(svg("circle", { cx: d[0], cy: d[1], r: 5.5, style: "fill: var(--skill-3-600)" }));
+    }
     return [root];
+  }
+
+  /* A picture with no frame or title, for an answer tile. */
+  function figureParts(c) {
+    return c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c) : c.kind === "mirror" ? mirrorFigure(c) : gridFigure(c);
   }
 
   function Chart(c) {

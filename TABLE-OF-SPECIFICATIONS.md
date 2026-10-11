@@ -148,7 +148,9 @@ this blueprint cannot see.
 
 `transform` needs a **visual question renderer** — answer options are pictures, not
 numbers. That is the same renderer the abstract reasoning subtest will need, so building
-it for `transform` pays for itself twice.
+it for `transform` pays for itself twice. **Begun 2026-10-11**: a choice's options can be
+pictures on squared paper, and `transform` asks which picture shows a shape after a
+reflection, a translation (G6.Q1.3) or a quarter turn about a point (G5.Q4.12).
 
 **`circles` also needs a π glyph the app does not currently have.** The self-hosted faces
 ship the latin and latin-ext subsets; π (U+03C0) is in neither, so it would fall back to a

@@ -52,6 +52,7 @@ test("the answer names its type, its sign or unit and its decimal places", () =>
   assert.strictEqual(S.answerText({ type: "unit", unit: "cm", maxDecimals: 1 }), "number with a unit, in cm, up to 1 decimal place");
   assert.strictEqual(S.answerText({ type: "integer" }), "whole number");
   assert.strictEqual(S.answerText({ type: "mixed" }), "mixed number");
+  assert.strictEqual(S.answerText({ type: "choice", figure: { kind: "grid" } }), "choice of pictures");
 });
 
 const rows = S.rows();
@@ -81,12 +82,22 @@ test("each example is the engine's own question at the stated tier and seed", ()
   }
 });
 
-test("a choice example shows the label of the right choice", () => {
+test("a choice example shows the right choice as the app names it", () => {
   const choice = rows.filter((r) => r.example.choices.length);
   assert.ok(choice.length > 0);
   for (const r of choice) {
     const q = C.generate(r.template, S.EXAMPLE_TIER, S.EXAMPLE_SEED);
-    assert.strictEqual(r.example.answer, q.choices[q.answerIndex], r.template);
+    assert.strictEqual(r.example.answer, C.choiceText(q, q.answerIndex), r.template);
+  }
+});
+
+test("a choice of pictures gives each picture in words, after its letter", () => {
+  const pictures = rows.filter((r) => r.answer === "choice of pictures");
+  assert.ok(pictures.length > 0);
+  for (const r of pictures) {
+    assert.strictEqual(r.example.choices.length, 4, r.template);
+    r.example.choices.forEach((c, i) => assert.match(c, new RegExp("^" + "ABCD"[i] + ": Picture: "), r.template));
+    assert.match(r.example.answer, /^Picture [A-D]$/, r.template);
   }
 });
 

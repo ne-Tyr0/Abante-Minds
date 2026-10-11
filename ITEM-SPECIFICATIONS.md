@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.24.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.25.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -22,8 +22,8 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Circles | 8% | 4 | 17 | 7 | 36 |
 | Graphs and data | 11% | 5 | 17 | 9 | 37 |
 | Probability | 4% | 3 | 12 | 2 | 24 |
-| Transformations | 5% | 4 | 12 | 3 | 27 |
-| **All** | | **56** | **205** | **91** | **467** |
+| Transformations | 5% | 4 | 15 | 3 | 36 |
+| **All** | | **56** | **208** | **91** | **476** |
 
 The path's templates serve 91 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 12 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
@@ -33,7 +33,7 @@ Problem schemas on the path:
 |---|---|---:|
 | change | additive | 17 |
 | combine | additive | 6 |
-| compare | additive | 16 |
+| compare | additive | 19 |
 | equal-groups | multiplicative | 29 |
 | rate | multiplicative | 5 |
 | multiplicative-compare | multiplicative | 21 |
@@ -1513,7 +1513,7 @@ Write a 24-hour time in 12-hour time.
 - **Draws:** `h: 13 to 21`; `m: 0 to 59`
 - **Formats:** `write`
 - **Named mistakes:** `swapped-a-m-and-p-m`, `took-away-10`, `an-hour-out`
-- **Example:** What is 18:00 in 12-hour time? Choices: 6:00 a.m.; 5:00 p.m.; 6:00 p.m.; 8:00 p.m.. **Answer: 6:00 p.m.**
+- **Example:** What is 18:00 in 12-hour time? Choices: 6:00 a.m.; 5:00 p.m.; 6:00 p.m.; 8:00 p.m. **Answer: 6:00 p.m.**
 
 **Level 2: How long?** (`how-long`, 4 templates)
 
@@ -2521,7 +2521,7 @@ Describe the trend of a line graph.
 - **Kept only when:** `min(v1, v2, v3, v4, v5) >= 1`; `max(v1, v2, v3, v4, v5) <= 10`
 - **Formats:** `trend`
 - **Named mistakes:** `read-the-direction-backwards`, `missed-or-added-a-turn`, `misread-both-halves`
-- **Example:** Line graph: Price of tomatoes (Price per kilo). Price: Jan ₱30, Feb ₱40, Mar ₱50, Apr ₱60, May ₱80. The graph shows the price of a kilo of tomatoes from January to May. Which sentence describes the price? Choices: It rose all the way.; It fell all the way.; It rose, then fell.; It fell, then rose.. **Answer: It rose all the way.**
+- **Example:** Line graph: Price of tomatoes (Price per kilo). Price: Jan ₱30, Feb ₱40, Mar ₱50, Apr ₱60, May ₱80. The graph shows the price of a kilo of tomatoes from January to May. Which sentence describes the price? Choices: It rose all the way.; It fell all the way.; It rose, then fell.; It fell, then rose. **Answer: It rose all the way.**
 
 #### `data.average`
 
@@ -2953,7 +2953,7 @@ Fill a point with two kinds of regular shape.
 - **Named mistakes:** `filled-the-whole-point`, `filled-the-used-part`
 - **Example:** Picture: 2 regular octagons round a point, with a gap left. 2 regular octagons meet at a point, taking up 270° of the 360°. How many squares fill the gap that is left? **Answer: 1**
 
-**Level 4: Slides, flips and turns** (`moves`, 3 templates)
+**Level 4: Slides, flips and turns** (`moves`, 6 templates)
 
 #### `transform.name-the-move`
 
@@ -2993,6 +2993,46 @@ Turn a clock hand about the centre.
 - **Formats:** `clock`
 - **Named mistakes:** `turned-anticlockwise`, `gave-the-numbers-moved`
 - **Example:** Picture: a clock face, with its hand pointing to 8. The hand of a clock points to 8. It turns 90° clockwise about the centre of the clock. Which number does it point to now? **Answer: 11**
+
+#### `transform.pick-the-flip`
+
+Choose the picture of a shape reflected in a mirror line.
+
+- **Competency:** G6.Q1.3, draw images after translation, reflection, rotation
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** compare (additive)
+- **Answer:** choice of pictures
+- **Draws:** `w: 2 to 4`; `t: 1 to w - 1`; `h: 2 to 4`; `d: 0 to 1`; `s: 1 to 2`
+- **Formats:** `reflection`, `flip`
+- **Named mistakes:** `slid-instead-of-flipped`, `turned-it-round`, `flipped-top-to-bottom`
+- **Example:** Picture: squared paper 10 squares across and 6 up, with a shape whose corners are at 6 across and 1 up; 9 across and 1 up; 7 across and 4 up; 6 across and 4 up. A mirror line runs from 5 across and 0 up to 5 across and 6 up. Each square is 1 square unit. Which picture shows the reflection of the shape in the dashed mirror line? Choices: A: Picture: squared paper 10 squares across and 6 up, with a shape whose corners are at 6 across and 1 up; 9 across and 1 up; 7 across and 4 up; 6 across and 4 up. Its image after the move has corners at 1 across and 1 up; 4 across and 1 up; 2 across and 4 up; 1 across and 4 up. A mirror line runs from 5 across and 0 up to 5 across and 6 up. Each square is 1 square unit.; B: Picture: squared paper 10 squares across and 6 up, with a shape whose corners are at 6 across and 1 up; 9 across and 1 up; 7 across and 4 up; 6 across and 4 up. Its image after the move has corners at 4 across and 1 up; 1 across and 1 up; 3 across and 4 up; 4 across and 4 up. A mirror line runs from 5 across and 0 up to 5 across and 6 up. Each square is 1 square unit.; C: Picture: squared paper 10 squares across and 6 up, with a shape whose corners are at 6 across and 1 up; 9 across and 1 up; 7 across and 4 up; 6 across and 4 up. Its image after the move has corners at 1 across and 4 up; 4 across and 4 up; 2 across and 1 up; 1 across and 1 up. A mirror line runs from 5 across and 0 up to 5 across and 6 up. Each square is 1 square unit.; D: Picture: squared paper 10 squares across and 6 up, with a shape whose corners are at 6 across and 1 up; 9 across and 1 up; 7 across and 4 up; 6 across and 4 up. Its image after the move has corners at 4 across and 4 up; 1 across and 4 up; 3 across and 1 up; 4 across and 1 up. A mirror line runs from 5 across and 0 up to 5 across and 6 up. Each square is 1 square unit. **Answer: Picture B**
+
+#### `transform.pick-the-slide`
+
+Choose the picture of a shape after a translation.
+
+- **Competency:** G6.Q1.3, draw images after translation, reflection, rotation
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** compare (additive)
+- **Answer:** choice of pictures
+- **Draws:** `w: 2 to 4`; `t: 1 to w - 1`; `h: 2 to 3`; `a: 3 to 5`; `b: 1 to 3`
+- **Kept only when:** `a != b`
+- **Formats:** `translation`, `slide`
+- **Named mistakes:** `swapped-the-moves`, `flipped-it-too`, `turned-it-too`
+- **Example:** Picture: squared paper 10 squares across and 10 up, with a shape whose corners are at 1 across and 1 up; 4 across and 1 up; 2 across and 4 up; 1 across and 4 up. Each square is 1 square unit. Which picture shows the shape after a translation of 5 squares to the right and 3 squares up? Choices: A: Picture: squared paper 10 squares across and 10 up, with a shape whose corners are at 1 across and 1 up; 4 across and 1 up; 2 across and 4 up; 1 across and 4 up. Its image after the move has corners at 4 across and 6 up; 7 across and 6 up; 5 across and 9 up; 4 across and 9 up. Each square is 1 square unit.; B: Picture: squared paper 10 squares across and 10 up, with a shape whose corners are at 1 across and 1 up; 4 across and 1 up; 2 across and 4 up; 1 across and 4 up. Its image after the move has corners at 6 across and 4 up; 9 across and 4 up; 7 across and 7 up; 6 across and 7 up. Each square is 1 square unit.; C: Picture: squared paper 10 squares across and 10 up, with a shape whose corners are at 1 across and 1 up; 4 across and 1 up; 2 across and 4 up; 1 across and 4 up. Its image after the move has corners at 9 across and 7 up; 6 across and 7 up; 8 across and 4 up; 9 across and 4 up. Each square is 1 square unit.; D: Picture: squared paper 10 squares across and 10 up, with a shape whose corners are at 1 across and 1 up; 4 across and 1 up; 2 across and 4 up; 1 across and 4 up. Its image after the move has corners at 9 across and 4 up; 6 across and 4 up; 8 across and 7 up; 9 across and 7 up. Each square is 1 square unit. **Answer: Picture B**
+
+#### `transform.pick-the-turn`
+
+Choose the picture of a shape after a quarter turn about a point.
+
+- **Competency:** G5.Q4.12, draw the image of an object after rotation about a point
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** compare (additive)
+- **Answer:** choice of pictures
+- **Draws:** `w: 2 to 4`; `t: 1 to w - 1`; `h: 2 to 3`; `dir: 1 to 2`
+- **Formats:** `rotation`, `turn`
+- **Named mistakes:** `turned-the-other-way`, `turned-half-way`, `flipped-instead-of-turned`
+- **Example:** Picture: squared paper 10 squares across and 8 up, with a shape whose corners are at 5 across and 4 up; 8 across and 4 up; 6 across and 7 up; 5 across and 7 up. A dot marks the point 5 across and 4 up. Each square is 1 square unit. The shape turns a quarter of the way round anticlockwise, about the dot. Which picture shows where it lands? Choices: A: Picture: squared paper 10 squares across and 8 up, with a shape whose corners are at 5 across and 4 up; 8 across and 4 up; 6 across and 7 up; 5 across and 7 up. Its image after the move has corners at 5 across and 4 up; 5 across and 7 up; 2 across and 5 up; 2 across and 4 up. A dot marks the point 5 across and 4 up. Each square is 1 square unit.; B: Picture: squared paper 10 squares across and 8 up, with a shape whose corners are at 5 across and 4 up; 8 across and 4 up; 6 across and 7 up; 5 across and 7 up. Its image after the move has corners at 5 across and 4 up; 2 across and 4 up; 4 across and 1 up; 5 across and 1 up. A dot marks the point 5 across and 4 up. Each square is 1 square unit.; C: Picture: squared paper 10 squares across and 8 up, with a shape whose corners are at 5 across and 4 up; 8 across and 4 up; 6 across and 7 up; 5 across and 7 up. Its image after the move has corners at 5 across and 4 up; 2 across and 4 up; 4 across and 7 up; 5 across and 7 up. A dot marks the point 5 across and 4 up. Each square is 1 square unit.; D: Picture: squared paper 10 squares across and 8 up, with a shape whose corners are at 5 across and 4 up; 8 across and 4 up; 6 across and 7 up; 5 across and 7 up. Its image after the move has corners at 5 across and 4 up; 5 across and 1 up; 8 across and 3 up; 8 across and 4 up. A dot marks the point 5 across and 4 up. Each square is 1 square unit. **Answer: Picture A**
 
 ## Basics
 
