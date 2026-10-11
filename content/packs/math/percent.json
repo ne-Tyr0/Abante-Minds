@@ -23,7 +23,7 @@
     {
       "id": "of-a-number",
       "title": "Per cent of a number",
-      "templates": ["percent.of-number", "percent.what-percent", "percent.find-whole"],
+      "templates": ["percent.of-number", "percent.what-percent", "percent.find-whole", "percent.rest"],
       "lesson": [
         {
           "title": "Per cent of a number",
@@ -576,6 +576,55 @@
           "value": "(b - a) * 100 / b",
           "error": "compared-with-the-new-amount",
           "feedback": "{fmt(value)}% compares the increase with the new amount, ₱{b}. Compare it with the old amount, ₱{a}."
+        }
+      ]
+    },
+    {
+      "id": "percent.rest",
+      "competency": "G6.Q2.8",
+      "domain": "NA",
+      "construct": "Find how many are left in a group after two parts given in per cent",
+      "schema": "multi-step",
+      "params": {
+        "total": {"choose": [20, 40, 50, 60, 80, 120, 200]},
+        "p1": {"choose": [10, 20, 25, 30, 40]},
+        "p2": {"choose": [10, 15, 20, 25, 35]},
+        "r": {"value": "100 - p1 - p2"}
+      },
+      "where": ["p1 != p2", "r > 0", "total * r % 100 == 0", "total * p1 % 100 == 0"],
+      "answer": {"type": "integer", "value": "total * r / 100"},
+      "formats": [
+        {
+          "id": "school",
+          "prompt": "Of the {total} pupils in a class, {p1}% walk to school and {p2}% ride a jeepney. The rest come by tricycle. How many come by tricycle?"
+        },
+        {
+          "id": "garden",
+          "prompt": "A farmer plants {total} seedlings: {p1}% are tomatoes and {p2}% are eggplants. The rest are peppers. How many are peppers?"
+        }
+      ],
+      "hints": [
+        "First find the per cent left: 100% − {p1}% − {p2}%.",
+        "100 − {p1} − {p2} = {r}, so {r}% are left.",
+        "{r}% of {total} = ?"
+      ],
+      "steps": ["The rest: 100% − {p1}% − {p2}% = {r}%", "{r}% of {total} = {r}/100 × {total}", "= {answer}"],
+      "explain": "{r}% are left, and {r}% of {total} is {answer}.",
+      "distractors": [
+        {
+          "value": "r",
+          "error": "gave-the-per-cent",
+          "feedback": "{value} is the per cent left, {value}%. Now find {value}% of {total}."
+        },
+        {
+          "value": "total * p1 / 100",
+          "error": "found-one-part",
+          "feedback": "{value} is {p1}% of {total}. The question asks about the rest."
+        },
+        {
+          "value": "total - p1 - p2",
+          "error": "took-the-per-cents-as-counts",
+          "feedback": "{value} takes {p1} and {p2} from {total} as if they were counts. They are per cents: find {r}% of {total}."
         }
       ]
     }

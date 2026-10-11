@@ -42,7 +42,7 @@
     {
       "id": "square-units",
       "title": "Square units",
-      "templates": ["area.m2-to-cm2", "area.cm2-to-m2", "area.tiles"],
+      "templates": ["area.m2-to-cm2", "area.cm2-to-m2", "area.tiles", "area.largest-area"],
       "lesson": [
         {
           "title": "A square metre",
@@ -791,6 +791,59 @@
           "value": "2 * A / b",
           "error": "used-one-side",
           "feedback": "{fmt(value)} cm uses only the {b} cm side. Add both parallel sides: {a} + {b} = {a + b}."
+        }
+      ]
+    },
+    {
+      "id": "area.largest-area",
+      "competency": "G6.Q3.6",
+      "domain": "MG",
+      "construct": "Compare areas in square metres and square centimetres by changing them to one unit",
+      "schema": "compare",
+      "params": {
+        "a": {"range": [3, 8]},
+        "k": {"range": [1, 2]},
+        "big": {"value": "pick(k, a * 10000, a * 10000 + 5000)"},
+        "o1": {"value": "pick(k, a * 10000 - 5000, a * 10000)"},
+        "o2": {"value": "(a - 1) * 10000"},
+        "o3": {"value": "a * 1000"}
+      },
+      "answer": {
+        "type": "choice",
+        "value": "big",
+        "label": "{value % 10000 == 0 ? value / 10000 : value}{value % 10000 == 0 ? ' m²' : ' cm²'}",
+        "order": "mixed"
+      },
+      "formats": [
+        {"id": "largest", "prompt": "Which area is the largest?"},
+        {"id": "biggest", "prompt": "Four rooms have these floor areas. Which floor is the biggest?"}
+      ],
+      "hints": [
+        "Change them all to the same unit: 1 m² = 10000 cm².",
+        "{a} m² = {a * 10000} cm², and {a - 1} m² = {o2} cm².",
+        "In cm² they are {o3}, {o2}, {o1} and {big}, in some order."
+      ],
+      "steps": [
+        "1 m² = 10000 cm²",
+        "In cm²: {big}, {o1}, {o2}, {o3}",
+        "The largest is {big % 10000 == 0 ? big / 10000 : big}{big % 10000 == 0 ? ' m²' : ' cm²'}"
+      ],
+      "explain": "In square centimetres the areas are {big}, {o1}, {o2} and {o3}, so the largest is {big % 10000 == 0 ? big / 10000 : big}{big % 10000 == 0 ? ' m²' : ' cm²'}.",
+      "distractors": [
+        {
+          "value": "o1",
+          "error": "compared-the-numbers-only",
+          "feedback": "{value % 10000 == 0 ? value / 10000 : value}{value % 10000 == 0 ? ' m²' : ' cm²'}{value % 10000 == 0 ? ' = ' : ''}{value % 10000 == 0 ? fmt(value) : ''}{value % 10000 == 0 ? ' cm²,' : ' is'} less than {big % 10000 == 0 ? big / 10000 : big}{big % 10000 == 0 ? ' m²' : ' cm²'}{big % 10000 == 0 ? ' = ' : ''}{big % 10000 == 0 ? fmt(big) : ''}{big % 10000 == 0 ? ' cm²' : ''}."
+        },
+        {
+          "value": "o2",
+          "error": "picked-a-smaller-area",
+          "feedback": "{value % 10000 == 0 ? value / 10000 : value}{value % 10000 == 0 ? ' m²' : ' cm²'}{value % 10000 == 0 ? ' = ' : ''}{value % 10000 == 0 ? fmt(value) : ''}{value % 10000 == 0 ? ' cm²,' : ' is'} less than {big % 10000 == 0 ? big / 10000 : big}{big % 10000 == 0 ? ' m²' : ' cm²'}{big % 10000 == 0 ? ' = ' : ''}{big % 10000 == 0 ? fmt(big) : ''}{big % 10000 == 0 ? ' cm²' : ''}."
+        },
+        {
+          "value": "o3",
+          "error": "picked-the-smallest-area",
+          "feedback": "{value % 10000 == 0 ? value / 10000 : value}{value % 10000 == 0 ? ' m²' : ' cm²'}{value % 10000 == 0 ? ' = ' : ''}{value % 10000 == 0 ? fmt(value) : ''}{value % 10000 == 0 ? ' cm²,' : ' is'} less than {big % 10000 == 0 ? big / 10000 : big}{big % 10000 == 0 ? ' m²' : ' cm²'}{big % 10000 == 0 ? ' = ' : ''}{big % 10000 == 0 ? fmt(big) : ''}{big % 10000 == 0 ? ' cm²' : ''}."
         }
       ]
     }

@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.32.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.33.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -15,15 +15,15 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Order of operations | 9% | 4 | 16 | 5 | 37 |
 | Factors and primes | 4% | 4 | 16 | 5 | 41 |
 | Ratio and proportion | 8% | 4 | 16 | 7 | 35 |
-| Percentages | 5% | 3 | 14 | 2 | 30 |
+| Percentages | 5% | 3 | 15 | 2 | 33 |
 | Time | 4% | 4 | 15 | 5 | 32 |
-| Perimeter and area | 9% | 4 | 17 | 6 | 37 |
+| Perimeter and area | 9% | 4 | 18 | 6 | 40 |
 | Solids and volume | 9% | 5 | 26 | 13 | 68 |
 | Circles | 8% | 4 | 18 | 7 | 39 |
-| Graphs and data | 11% | 5 | 17 | 9 | 37 |
+| Graphs and data | 11% | 5 | 18 | 9 | 39 |
 | Probability | 4% | 3 | 13 | 2 | 27 |
 | Transformations | 5% | 4 | 15 | 3 | 36 |
-| **All** | | **56** | **230** | **94** | **538** |
+| **All** | | **56** | **233** | **94** | **546** |
 
 The path's templates serve 94 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 15 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
@@ -33,14 +33,14 @@ Problem schemas on the path:
 |---|---|---:|
 | change | additive | 18 |
 | combine | additive | 6 |
-| compare | additive | 26 |
+| compare | additive | 28 |
 | equal-groups | multiplicative | 33 |
 | rate | multiplicative | 6 |
 | multiplicative-compare | multiplicative | 24 |
 | part-whole | multiplicative | 57 |
 | work-backwards | non-routine | 9 |
 | missing-middle | non-routine | 4 |
-| multi-step | non-routine | 38 |
+| multi-step | non-routine | 39 |
 | excess-info | non-routine | 9 |
 
 Basics: 99 templates in 7 topics, practised beside the path and not counted towards the blueprint.
@@ -1481,7 +1481,7 @@ Write a decimal as a per cent.
 - **Named mistakes:** `moved-one-place`, `did-not-move-the-point`
 - **Example:** Write 0.63 as a per cent. **Answer: 63%**
 
-**Level 2: Per cent of a number** (`of-a-number`, 3 templates)
+**Level 2: Per cent of a number** (`of-a-number`, 4 templates)
 
 #### `percent.of-number`
 
@@ -1522,6 +1522,20 @@ Find the whole from a per cent and its part.
 - **Formats:** `number`, `money`
 - **Named mistakes:** `took-the-percent-of-the-part`, `added-the-percent`
 - **Example:** Mila saves 50% of her allowance. She saves ₱10. How much is her allowance? **Answer: 20**
+
+#### `percent.rest`
+
+Find how many are left in a group after two parts given in per cent.
+
+- **Competency:** G6.Q2.8, relate percentages, fractions and decimals
+- **Domain:** NA, Number and Algebra
+- **Schema:** multi-step (non-routine)
+- **Answer:** whole number
+- **Draws:** `total: one of 20, 40, 50, 60, 80, 120, 200`; `p1: one of 10, 20, 25, 30, 40`; `p2: one of 10, 15, 20, 25, 35`
+- **Kept only when:** `p1 != p2`; `r > 0`; `total * r % 100 == 0`; `total * p1 % 100 == 0`
+- **Formats:** `school`, `garden`
+- **Named mistakes:** `gave-the-per-cent`, `found-one-part`, `took-the-per-cents-as-counts`
+- **Example:** A farmer plants 80 seedlings: 10% are tomatoes and 20% are eggplants. The rest are peppers. How many are peppers? **Answer: 56**
 
 **Level 3: Per cents in real life** (`real-life`, 7 templates)
 
@@ -1979,7 +1993,7 @@ Find a trapezoid's height from its area and parallel sides, working backwards.
 - **Named mistakes:** `forgot-to-double`, `used-one-side`
 - **Example:** A window shaped like a trapezoid has an area of 51 cm². Its parallel sides are 8 cm and 9 cm. How tall is it? **Answer: 6 cm**
 
-**Level 3: Square units** (`square-units`, 3 templates)
+**Level 3: Square units** (`square-units`, 4 templates)
 
 #### `area.m2-to-cm2`
 
@@ -2019,6 +2033,19 @@ Count square tiles for a floor, converting metres to centimetres.
 - **Formats:** `floor`, `store`
 - **Named mistakes:** `did-not-convert`, `added-instead`
 - **Example:** The floor of a sari-sari store is 2 m by 4 m. It is covered with square tiles 25 cm on each side. How many tiles are used? **Answer: 128**
+
+#### `area.largest-area`
+
+Compare areas in square metres and square centimetres by changing them to one unit.
+
+- **Competency:** G6.Q3.6, convert square centimetres to square metres and back
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** compare (additive)
+- **Answer:** multiple choice
+- **Draws:** `a: 3 to 8`; `k: 1 to 2`
+- **Formats:** `largest`, `biggest`
+- **Named mistakes:** `compared-the-numbers-only`, `picked-a-smaller-area`, `picked-the-smallest-area`
+- **Example:** Four rooms have these floor areas. Which floor is the biggest? Choices: 5 m²; 6000 cm²; 55000 cm²; 6 m². **Answer: 6 m²**
 
 **Level 4: Composite figures** (`composite`, 4 templates)
 
@@ -2689,7 +2716,7 @@ Find the area of a ring in terms of π.
 
 Blueprint weight 11%.
 
-**Level 1: Choosing and reading graphs** (`reading`, 3 templates)
+**Level 1: Choosing and reading graphs** (`reading`, 4 templates)
 
 #### `data.which-graph`
 
@@ -2731,6 +2758,20 @@ Read one value from a double line graph.
 - **Formats:** `read`
 - **Named mistakes:** `read-the-other-line`, `read-another-point`
 - **Example:** Double line graph: Jeepney trips (Trips). Mang Tony: Mon 2, Tue 12, Wed 20, Thu 20, Fri 6. Mang Rudy: Mon 14, Tue 16, Wed 10, Thu 20, Fri 10. The graph shows the trips two jeepney drivers made each day. How many trips did Mang Tony make on Monday? **Answer: 2**
+
+#### `data.read-table`
+
+Read one value from a table by its row and column.
+
+- **Competency:** G6.Q4.8, interpret data from digital media in tabular or graphical form
+- **Domain:** DP, Data and Probability
+- **Schema:** compare (additive)
+- **Answer:** whole number
+- **Draws:** `u1: 5 to 40`; `v1: 5 to 40`; `u2: 5 to 40`; `v2: 5 to 40`; `u3: 5 to 40`; `v3: 5 to 40`; `u4: 5 to 40`; `v4: 5 to 40`; `g: 1 to 2`; `d: 1 to 4`
+- **Kept only when:** `pick(d, u1, u2, u3, u4) != pick(d, v1, v2, v3, v4)`; `pick(d % 4 + 1, pick(g, u1, v1), pick(g, u2, v2), pick(g, u3, v3), pick(g, u4, v4)) != pick(d, pick(g, u1, v1), pick(g, u2, v2), pick(g, u3, v3), pick(g, u4, v4))`
+- **Formats:** `books`
+- **Named mistakes:** `read-the-other-grade`, `read-another-day`
+- **Example:** Table: Books borrowed from the library (Day). Monday: Grade 5 21, Grade 6 22. Tuesday: Grade 5 10, Grade 6 19. Wednesday: Grade 5 13, Grade 6 10. Thursday: Grade 5 22, Grade 6 7. The table shows the books Grade 5 and Grade 6 borrowed from the library. How many books did Grade 5 borrow on Thursday? **Answer: 22**
 
 **Level 2: Comparing and adding** (`comparing`, 3 templates)
 
