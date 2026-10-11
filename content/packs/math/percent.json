@@ -39,7 +39,7 @@
     {
       "id": "real-life",
       "title": "Per cents in real life",
-      "templates": ["percent.discount", "percent.sale-price", "percent.increase", "percent.interest", "percent.extra-wallet"],
+      "templates": ["percent.discount", "percent.sale-price", "percent.increase", "percent.interest", "percent.extra-wallet", "percent.better-deal", "percent.rate-of-increase"],
       "lesson": [
         {
           "title": "Discounts",
@@ -483,6 +483,99 @@
           "value": "w - (p - p * d / 100)",
           "error": "gave-the-change",
           "feedback": "₱{value} is the change from ₱{w}. The question asks only for the discount."
+        }
+      ]
+    },
+    {
+      "id": "percent.better-deal",
+      "competency": "G6.Q2.9",
+      "domain": "NA",
+      "construct": "Compare two discounted prices to find the better deal",
+      "schema": "compare",
+      "params": {
+        "p1": {"range": [400, 1200], "step": 100},
+        "d1": {"choose": [10, 15, 20, 25, 30, 40]},
+        "p2": {"range": [400, 1200], "step": 100},
+        "d2": {"choose": [10, 15, 20, 25, 30, 40]},
+        "s1": {"value": "p1 - p1 * d1 / 100"},
+        "s2": {"value": "p2 - p2 * d2 / 100"}
+      },
+      "where": ["s1 != s2", "p1 != p2", "d1 != d2"],
+      "answer": {"type": "integer", "value": "abs(s1 - s2)", "prefix": "₱"},
+      "formats": [
+        {
+          "id": "bag",
+          "prompt": "Store A sells a school bag for ₱{p1} at {d1}% off. Store B sells the same bag for ₱{p2} at {d2}% off. How much less do you pay at the store with the better deal?"
+        }
+      ],
+      "hints": [
+        "Find what you pay at each store, after its discount.",
+        "Store A: {d1}% of ₱{p1} is ₱{p1 * d1 / 100}. Store B: {d2}% of ₱{p2} is ₱{p2 * d2 / 100}.",
+        "Take each discount off, then find the difference."
+      ],
+      "steps": [
+        "Store A: ₱{p1} − ₱{p1 * d1 / 100} = ₱{s1}",
+        "Store B: ₱{p2} − ₱{p2 * d2 / 100} = ₱{s2}",
+        "₱{max(s1, s2)} − ₱{min(s1, s2)} = ₱{answer}"
+      ],
+      "explain": "You pay ₱{s1} at Store A and ₱{s2} at Store B, so the better deal is ₱{answer} less.",
+      "distractors": [
+        {
+          "value": "abs(p1 * d1 / 100 - p2 * d2 / 100)",
+          "error": "compared-the-discounts",
+          "feedback": "₱{value} is the difference between the two discounts. Compare what you pay: ₱{s1} and ₱{s2}."
+        },
+        {
+          "value": "abs(p1 - p2)",
+          "error": "compared-the-prices-before",
+          "feedback": "₱{value} is the difference before the discounts. Take each discount off first: ₱{s1} and ₱{s2}."
+        }
+      ]
+    },
+    {
+      "id": "percent.rate-of-increase",
+      "competency": "G6.Q2.9",
+      "domain": "NA",
+      "construct": "Find a percent increase from the old and new prices",
+      "schema": "change",
+      "params": {
+        "a": {"choose": [200, 250, 300, 400, 500, 800]},
+        "r": {"choose": [5, 10, 15, 20, 25, 40, 50]},
+        "b": {"value": "a + a * r / 100"}
+      },
+      "where": ["a * r % 100 == 0"],
+      "answer": {"type": "percent", "value": "r"},
+      "formats": [
+        {
+          "id": "bag",
+          "prompt": "The price of a school bag went up from ₱{a} to ₱{b}. By what percent did it go up?"
+        },
+        {
+          "id": "water",
+          "prompt": "A family's monthly water bill went up from ₱{a} to ₱{b}. By what percent did it go up?"
+        }
+      ],
+      "hints": [
+        "First find how much it went up.",
+        "₱{b} − ₱{a} = ₱{b - a}.",
+        "₱{b - a} out of the old amount, ₱{a}, as a percent."
+      ],
+      "steps": [
+        "Increase: ₱{b} − ₱{a} = ₱{b - a}",
+        "Compare it with the old amount: {b - a}/{a}",
+        "{b - a}/{a} × 100 = {answer}%"
+      ],
+      "explain": "It went up by ₱{b - a} on ₱{a}, which is {answer}%.",
+      "distractors": [
+        {
+          "value": "b - a",
+          "error": "gave-the-increase-in-pesos",
+          "feedback": "{value}% is the increase in pesos, ₱{b - a}. As a percent of the old amount: ₱{b - a} ÷ ₱{a} × 100."
+        },
+        {
+          "value": "(b - a) * 100 / b",
+          "error": "compared-with-the-new-amount",
+          "feedback": "{fmt(value)}% compares the increase with the new amount, ₱{b}. Compare it with the old amount, ₱{a}."
         }
       ]
     }

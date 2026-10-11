@@ -107,6 +107,11 @@ near-duplicates unless the problem schemas are varied on purpose. `percent` in p
 has only two competencies carrying a 5% weight, so its ten templates have to earn their
 distinctness from structure rather than content.
 
+As written (October 2026), the three use 4 to 6 of the 11 schemas each. `transform` (11
+templates) mixes compare, missing-middle, multi-step, equal-groups, multiplicative-compare and change items;
+`percent` (14) has part-whole, change, compare, work-backwards and excess-info; and
+`probability` (12) has part-whole, compare, work-backwards, multi-step and equal-groups.
+
 ## Topics
 
 Thirteen topics replace the four Grade 9 placeholders (`money`, `percent`, `ratio`,
