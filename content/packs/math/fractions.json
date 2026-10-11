@@ -14,7 +14,7 @@
     {
       "id": "mixed-numbers",
       "title": "Multiply mixed numbers",
-      "templates": ["fractions.of-a-whole", "fractions.whole-times-fraction", "fractions.mixed-times-mixed"],
+      "templates": ["fractions.of-a-whole", "fractions.whole-times-fraction", "fractions.mixed-times-mixed", "fractions.recipe"],
       "lesson": [
         { "title": "Improper fractions first", "body": "Write a whole number over 1, and change each mixed number to an improper fraction: 2 1/2 = 5/2. Multiply, then change the answer back to a mixed number in lowest terms." },
         { "title": "Worked example", "example": { "template": "fractions.mixed-times-mixed", "params": { "w1": 2, "b": 2, "a": 1, "w2": 1, "d": 3, "c": 1 }, "format": "product" } },
@@ -44,7 +44,7 @@
     {
       "id": "divide-mixed-numbers",
       "title": "Divide mixed numbers",
-      "templates": ["fractions.whole-by-fraction", "fractions.fraction-by-whole", "fractions.mixed-by-mixed"],
+      "templates": ["fractions.whole-by-fraction", "fractions.fraction-by-whole", "fractions.mixed-by-mixed", "fractions.share-mixed"],
       "lesson": [
         { "title": "Wholes and mixed numbers", "body": "Write a whole number over 1 and change each mixed number to an improper fraction. Then keep, flip, multiply: 3 ÷ 3/4 = 3/1 × 4/3 = 4." },
         { "title": "Worked example", "example": { "template": "fractions.mixed-by-mixed", "params": { "w1": 3, "b": 2, "a": 1, "w2": 1, "d": 4, "c": 1 }, "format": "quotient" } },
@@ -836,6 +836,102 @@
           "value": "total * c / d",
           "error": "multiplied-instead",
           "feedback": "{mixed(value)} is {mixed(total)} × {frac(c / d)}. To find how many fit, divide."
+        }
+      ]
+    },
+    {
+      "id": "fractions.recipe",
+      "competency": "G6.Q1.11",
+      "domain": "NA",
+      "construct": "Scale a fraction of a cup or litre by a whole number, as a mixed number",
+      "schema": "equal-groups",
+      "params": {"b": {"range": [2, 8]}, "a": {"range": [1, "b - 1"]}, "n": {"tiers": {"1": [2, 6], "3": [3, 12]}}},
+      "where": ["gcd(a, b) == 1", "n * a > b", "n * a % b != 0"],
+      "answer": {"type": "mixed", "value": "n * a / b"},
+      "formats": [
+        {
+          "id": "polvoron",
+          "prompt": "One batch of polvoron uses {frac(a / b)} cup of powdered milk. How much powdered milk do {n} batches use?"
+        },
+        {
+          "id": "paint",
+          "prompt": "Each chair needs {frac(a / b)} litre of paint. How much paint do {n} chairs need?"
+        }
+      ],
+      "hints": [
+        "Multiply: {n} × {frac(a / b)}.",
+        "{n} × {a} = {n * a}, so it is {n * a}/{b}.",
+        "Write {n * a}/{b} as a mixed number."
+      ],
+      "steps": [
+        "{n} × {frac(a / b)} = {n * a}/{b}",
+        "{n * a} ÷ {b} = {floor(n * a / b)} remainder {n * a % b}",
+        "= {mixed(answer)}"
+      ],
+      "explain": "{n} × {frac(a / b)} = {n * a}/{b} = {mixed(answer)}.",
+      "distractors": [
+        {
+          "value": "a / (b * n)",
+          "error": "divided-instead",
+          "feedback": "{frac(value)} divides by {n}. {n} of them need {n} times as much: multiply."
+        },
+        {
+          "value": "n + a / b",
+          "error": "added-instead",
+          "feedback": "{mixed(value)} adds {n}. {n} of them is {n} × {frac(a / b)}."
+        },
+        {
+          "value": "n * a / (n * b)",
+          "error": "multiplied-top-and-bottom",
+          "feedback": "{frac(value)} multiplies the top and the bottom by {n}, which leaves the amount for just one. Multiply only the top."
+        }
+      ]
+    },
+    {
+      "id": "fractions.share-mixed",
+      "competency": "G6.Q1.13",
+      "domain": "NA",
+      "construct": "Share a mixed number equally by a whole number, through an improper fraction",
+      "schema": "equal-groups",
+      "params": {"d": {"range": [2, 6]}, "n": {"range": [2, 5]}, "k": {"range": ["n * d + 1", "4 * n * d"]}},
+      "where": ["k % d != 0", "k % (d * n) != 0", "gcd(k, d) == 1"],
+      "answer": {"type": "mixed", "value": "k / (d * n)"},
+      "formats": [
+        {
+          "id": "rice",
+          "prompt": "{mixed(k / d)} kg of rice is shared equally among {n} families. How many kilograms does each family get?"
+        },
+        {
+          "id": "ribbon",
+          "prompt": "A ribbon {mixed(k / d)} m long is cut into {n} equal pieces. How long is each piece, in metres?"
+        }
+      ],
+      "hints": [
+        "Sharing means dividing: {mixed(k / d)} ÷ {n}.",
+        "Change {mixed(k / d)} to {k}/{d}.",
+        "{k}/{d} ÷ {n} = {k}/{d * n}."
+      ],
+      "steps": [
+        "{mixed(k / d)} = {k}/{d}",
+        "{k}/{d} ÷ {n} = {k}/{d} × {frac(1 / n)} = {k}/{d * n}",
+        "= {mixed(answer)}"
+      ],
+      "explain": "{mixed(k / d)} ÷ {n} = {k}/{d * n} = {mixed(answer)}.",
+      "distractors": [
+        {
+          "value": "k * n / d",
+          "error": "multiplied-instead",
+          "feedback": "{mixed(value)} multiplies by {n}. Sharing among {n} means dividing."
+        },
+        {
+          "value": "floor(k / d) / n + (k % d) / d",
+          "error": "divided-only-the-whole-number",
+          "feedback": "{mixed(value)} divides only the whole number, {floor(k / d)}, by {n}. Change the mixed number to {k}/{d} first."
+        },
+        {
+          "value": "k / d - n",
+          "error": "took-away",
+          "feedback": "{mixed(value)} takes {n} away. Sharing among {n} means dividing."
         }
       ]
     }

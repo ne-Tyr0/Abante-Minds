@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.29.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.30.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -10,9 +10,9 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 
 | Topic | Weight | Levels | Templates | Competencies | Named mistakes |
 |---|---:|---:|---:|---:|---:|
-| Decimals | 13% | 6 | 23 | 20 | 60 |
-| Fractions | 11% | 6 | 19 | 10 | 45 |
-| Order of operations | 9% | 4 | 14 | 5 | 31 |
+| Decimals | 13% | 6 | 26 | 20 | 68 |
+| Fractions | 11% | 6 | 21 | 10 | 51 |
+| Order of operations | 9% | 4 | 16 | 5 | 37 |
 | Factors and primes | 4% | 4 | 15 | 5 | 38 |
 | Ratio and proportion | 8% | 4 | 13 | 7 | 27 |
 | Percentages | 5% | 3 | 14 | 2 | 30 |
@@ -23,7 +23,7 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Graphs and data | 11% | 5 | 17 | 9 | 37 |
 | Probability | 4% | 3 | 12 | 2 | 24 |
 | Transformations | 5% | 4 | 15 | 3 | 36 |
-| **All** | | **56** | **214** | **94** | **495** |
+| **All** | | **56** | **221** | **94** | **515** |
 
 The path's templates serve 94 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 15 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
@@ -33,14 +33,14 @@ Problem schemas on the path:
 |---|---|---:|
 | change | additive | 18 |
 | combine | additive | 6 |
-| compare | additive | 22 |
-| equal-groups | multiplicative | 31 |
+| compare | additive | 25 |
+| equal-groups | multiplicative | 33 |
 | rate | multiplicative | 5 |
 | multiplicative-compare | multiplicative | 21 |
-| part-whole | multiplicative | 55 |
+| part-whole | multiplicative | 56 |
 | work-backwards | non-routine | 7 |
 | missing-middle | non-routine | 4 |
-| multi-step | non-routine | 36 |
+| multi-step | non-routine | 37 |
 | excess-info | non-routine | 9 |
 
 Basics: 99 templates in 7 topics, practised beside the path and not counted towards the blueprint.
@@ -111,7 +111,7 @@ Write a fraction as a terminating decimal.
 - **Named mistakes:** `wrote-the-two-numbers`, `read-the-top-as-the-decimal`
 - **Example:** A jug is 1/4 full. Write how full it is as a decimal. **Answer: 0.25**
 
-**Level 2: Compare and round** (`compare-and-round`, 3 templates)
+**Level 2: Compare and round** (`compare-and-round`, 5 templates)
 
 #### `decimals.greatest`
 
@@ -153,6 +153,33 @@ Round a decimal to a given place by the digit after it.
 - **Formats:** `plain`, `scale`
 - **Named mistakes:** `cut-off-instead-of-rounding`, `rounded-to-the-wrong-place`, `did-not-round`
 - **Example:** A scale shows 13.1024 kg. Round the weight to the nearest hundredth of a kilogram. **Answer: 13.1**
+
+#### `decimals.round-money`
+
+Round an amount of money to the nearest peso by its centavos.
+
+- **Competency:** G5.Q2.8, round decimals to the nearest thousandth
+- **Domain:** NA, Number and Algebra
+- **Schema:** part-whole (multiplicative)
+- **Answer:** whole number, in ₱
+- **Draws:** `n: 10 to 99 (tiers 1–2), 100 to 999 (tiers 3–4)`; `c: 1 to 99`
+- **Kept only when:** `c != 50`
+- **Formats:** `price`, `round`
+- **Named mistakes:** `dropped-the-centavos`, `rounded-up-anyway`
+- **Example:** Round ₱66.01 to the nearest peso. **Answer: ₱66**
+
+#### `decimals.order`
+
+Put four decimals in order from least to greatest, place by place.
+
+- **Competency:** G5.Q2.7, compare and order decimals to thousandths
+- **Domain:** NA, Number and Algebra
+- **Schema:** compare (additive)
+- **Answer:** multiple choice
+- **Draws:** `w: 0 to 9 (tiers 1–2), 0 to 20 (tiers 3–4)`; `d1: 1 to 9`; `d2: 1 to 9`; `k: 1 to 4`
+- **Formats:** `order`
+- **Named mistakes:** `misplaced-a`, `misplaced-b`, `misplaced-c`
+- **Example:** Put these numbers in order from least to greatest: 6.15, 6.015, 6.105, 6.1. Which comes fourth? Choices: 6.105; 6.1; 6.015; 6.15. **Answer: 6.15**
 
 **Level 3: Add and subtract** (`add-and-subtract`, 4 templates)
 
@@ -340,7 +367,7 @@ Estimate a quotient with compatible whole numbers.
 - **Named mistakes:** `ten-times-too-big`, `ten-times-too-small`, `multiplied-instead-of-divided`
 - **Example:** Which is the best estimate of 36.1 ÷ 9.2? Choices: 40; 0.4; 4; 324. **Answer: 4**
 
-**Level 6: Word problems** (`word-problems`, 3 templates)
+**Level 6: Word problems** (`word-problems`, 4 templates)
 
 #### `decimals.share-cost`
 
@@ -381,6 +408,20 @@ Find the price of 1 by dividing by a decimal, then the cost of several.
 - **Formats:** `per-unit`
 - **Named mistakes:** `gave-the-price-of-one`, `multiplied-the-whole-price`
 - **Example:** A bag of rice weighing 0.5 kg costs ₱32.50. At the same price per kilogram, how much do 4 kg cost? **Answer: ₱260**
+
+#### `decimals.money-left`
+
+Share an amount equally, then take away what each one spends.
+
+- **Competency:** G5.Q4.1, multi-step decimal division problems, including money
+- **Domain:** NA, Number and Algebra
+- **Schema:** multi-step (non-routine)
+- **Answer:** decimal, in ₱, up to 2 decimal places
+- **Draws:** `n: 2 to 5`; `share: 20 to 100 in steps of 0.25 (tiers 1–2), 50 to 250 in steps of 0.25 (tiers 3–4)`; `s: 5 to share - 5 in steps of 0.25`
+- **Kept only when:** `floor(s) != s || floor(share) != share`; `floor((T - s) * 100 / n) == (T - s) * 100 / n`
+- **Formats:** `nephews`, `officers`
+- **Named mistakes:** `did-not-share`, `took-away-only-once`, `forgot-the-spending`
+- **Example:** The 5 officers of a class share ₱487.50 from their fund equally. Each one spends ₱29.50 on supplies. How much does each officer have left? **Answer: ₱68**
 
 ### 2. Fractions (`fractions`)
 
@@ -429,7 +470,7 @@ A fraction of a fraction of a whole, in words.
 - **Named mistakes:** `gave-the-fraction-of-the-part`, `added-the-fractions`
 - **Example:** Mila saves 1/5 of her allowance. She puts 3/4 of her savings in the bank. What fraction of her allowance goes in the bank? **Answer: 3/20**
 
-**Level 2: Multiply mixed numbers** (`mixed-numbers`, 3 templates)
+**Level 2: Multiply mixed numbers** (`mixed-numbers`, 4 templates)
 
 #### `fractions.of-a-whole`
 
@@ -472,6 +513,20 @@ Multiply two mixed numbers through improper fractions.
 - **Formats:** `product`, `garden`
 - **Named mistakes:** `multiplied-the-parts-separately`, `added-instead`
 - **Example:** 1 1/3 × 1 1/3 = ? **Answer: 1 7/9**
+
+#### `fractions.recipe`
+
+Scale a fraction of a cup or litre by a whole number, as a mixed number.
+
+- **Competency:** G6.Q1.11, products of fractions, whole numbers and mixed numbers
+- **Domain:** NA, Number and Algebra
+- **Schema:** equal-groups (multiplicative)
+- **Answer:** mixed number
+- **Draws:** `b: 2 to 8`; `a: 1 to b - 1`; `n: 2 to 6 (tiers 1–2), 3 to 12 (tiers 3–4)`
+- **Kept only when:** `gcd(a, b) == 1`; `n * a > b`; `n * a % b != 0`
+- **Formats:** `polvoron`, `paint`
+- **Named mistakes:** `divided-instead`, `added-instead`, `multiplied-top-and-bottom`
+- **Example:** Each chair needs 7/8 litre of paint. How much paint do 3 chairs need? **Answer: 2 5/8**
 
 **Level 3: Multiply in steps** (`multiply-in-steps`, 4 templates)
 
@@ -574,7 +629,7 @@ Find a number from a fraction of it, by dividing fractions.
 - **Named mistakes:** `multiplied-instead`, `divided-the-wrong-way`
 - **Example:** Mang Ben has painted 3/20 of a wall. That is 3/4 of the part he plans to paint today. What fraction of the wall does he plan to paint today? **Answer: 1/5**
 
-**Level 5: Divide mixed numbers** (`divide-mixed-numbers`, 3 templates)
+**Level 5: Divide mixed numbers** (`divide-mixed-numbers`, 4 templates)
 
 #### `fractions.whole-by-fraction`
 
@@ -617,6 +672,20 @@ Divide a mixed number by a mixed number or a fraction, through improper fraction
 - **Formats:** `quotient`, `walk`
 - **Named mistakes:** `did-not-flip`, `divided-the-parts-separately`, `divided-the-wrong-way`
 - **Example:** Ana walks 3 1/2 km in 1 1/4 h at a steady pace. How many kilometres does she walk in 1 h? **Answer: 2 4/5**
+
+#### `fractions.share-mixed`
+
+Share a mixed number equally by a whole number, through an improper fraction.
+
+- **Competency:** G6.Q1.13, divide combinations of fractions, wholes and mixed numbers
+- **Domain:** NA, Number and Algebra
+- **Schema:** equal-groups (multiplicative)
+- **Answer:** mixed number
+- **Draws:** `d: 2 to 6`; `n: 2 to 5`; `k: n * d + 1 to 4 * n * d`
+- **Kept only when:** `k % d != 0`; `k % (d * n) != 0`; `gcd(k, d) == 1`
+- **Formats:** `rice`, `ribbon`
+- **Named mistakes:** `multiplied-instead`, `divided-only-the-whole-number`, `took-away`
+- **Example:** A ribbon 5 1/5 m long is cut into 2 equal pieces. How long is each piece, in metres? **Answer: 2 3/5**
 
 **Level 6: Divide in steps** (`divide-in-steps`, 3 templates)
 
@@ -779,7 +848,7 @@ GMDAS with fractions: multiply before adding.
 - **Named mistakes:** `worked-left-to-right`, `added-everything`
 - **Example:** 1/5 + 4/5 × 4 = ? **Answer: 3 2/5**
 
-**Level 3: Exponents** (`exponents`, 3 templates)
+**Level 3: Exponents** (`exponents`, 4 templates)
 
 #### `gemdas.power-value`
 
@@ -822,7 +891,20 @@ Write a number as a power of a given base: find the exponent.
 - **Named mistakes:** `divided-once`, `one-short`
 - **Example:** Which power of 5 is 25? **Answer: 2**
 
-**Level 4: Exponents first** (`gemdas`, 3 templates)
+#### `gemdas.greatest-power`
+
+Compare numbers in exponential form by working out each value.
+
+- **Competency:** G6.Q2.11, give the value of numbers expressed in exponential form
+- **Domain:** NA, Number and Algebra
+- **Schema:** compare (additive)
+- **Answer:** multiple choice
+- **Draws:** `k: 1 to 6`
+- **Formats:** `greatest`
+- **Named mistakes:** `picked-a-smaller-power-a`, `picked-a-smaller-power-b`, `picked-a-smaller-power-c`
+- **Example:** Which of these has the greatest value? Choices: 6²; 2⁵; 3³; 5². **Answer: 6²**
+
+**Level 4: Exponents first** (`gemdas`, 4 templates)
 
 #### `gemdas.power-ops`
 
@@ -863,6 +945,19 @@ GEMDAS: an exponent, then multiplying, then taking away.
 - **Formats:** `expression`
 - **Named mistakes:** `worked-left-to-right`, `doubled-instead-of-squaring`
 - **Example:** 7² − 2 × 4 = ? **Answer: 41**
+
+#### `gemdas.which-first`
+
+Say which part of an expression GEMDAS works out first.
+
+- **Competency:** G6.Q2.12, calculations with exponential form applying GEMDAS
+- **Domain:** NA, Number and Algebra
+- **Schema:** compare (additive)
+- **Answer:** multiple choice
+- **Draws:** `i: 1 to 8`
+- **Formats:** `first`
+- **Named mistakes:** `picked-another-part`, `picked-a-second-part`, `picked-a-third-part`
+- **Example:** In 7 × 4 − 10 ÷ 2 + 1, which part do you work out first? Choices: The subtraction; The addition; The division; The multiplication. **Answer: The multiplication**
 
 ### 4. Factors and primes (`factors`)
 

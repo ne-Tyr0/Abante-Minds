@@ -14,7 +14,7 @@
     {
       "id": "compare-and-round",
       "title": "Compare and round",
-      "templates": ["decimals.greatest", "decimals.between", "decimals.round"],
+      "templates": ["decimals.greatest", "decimals.between", "decimals.round", "decimals.round-money", "decimals.order"],
       "lesson": [
         { "title": "Compare place by place", "body": "Line the numbers up at the point and compare from the left: ones, then tenths, then hundredths. 0.45 is greater than 0.405, because after the 4 tenths it has 5 hundredths and 0.405 has none. More digits does not mean bigger." },
         { "title": "Worked example", "example": { "template": "decimals.round", "params": { "w": 4, "e": 6275, "p": 3 }, "format": "plain" } },
@@ -54,7 +54,7 @@
     {
       "id": "word-problems",
       "title": "Word problems",
-      "templates": ["decimals.share-cost", "decimals.how-many-pieces", "decimals.cost-of-more"],
+      "templates": ["decimals.share-cost", "decimals.how-many-pieces", "decimals.cost-of-more", "decimals.money-left"],
       "lesson": [
         { "title": "Find the question first", "body": "Read to the end to see what is asked, then decide which numbers you need. Some numbers in a problem are there only to distract you." },
         { "title": "Worked example", "example": { "template": "decimals.how-many-pieces", "params": { "vi": 25, "t": 30, "p": 45 }, "format": "ribbon" } },
@@ -912,6 +912,155 @@
           "value": "price * n",
           "error": "multiplied-the-whole-price",
           "feedback": "{peso(value)} is {n} times the price of {fmt(w)} {pick(m, 'm', 'kg')}. Find the price of 1 {pick(m, 'metre', 'kilogram')} first: {peso(price)} ÷ {fmt(w)}."
+        }
+      ]
+    },
+    {
+      "id": "decimals.round-money",
+      "competency": "G5.Q2.8",
+      "domain": "NA",
+      "construct": "Round an amount of money to the nearest peso by its centavos",
+      "schema": "part-whole",
+      "params": {
+        "n": {"tiers": {"1": [10, 99], "3": [100, 999]}},
+        "c": {"range": [1, 99]},
+        "x": {"value": "n + c / 100"}
+      },
+      "where": ["c != 50"],
+      "answer": {"type": "integer", "value": "round(x)", "prefix": "₱"},
+      "formats": [
+        {"id": "price", "prompt": "A bag of rice costs {peso(x)}. To the nearest peso, about how much is it?"},
+        {"id": "round", "prompt": "Round {peso(x)} to the nearest peso."}
+      ],
+      "hints": [
+        "Look at the centavos: {c} centavo{c == 1 ? '' : 's'}.",
+        "50 centavos or more rounds up to the next peso; less than 50 rounds down.",
+        "{c} centavo{c == 1 ? '' : 's'} is {c > 50 ? 'more' : 'less'} than 50, so round {c > 50 ? 'up' : 'down'}."
+      ],
+      "steps": [
+        "{peso(x)} is ₱{n} and {c} centavo{c == 1 ? '' : 's'}",
+        "{c} centavo{c == 1 ? '' : 's'} is {c > 50 ? 'more than half a peso: round up' : 'less than half a peso: round down'}",
+        "= ₱{answer}"
+      ],
+      "explain": "{c} centavo{c == 1 ? '' : 's'} is {c > 50 ? 'more' : 'less'} than half a peso, so {peso(x)} rounds to ₱{answer}.",
+      "distractors": [
+        {
+          "value": "n",
+          "error": "dropped-the-centavos",
+          "feedback": "₱{value} just drops the {c} centavo{c == 1 ? '' : 's'}. {c} centavo{c == 1 ? '' : 's'} is more than half a peso, so round up."
+        },
+        {
+          "value": "n + 1",
+          "error": "rounded-up-anyway",
+          "feedback": "₱{value} rounds up, but {c} centavo{c == 1 ? '' : 's'} is less than half a peso: round down."
+        }
+      ]
+    },
+    {
+      "id": "decimals.order",
+      "competency": "G5.Q2.7",
+      "domain": "NA",
+      "construct": "Put four decimals in order from least to greatest, place by place",
+      "schema": "compare",
+      "params": {
+        "w": {"tiers": {"1": [0, 9], "3": [0, 20]}},
+        "d1": {"range": [1, 9]},
+        "d2": {"range": [1, 9]},
+        "k": {"range": [1, 4]},
+        "v1": {"value": "w + d1 / 100 + d2 / 1000"},
+        "v2": {"value": "w + d1 / 10"},
+        "v3": {"value": "w + d1 / 10 + d2 / 1000"},
+        "v4": {"value": "w + d1 / 10 + d2 / 100"},
+        "o1": {"value": "pick(k, v2, v1, v1, v1)"},
+        "o2": {"value": "pick(k, v3, v3, v2, v2)"},
+        "o3": {"value": "pick(k, v4, v4, v4, v3)"}
+      },
+      "answer": {"type": "choice", "value": "pick(k, v1, v2, v3, v4)", "label": "{fmt(value)}", "order": "mixed"},
+      "formats": [
+        {
+          "id": "order",
+          "prompt": "Put these numbers in order from least to greatest: {fmt(v4)}, {fmt(v1)}, {fmt(v3)}, {fmt(v2)}. Which comes {pick(k, 'first', 'second', 'third', 'fourth')}?"
+        }
+      ],
+      "hints": [
+        "Line the numbers up at the decimal point and compare them place by place.",
+        "Compare the tenths first, then the hundredths, then the thousandths.",
+        "{fmt(v1)} has 0 tenths, so it is the least."
+      ],
+      "steps": [
+        "Tenths: {fmt(v1)} has 0; the others have {d1}",
+        "Then the hundredths and thousandths: {fmt(v2)} < {fmt(v3)} < {fmt(v4)}",
+        "Least to greatest: {fmt(v1)}, {fmt(v2)}, {fmt(v3)}, {fmt(v4)}"
+      ],
+      "explain": "From least to greatest: {fmt(v1)}, {fmt(v2)}, {fmt(v3)}, {fmt(v4)}. The {pick(k, 'first', 'second', 'third', 'fourth')} is {fmt(answer)}.",
+      "distractors": [
+        {
+          "value": "o1",
+          "error": "misplaced-a",
+          "feedback": "{fmt(value)} comes {value == v1 ? 'first' : (value == v2 ? 'second' : (value == v3 ? 'third' : 'fourth'))} from least to greatest. More digits after the point does not make a number bigger: compare place by place."
+        },
+        {
+          "value": "o2",
+          "error": "misplaced-b",
+          "feedback": "{fmt(value)} comes {value == v1 ? 'first' : (value == v2 ? 'second' : (value == v3 ? 'third' : 'fourth'))} from least to greatest. More digits after the point does not make a number bigger: compare place by place."
+        },
+        {
+          "value": "o3",
+          "error": "misplaced-c",
+          "feedback": "{fmt(value)} comes {value == v1 ? 'first' : (value == v2 ? 'second' : (value == v3 ? 'third' : 'fourth'))} from least to greatest. More digits after the point does not make a number bigger: compare place by place."
+        }
+      ]
+    },
+    {
+      "id": "decimals.money-left",
+      "competency": "G5.Q4.1",
+      "domain": "NA",
+      "construct": "Share an amount equally, then take away what each one spends",
+      "schema": "multi-step",
+      "params": {
+        "n": {"range": [2, 5]},
+        "share": {"tiers": {"1": [20, 100], "3": [50, 250]}, "step": 0.25},
+        "s": {"range": [5, "share - 5"], "step": 0.25},
+        "T": {"value": "share * n"}
+      },
+      "where": ["floor(s) != s || floor(share) != share", "floor((T - s) * 100 / n) == (T - s) * 100 / n"],
+      "answer": {"type": "decimal", "value": "share - s", "maxDecimals": 2, "prefix": "₱"},
+      "formats": [
+        {
+          "id": "nephews",
+          "prompt": "Tita Rosa gives {peso(T)} to be shared equally by her {n} nephews. Each nephew spends {peso(s)} on a snack. How much does each nephew have left?"
+        },
+        {
+          "id": "officers",
+          "prompt": "The {n} officers of a class share {peso(T)} from their fund equally. Each one spends {peso(s)} on supplies. How much does each officer have left?"
+        }
+      ],
+      "hints": [
+        "First find each share: {peso(T)} ÷ {n}.",
+        "{peso(T)} ÷ {n} = {peso(share)}.",
+        "{peso(share)} − {peso(s)} = ?"
+      ],
+      "steps": [
+        "Each share: {peso(T)} ÷ {n} = {peso(share)}",
+        "Each spends {peso(s)}",
+        "{peso(share)} − {peso(s)} = {peso(answer)}"
+      ],
+      "explain": "Each one gets {peso(share)} and spends {peso(s)}, leaving {peso(answer)}.",
+      "distractors": [
+        {
+          "value": "T - s",
+          "error": "did-not-share",
+          "feedback": "{peso(value)} takes the {peso(s)} from the whole {peso(T)}. Share it first: {peso(T)} ÷ {n}."
+        },
+        {
+          "value": "(T - s) / n",
+          "error": "took-away-only-once",
+          "feedback": "{peso(value)} takes away only one {peso(s)} before sharing. Each of the {n} spends it: share first, then take away."
+        },
+        {
+          "value": "share",
+          "error": "forgot-the-spending",
+          "feedback": "{peso(value)} is each share before spending. Take away the {peso(s)}."
         }
       ]
     }

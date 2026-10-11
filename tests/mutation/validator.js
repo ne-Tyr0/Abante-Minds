@@ -163,10 +163,11 @@ const MUTANTS = [
     lvl(j, "divide").templates = lvl(j, "divide").templates.filter((id) => id !== "decimals.divide-by-whole");
   }, "no template for G6.Q1.10"],
   ["fewer templates than the blueprint targets", D, (j) => {
-    /* One short of the target of 20, dropping only templates whose competency
-       another template covers and that no lesson uses as its example. */
-    const safe = ["decimals.cost-of-more", "decimals.from-fraction", "decimals.between", "decimals.multiply-money"];
-    const drop = safe.slice(0, j.templates.length - 19);
+    /* One short of the target of 20, however many the topic has: drop the
+       newest templates that no lesson uses as its example. Other problems
+       this causes (a competency left uncovered) do not hide this one. */
+    const examples = new Set(j.levels.flatMap((l) => l.lesson.filter((c) => c.example).map((c) => c.example.template)));
+    const drop = j.templates.map((t) => t.id).filter((id) => !examples.has(id)).reverse().slice(0, j.templates.length - 19);
     j.templates = j.templates.filter((t) => !drop.includes(t.id));
     j.levels.forEach((l) => { l.templates = l.templates.filter((id) => !drop.includes(id)); });
   }, "19 templates; the blueprint targets 20"],
