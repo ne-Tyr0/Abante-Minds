@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.27.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.28.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -16,24 +16,24 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Factors and primes | 4% | 4 | 15 | 5 | 38 |
 | Ratio and proportion | 8% | 4 | 13 | 7 | 27 |
 | Percentages | 5% | 3 | 14 | 2 | 30 |
-| Time | 4% | 4 | 13 | 4 | 27 |
+| Time | 4% | 4 | 15 | 5 | 32 |
 | Perimeter and area | 9% | 4 | 16 | 6 | 35 |
 | Solids and volume | 9% | 5 | 24 | 13 | 64 |
 | Circles | 8% | 4 | 17 | 7 | 36 |
 | Graphs and data | 11% | 5 | 17 | 9 | 37 |
 | Probability | 4% | 3 | 12 | 2 | 24 |
 | Transformations | 5% | 4 | 15 | 3 | 36 |
-| **All** | | **56** | **212** | **93** | **490** |
+| **All** | | **56** | **214** | **94** | **495** |
 
-The path's templates serve 93 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 14 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
+The path's templates serve 94 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 15 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
 Problem schemas on the path:
 
 | Schema | Kind | Templates |
 |---|---|---:|
-| change | additive | 17 |
+| change | additive | 18 |
 | combine | additive | 6 |
-| compare | additive | 21 |
+| compare | additive | 22 |
 | equal-groups | multiplicative | 31 |
 | rate | multiplicative | 5 |
 | multiplicative-compare | multiplicative | 21 |
@@ -1614,7 +1614,7 @@ Work back from a deadline through two lengths of time.
 - **Named mistakes:** `forgot-the-walk`, `forgot-getting-ready`
 - **Example:** Ben must be at school by 07:40. Getting ready takes 40 minutes, and the walk to school takes 25 minutes. What is the latest time Ben can wake up? **Answer: 06:35**
 
-**Level 4: Time zones** (`time-zones`, 3 templates)
+**Level 4: Time zones** (`time-zones`, 5 templates)
 
 #### `time.zone-convert`
 
@@ -1657,6 +1657,33 @@ Find the local time a flight lands in another time zone.
 - **Formats:** `flight`
 - **Named mistakes:** `forgot-the-time-difference`, `went-the-wrong-way`
 - **Example:** A plane leaves Manila at 00:00, Manila time. The flight to Jakarta takes 4 hours 15 minutes, and Jakarta is 1 hour behind Manila. What is the time in Jakarta when the plane lands? **Answer: 03:15**
+
+#### `time.zone-map`
+
+Read two cities' time zones off a map, then change Philippine time.
+
+- **Competency:** G5.Q1.4, compare time in world time zones to PH time using a map
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** change (additive)
+- **Answer:** clock time
+- **Draws:** `p: 1 to 6`; `t: 0 to 1435 in steps of 5`
+- **Kept only when:** `t + off * 60 >= 0`; `t + off * 60 < 1440`; `t - off * 60 >= 0`; `t - off * 60 < 1440`
+- **Formats:** `map`
+- **Named mistakes:** `went-the-wrong-way`, `read-the-wrong-city`
+- **Example:** Picture: a time zone map, one column for each hour, from UTC+2 to UTC+9. Manila is in UTC+8; Riyadh is in UTC+3; Bangkok is in UTC+7. The map shows time zones, one hour apart. When it is 06:40 in Manila, what time is it in Riyadh? **Answer: 01:40**
+
+#### `time.zone-map-hours`
+
+Read how many hours apart two cities are from a time zone map.
+
+- **Competency:** G5.Q1.4, compare time in world time zones to PH time using a map
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** compare (additive)
+- **Answer:** whole number
+- **Draws:** `p: 1 to 6`
+- **Formats:** `apart`, `ahead`
+- **Named mistakes:** `gave-the-zone`, `read-the-wrong-city`, `counted-the-columns`
+- **Example:** Picture: a time zone map, one column for each hour, from UTC+2 to UTC+9. Manila is in UTC+8; Jakarta is in UTC+7; Riyadh is in UTC+3. Use the map. How many hours apart are the times in Manila and Jakarta? **Answer: 1**
 
 ### 8. Perimeter and area (`area`)
 

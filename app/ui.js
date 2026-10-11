@@ -970,10 +970,35 @@
     return [root];
   }
 
+  /* A strip of time zones, one column an hour, each headed by its UTC name,
+     with the cities marked in theirs. A name sits on the side of its dot
+     with more room. */
+  function zonesFigure(c) {
+    var n = c.to - c.from + 1, col = 44, head = 26, row = 24;
+    var W = n * col, H = head + Math.max(3, c.cities.length) * row + 10;
+    var root = svg("svg", { viewBox: "-1 -1 " + (W + 2) + " " + (H + 2), width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    root.style.maxWidth = Math.min(480, Math.round(W * 1.25)) + "px";
+    root.style.margin = "0 auto";
+    for (var i = 0; i < n; i++) {
+      root.appendChild(svg("rect", { x: i * col, y: 0, width: col, height: H,
+        style: "fill: " + (i % 2 ? "var(--surface-100)" : "var(--surface-200)") + "; stroke: var(--surface-300); stroke-width: 1" }));
+      var z = c.from + i;
+      root.appendChild(label(i * col + col / 2, 17, z ? "UTC+" + z : "UTC", { anchor: "middle", size: 10, bold: true }));
+    }
+    root.appendChild(svg("line", { x1: 0, x2: W, y1: head, y2: head, style: "stroke: var(--line-200); stroke-width: 1" }));
+    c.cities.forEach(function (city, k) {
+      var at = city.zone - c.from, x = at * col + col / 2, y = head + 16 + k * row, east = at >= n / 2;
+      root.appendChild(svg("circle", { cx: x, cy: y - 4, r: 4.5, style: "fill: var(--brand-blue-600)" }));
+      root.appendChild(label(east ? x - 8 : x + 8, y, city.name, { anchor: east ? "end" : "start", size: 12, ink: "var(--ink-900)", bold: true }));
+    });
+    return [root];
+  }
+
   /* A picture with no frame or title, for an answer tile. */
   function figureParts(c) {
     return c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c) : c.kind === "mirror" ? mirrorFigure(c)
-      : c.kind === "cubes" ? cubesFigure(c) : c.kind === "solid" ? solidFigure(c) : gridFigure(c);
+      : c.kind === "cubes" ? cubesFigure(c) : c.kind === "solid" ? solidFigure(c) : c.kind === "zones" ? zonesFigure(c) : gridFigure(c);
   }
 
   function Chart(c) {
@@ -985,7 +1010,7 @@
     if (c.kind === "table") return el("div.am-chart", { style: box }, tableChart(c));
     var parts = c.kind === "pie" ? pieChart(c) : c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c)
       : c.kind === "mirror" ? mirrorFigure(c) : c.kind === "grid" ? gridFigure(c) : c.kind === "cubes" ? cubesFigure(c)
-      : c.kind === "solid" ? solidFigure(c) : axisChart(c, "am-chart-" + (++chartCount));
+      : c.kind === "solid" ? solidFigure(c) : c.kind === "zones" ? zonesFigure(c) : axisChart(c, "am-chart-" + (++chartCount));
     return el("figure.am-chart", { role: "img", "aria-label": c.text, style: box },
       el("div.label", { "aria-hidden": "true", style: { color: "var(--ink-900)" } }, c.title), parts);
   }
