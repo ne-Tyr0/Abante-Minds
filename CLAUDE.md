@@ -34,6 +34,8 @@ node tests/validate-packs.js   # every question pack against the schema and the 
 node tests/fuzz.js             # about two million generated questions; exits 1 on any violation
 node tests/item-spec.js        # the item specification generator: what it says about a template
 node tools/item-spec.js        # rewrite ITEM-SPECIFICATIONS.md from the packs (--check: is it current?)
+node tests/replay.js           # the replay tool: a logged attempt rebuilds to the question asked
+node tools/replay.js log.json  # reprint every question in an attempt log (--csv for a spreadsheet)
 node poc/progress-code.js      # proves the backup-code codec; exits 1 if a claim fails
 node tests/invariants.js       # repo rules that fail silently at runtime; exits 1 on any
 node tests/cache-bump.js main  # did a precached file change without a CACHE bump?
@@ -53,7 +55,7 @@ third before it shipped: a pinned item on a template with more than one format c
 
 `tests/mutation/` breaks the engine, the entry rules, the facts drill, the strengths and
 gaps, the progress rules and the packs one way at a time and requires the tests to fail:
-`node tests/mutation/engine.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
+`node tests/mutation/engine.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -73,6 +75,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `_ds/`, `motion/` | Vendored design system and motion layer. Do not edit; they come from the design project |
 | `poc/` | Proofs for features not yet built. Not shipped, not loaded by the app |
 | `tools/item-spec.js` | Writes `ITEM-SPECIFICATIONS.md` from the packs: per template its competency, construct, schema, answer, ranges by tier, named mistakes and an example drawn by the engine. `--csv` gives the same as a spreadsheet, for expert raters. CI checks the file is current |
+| `tools/replay.js` | Reprints the questions in an attempt log exactly as they were asked, rebuilt from each row's recipe, with the answer given and the mistake it matched. Flags a row asked with another pack version, in another format, or marked differently now. `--csv` gives one row per attempt |
 | `tools/overview-pdf/` | Builds the teacher overview PDF from real screenshots. Its copy predates the retarget, so `build.py` refuses to run until it is rewritten |
 | `abante-minds-claude-design/` | Original design kit; source of the brand mark |
 | `RESEARCH-PLAN.md` | The ordered build plan: content rebuild, research instrumentation, citability. Read it before starting anything below |
