@@ -69,7 +69,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak, missed questions due for review, practice exams, and the attempt log under its own key |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
-| `app/ui.js` | Design-system components as DOM builders, and the chart a question can carry (`AM.Chart`: bar, line and pie graphs in SVG, tables, and pictures: shapes round a point, a clock, a mirror line, a shape on squared paper and its image after a move, a block of small cubes). A choice's options can be pictures too |
+| `app/ui.js` | Design-system components as DOM builders, and the chart a question can carry (`AM.Chart`: bar, line and pie graphs in SVG, tables, and pictures: shapes round a point, a clock, a mirror line, a shape on squared paper and its image after a move, a block of small cubes, a solid in outline). A choice's options can be pictures too |
 | `_ds/`, `motion/` | Vendored design system and motion layer. Do not edit; they come from the design project |
 | `poc/` | Proofs for features not yet built. Not shipped, not loaded by the app |
 | `tools/item-spec.js` | Writes `ITEM-SPECIFICATIONS.md` from the packs: per template its competency, construct, schema, answer, ranges by tier, named mistakes and an example drawn by the engine. `--csv` gives the same as a spreadsheet, for expert raters. CI checks the file is current |

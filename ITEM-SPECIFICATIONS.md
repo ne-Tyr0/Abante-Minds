@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.26.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.27.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -18,14 +18,14 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Percentages | 5% | 3 | 14 | 2 | 30 |
 | Time | 4% | 4 | 13 | 4 | 27 |
 | Perimeter and area | 9% | 4 | 16 | 6 | 35 |
-| Solids and volume | 9% | 5 | 22 | 12 | 58 |
+| Solids and volume | 9% | 5 | 24 | 13 | 64 |
 | Circles | 8% | 4 | 17 | 7 | 36 |
 | Graphs and data | 11% | 5 | 17 | 9 | 37 |
 | Probability | 4% | 3 | 12 | 2 | 24 |
 | Transformations | 5% | 4 | 15 | 3 | 36 |
-| **All** | | **56** | **210** | **92** | **484** |
+| **All** | | **56** | **212** | **93** | **490** |
 
-The path's templates serve 92 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 13 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
+The path's templates serve 93 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 14 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
 Problem schemas on the path:
 
@@ -33,7 +33,7 @@ Problem schemas on the path:
 |---|---|---:|
 | change | additive | 17 |
 | combine | additive | 6 |
-| compare | additive | 19 |
+| compare | additive | 21 |
 | equal-groups | multiplicative | 31 |
 | rate | multiplicative | 5 |
 | multiplicative-compare | multiplicative | 21 |
@@ -1889,7 +1889,7 @@ Solve a painting problem with area.
 
 Blueprint weight 9%.
 
-**Level 1: Faces, edges and vertices** (`parts`, 6 templates)
+**Level 1: Faces, edges and vertices** (`parts`, 8 templates)
 
 #### `solids.prism-parts`
 
@@ -1969,6 +1969,32 @@ Name the solid a net folds into.
 - **Formats:** `net`
 - **Named mistakes:** `picked-a-similar-solid`, `picked-another-solid`, `picked-a-third-solid`
 - **Example:** A net is a flat pattern that folds up into a solid. A net is made of 4 equal triangles. Which solid does it fold into? Choices: A triangular prism; A square pyramid; A triangular pyramid; A cone. **Answer: A triangular pyramid**
+
+#### `solids.name-the-solid`
+
+Name a solid from a picture of it.
+
+- **Competency:** G5.Q4.3, illustrate solid figures with concrete and pictorial models
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** compare (additive)
+- **Answer:** multiple choice
+- **Draws:** `s: 1 to 8`
+- **Formats:** `name`, `which`
+- **Named mistakes:** `picked-a-similar-solid`, `picked-another-solid`, `picked-a-third-solid`
+- **Example:** Picture: a solid drawn in outline, its hidden edges dashed: 2 circular ends joined by one curved surface. What is the name of this solid? Choices: A rectangular prism; A cylinder; A sphere; A cone. **Answer: A cylinder**
+
+#### `solids.pick-the-solid`
+
+Choose the picture of a named solid.
+
+- **Competency:** G5.Q4.3, illustrate solid figures with concrete and pictorial models
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** compare (additive)
+- **Answer:** choice of pictures
+- **Draws:** `s: 1 to 8`
+- **Formats:** `pick`
+- **Named mistakes:** `picked-a-similar-solid`, `picked-another-solid`, `picked-a-third-solid`
+- **Example:** Which picture shows a cylinder? Choices: A: Picture: a solid drawn in outline, its hidden edges dashed: one curved surface and no flat faces.; B: Picture: a solid drawn in outline, its hidden edges dashed: a circular base and a curved surface that comes to a point.; C: Picture: a solid drawn in outline, its hidden edges dashed: 2 circular ends joined by one curved surface.; D: Picture: a solid drawn in outline, its hidden edges dashed: 6 rectangular faces, not all the same size. **Answer: Picture C**
 
 **Level 2: Surface area** (`surface-area`, 3 templates)
 

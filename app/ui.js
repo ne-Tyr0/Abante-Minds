@@ -933,10 +933,47 @@
     return [root];
   }
 
+  /* A solid in outline, drawn at a slant: faces lightly filled, the edges
+     in front solid and the hidden ones dashed. Numbered as the engine
+     numbers them. */
+  var SOLID_DRAWINGS = [
+    /* cube */ { faces: [[[20, 50], [100, 50], [130, 28], [50, 28]], [[100, 50], [130, 28], [130, 108], [100, 130]], [[20, 50], [100, 50], [100, 130], [20, 130]]],
+      hidden: [[[50, 28], [50, 108]], [[50, 108], [130, 108]], [[20, 130], [50, 108]]] },
+    /* rectangular prism */ { faces: [[[12, 66], [112, 66], [142, 44], [42, 44]], [[112, 66], [142, 44], [142, 98], [112, 120]], [[12, 66], [112, 66], [112, 120], [12, 120]]],
+      hidden: [[[42, 44], [42, 98]], [[42, 98], [142, 98]], [[12, 120], [42, 98]]] },
+    /* triangular prism */ { faces: [[[85, 122], [50, 62], [110, 37], [145, 97]], [[15, 122], [85, 122], [50, 62]]],
+      hidden: [[[75, 97], [110, 37]], [[75, 97], [145, 97]], [[15, 122], [75, 97]]] },
+    /* square pyramid */ { faces: [[[100, 122], [130, 100], [75, 25]], [[20, 122], [100, 122], [75, 25]]],
+      hidden: [[[50, 100], [20, 122]], [[50, 100], [130, 100]], [[50, 100], [75, 25]]] },
+    /* triangular pyramid */ { faces: [[[100, 122], [135, 96], [68, 28]], [[22, 122], [100, 122], [68, 28]]],
+      hidden: [[[22, 122], [135, 96]]] },
+    /* cylinder */ { paths: [{ d: "M30 38 L30 116 A45 14 0 0 0 120 116 L120 38 Z", fill: true }, { d: "M30 38 A45 14 0 1 1 120 38 A45 14 0 1 1 30 38 Z", fill: true }],
+      dashed: ["M30 116 A45 14 0 0 1 120 116"] },
+    /* cone */ { paths: [{ d: "M75 22 L30 116 A45 14 0 0 0 120 116 Z", fill: true }], dashed: ["M30 116 A45 14 0 0 1 120 116"] },
+    /* sphere */ { paths: [{ d: "M25 75 A50 50 0 1 1 125 75 A50 50 0 1 1 25 75 Z", fill: true }, { d: "M25 75 A50 14 0 0 0 125 75", fill: false }],
+      dashed: ["M25 75 A50 14 0 0 1 125 75"] }
+  ];
+  function solidFigure(c) {
+    var d = SOLID_DRAWINGS[c.shape - 1];
+    var root = svg("svg", { viewBox: "0 0 160 145", width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    root.style.maxWidth = "220px";
+    root.style.margin = "0 auto";
+    var edge = "stroke: var(--brand-blue-600); stroke-width: 2.5; stroke-linejoin: round";
+    var hidden = "fill: none; stroke: var(--ink-600); stroke-width: 1.5; stroke-dasharray: 5 4";
+    var at = function (pts) { return pts.map(function (p) { return p.join(","); }).join(" "); };
+    (d.hidden || []).forEach(function (h) { root.appendChild(svg("polyline", { points: at(h), style: hidden })); });
+    (d.dashed || []).forEach(function (p) { root.appendChild(svg("path", { d: p, style: hidden })); });
+    var face = "fill: var(--brand-blue-100); fill-opacity: 0.45; " + edge;
+    (d.faces || []).forEach(function (f) { root.appendChild(svg("polygon", { points: at(f), style: face })); });
+    (d.paths || []).forEach(function (p) { root.appendChild(svg("path", { d: p.d, style: p.fill ? face : "fill: none; " + edge })); });
+    return [root];
+  }
+
   /* A picture with no frame or title, for an answer tile. */
   function figureParts(c) {
     return c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c) : c.kind === "mirror" ? mirrorFigure(c)
-      : c.kind === "cubes" ? cubesFigure(c) : gridFigure(c);
+      : c.kind === "cubes" ? cubesFigure(c) : c.kind === "solid" ? solidFigure(c) : gridFigure(c);
   }
 
   function Chart(c) {
@@ -948,7 +985,7 @@
     if (c.kind === "table") return el("div.am-chart", { style: box }, tableChart(c));
     var parts = c.kind === "pie" ? pieChart(c) : c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c)
       : c.kind === "mirror" ? mirrorFigure(c) : c.kind === "grid" ? gridFigure(c) : c.kind === "cubes" ? cubesFigure(c)
-      : axisChart(c, "am-chart-" + (++chartCount));
+      : c.kind === "solid" ? solidFigure(c) : axisChart(c, "am-chart-" + (++chartCount));
     return el("figure.am-chart", { role: "img", "aria-label": c.text, style: box },
       el("div.label", { "aria-hidden": "true", style: { color: "var(--ink-900)" } }, c.title), parts);
   }

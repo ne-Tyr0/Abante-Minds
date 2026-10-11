@@ -558,6 +558,15 @@
     8: ["a regular octagon", "regular octagons"], 9: ["a regular nonagon", "regular nonagons"],
     10: ["a regular decagon", "regular decagons"], 12: ["a regular dodecagon", "regular dodecagons"]
   };
+  /* The solids a picture can show, by number, as their faces describe them:
+     a cube, a rectangular prism, a triangular prism, a square pyramid, a
+     triangular pyramid, a cylinder, a cone and a sphere. */
+  var SOLID_FACES = [
+    "6 square faces, all the same size", "6 rectangular faces, not all the same size",
+    "2 triangular ends joined by 3 rectangles", "a square base and 4 triangular faces that meet at a point",
+    "4 triangular faces", "2 circular ends joined by one curved surface",
+    "a circular base and a curved surface that comes to a point", "one curved surface and no flat faces"
+  ];
   function whole(src, scope, lo, hi, what) {
     var v = toNumber(int(evalExpr(src, scope)));
     if (v < lo || v > hi) throw ContentError(what + " is " + lo + " to " + hi + ", not " + v);
@@ -565,8 +574,8 @@
   }
   /* A picture: shapes round a point, a clock face, a mirror line on squared
      paper, a shape drawn on a grid with its corners on grid points -- with,
-     for a move, its image, the mirror line or the point it turns about -- or
-     a block built from small cubes. */
+     for a move, its image, the mirror line or the point it turns about -- a
+     block built from small cubes, or a solid drawn in outline. */
   function renderFigure(spec, scope, c) {
     if (spec.kind === "tiling") {
       var used = 0;
@@ -611,6 +620,11 @@
       var cubes = function (n) { return n + (n === 1 ? " cube" : " cubes"); };
       c.text = "Picture: a block built from small cubes with no gaps, " + cubes(c.length) + " long, " + cubes(c.width) + " deep and " +
         cubes(c.height) + " high.";
+    } else if (spec.kind === "solid") {
+      /* Described by its faces, never by its name: the name is often what
+         the question asks. */
+      c.shape = whole(spec.shape, scope, 1, SOLID_FACES.length, "a solid's shape");
+      c.text = "Picture: a solid drawn in outline, its hidden edges dashed: " + SOLID_FACES[c.shape - 1] + ".";
     } else if (spec.kind === "clock") {
       c.hand = whole(spec.hand, scope, 1, 12, "a clock hand");
       c.text = "Picture: a clock face, with its hand pointing to " + c.hand + ".";
@@ -630,7 +644,7 @@
   }
   function renderChart(spec, scope) {
     var c = { kind: spec.kind, title: interpolate(spec.title, scope) };
-    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror" || spec.kind === "grid" || spec.kind === "cubes") return renderFigure(spec, scope, c);
+    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror" || spec.kind === "grid" || spec.kind === "cubes" || spec.kind === "solid") return renderFigure(spec, scope, c);
     if (spec.kind === "pie") {
       c.unit = spec.unit;
       c.slices = spec.slices.map(function (s) {

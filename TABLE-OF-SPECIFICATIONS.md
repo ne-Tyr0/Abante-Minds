@@ -339,9 +339,10 @@ By October 2026 the app had pictures in questions (graphs, shapes round a point,
 face, a mirror line), and words could reach more of these than first thought: a solid from
 its faces or its net, π as the circumference over the diameter, a circle cut into slices to
 find its area, turning a clock hand, naming a slide, flip or turn, and the uses of
-percentages. A shape on squared paper reaches estimating area on a grid, and a block drawn
-in small cubes reaches volume in non-standard units (G5.Q4.11). The ones still unreached
-need more than a picture to look at: models of solids, and time zones on a map.
+percentages. A shape on squared paper reaches estimating area on a grid, a block drawn in
+small cubes reaches volume in non-standard units (G5.Q4.11), and solids drawn in outline
+reach pictorial models of solids (G5.Q4.3). The one still unreached, time zones on a map,
+needs a map.
 
 ## Problem schemas
 
