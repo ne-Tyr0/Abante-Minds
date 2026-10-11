@@ -3,11 +3,11 @@
 Builds `Abante-Minds-overview.pdf`, the six-page A4 overview for teachers, from real
 screenshots of the running app, typeset in the app's own design tokens.
 
-> **The page copy in `build.py` is out of date, and `build.py` refuses to run until it is
-> rewritten.** It predates the Grade 6 / PSHS NCE retarget: it says Grade 9, names the wrong
-> exam, promises that nothing ever leaves the phone, and describes the removed sync as a
-> feature. Per `RESEARCH-PLAN.md` Phase 0 item 4, the PDF is rebuilt once Phase 2 content
-> exists. Do not send the old one.
+> **The copy is a draft, written in October 2026 for the Grade 6 / PSHS NCE app, and the
+> owner has not yet read it.** Until they have, `DRAFT = True` in `build.py` marks every page
+> "Draft for review: not to be sent". Set it to `False` once the copy is approved. The numbers
+> in the PDF (topics, weights, levels, kinds of question, named mistakes, competencies reached,
+> the app's size) are read from the packs and `sw.js` when it is built, so they stay current.
 
 ## Steps
 
@@ -37,5 +37,13 @@ The close-up boxes in `capture.py` and the page layout in `build.py` were tuned 
 current screens. When a screen's layout changes, check both.
 
 The harness takes `&w=360&h=640` to render a smaller phone; it defaults to 390x844, which is
-what `capture.py` uses. It also has three screens the PDF does not use, for reviewing the
-install offer: `home-install`, `profile-install` and `install-steps`.
+what `capture.py` uses. Most of its screens are not in the PDF; they are there for reviewing
+a screen by eye, such as the install offer (`home-install`, `profile-install`,
+`install-steps`), each kind of answer box, and each kind of picture (`data-bar`, `area-grid`,
+`solids-cubes`, `solids-pick`, `time-map`, `circles-part`, `transform-pick-flip` and more).
+
+`capture.py` uses one fresh Chrome profile per run and loads the app twice before the first
+picture. On a cold profile the app's service worker is still installing, and headless
+Chrome's virtual clock does not wait for the files it fetches, so a capture could come out
+with a stylesheet missing. It also tries a screen up to three times if the harness misses the
+app or the picture comes out blank.

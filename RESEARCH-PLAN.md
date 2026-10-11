@@ -100,8 +100,9 @@ Confirmed with the owner on 2026-10-01:
 4. **Correct the teacher-facing overview PDF**: "nothing leaves the phone unless you choose
    to share it." **Held 2026-10-01**: the existing PDF also predates the Grade 6 retarget, so
    it must not be sent. It is rebuilt once Phase 2 content exists, so its screenshots show
-   items pitched at this audience rather than the placeholders. The builder is in
-   `tools/overview-pdf/`, and refuses to run until its copy is rewritten.
+   items pitched at this audience rather than the placeholders. **Rewritten 2026-10-11** in
+   `tools/overview-pdf/`: six pages on the Grade 6 app, its numbers read from the packs. Every
+   page says "Draft for review" until the owner approves the copy.
 
 ## Phase 1 — Foundation
 

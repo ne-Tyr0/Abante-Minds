@@ -12,6 +12,7 @@ import os
 import re
 import subprocess
 import sys
+import tempfile
 import urllib.request
 
 from PIL import Image
@@ -20,20 +21,20 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SHOTS = os.path.join(HERE, "shots")
 CHROME = os.environ.get("CHROME", r"C:\Program Files\Google\Chrome\Application\chrome.exe")
 
-SCREENS = ["splash", "home", "topics", "topic", "lesson", "practice", "hint", "correct",
-           "wrong", "levelup", "summary", "profile", "offline"]
+SCREENS = ["home", "topic", "practice", "hint", "correct", "wrong", "levelup", "offline",
+           "exam-result", "transform-pick-flip"]
 
 # Close-ups cut from the 2x captures, as (source screen, box). They were placed
 # against the current layout: if one of these screens changes, re-check its box
 # against the full capture before rebuilding.
 DETAILS = {
-    "detail_hint": ("hint", (0, 325, 780, 800)),        # the three hints
-    "detail_correct": ("correct", (0, 280, 780, 800)),  # verdict and working
-    "detail_levelup": ("levelup", (0, 500, 780, 1420)), # the celebration
+    "detail_hint": ("hint", (0, 295, 780, 715)),        # the three hints
+    "detail_correct": ("correct", (0, 260, 780, 600)),  # verdict and working
+    "detail_levelup": ("levelup", (0, 490, 780, 1180)), # the celebration
 }
 
 CHROME_ARGS = ["--headless=new", "--disable-gpu", "--hide-scrollbars",
-               "--force-device-scale-factor=2", "--virtual-time-budget=4000",
+               "--force-device-scale-factor=2", "--virtual-time-budget=8000",
                "--window-size=390,844"]
 
 
@@ -48,25 +49,45 @@ def main():
         sys.exit(f"Chrome not found at {CHROME}. Set CHROME to its path.")
 
     os.makedirs(SHOTS, exist_ok=True)
+    # One fresh profile for the whole run, warmed up first. On a cold profile
+    # the app's service worker is still installing while the picture is taken,
+    # and headless Chrome's virtual clock does not wait for the files it
+    # fetches, so a stylesheet can be missing from the capture. Once warm, the
+    # worker answers from its cache at once.
+    profile = tempfile.mkdtemp(prefix="am-capture-")
+    CHROME_ARGS.append(f"--user-data-dir={profile}")
+    for _ in range(2):
+        subprocess.run([CHROME, *CHROME_ARGS, "--dump-dom", f"{origin}/tools/overview-pdf/shots.html?screen=home"],
+                       capture_output=True, text=True, timeout=120)
     for screen in SCREENS:
         url = f"{origin}/tools/overview-pdf/shots.html?screen={screen}"
 
         # Chrome photographs whatever is on screen, including a half-driven app.
         # The harness titles itself READY-<screen> only once it got there, so
         # check that first rather than trust the picture.
-        dom = subprocess.run([CHROME, *CHROME_ARGS, "--dump-dom", url],
-                             capture_output=True, text=True, timeout=120).stdout
-        title = (re.search(r"<title>([^<]*)</title>", dom) or [None, "no title"])[1]
-        if title != f"READY-{screen}":
-            sys.exit(f"{screen}: harness did not reach the screen (title: {title!r})")
+        # A cold headless start sometimes misses the app (NO-APP); try again.
+        for attempt in range(3):
+            dom = subprocess.run([CHROME, *CHROME_ARGS, "--dump-dom", url],
+                                 capture_output=True, text=True, timeout=120).stdout
+            title = (re.search(r"<title>([^<]*)</title>", dom) or [None, "no title"])[1]
+            if title == f"READY-{screen}":
+                break
+        else:
+            sys.exit(f"{screen}: harness did not reach the screen in 3 tries (title: {title!r})")
 
+        # The picture is a separate run, and can come out blank; try again.
         out = os.path.join(SHOTS, screen + ".png")
-        subprocess.run([CHROME, *CHROME_ARGS, f"--screenshot={out}", url],
-                       check=True, capture_output=True, timeout=120)
+        for attempt in range(3):
+            subprocess.run([CHROME, *CHROME_ARGS, f"--screenshot={out}", url],
+                           check=True, capture_output=True, timeout=120)
+            if Image.open(out).convert("L").getextrema()[0] < 200:
+                break
+        else:
+            sys.exit(f"{screen}: the capture came out blank in 3 tries")
         size = Image.open(out).size
         if size != (780, 1688):
             sys.exit(f"{screen}: expected a 780x1688 capture, got {size}")
-        print(f"  {screen:9} ok")
+        print(f"  {screen:19} ok")
 
     for name, (source, box) in DETAILS.items():
         Image.open(os.path.join(SHOTS, source + ".png")).crop(box).save(os.path.join(SHOTS, name + ".png"))

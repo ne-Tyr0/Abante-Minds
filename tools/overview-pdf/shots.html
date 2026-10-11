@@ -439,8 +439,12 @@ function run() {
         AM.app.startExam();
         for (var ei = 0; ei < 20; ei++) {
           var eq = AM.app.session.questions[AM.app.session.index];
+          /* Most right, a few wrong, the boxed answers skipped: a believable paper. */
           if (eq.type === "choice") { AM.app.session.picked = ei % 3 ? eq.answerIndex : (eq.answerIndex + 1) % 4; AM.app.check(); }
-          else AM.app.skipQuestion();
+          else if (eq.entry === "number") {
+            (ei % 4 ? String(eq.answerText) : "1").split("").forEach(function (ch) { AM.app.type(ch); });
+            AM.app.check();
+          } else AM.app.skipQuestion();
         }
         break;
       default:
