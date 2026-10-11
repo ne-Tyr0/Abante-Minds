@@ -1,28 +1,27 @@
 """Build the Abante Minds overview PDF.
 
 Renders an A4 document in the app's own design tokens, embeds the screenshots
-from capture.py as data URIs, and prints it with headless Chrome.
+from capture.py as data URIs, and prints it with headless Chrome. The numbers
+in it (topics, weights, levels, question types, named mistakes, competencies
+reached, the app's size) are read from the packs and the service worker when it
+is built, so they cannot go stale.
 
     python tools/overview-pdf/build.py [out.pdf]
 
 See README.md in this folder for the full sequence.
 """
-import base64, io, os, subprocess, sys
+import base64, io, json, os, re, subprocess, sys
 
-# The page copy below predates the Grade 6 / PSHS NCE retarget: it says Grade 9,
-# names the wrong exam, promises that nothing ever leaves the phone, and describes
-# the removed sync as a feature. Rewrite it (RESEARCH-PLAN.md Phase 0 item 4),
-# then set this to False. --allow-stale builds it anyway, to test the pipeline
-# only. Never send what that produces.
-COPY_IS_STALE = True
+# The copy below was rewritten for the Grade 6 / PSHS NCE app in October 2026
+# (RESEARCH-PLAN.md Phase 0 item 4), but the owner has not yet read it. Until
+# then every page is marked as a draft. Set this to False once it is approved.
+DRAFT = True
 ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
-if COPY_IS_STALE and "--allow-stale" not in sys.argv:
-    sys.exit("build.py: the page copy is out of date and must be rewritten before "
-             "this PDF is built. See tools/overview-pdf/README.md.")
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SHOTS = os.path.join(HERE, "shots")
 REPO = os.path.abspath(os.path.join(HERE, "..", ".."))
+PACK = os.path.join(REPO, "content", "packs", "math")
 CHROME = os.environ.get("CHROME", r"C:\Program Files\Google\Chrome\Application\chrome.exe")
 
 if not os.path.isdir(SHOTS):
@@ -35,10 +34,51 @@ def data_uri(path):
 
 
 SHOT = {n: data_uri(os.path.join(SHOTS, n + ".png"))
-        for n in ["splash", "home", "topics", "practice", "hint", "correct",
-                  "wrong", "levelup", "summary", "profile", "offline",
-                  "detail_hint", "detail_correct", "detail_levelup"]}
+        for n in ["home", "topic", "practice", "wrong", "levelup", "offline", "exam-result",
+                  "transform-pick-flip", "detail_hint", "detail_correct", "detail_levelup"]}
 MARK = data_uri(os.path.join(REPO, "assets", "abante-minds-mark.png"))
+
+
+# ---------------------------------------------------------------- facts
+def load(name):
+    with io.open(os.path.join(PACK, name), encoding="utf-8") as f:
+        return json.load(f)
+
+
+MANIFEST = load("manifest.json")
+BLUEPRINT = json.load(io.open(os.path.join(REPO, "content", "blueprint.json"), encoding="utf-8"))
+TOPICS = []
+for t in MANIFEST["topics"]:
+    f = load(t["file"])
+    TOPICS.append({"label": t["label"], "weight": t["weight"], "levels": len(f["levels"]),
+                   "types": len(f["templates"]), "mistakes": sum(len(x["distractors"]) for x in f["templates"]),
+                   "competencies": {x["competency"] for x in f["templates"]}})
+BASICS = [t["label"] for t in MANIFEST.get("basics", [])]
+TYPES = sum(t["types"] for t in TOPICS)
+MISTAKES = sum(t["mistakes"] for t in TOPICS)
+SERVED = set().union(*(t["competencies"] for t in TOPICS))
+ALL = len(BLUEPRINT["competencies"])
+REACHABLE = len([c for c in BLUEPRINT["competencies"] if c["app"] != "N"])
+REACHED = len([c for c in BLUEPRINT["competencies"] if c["app"] != "N" and c["code"] in SERVED])
+EXAM_DATE = MANIFEST["examDate"]
+
+
+def app_size_mb():
+    """Every file the service worker stores on the phone, in megabytes."""
+    sw = io.open(os.path.join(REPO, "sw.js"), encoding="utf-8").read()
+    files = re.findall(r'"([^"]+)"', re.search(r"SHELL\s*=\s*\[([\s\S]*?)\];", sw).group(1))
+    total = 0
+    for f in files:
+        p = f[2:] if f.startswith("./") else f
+        total += os.path.getsize(os.path.join(REPO, p if p and not p.endswith("/") else p + "index.html"))
+    return total / 1024 / 1024
+
+
+SIZE = app_size_mb()
+MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September",
+          "October", "November", "December"]
+y, mo, d = (int(x) for x in EXAM_DATE.split("-"))
+EXAM_DAY = f"{d} {MONTHS[mo - 1]} {y}"
 
 
 def phone(name, caption):
@@ -88,6 +128,7 @@ small { font-size: 8.5pt; }
 .foot { position:absolute; left:15mm; right:15mm; bottom:7mm;
         display:flex; justify-content:space-between; font-size:7.5pt; color:#6a87bd;
         border-top:1px solid #dbe7f8; padding-top:2mm; }
+.draft { color:#c1440e; font-weight:600; }
 
 /* screenshots */
 .shots { display:flex; gap:5mm; justify-content:center; align-items:flex-start; }
@@ -115,11 +156,9 @@ th { text-align:left; font-weight:600; color:#51617a; font-size:8pt;
      text-transform:uppercase; letter-spacing:0.8px; padding:0 0 1.5mm; }
 td { padding:2mm 0; border-top:1px solid #dbe7f8; vertical-align:top; }
 td.k { width:22mm; font-weight:600; color:#2458c9; white-space:nowrap; }
+td.n { text-align:right; color:#51617a; white-space:nowrap; padding-left:2mm; }
+table.topics td { padding:1.3mm 0; }
 
-.topic { display:flex; gap:3mm; align-items:flex-start; }
-.swatch { width:7mm; height:7mm; border-radius:2mm; flex:none; margin-top:0.5mm; }
-.pill { display:inline-block; padding:0.8mm 2.5mm; border-radius:99px;
-        font-size:8pt; font-weight:600; }
 .chips { display:flex; gap:2mm; flex-wrap:wrap; margin-top:2mm; }
 .chip { font-size:7.5pt; padding:1mm 2.5mm; border-radius:99px;
         background:#eef3fb; color:#51617a; border:1px solid #dbe7f8; }
@@ -131,8 +170,9 @@ td.k { width:22mm; font-weight:600; color:#2458c9; white-space:nowrap; }
 
 
 def page(inner, n, total=6):
+    mark = '<span class="draft">Draft for review: not to be sent</span>' if DRAFT else "<span>Abante Minds &middot; project overview</span>"
     return f"""<section class="page">{inner}
-  <div class="foot"><span>Abante Minds &middot; project overview</span>
+  <div class="foot">{mark}
   <span>{n} / {total}</span></div></section>"""
 
 
@@ -141,67 +181,71 @@ p1 = f"""
   <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
     <img src="{MARK}" style="width:32mm;height:32mm;object-fit:contain;margin-bottom:6mm">
     <h1 style="font-size:40pt">Abante Minds</h1>
-    <p class="lede" style="max-width:120mm;font-size:13pt;margin-bottom:8mm">
-      NCE math practice that keeps working when the signal does not.
+    <p class="lede" style="max-width:125mm;font-size:13pt;margin-bottom:8mm">
+      Practice for the mathematics of the PSHS National Competitive Examination,
+      on the phone a learner already has.
     </p>
     <div style="width:22mm;height:2px;background:#ff8a15;border-radius:2px;margin-bottom:8mm"></div>
-    <p class="muted" style="max-width:130mm">
-      A practice app for Grade&nbsp;9 learners preparing for the National Career Entrance
-      examination. It installs to the home screen, runs a full session with no data,
-      and keeps every learner's progress on their own phone.
+    <p class="muted" style="max-width:135mm">
+      A free practice app for Grade&nbsp;6 learners preparing for the mathematics part of the
+      Philippine Science High School System National Competitive Examination. It opens from a
+      link, installs to the home screen, works with no signal, and keeps each learner's
+      progress on their own phone.
     </p>
     <div class="chips" style="justify-content:center;margin-top:6mm">
       <span class="chip">Works offline</span>
       <span class="chip">No account needed</span>
       <span class="chip">Free to run</span>
-      <span class="chip">Installs from a QR code</span>
+      <span class="chip">MATATAG Grades 5 and 6</span>
     </div>
   </div>
-  <div style="text-align:center"><small class="muted">Project overview &middot; 30 September 2026</small></div>
+  <div style="text-align:center"><small class="muted">Project overview &middot; October 2026{' &middot; <span class="draft">draft for review</span>' if DRAFT else ''}</small></div>
 """
 
 # ---------------------------------------------------------------- page 2
 p2 = f"""
   <div class="eyebrow">What it is</div>
-  <h2>Ten questions at a time, on the phone already in their pocket</h2>
+  <h2>A path through the exam's mathematics, ten questions at a time</h2>
   <div class="rule"></div>
   <div style="display:flex;gap:7mm">
     <div style="flex:1">
-      <p>A learner opens Abante Minds, picks one of four topics, and answers ten
-      questions. Every question comes with three hints they can reveal and three
-      worked steps if they get it wrong. A session takes about nine minutes.</p>
+      <p>The mathematics the NCE draws on is laid out as {len(TOPICS)} topics, from decimals and
+      fractions to graphs, probability and transformations, in the order a learner meets them.
+      Each topic is a path of short levels, and each level opens with a lesson: a few cards and
+      a worked example.</p>
 
-      <p>The questions are set in places learners recognise &mdash; a sari-sari store
-      marking up stock, a fish vendor pricing by the kilo, change from a hundred-peso
-      bill &mdash; because the NCE tests the same arithmetic in the same everyday framing.</p>
+      <p>A practice round is ten questions. Eight right on the first try clears the level and
+      opens the next. The numbers change every time, so there are no answers to memorise.</p>
 
-      <h3>Why it works without signal</h3>
-      <p>The whole app is stored on the phone the first time it is opened. After that
-      there is nothing to download and nothing to wait for. A learner can practise on a
-      jeepney, at home with the data gone, or anywhere the signal drops &mdash; and their
-      streak and tier still move.</p>
+      <h3>Basics, beside the path</h3>
+      <p>The facts and methods every topic leans on, in {len(BASICS)} topics of their own:
+      {', '.join(b[0].lower() + b[1:] for b in BASICS[:-1])}, and {BASICS[-1][0].lower() + BASICS[-1][1:]}.
+      A fact counts as mastered only when it is answered right, and quickly, on two different
+      days.</p>
 
-      <h3>What a teacher needs to do</h3>
-      <p>Share a link or put a QR code on the board. There are no accounts to create, no
-      class lists to maintain, and no logins for anyone to forget.</p>
+      <h3>Ready for the day itself</h3>
+      <p>A practice exam asks 20 questions in 30 minutes from every topic, in proportion to how
+      much each is expected to count, with no hints and the answers only at the end. Home counts
+      down to the exam, {EXAM_DAY}. A question missed comes back a day, three days and a week
+      later, so it sticks.</p>
 
       <div class="good">
-        <b>Nothing leaves the phone.</b> No sign-up, no email, no analytics, no server.
-        A learner's name and progress are stored on their own device and nowhere else.
+        <b>Nothing leaves the phone.</b> There is no sign-up, no email, no analytics and no
+        server. A learner's name and progress are kept on their own device and nowhere else.
       </div>
     </div>
-    <div style="width:68mm;flex:none">{phone("home", "Home &mdash; tier, streak and what to do next")}</div>
+    <div style="width:66mm;flex:none">{phone("home", "Home: the next level, the countdown to the exam, and the practice exam")}</div>
   </div>
 
   <div style="margin-top:auto">
     <div class="rule" style="margin-bottom:4mm"></div>
-    <h3 style="margin-bottom:3mm">A session, start to finish</h3>
+    <h3 style="margin-bottom:3mm">A round, start to finish</h3>
     <div style="display:flex;gap:3mm">
-      <div class="fact" style="flex:1"><b>1</b><span>Pick a topic</span></div>
+      <div class="fact" style="flex:1"><b>1</b><span>Read the lesson</span></div>
       <div class="fact" style="flex:1"><b>2</b><span>Answer on the keypad</span></div>
-      <div class="fact" style="flex:1"><b>3</b><span>Check &mdash; see why</span></div>
+      <div class="fact" style="flex:1"><b>3</b><span>Check, and see why</span></div>
       <div class="fact" style="flex:1"><b>4</b><span>Ten questions</span></div>
-      <div class="fact" style="flex:1"><b>5</b><span>Summary and streak</span></div>
+      <div class="fact" style="flex:1"><b>5</b><span>Eight right clears it</span></div>
     </div>
   </div>
 """
@@ -211,67 +255,60 @@ p3 = f"""
   <div class="eyebrow">The practice loop</div>
   <h2>Answer, check, and find out why</h2>
   <div class="rule"></div>
-  <p style="margin-bottom:4mm">Computation questions have no multiple choice and no calculator
-  &mdash; the on-screen keypad is the only way in, so a learner has to actually work the answer out.</p>
+  <p style="margin-bottom:4mm">There is no calculator. Answers are typed on the app's own keypad:
+  whole numbers, decimals, fractions and mixed numbers, and times on the 24-hour clock. Some
+  questions are read off a graph, a table or a picture, and some ask the learner to pick the
+  right picture.</p>
 
   <div class="shots" style="margin-bottom:5mm">
-    <div style="width:55mm;flex:none">{phone("practice", "<b>Answering.</b> The question keeps the most room on the screen, and the keypad is the only input.")}</div>
-    <div style="width:55mm;flex:none">{phone("wrong", "<b>Not yet.</b> Names the specific mistake, then opens the first worked step and holds the other two back.")}</div>
+    <div style="width:52mm;flex:none">{phone("practice", "<b>Answering.</b> The question keeps the most room, and the keypad is the only way in.")}</div>
+    <div style="width:52mm;flex:none">{phone("wrong", "<b>Not yet.</b> The app names the mistake, then shows the first worked step and holds the others back.")}</div>
+    <div style="width:52mm;flex:none">{phone("transform-pick-flip", "<b>Pictures.</b> Which picture shows the shape flipped over the mirror line?")}</div>
   </div>
 
   <div class="shots" style="align-items:stretch;margin-bottom:4mm">
-    {detail("detail_hint", "<b>Three hints, revealed one at a time.</b> Using every one still counts the question &mdash; asking for help is never penalised.")}
-    {detail("detail_correct", "<b>Correct.</b> The working is shown even when the answer was right, because that is what transfers to the next question.")}
+    {detail("detail_hint", "<b>Three hints, one at a time.</b> Asking for help never costs the question.")}
+    {detail("detail_correct", "<b>Right.</b> The working is shown even then: it is what carries over to the next question.")}
   </div>
 
   <div class="good" style="margin-top:auto">
-    <b>The scaffold is the point.</b> A learner who cannot do a question is walked through it a
-    step at a time rather than just marked wrong, and the same question type returns later with
-    different numbers.
+    <b>Mistakes are named, not just marked.</b> Each kind of question knows the wrong answers
+    learners commonly give, such as halving instead of doubling or reading the wrong line of a
+    graph, and answers each with its own explanation: {MISTAKES} of them across the path.
   </div>
 """
 
 # ---------------------------------------------------------------- page 4
-TOPICS = [
-    ("#4c46b0", "#e3e2fa", "Change and money", "Making change, unit prices, splitting a bill, what is left after spending."),
-    ("#0b7a89", "#d1eef2", "Percentages", "Mark-ups, discounts, percentage of a quantity, and what per cent one number is of another."),
-    ("#8c3379", "#f5dcef", "Ratio and rate", "Unit rates, scaling a recipe, distance and speed, sharing in a ratio."),
-    ("#8a670a", "#f5ecc8", "Measurement", "Perimeter and area, unit conversion, volume, and time."),
-]
 topic_rows = "".join(f"""
-  <div class="topic" style="margin-bottom:3.5mm">
-    <div class="swatch" style="background:{c}"></div>
-    <div><b style="font-size:10pt">{name}</b><br><span class="muted" style="font-size:9pt">{desc}</span></div>
-  </div>""" for c, _, name, desc in TOPICS)
+    <tr><td>{t['label']}</td><td class="n">{round(t['weight'] * 100)}%</td>
+      <td class="n">{t['levels']} levels</td><td class="n">{t['types']} kinds</td></tr>""" for t in TOPICS)
 
 p4 = f"""
-  <div class="eyebrow">Topics and progression</div>
-  <h2>Four topics, twenty correct answers each</h2>
+  <div class="eyebrow">Topics and progress</div>
+  <h2>{len(TOPICS)} topics, weighted as the exam is expected to weigh them</h2>
   <div class="rule"></div>
   <div style="display:flex;gap:7mm;flex:1">
     <div style="flex:1">
-      {topic_rows}
-      <h3 style="margin-top:5mm">Climbing the tiers</h3>
-      <p>Twenty correct answers on a tier opens the next one, and there are four. Higher
-      tiers ask longer questions. The one full-screen celebration in the whole app is
-      reserved for reaching a new tier &mdash; everywhere else the tone stays calm.</p>
+      <table class="topics" style="margin-bottom:4mm">
+        <tr><th>Topic</th><th style="text-align:right">Weight</th><th style="text-align:right">Path</th>
+          <th style="text-align:right">Question kinds</th></tr>{topic_rows}
+      </table>
+      <p style="font-size:9pt">{TYPES} kinds of question in all, each drawn with fresh numbers every
+      time. A learner who practises daily until the exam will not reach the end of them.</p>
 
-      <h3>Streaks, without the guilt</h3>
-      <p>Practising on consecutive days builds a streak. Missing a day resets it and drops
-      the learner one tier, which five correct answers in a row restores. The app states
-      this in a plain card inside the ordinary screen. There is no alarm, no red, and the
-      next question is already waiting.</p>
-
-      <div class="note" style="margin-top:4mm">
-        <b>Questions never run out.</b> Each topic is built from templates rather than a
-        fixed list, so the numbers and names change every time. A learner who practises
-        daily for a year will not reach the end of the bank.
+      <div class="note" style="margin-top:2mm">
+        <b>Built from the curriculum, not from past papers.</b> PSHS publishes no table of
+        specifications, so the topics and their weights come from the DepEd MATATAG curriculum
+        for Grades 5 and 6 ({ALL} competencies). {'All ' + str(REACHABLE) if REACHED == REACHABLE else str(REACHED) + ' of the ' + str(REACHABLE)}
+        that can be practised on a phone have questions; the other {ALL - REACHABLE} are tasks
+        such as drawing with compasses. The weights are an estimate, and the exam may reach
+        beyond Grade 6.
       </div>
     </div>
     <div style="width:56mm;flex:none">
-      {phone("topics", "Picking a topic. Progress and stars show per topic.")}
+      {phone("topic", "A topic's path: each level opens with a lesson.")}
       <div style="height:5mm"></div>
-      {detail("detail_levelup", "Reaching a new tier &mdash; the one full-screen celebration in the app.")}
+      {detail("detail_levelup", "Clearing a level opens the next.")}
     </div>
   </div>
 """
@@ -283,24 +320,25 @@ p5 = f"""
   <div class="rule"></div>
   <div style="display:flex;gap:7mm;margin-bottom:5mm">
     <div style="flex:1.3">
-      <p>When there is no signal the app says so once, plainly, and then gets out of the
-      way. Answers are counted immediately and held on the phone; when signal returns the
-      app mentions it is catching up but never makes the learner wait.</p>
-      <p style="margin-bottom:4mm">Tiers and streaks move whether or not there is a
-      connection, because none of the progression depends on a server.</p>
+      <p>The whole app is stored on the phone the first time it is opened. After that there is
+      nothing to download and nothing to wait for: a learner can practise on a jeepney, at home
+      with the data gone, or anywhere the signal drops.</p>
+      <p style="margin-bottom:4mm">When there is no signal the app says so once, plainly, and
+      gets out of the way. Levels, Basics, exams and reviews all work the same, because none of
+      them depends on a server.</p>
       <div class="card">
         <h3>The design system</h3>
         <p style="margin:0 0 2.5mm">The interface is built on a small set of fixed rules rather
         than page-by-page decisions.</p>
         <table>
-          <tr><td class="k">Colour</td><td>One amber, used for the primary action and nothing
-            else. Each topic owns a hue. Gold appears only on a tier-up.</td></tr>
+          <tr><td class="k">Colour</td><td>One amber, used for the main action and nothing else.
+            Each topic wears one of four hues. Gold appears only in a celebration.</td></tr>
           <tr><td class="k">Feedback</td><td>Teal and coral rather than green and red, always
-            paired with a symbol.</td></tr>
-          <tr><td class="k">Touch</td><td>Every control sits on a visible shelf and presses
-            down when tapped. Nothing smaller than 48&nbsp;pixels.</td></tr>
+            with a symbol beside them.</td></tr>
+          <tr><td class="k">Touch</td><td>Every control sits on a visible shelf and presses down
+            when tapped. Nothing is smaller than 48&nbsp;pixels.</td></tr>
           <tr><td class="k">Type</td><td>Lexend for reading, chosen for legibility. A rounded
-            display face appears only in the celebration.</td></tr>
+            display face appears only in a celebration.</td></tr>
         </table>
       </div>
     </div>
@@ -311,67 +349,55 @@ p5 = f"""
     <div class="card"><h3>Costs nothing to run</h3><p style="margin:0;font-size:9pt">No servers,
       no database, no monthly bill. It can stay online indefinitely.</p></div>
     <div class="card"><h3>Small enough to matter</h3><p style="margin:0;font-size:9pt">The whole
-      app is a fraction of a single photo &mdash; it will not eat a prepaid load.</p></div>
+      app, questions included, is {SIZE:.1f}&nbsp;MB: about one photo from a phone camera.</p></div>
     <div class="card"><h3>Reads on any screen</h3><p style="margin:0;font-size:9pt">Phone, tablet
-      and desktop, for a shared computer lab as well as a personal handset.</p></div>
+      and desktop, for a shared computer lab as well as a learner's own handset.</p></div>
   </div>
 """
 
 # ---------------------------------------------------------------- page 6
 p6 = f"""
-  <div class="eyebrow">Where it is going</div>
-  <h2>Next: the learner's own language, and moving between phones</h2>
+  <div class="eyebrow">For teachers and researchers</div>
+  <h2>Every question can be shown again, exactly</h2>
   <div class="rule"></div>
 
   <div style="display:flex;gap:7mm;margin-bottom:5mm">
     <div style="flex:1.4">
-      <h3>A language ladder, not a language switch</h3>
-      <p style="margin-bottom:3mm">The plan is not simply to translate the app. A learner
-      starts in their own language and is moved towards English as they climb the tiers, so
-      that by the time they sit the NCE the exam's phrasing is already familiar. Mathematical
-      words &mdash; <i>percent</i>, <i>ratio</i>, <i>item</i> &mdash; stay in English from the
-      very first question. Tagalog and Cebuano come first.</p>
-      <table style="margin-bottom:4mm">
-        <tr><th>Tier</th><th>What the learner reads</th></tr>
-        <tr><td class="k">Tier 1</td><td><i>Nagpalit si Ana ug pan nga &#8369;63&hellip; Pila ang sukli?</i></td></tr>
-        <tr><td class="k">Tier 2</td><td><i>Nagpalit si Ana ug pan nga &#8369;63&hellip;</i> How much change should she get?</td></tr>
-        <tr><td class="k">Tier 3</td><td>Ana buys bread for &#8369;63&hellip; How much change <b>(sukli)</b> should she get?</td></tr>
-        <tr><td class="k">Tier 4</td><td>Ana purchases bread costing &#8369;63 and tenders &#8369;100. Determine the change due.</td></tr>
-      </table>
-      <p style="font-size:9pt" class="muted">A learner who finds a question hard can always drop
-      back a rung for that question without losing their place.</p>
-    </div>
-    <div style="width:56mm;flex:none">{phone("summary", "End of a session: what was attempted, and what to do next.")}</div>
-  </div>
+      <p>Each question is drawn from a recipe: its kind, how hard, and a number that fixes its
+      values. So any question a learner met can be rebuilt exactly as they saw it. The app
+      keeps a record of each answer on the phone, under a pseudonymous code such as
+      <i style="white-space:nowrap">AM-7K2Q-9XD4</i> rather than a name.</p>
 
-  <div class="grid2" style="margin-bottom:4mm">
-    <div class="card">
-      <h3>Moving to a new phone</h3>
-      <p style="margin:0">Because nothing is stored on a server, progress travels as a short
-      code the learner can scan or write down &mdash; twenty characters, no password, no account.
-      It doubles as a backup if the phone is wiped.</p>
+      <p>That record stays on the phone. Sharing it with a researcher will be the learner's
+      choice, behind a consent screen that is still to be built; the researcher, not the app,
+      will hold the list that matches codes to names.</p>
+
+      <h3>Published with the source code</h3>
+      <ul>
+        <li>The table of specifications: the {ALL} competencies, the {len(TOPICS)} topics and
+          their weights, and how they were derived.</li>
+        <li>The item specifications: every kind of question, its competency, the numbers it
+          draws and the mistakes it recognises, with an example of each.</li>
+      </ul>
     </div>
-    <div class="card">
-      <h3>A teacher can check in</h3>
-      <p style="margin:0">A learner can show that same code as a QR for a teacher to scan.
-      The class list is built on the teacher's own phone. Still no server, and still nothing
-      collected centrally.</p>
-    </div>
+    <div style="width:56mm;flex:none">{phone("exam-result", "After a practice exam: the score, each topic, and the working for every question missed.")}</div>
   </div>
 
   <div class="note">
-    <b>Known limits, stated plainly.</b> Because progress lives only on the device, a phone that
-    is wiped or replaced loses everything unless the learner saved their code &mdash; there is no
-    password reset. On iPhone the app must be added to the home screen or the phone clears it
-    after a week. And four topics is a useful slice of the NCE, not the whole syllabus.
+    <b>Known limits, stated plainly.</b> Progress lives only on the phone: a phone that is wiped
+    or replaced loses it, and there is no password to reset. On iPhone the app must be added to
+    the home screen, or Safari may clear it after a week. The topics and weights are built from
+    the curriculum and are not the exam's own. Only the mathematics subtest is covered; the NCE
+    also tests science, verbal ability and abstract reasoning.
   </div>
 
   <div style="margin-top:auto;padding-top:4mm">
     <div class="rule" style="margin-bottom:3mm"></div>
     <div style="display:flex;justify-content:space-between;align-items:flex-end">
-      <div><small class="muted">Status: the practice loop, all four topics, tiers, streaks and
-      offline use are built and working. The language ladder, progress code and teacher
-      check-in are designed and not yet built.</small></div>
+      <div><small class="muted">Status, October 2026: all {len(TOPICS)} topics, Basics, the
+      practice exam and review of missed questions are built and work offline. Moving progress
+      to a new phone, sharing answers with a researcher, and the other three subtests are not
+      yet built.</small></div>
       <img src="{MARK}" style="width:13mm;height:13mm;object-fit:contain;opacity:.9">
     </div>
   </div>
@@ -389,6 +415,8 @@ html = f"""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 src = os.path.join(HERE, "overview.html")
 io.open(src, "w", encoding="utf-8").write(html)
 print(f"html: {len(html)/1024:.0f} KB -> {src}")
+print(f"facts: {len(TOPICS)} topics, {TYPES} kinds of question, {MISTAKES} named mistakes, "
+      f"{REACHED} of {REACHABLE} reachable competencies, {SIZE:.2f} MB")
 
 out = os.path.abspath(ARGS[0]) if ARGS else os.path.join(HERE, "Abante-Minds-overview.pdf")
 subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--no-pdf-header-footer",

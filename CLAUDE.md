@@ -76,7 +76,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `poc/` | Proofs for features not yet built. Not shipped, not loaded by the app |
 | `tools/item-spec.js` | Writes `ITEM-SPECIFICATIONS.md` from the packs: per template its competency, construct, schema, answer, ranges by tier, named mistakes and an example drawn by the engine. `--csv` gives the same as a spreadsheet, for expert raters. CI checks the file is current |
 | `tools/replay.js` | Reprints the questions in an attempt log exactly as they were asked, rebuilt from each row's recipe, with the answer given and the mistake it matched. Flags a row asked with another pack version, in another format, or marked differently now. `--csv` gives one row per attempt |
-| `tools/overview-pdf/` | Builds the teacher overview PDF from real screenshots. Its copy predates the retarget, so `build.py` refuses to run until it is rewritten |
+| `tools/overview-pdf/` | Builds the teacher overview PDF from real screenshots, its numbers read from the packs. The copy is a draft until the owner approves it: every page says so while `DRAFT` is `True` in `build.py` |
 | `abante-minds-claude-design/` | Original design kit; source of the brand mark |
 | `RESEARCH-PLAN.md` | The ordered build plan: content rebuild, research instrumentation, citability. Read it before starting anything below |
 
