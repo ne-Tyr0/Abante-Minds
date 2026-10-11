@@ -229,6 +229,10 @@ const MUTANTS = [
   ["clock with no hand", TR, (j) => { delete figure(j, "clock-turn").hand; }, "chart hand must be an expression"],
   ["point off the paper", TR, (j) => { figure(j, "mirror-distance").distance = "d + 10"; }, "the distance from the mirror line is 1 to 10"],
   ["picture that uses the answer", TR, (j) => { figure(j, "clock-turn").hand = "answer"; }, "chart hand uses 'answer'"],
+  ["grid shape of two corners", "area.json", (j) => { const c = j.templates.find((t) => t.id === "area.grid-triangle").chart; c.points = c.points.slice(0, 2); }, "a grid picture has a shape of 3 to 6 corners"],
+  ["grid shape with no area", "area.json", (j) => { j.templates.find((t) => t.id === "area.grid-triangle").chart.points[2] = ["b + 1", "1"]; }, "shape has no area"],
+  ["grid corner off the paper", "area.json", (j) => { j.templates.find((t) => t.id === "area.grid-triangle").chart.points[1] = ["b + 3", "1"]; }, "a corner's distance across is 0 to"],
+  ["grid corner not a pair", "area.json", (j) => { j.templates.find((t) => t.id === "area.grid-triangle").chart.points[0] = ["1"]; }, "corner 0 is [across, up]"],
   // clock times
   ["time answer past midnight", "time.json", (j) => { j.templates.find((t) => t.id === "time.end-time").answer.value = "s + d + 1440"; }, "no usable question"],
   ["clock() past midnight", "time.json", (j) => { j.templates.find((t) => t.id === "time.end-time").explain = "{clock(s + 1440)}"; }, "0 to 1439 minutes after midnight"],

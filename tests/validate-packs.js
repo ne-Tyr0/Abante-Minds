@@ -59,11 +59,11 @@ let usesFractionAnswers = false;
 const FORMAT_KEYS = new Set(["id", "prompt", "hints", "steps", "explain"]);
 const DISTRACTOR_KEYS = new Set(["value", "error", "feedback"]);
 const CHART_KEYS = new Set(["kind", "title", "axis", "categories", "series", "step", "label", "unit", "slices",
-  "shapes", "hand", "distance", "side"]);
-const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror"];
+  "shapes", "hand", "distance", "side", "cols", "rows", "points"]);
+const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror", "grid"];
 /* A picture takes only its own fields: the shapes round a point, the hour a
    clock hand points to, or a point's distance and side from a mirror line. */
-const FIGURE_FIELDS = { tiling: ["shapes"], clock: ["hand"], mirror: ["distance", "side"] };
+const FIGURE_FIELDS = { tiling: ["shapes"], clock: ["hand"], mirror: ["distance", "side"], grid: ["cols", "rows", "points"] };
 const GRAPH_ONLY = ["axis", "categories", "series", "step", "label", "unit", "slices"];
 const PIE_TOTAL = { "%": 100, "°": 360 };
 /* What fits on a phone: the category names along a graph's bottom share its
@@ -157,6 +157,15 @@ function checkChart(c, params) {
         unknownKeys(s, new Set(["sides", "count"]), `shape ${i}`);
         expr(s.sides, params, `shape ${i} sides`);
         expr(s.count, params, `shape ${i} count`);
+      });
+    } else if (c.kind === "grid") {
+      expr(c.cols, params, "chart cols");
+      expr(c.rows, params, "chart rows");
+      if (!Array.isArray(c.points) || c.points.length < 3 || c.points.length > 6) { fail("a grid picture has a shape of 3 to 6 corners"); return; }
+      c.points.forEach((p, i) => {
+        if (!Array.isArray(p) || p.length !== 2) { fail(`corner ${i} is [across, up]`); return; }
+        expr(p[0], params, `corner ${i} across`);
+        expr(p[1], params, `corner ${i} up`);
       });
     } else for (const k of own) expr(c[k], params, `chart ${k}`);
     return;
@@ -501,6 +510,11 @@ function inspectChart(c, label) {
     words.push(...c.shapes.map((s) => s.name));
   } else if (c.kind === "clock") {
     if (!(Number.isInteger(c.hand) && c.hand >= 1 && c.hand <= 12)) bad(`hand points to ${c.hand}`);
+  } else if (c.kind === "grid") {
+    /* A real shape: no corner twice, and an area to count (the shoelace sum). */
+    const twice = c.points.reduce((a, p, i) => a + p[0] * c.points[(i + 1) % c.points.length][1] - c.points[(i + 1) % c.points.length][0] * p[1], 0);
+    if (twice === 0) bad("shape has no area");
+    if (new Set(c.points.map((p) => p.join(","))).size !== c.points.length) bad("shape has a corner twice");
   } else if (c.kind === "mirror") {
     if (!["left", "right"].includes(c.side)) bad(`point is to the ${c.side} of the line`);
   } else if (c.kind === "pie") {

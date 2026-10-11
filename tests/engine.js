@@ -729,14 +729,15 @@ const FIGS = {
   manifest: Object.assign({}, PACK.manifest, { topics: [{ key: "g", label: "Figures", icon: "star", colorKey: 1, file: "g.json" }] }),
   files: [{
     topic: "g",
-    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side"] }],
+    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side", "g.grid"] }],
     templates: [
       T("g.tiling", { params: ONE_TO(6), chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "5", count: "a" }] } }),
       T("g.two", { chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "8", count: "2" }, { sides: "4", count: "1" }] } }),
       T("g.seven", { chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "7", count: "1" }] } }),
       T("g.clock", { params: ONE_TO(13), chart: { kind: "clock", title: "Clock", hand: "a" } }),
       T("g.mirror", { params: ONE_TO(11), chart: { kind: "mirror", title: "Paper", distance: "a", side: "'left'" } }),
-      T("g.side", { chart: { kind: "mirror", title: "Paper", distance: "a", side: "'up'" } })
+      T("g.side", { chart: { kind: "mirror", title: "Paper", distance: "a", side: "'up'" } }),
+      T("g.grid", { params: ONE_TO(16), chart: { kind: "grid", title: "Grid", cols: "a + 2", rows: "4", points: [["1", "1"], ["a + 1", "1"], ["1", "3"]] } })
     ]
   }]
 };
@@ -751,6 +752,14 @@ test("figures: regular shapes round a point, and the gap they leave", () => {
   assert.deepStrictEqual([two.gap, two.text], [0, "Picture: 2 regular octagons and a square round a point, with no gap."]);
   throws(() => C.instance("g.tiling", 1, { a: 4 }), /overlap/);
   throws(() => C.instance("g.seven", 1, { a: 3, b: 2 }), /cannot show a regular shape of 7 sides/);
+  C.use(PACK.manifest, PACK.files);
+});
+test("figures: a shape on squared paper, its corners on grid points", () => {
+  C.use(FIGS.manifest, FIGS.files);
+  const g = C.instance("g.grid", 1, { a: 3 }).chart;
+  assert.deepStrictEqual([g.cols, g.rows, g.points], [5, 4, [[1, 1], [4, 1], [1, 3]]]);
+  assert.strictEqual(g.text, "Picture: squared paper 5 squares across and 4 up, with a shape whose corners are at 1 across and 1 up; 4 across and 1 up; 1 across and 3 up. Each square is 1 square unit.");
+  throws(() => C.instance("g.grid", 1, { a: 15 }), /a grid's width is 2 to 16/);
   C.use(PACK.manifest, PACK.files);
 });
 test("figures: a clock face and a mirror line", () => {

@@ -558,8 +558,8 @@
     if (v < lo || v > hi) throw ContentError(what + " is " + lo + " to " + hi + ", not " + v);
     return v;
   }
-  /* A picture: shapes round a point, a clock face, or a mirror line on
-     squared paper. */
+  /* A picture: shapes round a point, a clock face, a mirror line on squared
+     paper, or a shape drawn on a grid with its corners on grid points. */
   function renderFigure(spec, scope, c) {
     if (spec.kind === "tiling") {
       var used = 0;
@@ -574,6 +574,14 @@
       c.gap = 360 - used;
       c.text = "Picture: " + c.shapes.map(function (s) { return s.name; }).join(" and ") + " round a point, " +
         (c.gap ? "with a gap left" : "with no gap") + ".";
+    } else if (spec.kind === "grid") {
+      c.cols = whole(spec.cols, scope, 2, 16, "a grid's width");
+      c.rows = whole(spec.rows, scope, 2, 12, "a grid's height");
+      c.points = spec.points.map(function (p) {
+        return [whole(p[0], scope, 0, c.cols, "a corner's distance across"), whole(p[1], scope, 0, c.rows, "a corner's height")];
+      });
+      c.text = "Picture: squared paper " + c.cols + " squares across and " + c.rows + " up, with a shape whose corners are at " +
+        c.points.map(function (p) { return p[0] + " across and " + p[1] + " up"; }).join("; ") + ". Each square is 1 square unit.";
     } else if (spec.kind === "clock") {
       c.hand = whole(spec.hand, scope, 1, 12, "a clock hand");
       c.text = "Picture: a clock face, with its hand pointing to " + c.hand + ".";
@@ -593,7 +601,7 @@
   }
   function renderChart(spec, scope) {
     var c = { kind: spec.kind, title: interpolate(spec.title, scope) };
-    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror") return renderFigure(spec, scope, c);
+    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror" || spec.kind === "grid") return renderFigure(spec, scope, c);
     if (spec.kind === "pie") {
       c.unit = spec.unit;
       c.slices = spec.slices.map(function (s) {
