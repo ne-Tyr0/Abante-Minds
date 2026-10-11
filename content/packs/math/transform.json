@@ -23,7 +23,7 @@
     {
       "id": "which-tile",
       "title": "Which shapes tile?",
-      "templates": ["transform.tessellates", "transform.does-not-tessellate"],
+      "templates": ["transform.tessellates", "transform.does-not-tessellate", "transform.always-tiles"],
       "lesson": [
         {
           "title": "Three regular shapes tile",
@@ -527,6 +527,60 @@
           "value": "steps",
           "error": "gave-the-numbers-moved",
           "feedback": "{value} is how many numbers the hand moves. Count {value} on from {h}, clockwise."
+        }
+      ]
+    },
+    {
+      "id": "transform.always-tiles",
+      "competency": "G6.Q1.1",
+      "domain": "MG",
+      "construct": "Choose the shape whose copies always tile: any triangle or any four-sided shape",
+      "schema": "compare",
+      "params": {
+        "t": {"choose": [1, 2]},
+        "j": {"range": [1, 4]},
+        "x": {"value": "pick(j, 3, 4, 5, 6)"},
+        "y": {"value": "pick(j % 4 + 1, 3, 4, 5, 6)"},
+        "z": {"value": "pick((j + 1) % 4 + 1, 3, 4, 5, 6)"}
+      },
+      "answer": {
+        "type": "choice",
+        "value": "t",
+        "label": "{pick(value, 'Any triangle', 'Any four-sided shape', 'A regular pentagon', 'A regular octagon', 'A circle', 'A regular decagon')}",
+        "order": "mixed"
+      },
+      "formats": [
+        {
+          "id": "which",
+          "prompt": "Copies of which of these will always tile a floor with no gaps or overlaps, however it is drawn?"
+        }
+      ],
+      "hints": [
+        "Copies tile when the corners meeting at each point add up to exactly 360°, with no curved edges.",
+        "A regular pentagon's angles are 108°, an octagon's 135° and a decagon's 144°: none of these divides 360° exactly.",
+        "{pick(t, 'The three angles of any triangle add up to 180°.', 'The four angles of any four-sided shape add up to 360°.')}"
+      ],
+      "steps": [
+        "{pick(t, 'Any triangle: its three angles add up to 180°', 'Any four-sided shape: its four angles add up to 360°')}",
+        "{pick(t, 'Turn copies so two of each angle meet at a point: 2 × 180° = 360°', 'Turn copies so one of each angle meets at a point: 360°')}",
+        "So {pick(t, 'any triangle', 'any four-sided shape')} tiles, with no gaps"
+      ],
+      "explain": "{pick(t, 'The angles of any triangle add up to 180°, so two of each angle fill a point: 360°.', 'The four angles of any four-sided shape add up to 360°, so one of each fills a point.')}",
+      "distractors": [
+        {
+          "value": "x",
+          "error": "picked-a-shape-that-leaves-a-gap",
+          "feedback": "{pick(value, 'Copies of any triangle tile: two of each angle make 360°.', 'Copies of any four-sided shape tile: its four angles make 360°.', 'Each angle of a regular pentagon is 108°. 360 ÷ 108 is not a whole number, so copies leave a gap.', 'Each angle of a regular octagon is 135°. Two make 270°, and a third would overlap, so copies leave a gap.', 'Circles always leave gaps between them: curved edges cannot fit together without one.', 'Each angle of a regular decagon is 144°. Two make 288°, and a third would overlap, so copies leave a gap.')}"
+        },
+        {
+          "value": "y",
+          "error": "picked-another-shape-that-leaves-a-gap",
+          "feedback": "{pick(value, 'Copies of any triangle tile: two of each angle make 360°.', 'Copies of any four-sided shape tile: its four angles make 360°.', 'Each angle of a regular pentagon is 108°. 360 ÷ 108 is not a whole number, so copies leave a gap.', 'Each angle of a regular octagon is 135°. Two make 270°, and a third would overlap, so copies leave a gap.', 'Circles always leave gaps between them: curved edges cannot fit together without one.', 'Each angle of a regular decagon is 144°. Two make 288°, and a third would overlap, so copies leave a gap.')}"
+        },
+        {
+          "value": "z",
+          "error": "picked-a-third-shape-that-leaves-a-gap",
+          "feedback": "{pick(value, 'Copies of any triangle tile: two of each angle make 360°.', 'Copies of any four-sided shape tile: its four angles make 360°.', 'Each angle of a regular pentagon is 108°. 360 ÷ 108 is not a whole number, so copies leave a gap.', 'Each angle of a regular octagon is 135°. Two make 270°, and a third would overlap, so copies leave a gap.', 'Circles always leave gaps between them: curved edges cannot fit together without one.', 'Each angle of a regular decagon is 144°. Two make 288°, and a third would overlap, so copies leave a gap.')}"
         }
       ]
     }

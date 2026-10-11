@@ -4,7 +4,7 @@
    lives in localStorage and never leaves the phone. */
 "use strict";
 
-var CACHE = "abante-minds-v34";
+var CACHE = "abante-minds-v35";
 
 var SHELL = [
   "./",

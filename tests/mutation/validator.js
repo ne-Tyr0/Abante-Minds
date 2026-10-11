@@ -133,7 +133,12 @@ const MUTANTS = [
   ["level id not kebab", D, (j) => { j.levels[0].id = "Place Value"; }, "id must be kebab-case"],
   ["level id twice", D, (j) => { j.levels[1].id = j.levels[0].id; }, "id is used twice"],
   ["level without a title", D, (j) => { delete j.levels[0].title; }, "needs a plain title"],
-  ["level with one template", D, (j) => { lvl(j, "word-problems").templates.pop(); }, "needs at least two templates"],
+  ["level with one template", D, (j) => {
+    /* Keep only the lesson's example; the rest move, so none is left in no level. */
+    const l = lvl(j, "word-problems"), keep = l.lesson.find((c) => c.example).example.template;
+    lvl(j, "divide").templates.push(...l.templates.filter((id) => id !== keep));
+    l.templates = [keep];
+  }, "needs at least two templates"],
   ["template in no level", D, (j) => { lvl(j, "place-value").templates.pop(); }, "is in no level"],
   ["template in two levels", D, (j) => { lvl(j, "compare-and-round").templates.push("decimals.digit-value"); }, "is in level 'place-value' and 'compare-and-round'"],
   ["level names an unknown template", D, (j) => { lvl(j, "place-value").templates.push("decimals.nope"); }, "names unknown template decimals.nope"],
@@ -157,7 +162,10 @@ const MUTANTS = [
     lvl(j, "divide").templates = lvl(j, "divide").templates.filter((id) => id !== "decimals.divide-by-whole");
   }, "no template for G6.Q1.10"],
   ["fewer templates than the blueprint targets", D, (j) => {
-    const drop = ["decimals.from-fraction", "decimals.between", "decimals.multiply-money"];
+    /* One short of the target of 20, dropping only templates whose competency
+       another template covers and that no lesson uses as its example. */
+    const safe = ["decimals.cost-of-more", "decimals.from-fraction", "decimals.between", "decimals.multiply-money"];
+    const drop = safe.slice(0, j.templates.length - 19);
     j.templates = j.templates.filter((t) => !drop.includes(t.id));
     j.levels.forEach((l) => { l.templates = l.templates.filter((id) => !drop.includes(id)); });
   }, "19 templates; the blueprint targets 20"],

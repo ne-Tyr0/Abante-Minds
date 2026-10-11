@@ -77,7 +77,7 @@
     {
       "id": "capacity",
       "title": "Capacity problems",
-      "templates": ["solids.tank-litres", "solids.pails"],
+      "templates": ["solids.tank-litres", "solids.pails", "solids.water-depth"],
       "lesson": [
         {
           "title": "Volume, then litres",
@@ -858,6 +858,54 @@
           "value": "d3",
           "error": "picked-a-third-solid",
           "feedback": "{pick(value, 'A cube', 'A rectangular prism', 'A triangular prism', 'A square pyramid', 'A triangular pyramid', 'A cylinder', 'A cone')} folds from {pick(value, '6 equal squares', '6 rectangles in 3 pairs, not all the same size', '2 triangles and 3 rectangles', '1 square and 4 triangles', '4 equal triangles', '2 circles and 1 rectangle', '1 circle and a part of a larger circle, shaped like a fan')}."
+        }
+      ]
+    },
+    {
+      "id": "solids.water-depth",
+      "competency": "G6.Q3.5",
+      "domain": "MG",
+      "construct": "Find how deep water stands from its volume in litres and the floor of the tank",
+      "schema": "multi-step",
+      "params": {
+        "a": {"choose": [20, 25, 40, 50, 60, 80]},
+        "b": {"choose": [20, 25, 30, 40, 50]},
+        "h": {"range": [4, 30]},
+        "L": {"value": "a * b * h / 1000"}
+      },
+      "where": ["floor(L * 10) == L * 10"],
+      "answer": {"type": "unit", "value": "h", "unit": "cm"},
+      "formats": [
+        {
+          "id": "tank",
+          "prompt": "A fish tank is {a} cm long and {b} cm wide. Mina pours {fmt(L)} L of water into it. How deep is the water, in centimetres?"
+        },
+        {
+          "id": "box",
+          "prompt": "A water container shaped like a box has a base {a} cm by {b} cm. It holds {fmt(L)} L of water. How high does the water reach, in centimetres?"
+        }
+      ],
+      "hints": [
+        "Change the litres to cm³ first: 1 L = 1000 cm³.",
+        "{fmt(L)} L = {L * 1000} cm³. The base is {a} × {b} = {a * b} cm².",
+        "{L * 1000} ÷ {a * b} = ?"
+      ],
+      "steps": [
+        "{fmt(L)} L = {L * 1000} cm³",
+        "Base: {a} × {b} = {a * b} cm²",
+        "Depth: {L * 1000} ÷ {a * b} = {answer} cm"
+      ],
+      "explain": "Volume ÷ base = depth: {L * 1000} cm³ ÷ {a * b} cm² = {answer} cm.",
+      "distractors": [
+        {
+          "value": "L * 100 / (a * b)",
+          "error": "used-100-cm3-a-litre",
+          "feedback": "{fmt(value)} cm uses 100 cm³ in a litre. A litre is 1000 cm³, so {fmt(L)} L = {L * 1000} cm³."
+        },
+        {
+          "value": "L * 1000 / a",
+          "error": "divided-by-the-length-only",
+          "feedback": "{fmt(value)} cm divides by the length only. Divide by the whole base, {a} × {b} = {a * b} cm²."
         }
       ]
     }
