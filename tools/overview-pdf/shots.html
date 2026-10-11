@@ -377,6 +377,28 @@ function run() {
       case "transform-mirror":
         topicItem("transform", "moves", "transform.mirror-distance", { d: 3, side: "left" }, "6");
         break;
+      /* Not in the PDF: spaced review, for review. */
+      case "review-home":
+      case "review":
+      case "review-done":
+        ["percent", "decimals", "ratio"].forEach(function (k, i) {
+          var lv = AM.content.TOPICS.filter(function (t) { return t.key === k; })[0].levels[0].id;
+          AM.store.scheduleReview(AM.content.buildSession({ topic: k, level: lv, count: 1, tier: 1, seed: 7 + i })[0]);
+        });
+        var rv = AM.store.get().review;
+        Object.keys(rv).forEach(function (k) { rv[k].due = AM.store.today(); });
+        AM.store.set({ review: rv });
+        if (screen === "review-home") { AM.app.go("home"); break; }
+        AM.app.startReview();
+        if (screen === "review-done") {
+          while (AM.app.session) {
+            var rq = AM.app.session.questions[AM.app.session.index];
+            if (rq.type === "choice") AM.app.session.picked = rq.answerIndex; else typeIn(rq.answerText.replace(" ", ">").replace("/", ">"));
+            AM.app.check();
+            AM.app.next();
+          }
+        }
+        break;
       /* Not in the PDF: the practice exam, for review. */
       case "exam-intro":
         AM.app.go("examIntro");

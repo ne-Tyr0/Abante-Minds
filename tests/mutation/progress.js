@@ -40,6 +40,15 @@ const M = [
   ["Basics levels locked", "        unlocked: true,", "        unlocked: i === 0,"],
   ["next ignores what is done", "      next: own.filter(function (lv) { return !lv.done; })[0] || null", "      next: own[0]"],
   ["Basics move the path", "    var topics = AM.content.TOPICS.map(topicPath);", "    var topics = AM.content.TOPICS.concat(AM.content.BASICS).map(topicPath);"],
+  // spaced review
+  ["review days wrong", "  var REVIEW_DAYS = [1, 3, 7], REVIEW_MAX = 200;", "  var REVIEW_DAYS = [1, 2, 7], REVIEW_MAX = 200;"],
+  ["a review miss keeps its step", "    if (!right) { e.step = 0; e.due = addDays(today(), REVIEW_DAYS[0]); }", "    if (!right) { e.due = addDays(today(), REVIEW_DAYS[0]); }"],
+  ["a question never done", "    else if (e.step + 1 >= REVIEW_DAYS.length) { delete review[key]; done = true; }\n", ""],
+  ["review kept without a cap", "    if (keys.length > REVIEW_MAX) {", "    if (false) {"],
+  ["the newest comes first", "        return x.due < y.due ? -1 : x.due > y.due ? 1 : x.added - y.added;", "        return x.due < y.due ? -1 : x.due > y.due ? 1 : y.added - x.added;"],
+  ["due today not due", "      .filter(function (k) { return review[k].due <= t; })", "      .filter(function (k) { return review[k].due < t; })"],
+  ["review breaks the streak", "    rollDay();\n    markPractice();\n    var done = false;", "    rollDay();\n    var done = false;"],
+  ["a pinned item kept by seed", "    return q.templateId + \":\" + q.tier + \":\" + (q.pinned ? \"p\" + q.pinnedAt : q.seed);", "    return q.templateId + \":\" + q.tier + \":\" + q.seed;"],
   // practice exams
   ["exam moves the path", "    state.exams = (state.exams || []).concat(", "    state.totalCorrect += r.score;\n    state.exams = (state.exams || []).concat("],
   ["exam breaks the streak", "    rollDay();\n    markPractice();\n    state.exams", "    rollDay();\n    state.exams"],

@@ -63,7 +63,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
 | `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
-| `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak |
+| `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak, missed questions due for review, practice exams, and the attempt log under its own key |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
 | `app/ui.js` | Design-system components as DOM builders, and the chart a question can carry (`AM.Chart`: bar, line and pie graphs in SVG, and tables) |

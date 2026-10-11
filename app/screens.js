@@ -568,6 +568,22 @@
         })),
       AM.Button({ label: "Practise the basics", variant: "ghost", fullWidth: true, onClick: function () { app.go("basics"); } })) : null;
 
+    /* Missed questions that are due again (spaced review). */
+    var due = store.reviewDue().length;
+    var reviewCard = due ? AM.Card({ style: { gap: 12 } },
+      sectionLabel("Review"),
+      el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
+        el("span", {
+          style: {
+            width: 40, height: 40, flex: "none", borderRadius: "var(--radius-sm)", background: "var(--brand-blue-100)",
+            color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
+          }
+        }, icon("retry", 22)),
+        el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
+          el("span.label", null, due + " question" + (due === 1 ? "" : "s") + " to try again"),
+          el("span.caption", { style: { color: "var(--ink-600)" } }, "Ones you missed, back so they stick"))),
+      AM.Button({ label: "Start review", variant: "ghost", fullWidth: true, onClick: function () { app.startReview(); } })) : null;
+
     /* The practice exam: the whole paper at once, against the clock. */
     var exam = store.examStats();
     var examCard = first ? null : AM.Card({ style: { gap: 12 } },
@@ -592,10 +608,11 @@
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          offer, upNext, countdown, examCard, basicsCard, streakBlock)
+          offer, upNext, reviewCard, countdown, examCard, basicsCard, streakBlock)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
           offer,
           el("div.am-pair", null, upNext, countdown),
+          reviewCard,
           el("div.am-pair", null, examCard, basicsCard),
           streakBlock,
           el("div.am-pair", null, pathCard, badgeCard));
@@ -960,7 +977,8 @@
     var desktop = AM.device() === "desktop";
     var offline = !store.isOnline();
     var header = AM.PracticeHeader({
-      tier: ses.facts ? (offline ? "Offline · " : "") + ses.levelTitle : (offline ? "Offline · level " : "Level ") + ses.levelNumber,
+      tier: ses.review ? (offline ? "Offline · review" : "Review")
+        : ses.facts ? (offline ? "Offline · " : "") + ses.levelTitle : (offline ? "Offline · level " : "Level ") + ses.levelNumber,
       questionIndex: ses.index, questionTotal: ses.questions.length
     });
 
@@ -1134,7 +1152,24 @@
 
     /* How far the level is from clearing. A redo session says it does not
        count, rather than show a bar that will not move. */
+    /* A review says where its questions came from and how far through it is. */
+    function reviewStrip() {
+      return el("div", {
+        style: {
+          flex: "none", margin: "0 " + gutter() + "px 16px", background: "var(--surface-200)",
+          borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-card)",
+          padding: "12px var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)"
+        }
+      },
+        el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon("retry", 20)),
+        el("span", { style: { flex: 1, display: "flex", flexDirection: "column", gap: 6 } },
+          el("span.caption", { style: { color: "var(--ink-600)" } }, q.topicLabel + " · a question you missed before"),
+          AM.ProgressBar({ ratio: ses.index / ses.questions.length, label: "Review progress" })),
+        el("span.body-sm", { style: { flex: "none", color: "var(--ink-600)" } }, (ses.index + 1) + " of " + ses.questions.length));
+    }
+
     function levelStrip() {
+      if (ses.review) return reviewStrip();
       if (ses.facts) return factStrip();
       var lv = store.levelState(ses.topicKey, ses.levelId);
       var shown = Math.min(lv.correct, store.CLEAR_TARGET);
@@ -1349,6 +1384,46 @@
   };
 
   /* ---------- 16 · Session summary ---------- */
+  /* 14 October, as Home writes the exam date. */
+  var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function dayAndMonth(iso) {
+    var p = String(iso).split("-");
+    return +p[2] + " " + MONTHS[+p[1] - 1];
+  }
+
+  /* After a review: how it went, and when the next ones come back. */
+  screens.reviewDone = function (app) {
+    var r = app.scratch.review;
+    if (!r) { app.go("home"); return screens.home(app); }
+    function stat(value, label) {
+      return el("div", {
+        style: { background: "var(--surface-200)", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-card)", padding: "var(--space-3)", textAlign: "center" }
+      }, el("div.heading-lg", null, String(value)), el("div.caption", { style: { color: "var(--ink-600)" } }, label));
+    }
+    var later = r.due ? r.due + " more " + (r.due === 1 ? "is" : "are") + " due now."
+      : r.next ? "The next ones come back on " + dayAndMonth(r.next) + "." : "Nothing else is waiting.";
+    return {
+      nav: "practice", bottomNav: false,
+      banner: connectionBanner(),
+      body: column([
+        el("div", { style: { padding: "24px " + gutter() + "px 0" } },
+          el("div.heading-lg", null, "Review done"),
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, "Questions you missed before")),
+        el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 } },
+          stat(r.attempted, "reviewed"), stat(r.correct, "right first time")),
+        el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 10 } },
+            sectionLabel("How review works"),
+            el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+              "A question you miss comes back the next day. Right first time, and it comes back in 3 days, then in 7, and then it is done. A miss sends it back to the next day. " + later)))
+      ], { paddingBottom: 24 }),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
+          r.due ? AM.Button({ label: "Review more", fullWidth: true, onClick: function () { app.startReview(); } }) : null,
+          AM.Button({ label: "Home", variant: r.due ? "ghost" : "primary", fullWidth: true, onClick: function () { app.go("home"); } })))
+    };
+  };
+
   screens.summary = function (app) {
     var r = app.scratch.result;
     if (!r) { app.go("home"); return screens.home(app); }

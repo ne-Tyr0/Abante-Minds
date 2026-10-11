@@ -248,6 +248,78 @@ test("Basics never move the path", () => {
   assert.deepStrictEqual(S.badges().filter((x) => x.earned).map((x) => x.key), []);
 });
 
+/* ---------- spaced review ---------- */
+
+const missed = (seed, extra) => Object.assign({ templateId: "a.t", tier: 2, seed: seed, pinned: false, topicKey: "a" }, extra);
+test("a miss comes back the next day, then in 3 days, then in 7, then is done", () => {
+  const s = launch();
+  onDay("2026-10-20");
+  const key = s.scheduleReview(missed(11));
+  assert.deepStrictEqual([s.reviewDue(), s.reviewNext()], [[], "2026-10-21"]);
+  onDay("2026-10-21");
+  const due = s.reviewDue();
+  assert.deepStrictEqual([due.length, due[0].key, due[0].template, due[0].tier, due[0].seed, due[0].pinnedAt, due[0].step],
+    [1, key, "a.t", 2, 11, null, 0]);
+  assert.deepStrictEqual(s.recordReview(key, true), { done: false, due: "2026-10-24" });
+  onDay("2026-10-24");
+  assert.deepStrictEqual(s.recordReview(key, true), { done: false, due: "2026-10-31" });
+  onDay("2026-10-31");
+  assert.deepStrictEqual(s.recordReview(key, true), { done: true, due: null });
+  assert.deepStrictEqual([s.reviewDue(), s.reviewNext()], [[], null]);
+});
+test("a miss in review starts it again from the next day", () => {
+  const s = launch();
+  onDay("2026-10-20");
+  const key = s.scheduleReview(missed(3));
+  onDay("2026-10-21");
+  s.recordReview(key, true);
+  onDay("2026-10-24");
+  assert.deepStrictEqual(s.recordReview(key, false), { done: false, due: "2026-10-25" });
+  onDay("2026-10-25");
+  assert.strictEqual(s.reviewDue()[0].step, 0);
+});
+test("a question still due later stays due", () => {
+  const s = launch();
+  onDay("2026-10-20");
+  s.scheduleReview(missed(1));
+  onDay("2026-10-29");
+  assert.strictEqual(s.reviewDue().length, 1);
+});
+test("a pinned item is kept by its place, not a seed", () => {
+  const s = launch();
+  onDay("2026-10-20");
+  const key = s.scheduleReview(missed(null, { pinned: true, pinnedAt: 1, seed: null }));
+  assert.strictEqual(key, "a.t:2:p1");
+  onDay("2026-10-21");
+  assert.deepStrictEqual([s.reviewDue()[0].seed, s.reviewDue()[0].pinnedAt], [null, 1]);
+});
+test("the longest waiting comes first, and at most REVIEW_MAX are kept", () => {
+  const s = launch();
+  onDay("2026-10-20");
+  s.scheduleReview(missed(1));
+  onDay("2026-10-21");
+  s.scheduleReview(missed(2));
+  NOW += 60000;
+  s.scheduleReview(missed(3));
+  onDay("2026-10-25");
+  assert.deepStrictEqual(s.reviewDue().map((e) => e.seed), [1, 2, 3], "by due day, then the one missed first");
+  for (let i = 0; i < s.REVIEW_MAX + 3; i++) { NOW += 1; s.scheduleReview(missed(100 + i)); }
+  const kept = Object.keys(s.get().review);
+  assert.strictEqual(kept.length, s.REVIEW_MAX);
+  assert.ok(!kept.includes("a.t:2:1") && kept.includes("a.t:2:" + (100 + s.REVIEW_MAX + 2)), "the oldest went first");
+});
+test("reviewing keeps the streak but never moves the path", () => {
+  const s = launch();
+  onDay("2026-10-20");
+  const key = s.scheduleReview(missed(5));
+  onDay("2026-10-21");
+  s.recordReview(key, true);
+  assert.deepStrictEqual([s.get().streakDays, s.get().levels, s.get().totalCorrect], [1, {}, 0]);
+  assert.strictEqual(s.recordReview("a.t:2:nope", true), null, "an unknown key is ignored");
+  s.dropReview(key);
+  assert.deepStrictEqual(s.get().review, {});
+});
+
 /* ---------- practice exams ---------- */
 
 test("an exam is kept on its own: the path and Basics do not move", () => {
