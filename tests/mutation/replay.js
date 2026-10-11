@@ -24,6 +24,8 @@ const M = [
   ["unanswered shown as null", "${x.given === null ? \"not answered\" : x.given}", "${x.given}"],
   ["the mistake left out", "${r.error ? ` (${r.error})` : \"\"}", ""],
   ["pictures given by letter only", "q.choiceFigures ? q.choices.map((l, i) => `${l}: ${q.choiceFigures[i].text}`) : q.choices", "q.choices"],
+  ["participants not counted", "const who = new Set(rows.map((r) => r.participant).filter(Boolean)).size;", "const who = rows.length;"],
+  ["participant left out of the CSV", "lines.push([i + 1, when(r.at), r.participant, r.session", "lines.push([i + 1, when(r.at), \"\", r.session"],
   ["sessions not counted", "const sessions = new Set(rows.map((r) => r.session)).size;", "const sessions = rows.length;"],
   ["times in local time", "new Date(ms).toISOString().replace(/\\.\\d+Z$/, \"Z\")", "new Date(ms).toString()"],
   ["quotes not doubled", "'\"' + s.replace(/\"/g, '\"\"') + '\"'", "'\"' + s + '\"'"],

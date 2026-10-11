@@ -175,8 +175,8 @@ Settled with the project owner. Build on them; don't reopen them.
    decimals, exponents and ratio pairs. **Not negatives** — signed
    numbers are Grade 7 in MATATAG and absent from the blueprint.
 6. ~~**Attempt log**.~~ **Done** — every answer is a row under its own storage key
-   (`abante-minds/attempts`, `store.attempts()`): the session, topic, level, template,
-   tier, seed or pinned position, format, fact, pack and app build, the answer given, right
+   (`abante-minds/attempts`, `store.attempts()`): the participant code, the session, topic,
+   level, template, tier, seed or pinned position, format, fact, pack and app build, the answer given, right
    or wrong, the mistake it matched, latency, hints and steps seen, and which try it was.
    Ring-buffered at 5,000; reset clears it. It stays on the phone: exporting it is the
    consent work of Phase 3.

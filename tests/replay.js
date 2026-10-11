@@ -110,6 +110,18 @@ test("the summary counts attempts, sessions and flags", () => {
   assert.strictEqual(R.text(rows).split("\n")[0], `3 attempts in 2 sessions, replayed with pack ${C.packVersion}; 1 flagged.`);
 });
 
+test("the participant code heads each attempt, is counted, and has its own column", () => {
+  const rows = [rowFor("area", "area.triangle", 1, 3, { participant: "AM-7K2Q-9XD4" })[0],
+    rowFor("area", "area.triangle", 1, 4, { participant: "AM-7K2Q-9XD4" })[0],
+    rowFor("area", "area.triangle", 1, 5, { participant: "AM-0000-0000", session: "s2" })[0]];
+  const out = R.text(rows);
+  assert.strictEqual(out.split("\n")[0], `3 attempts in 2 sessions from 2 participants, replayed with pack ${C.packVersion}; 0 flagged.`);
+  assert.ok(out.includes("1. 2026-10-11T06:05:00Z · AM-7K2Q-9XD4 · practice"), out.split("\n")[2]);
+  const table = parse(R.csv(rows).slice(1));
+  assert.deepStrictEqual(table.slice(1).map((r) => r[R.CSV_HEAD.indexOf("participant")]), ["AM-7K2Q-9XD4", "AM-7K2Q-9XD4", "AM-0000-0000"]);
+  assert.ok(!R.text([rowFor("area", "area.triangle", 1, 3)[0]]).split("\n")[0].includes("participant"), "an older row has no code");
+});
+
 test("the CSV has one row per attempt, every row the same width", () => {
   const rows = [rowFor("decimals", "decimals.share-cost", 1, 7, { session: 'a "quoted", id' })[0], rowFor("transform", "transform.pick-the-turn", 1, 2, { given: 0 })[0],
     rowFor("area", "area.triangle", 1, 3, { template: "area.gone" })[0]];

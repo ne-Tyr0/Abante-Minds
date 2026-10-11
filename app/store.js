@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 40;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 41;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -64,7 +64,8 @@
       resetToday: false,
       totalCorrect: 0,             /* answers right on the first try, on the path and in Basics */
       recoveryRequested: false,
-      lastSession: null
+      lastSession: null,
+      participant: null            /* the pseudonymous code on every logged answer, made when first needed */
     };
   }
 
@@ -356,8 +357,9 @@
      the exact question (template, tier, seed or pinned position, format and
      pack version) and to see how it was answered (what was given, the
      mistake it matched, how long it took, how many hints and steps were
-     seen). No question text and nothing about the learner. Append-only and
-     ring-buffered at LOG_MAX (RESEARCH-PLAN.md item 8). */
+     seen). No question text, and nothing that names the learner: only the
+     participant code below. Append-only and ring-buffered at LOG_MAX
+     (RESEARCH-PLAN.md item 8). */
   var attemptLog = null;
   function loadLog() {
     if (attemptLog) return attemptLog;
@@ -373,8 +375,46 @@
       catch (e) { attemptLog.splice(0, Math.max(1, Math.floor(attemptLog.length / 5))); }
     }
   }
+  /* ---------- the participant code ----------
+     A pseudonymous code, AM-XXXX-XXXX, made on the phone the first time it
+     is needed and kept with the learner's record: seven random Crockford
+     base32 characters (no I, L, O or U, so it survives handwriting) and a
+     check character that catches any one of them copied wrong. It names no
+     one; the researcher keeps the sheet linking codes to names, and starting
+     over gives a new one (RESEARCH-PLAN.md item 18). Every logged answer
+     carries it, so two learners sharing a phone can be told apart. */
+  var CODE_ALPHABET = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  function codeCheck(chars) {
+    /* Odd weights, each coprime to 32: a wrong character always moves the sum. */
+    var sum = 0;
+    for (var i = 0; i < chars.length; i++) sum += (2 * i + 1) * CODE_ALPHABET.indexOf(chars.charAt(i));
+    return CODE_ALPHABET.charAt(sum % 32);
+  }
+  function isParticipantCode(code) {
+    var m = /^AM-([0-9A-HJKMNP-TV-Z]{4})-([0-9A-HJKMNP-TV-Z]{4})$/.exec(String(code));
+    if (!m) return false;
+    var chars = m[1] + m[2];
+    return codeCheck(chars.slice(0, 7)) === chars.charAt(7);
+  }
+  function newParticipantCode() {
+    var bytes = new Uint8Array(7);
+    if (window.crypto && window.crypto.getRandomValues) window.crypto.getRandomValues(bytes);
+    else for (var k = 0; k < 7; k++) bytes[k] = Math.floor(Math.random() * 256);
+    var chars = "";
+    for (var j = 0; j < 7; j++) chars += CODE_ALPHABET.charAt(bytes[j] % 32);
+    chars += codeCheck(chars);
+    return "AM-" + chars.slice(0, 4) + "-" + chars.slice(4);
+  }
+  function participantCode() {
+    if (!isParticipantCode(state.participant)) {
+      state.participant = newParticipantCode();
+      write(state);
+    }
+    return state.participant;
+  }
+
   function logAttempt(fields) {
-    var row = { at: Date.now(), app: APP_BUILD };
+    var row = { at: Date.now(), app: APP_BUILD, participant: participantCode() };
     Object.keys(fields).forEach(function (k) { row[k] = fields[k]; });
     var log = loadLog();
     log.push(row);
@@ -533,6 +573,8 @@
     EXAMS_KEPT: EXAMS_KEPT,
     logAttempt: logAttempt,
     attempts: function () { return loadLog().slice(); },
+    participantCode: participantCode,
+    isParticipantCode: isParticipantCode,
     reset: reset,
     today: today,
     migrate: migrate,
