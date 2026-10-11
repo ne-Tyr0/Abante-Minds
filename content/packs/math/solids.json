@@ -4,7 +4,7 @@
     {
       "id": "parts",
       "title": "Faces, edges and vertices",
-      "templates": ["solids.prism-parts", "solids.pyramid-parts", "solids.cube-edges", "solids.box-edges", "solids.solid-from-faces", "solids.from-a-net"],
+      "templates": ["solids.prism-parts", "solids.pyramid-parts", "solids.cube-edges", "solids.box-edges", "solids.solid-from-faces", "solids.from-a-net", "solids.name-the-solid", "solids.pick-the-solid"],
       "lesson": [
         {
           "title": "Prisms and pyramids",
@@ -1012,6 +1012,106 @@
           "value": "l + w",
           "error": "added-the-edges",
           "feedback": "{value} adds the two edges of the top. A layer is {w} rows of {l}: multiply."
+        }
+      ]
+    },
+    {
+      "id": "solids.name-the-solid",
+      "competency": "G5.Q4.3",
+      "domain": "MG",
+      "construct": "Name a solid from a picture of it",
+      "schema": "compare",
+      "params": {
+        "s": {"range": [1, 8]},
+        "d1": {"value": "pick(s, 2, 1, 5, 5, 4, 7, 6, 6)"},
+        "d2": {"value": "pick(s, 4, 3, 2, 1, 3, 8, 4, 7)"},
+        "d3": {"value": "pick(s, 3, 4, 4, 7, 7, 2, 8, 1)"}
+      },
+      "chart": {"kind": "solid", "title": "A solid", "shape": "s"},
+      "answer": {
+        "type": "choice",
+        "value": "s",
+        "label": "{pick(value, 'A cube', 'A rectangular prism', 'A triangular prism', 'A square pyramid', 'A triangular pyramid', 'A cylinder', 'A cone', 'A sphere')}",
+        "order": "mixed"
+      },
+      "formats": [
+        {"id": "name", "prompt": "What is the name of this solid?"},
+        {"id": "which", "prompt": "Which solid is drawn here?"}
+      ],
+      "hints": [
+        "Look at the flat faces, and whether any surface is curved.",
+        "Prisms have two equal ends joined by rectangles; pyramids and cones come to a point.",
+        "It has {pick(s, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}."
+      ],
+      "steps": [
+        "The faces: {pick(s, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}",
+        "{pick(s, 'All 6 faces are the same square: a cube', 'Rectangles, not all the same size, with opposite faces equal: a rectangular prism', 'Two triangle ends joined by rectangles: a triangular prism', 'A square base with triangles up to a point: a square pyramid', 'Only triangles, meeting at points: a triangular pyramid', 'Two circle ends joined by a curved surface: a cylinder', 'A circle base with a curved surface up to a point: a cone', 'Curved all over, with no flat face: a sphere')}",
+        "So it is {pick(s, 'a cube', 'a rectangular prism', 'a triangular prism', 'a square pyramid', 'a triangular pyramid', 'a cylinder', 'a cone', 'a sphere')}"
+      ],
+      "explain": "{pick(s, 'All 6 faces are the same square: a cube', 'Rectangles, not all the same size, with opposite faces equal: a rectangular prism', 'Two triangle ends joined by rectangles: a triangular prism', 'A square base with triangles up to a point: a square pyramid', 'Only triangles, meeting at points: a triangular pyramid', 'Two circle ends joined by a curved surface: a cylinder', 'A circle base with a curved surface up to a point: a cone', 'Curved all over, with no flat face: a sphere')}.",
+      "distractors": [
+        {
+          "value": "d1",
+          "error": "picked-a-similar-solid",
+          "feedback": "{pick(value, 'A cube', 'A rectangular prism', 'A triangular prism', 'A square pyramid', 'A triangular pyramid', 'A cylinder', 'A cone', 'A sphere')} has {pick(value, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}."
+        },
+        {
+          "value": "d2",
+          "error": "picked-another-solid",
+          "feedback": "{pick(value, 'A cube', 'A rectangular prism', 'A triangular prism', 'A square pyramid', 'A triangular pyramid', 'A cylinder', 'A cone', 'A sphere')} has {pick(value, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}."
+        },
+        {
+          "value": "d3",
+          "error": "picked-a-third-solid",
+          "feedback": "{pick(value, 'A cube', 'A rectangular prism', 'A triangular prism', 'A square pyramid', 'A triangular pyramid', 'A cylinder', 'A cone', 'A sphere')} has {pick(value, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}."
+        }
+      ]
+    },
+    {
+      "id": "solids.pick-the-solid",
+      "competency": "G5.Q4.3",
+      "domain": "MG",
+      "construct": "Choose the picture of a named solid",
+      "schema": "compare",
+      "params": {
+        "s": {"range": [1, 8]},
+        "d1": {"value": "pick(s, 2, 1, 5, 5, 4, 7, 6, 6)"},
+        "d2": {"value": "pick(s, 4, 3, 2, 1, 3, 8, 4, 7)"},
+        "d3": {"value": "pick(s, 3, 4, 4, 7, 7, 2, 8, 1)"}
+      },
+      "answer": {"type": "choice", "value": "s", "order": "mixed", "figure": {"kind": "solid", "shape": "value"}},
+      "formats": [
+        {
+          "id": "pick",
+          "prompt": "Which picture shows {pick(s, 'a cube', 'a rectangular prism', 'a triangular prism', 'a square pyramid', 'a triangular pyramid', 'a cylinder', 'a cone', 'a sphere')}?"
+        }
+      ],
+      "hints": [
+        "Look at the flat faces, and whether any surface is curved.",
+        "Prisms have two equal ends joined by rectangles; pyramids and cones come to a point.",
+        "It has {pick(s, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}."
+      ],
+      "steps": [
+        "The faces: {pick(s, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}",
+        "{pick(s, 'All 6 faces are the same square: a cube', 'Rectangles, not all the same size, with opposite faces equal: a rectangular prism', 'Two triangle ends joined by rectangles: a triangular prism', 'A square base with triangles up to a point: a square pyramid', 'Only triangles, meeting at points: a triangular pyramid', 'Two circle ends joined by a curved surface: a cylinder', 'A circle base with a curved surface up to a point: a cone', 'Curved all over, with no flat face: a sphere')}",
+        "So it is {pick(s, 'a cube', 'a rectangular prism', 'a triangular prism', 'a square pyramid', 'a triangular pyramid', 'a cylinder', 'a cone', 'a sphere')}"
+      ],
+      "explain": "{pick(s, 'All 6 faces are the same square: a cube', 'Rectangles, not all the same size, with opposite faces equal: a rectangular prism', 'Two triangle ends joined by rectangles: a triangular prism', 'A square base with triangles up to a point: a square pyramid', 'Only triangles, meeting at points: a triangular pyramid', 'Two circle ends joined by a curved surface: a cylinder', 'A circle base with a curved surface up to a point: a cone', 'Curved all over, with no flat face: a sphere')}.",
+      "distractors": [
+        {
+          "value": "d1",
+          "error": "picked-a-similar-solid",
+          "feedback": "That picture is {pick(value, 'a cube', 'a rectangular prism', 'a triangular prism', 'a square pyramid', 'a triangular pyramid', 'a cylinder', 'a cone', 'a sphere')}: it has {pick(value, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}."
+        },
+        {
+          "value": "d2",
+          "error": "picked-another-solid",
+          "feedback": "That picture is {pick(value, 'a cube', 'a rectangular prism', 'a triangular prism', 'a square pyramid', 'a triangular pyramid', 'a cylinder', 'a cone', 'a sphere')}: it has {pick(value, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}."
+        },
+        {
+          "value": "d3",
+          "error": "picked-a-third-solid",
+          "feedback": "That picture is {pick(value, 'a cube', 'a rectangular prism', 'a triangular prism', 'a square pyramid', 'a triangular pyramid', 'a cylinder', 'a cone', 'a sphere')}: it has {pick(value, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}."
         }
       ]
     }

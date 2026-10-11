@@ -729,7 +729,7 @@ const FIGS = {
   manifest: Object.assign({}, PACK.manifest, { topics: [{ key: "g", label: "Figures", icon: "star", colorKey: 1, file: "g.json" }] }),
   files: [{
     topic: "g",
-    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side", "g.grid", "g.move", "g.pick", "g.same", "g.cubes"] }],
+    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side", "g.grid", "g.move", "g.pick", "g.same", "g.cubes", "g.solid"] }],
     templates: [
       T("g.tiling", { params: ONE_TO(6), chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "5", count: "a" }] } }),
       T("g.two", { chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "8", count: "2" }, { sides: "4", count: "1" }] } }),
@@ -747,6 +747,7 @@ const FIGS = {
         distractors: [{ value: "2", error: "two", feedback: "Two." }, { value: "3", error: "three", feedback: "Three." }, { value: "4", error: "four", feedback: "Four." }]
       }),
       T("g.cubes", { params: ONE_TO(9), chart: { kind: "cubes", title: "Block", length: "a", width: "2", height: "1" } }),
+      T("g.solid", { params: ONE_TO(9), chart: { kind: "solid", title: "Solid", shape: "a" } }),
       /* ...and a figure that ignores the value, so every option looks the same. */
       T("g.same", {
         answer: { type: "choice", value: "1", order: "mixed", figure: { kind: "grid", cols: "6", rows: "4",
@@ -817,6 +818,15 @@ test("figures: a block of small cubes, counted along each edge", () => {
   assert.deepStrictEqual([b.length, b.width, b.height], [4, 2, 1]);
   assert.strictEqual(b.text, "Picture: a block built from small cubes with no gaps, 4 cubes long, 2 cubes deep and 1 cube high.");
   throws(() => C.instance("g.cubes", 1, { a: 9 }), /a block's length in cubes is 1 to 8/);
+  C.use(PACK.manifest, PACK.files);
+});
+test("figures: a solid in outline, described by its faces and never named", () => {
+  C.use(FIGS.manifest, FIGS.files);
+  const s = C.instance("g.solid", 1, { a: 4 }).chart;
+  assert.strictEqual(s.shape, 4);
+  assert.strictEqual(s.text, "Picture: a solid drawn in outline, its hidden edges dashed: a square base and 4 triangular faces that meet at a point.");
+  for (let a = 1; a <= 8; a++) assert.ok(!/cube|prism|pyramid|cylinder|cone|sphere/.test(C.instance("g.solid", 1, { a }).chart.text), "shape " + a + " is named");
+  throws(() => C.instance("g.solid", 1, { a: 9 }), /a solid's shape is 1 to 8/);
   C.use(PACK.manifest, PACK.files);
 });
 test("figures: a clock face and a mirror line", () => {

@@ -249,6 +249,8 @@ const MUTANTS = [
   ["image stretched", TR, (j) => { pick(j, "slide").answer.figure.image[1][0] = "x0 + w + a + 1"; }, "image is not the shape moved"],
   ["mirror line with no length", TR, (j) => { pick(j, "flip").chart.line[1] = ["m", "0"]; }, "mirror line has no length"],
   ["lesson that shows picture options", TR, (j) => { lvl(j, "moves").lesson.find((c) => c.example).example = { template: "transform.pick-the-turn", format: "turn", params: { w: 3, t: 1, h: 2, dir: 1 } }; }, "whose options are pictures"],
+  ["solid past the eighth", "solids.json", (j) => { j.templates.find((t) => t.id === "solids.name-the-solid").chart.shape = "s + 8"; }, "a solid's shape is 1 to 8"],
+  ["solid with a block field", "solids.json", (j) => { j.templates.find((t) => t.id === "solids.name-the-solid").chart.length = "2"; }, "a solid picture has no length"],
   ["block too long to draw", "solids.json", (j) => { j.templates.find((t) => t.id === "solids.count-cubes").chart.length = "l + 8"; }, "a block's length in cubes is 1 to 8"],
   ["block with a grid field", "solids.json", (j) => { j.templates.find((t) => t.id === "solids.count-cubes").chart.cols = "3"; }, "a cubes picture has no cols"],
   ["block with no height", "solids.json", (j) => { delete j.templates.find((t) => t.id === "solids.count-cubes").chart.height; }, "chart height must be an expression"],
