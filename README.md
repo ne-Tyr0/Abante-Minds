@@ -292,7 +292,9 @@ strongest and the weakest are named.
 
 `tests/progress.js` pins the path's rules: what clears a level, what opens the next, what
 counts as right first time, and how an older saved record is carried over. It also pins
-Basics mastery: right and quick on two days, lost on a miss, and never moving the path.
+Basics mastery: right and quick on two days, lost on a miss, and never moving the path; and
+the participant code on every logged answer, whose check character catches any one
+character copied wrong.
 
 `tests/validate-packs.js` checks every pack against its schema and the blueprint, then
 generates every template at every tier and checks what a learner would be shown. Every
@@ -318,7 +320,8 @@ same as one row per template, for a spreadsheet or a panel of expert raters.
 `tests/item-spec.js` pins what the generator says.
 
 `node tools/replay.js attempts.json` reprints the questions in an attempt log (the app keeps
-it under `abante-minds/attempts`) exactly as they were asked: each row is rebuilt from its
+it under `abante-minds/attempts`, each row with the learner's pseudonymous participant code)
+exactly as they were asked: each row is rebuilt from its
 template, tier and seed, or its Basics fact, by the same engine, with the answer given and
 the mistake it matched. A row asked with another pack version, in another format, or that
 the rebuilt question would mark differently is flagged. `--csv` gives one row per attempt.

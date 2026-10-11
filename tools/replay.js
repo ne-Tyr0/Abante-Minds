@@ -73,11 +73,14 @@ const recipe = (row) => row.fact ? `fact ${row.fact}, seed ${row.seed}`
 function text(rows) {
   const out = rows.map(replayRow);
   const sessions = new Set(rows.map((r) => r.session)).size;
-  const lines = [`${rows.length} attempt${rows.length === 1 ? "" : "s"} in ${sessions} session${sessions === 1 ? "" : "s"}, ` +
-    `replayed with pack ${C.packVersion}; ${out.filter((x) => x.flags.length).length} flagged.`, ""];
+  /* Rows logged before the participant code existed have none. */
+  const who = new Set(rows.map((r) => r.participant).filter(Boolean)).size;
+  const lines = [`${rows.length} attempt${rows.length === 1 ? "" : "s"} in ${sessions} session${sessions === 1 ? "" : "s"}` +
+    (who ? ` from ${who} participant${who === 1 ? "" : "s"}` : "") +
+    `, replayed with pack ${C.packVersion}; ${out.filter((x) => x.flags.length).length} flagged.`, ""];
   out.forEach((x, i) => {
     const r = x.row;
-    lines.push(`${i + 1}. ${when(r.at)} · ${r.kind} · ${r.topic} / ${r.level} · try ${r.attempt}`);
+    lines.push(`${i + 1}. ${when(r.at)}${r.participant ? ` · ${r.participant}` : ""} · ${r.kind} · ${r.topic} / ${r.level} · try ${r.attempt}`);
     lines.push(`   ${recipe(r)} (format ${r.format}, pack ${r.pack}, app ${r.app})`);
     for (const f of x.flags) lines.push(`   ! ${f}`);
     if (x.q) {
@@ -98,13 +101,13 @@ function csvCell(v) {
   const s = v === null || v === undefined ? "" : String(v);
   return /[",\r\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
 }
-const CSV_HEAD = ["n", "at", "session", "kind", "topic", "level", "template", "fact", "tier", "seed", "pinned", "format", "pack", "app",
+const CSV_HEAD = ["n", "at", "participant", "session", "kind", "topic", "level", "template", "fact", "tier", "seed", "pinned", "format", "pack", "app",
   "attempt", "picture", "prompt", "choices", "answer", "given", "correct", "error", "ms", "hints", "steps", "flags"];
 function csv(rows) {
   const lines = [CSV_HEAD.join(",")];
   rows.map(replayRow).forEach((x, i) => {
     const r = x.row, q = x.q;
-    lines.push([i + 1, when(r.at), r.session, r.kind, r.topic, r.level, r.template, r.fact, r.tier, r.seed, r.pinned, r.format,
+    lines.push([i + 1, when(r.at), r.participant, r.session, r.kind, r.topic, r.level, r.template, r.fact, r.tier, r.seed, r.pinned, r.format,
       r.pack, r.app, r.attempt, q && q.chart ? q.chart.text : "", q ? q.prompt : "", q ? choicesOf(q).join("; ") : "",
       q ? x.answer : "", q ? x.given : r.given, r.correct, r.error, r.ms, r.hints, r.steps, x.flags.join("; ")].map(csvCell).join(","));
   });

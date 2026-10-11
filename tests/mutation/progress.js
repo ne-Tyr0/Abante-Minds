@@ -57,7 +57,13 @@ const M = [
   // the attempt log
   ["log kept without its cap", "    if (log.length > LOG_MAX) log.splice(0, log.length - LOG_MAX);\n", ""],
   ["log not saved", "    saveLog();\n    return row;", "    return row;"],
-  ["log rows unstamped", "    var row = { at: Date.now(), app: APP_BUILD };", "    var row = {};"],
+  ["log rows unstamped", "    var row = { at: Date.now(), app: APP_BUILD, participant: participantCode() };", "    var row = { participant: participantCode() };"],
+  ["rows without the participant", "    var row = { at: Date.now(), app: APP_BUILD, participant: participantCode() };", "    var row = { at: Date.now(), app: APP_BUILD };"],
+  ["no check character", "    return CODE_ALPHABET.charAt(sum % 32);", "    return \"0\";"],
+  ["even weights", "sum += (2 * i + 1) * CODE_ALPHABET", "sum += (i + 1) * CODE_ALPHABET"],
+  ["a new code every time", "    if (!isParticipantCode(state.participant)) {", "    if (true) {"],
+  ["the code never saved", "      state.participant = newParticipantCode();\n      write(state);", "      state.participant = newParticipantCode();"],
+  ["a code kept through starting over", "      lastSession: null,\n      participant: null", "      lastSession: null,\n      participant: state && state.participant"],
   ["a full phone loses the new answer", "      catch (e) { attemptLog.splice(0, Math.max(1, Math.floor(attemptLog.length / 5))); }", "      catch (e) { attemptLog.pop(); }"],
   ["log handed out by reference", "    attempts: function () { return loadLog().slice(); },", "    attempts: function () { return loadLog(); },"],
 ];

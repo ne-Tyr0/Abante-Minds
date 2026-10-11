@@ -24,7 +24,7 @@ global.Date = class extends RealDate {
 };
 const onDay = (iso) => { NOW = new RealDate(iso + "T09:00:00").getTime(); };
 global.window = global;
-global.location = { hash: "" };
+global.location = { hash: "", reload: () => {} };
 global.addEventListener = () => {};
 global.localStorage = {
   getItem: (k) => (k in storage ? storage[k] : null),
@@ -349,7 +349,7 @@ test("every answer is logged, with the build and the time", () => {
   const s = launch();
   NOW = 1700000000000;
   const row = s.logAttempt({ topic: "a", template: "a.t", seed: 7, given: "12", correct: false, error: "added" });
-  assert.deepStrictEqual(row, { at: 1700000000000, app: s.APP_BUILD, topic: "a", template: "a.t", seed: 7, given: "12", correct: false, error: "added" });
+  assert.deepStrictEqual(row, { at: 1700000000000, app: s.APP_BUILD, participant: s.participantCode(), topic: "a", template: "a.t", seed: 7, given: "12", correct: false, error: "added" });
   assert.strictEqual(s.attempts().length, 1);
   assert.deepStrictEqual(JSON.parse(storage[LOG_KEY]), [row], "kept under its own key");
   assert.ok(!(LOG_KEY in JSON.parse(storage[KEY] || "{}")), "not inside the main record");
@@ -387,6 +387,59 @@ test("the copy handed out cannot change the log", () => {
   s.logAttempt({ n: 1 });
   s.attempts().push({ n: 99 });
   assert.strictEqual(s.attempts().length, 1);
+});
+
+/* ---------- the participant code ---------- */
+
+test("the participant code is AM-XXXX-XXXX in Crockford letters, with a check character", () => {
+  const s = launch();
+  const code = s.participantCode();
+  assert.match(code, /^AM-[0-9A-HJKMNP-TV-Z]{4}-[0-9A-HJKMNP-TV-Z]{4}$/);
+  assert.strictEqual(s.isParticipantCode(code), true);
+  for (const bad of ["", null, "AM-0000-000", "AM-0000-0000-0", "am-0000-0000", "XX-0000-0000", "AM-I000-0000"]) assert.strictEqual(s.isParticipantCode(bad), false, String(bad));
+});
+test("any one character copied wrong is caught", () => {
+  const s = launch();
+  const A = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  for (let n = 0; n < 20; n++) {
+    storage = {};
+    const code = launch().participantCode();
+    const at = [3, 4, 5, 6, 8, 9, 10, 11];
+    for (const i of at) for (const ch of A) {
+      if (ch === code[i]) continue;
+      const wrong = code.slice(0, i) + ch + code.slice(i + 1);
+      assert.strictEqual(s.isParticipantCode(wrong), false, `${code} with ${ch} at ${i}`);
+    }
+  }
+});
+test("the code is made once and kept: across answers and a relaunch", () => {
+  let s = launch();
+  const code = s.participantCode();
+  s.logAttempt({ n: 1 });
+  assert.strictEqual(s.participantCode(), code);
+  const kept = storage[KEY];
+  storage = { [KEY]: kept };
+  new Function(SRC).call(global);
+  s = global.AM.store;
+  assert.strictEqual(s.participantCode(), code, "kept with the learner's record");
+  assert.strictEqual(JSON.parse(storage[KEY]).participant, code);
+});
+test("every logged answer carries the code", () => {
+  const s = launch();
+  s.logAttempt({ n: 1 });
+  s.logAttempt({ n: 2 });
+  assert.deepStrictEqual(s.attempts().map((r) => r.participant), [s.participantCode(), s.participantCode()]);
+});
+test("starting over gives a new code", () => {
+  const s = launch();
+  const before = s.participantCode();
+  s.reset();
+  assert.notStrictEqual(s.participantCode(), before);
+});
+test("two phones make different codes", () => {
+  const codes = new Set();
+  for (let i = 0; i < 200; i++) { storage = {}; codes.add(launch().participantCode()); }
+  assert.strictEqual(codes.size, 200);
 });
 
 console.log(failed ? `\n${failed} failed` : "\nok: progress follows the path's rules");

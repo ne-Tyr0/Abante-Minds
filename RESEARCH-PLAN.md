@@ -228,7 +228,11 @@ templates is an afternoon, migrating 300 is a project.
 ## Phase 3 — Research instrumentation
 
 18. **Pseudonymous participant code** (e.g. `AM-7K2Q-9XD4`), stable across sessions,
-    generated locally, in every exported row.
+    generated locally, in every exported row. **Done 2026-10-11** (`store.participantCode()`):
+    seven random Crockford base32 characters and a check character that catches any one
+    copied wrong, made on the phone when first needed, kept with the learner's record, new
+    after starting over, and on every row of the attempt log. Showing it to the learner
+    belongs with the export screen (item 19).
 19. **Consent-gated export**, extending `poc/progress-code.js`: a screen stating exactly
     what is inside and that it carries no name, producing a QR plus **two CSV shapes** —
     wide (one row per participant, for t-tests and ANCOVA) and long (one row per attempt,
