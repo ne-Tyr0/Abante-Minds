@@ -248,6 +248,28 @@ test("Basics never move the path", () => {
   assert.deepStrictEqual(S.badges().filter((x) => x.earned).map((x) => x.key), []);
 });
 
+/* ---------- practice exams ---------- */
+
+test("an exam is kept on its own: the path and Basics do not move", () => {
+  const s = launch();
+  onDay("2026-10-20");
+  s.recordExam({ score: 14, total: 20, seconds: 1500, topics: { a: [3, 4] } });
+  assert.deepStrictEqual(s.get().exams, [{ day: "2026-10-20", score: 14, total: 20, seconds: 1500, topics: { a: [3, 4] } }]);
+  assert.deepStrictEqual([s.get().levels, s.get().facts, s.get().totalCorrect], [{}, {}, 0]);
+  assert.strictEqual(s.get().streakDays, 1, "it is practice, so it keeps the streak");
+  assert.deepStrictEqual(JSON.parse(storage[KEY]).exams.length, 1, "saved");
+});
+test("exam stats: the last and the best, and only the most recent are kept", () => {
+  const s = launch();
+  assert.strictEqual(s.examStats(), null);
+  [12, 17, 9, 17].forEach((score) => s.recordExam({ score: score, total: 20, seconds: 600, topics: {} }));
+  const st = s.examStats();
+  assert.deepStrictEqual([st.taken, st.last.score, st.best.score], [4, 17, 17]);
+  assert.strictEqual(st.best, s.get().exams[3], "a tie goes to the later exam");
+  for (let i = 0; i < s.EXAMS_KEPT + 2; i++) s.recordExam({ score: i % 20, total: 20, seconds: 600, topics: {} });
+  assert.strictEqual(s.get().exams.length, s.EXAMS_KEPT);
+});
+
 /* ---------- the attempt log ---------- */
 
 const LOG_KEY = "abante-minds/attempts";

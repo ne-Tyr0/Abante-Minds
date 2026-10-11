@@ -674,6 +674,39 @@ test("a degree sign sits against its number; other units take a space", () => {
   C.use(PACK.manifest, PACK.files);
 });
 
+/* ---------- the practice exam ---------- */
+
+const WEIGHTED = {
+  manifest: Object.assign({}, PACK.manifest, { topics: [
+    Object.assign({}, PACK.manifest.topics[0], { weight: 0.6 }),
+    Object.assign({}, PACK.manifest.topics[1], { weight: 0.4 }),
+    Object.assign({}, PACK.manifest.topics[2], { weight: 0.5 })] }),
+  files: PACK.files
+};
+test("exam: questions shared out by weight, the largest remainders first", () => {
+  C.use(WEIGHTED.manifest, WEIGHTED.files);
+  assert.deepStrictEqual(C.examPlan(5), [{ key: "t", count: 3 }, { key: "u", count: 2 }], "a topic coming soon gets none");
+  assert.deepStrictEqual(C.examPlan(4), [{ key: "t", count: 2 }, { key: "u", count: 2 }], "2.4 and 1.6: the last one goes to the larger remainder");
+  assert.deepStrictEqual(C.examPlan(1), [{ key: "t", count: 1 }]);
+  C.use(PACK.manifest, PACK.files);
+  throws(() => C.examPlan(5), /no weighted topic/);
+});
+test("exam: a mixed, shuffled paper, the same for the same seed", () => {
+  C.use(WEIGHTED.manifest, WEIGHTED.files);
+  const paper = C.buildExam({ count: 10, seed: 9 });
+  assert.strictEqual(paper.length, 10);
+  assert.deepStrictEqual(paper.map((q) => q.id), paper.map((_, i) => "exam-" + i));
+  assert.strictEqual(paper.filter((q) => q.topicKey === "t").length, 6);
+  /* Tier 3: the numbers of a level well under way. */
+  assert.ok(paper.every((q) => q.tier === 3 && q.levelId), "exam numbers, and each question knows its level");
+  const fromT = paper.filter((q) => q.topicKey === "t").map((q) => q.templateId);
+  assert.strictEqual(new Set(fromT).size, 6, "no template twice while the topic has more");
+  assert.deepStrictEqual(C.buildExam({ count: 10, seed: 9 }), paper);
+  assert.notDeepStrictEqual(C.buildExam({ count: 10, seed: 10 }).map((q) => q.prompt), paper.map((q) => q.prompt));
+  assert.ok(paper.slice(0, 6).some((q) => q.topicKey === "u"), "shuffled, not topic by topic");
+  C.use(PACK.manifest, PACK.files);
+});
+
 /* ---------- figures ---------- */
 
 const ONE_TO = (n) => ({ a: { range: [1, n] }, b: { value: "1" } });

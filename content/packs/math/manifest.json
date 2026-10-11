@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.19.0",
+  "version": "1.20.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
@@ -10,19 +10,19 @@
     "fraction-part-not-proper": "The fraction part should be less than 1. Move the whole ones into the whole number."
   },
   "topics": [
-    { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json" },
-    { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "file": "fractions.json" },
-    { "key": "gemdas", "label": "Order of operations", "icon": "add", "colorKey": 3, "file": "gemdas.json" },
-    { "key": "factors", "label": "Factors and primes", "icon": "star", "colorKey": 4, "file": "factors.json" },
-    { "key": "ratio", "label": "Ratio and proportion", "icon": "coins", "colorKey": 1, "file": "ratio.json" },
-    { "key": "percent", "label": "Percentages", "icon": "percent", "colorKey": 2, "file": "percent.json" },
-    { "key": "time", "label": "Time", "icon": "clock", "colorKey": 3, "file": "time.json" },
-    { "key": "area", "label": "Perimeter and area", "icon": "ruler", "colorKey": 4, "file": "area.json" },
-    { "key": "solids", "label": "Solids and volume", "icon": "triangle", "colorKey": 1, "file": "solids.json" },
-    { "key": "circles", "label": "Circles", "icon": "retry", "colorKey": 2, "file": "circles.json" },
-    { "key": "data", "label": "Graphs and data", "icon": "level-up", "colorKey": 3, "file": "data.json" },
-    { "key": "probability", "label": "Probability", "icon": "hint", "colorKey": 4, "file": "probability.json" },
-    { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "file": "transform.json" }
+    { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json", "weight": 0.13 },
+    { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "file": "fractions.json", "weight": 0.11 },
+    { "key": "gemdas", "label": "Order of operations", "icon": "add", "colorKey": 3, "file": "gemdas.json", "weight": 0.09 },
+    { "key": "factors", "label": "Factors and primes", "icon": "star", "colorKey": 4, "file": "factors.json", "weight": 0.04 },
+    { "key": "ratio", "label": "Ratio and proportion", "icon": "coins", "colorKey": 1, "file": "ratio.json", "weight": 0.08 },
+    { "key": "percent", "label": "Percentages", "icon": "percent", "colorKey": 2, "file": "percent.json", "weight": 0.05 },
+    { "key": "time", "label": "Time", "icon": "clock", "colorKey": 3, "file": "time.json", "weight": 0.04 },
+    { "key": "area", "label": "Perimeter and area", "icon": "ruler", "colorKey": 4, "file": "area.json", "weight": 0.09 },
+    { "key": "solids", "label": "Solids and volume", "icon": "triangle", "colorKey": 1, "file": "solids.json", "weight": 0.09 },
+    { "key": "circles", "label": "Circles", "icon": "retry", "colorKey": 2, "file": "circles.json", "weight": 0.08 },
+    { "key": "data", "label": "Graphs and data", "icon": "level-up", "colorKey": 3, "file": "data.json", "weight": 0.11 },
+    { "key": "probability", "label": "Probability", "icon": "hint", "colorKey": 4, "file": "probability.json", "weight": 0.04 },
+    { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "file": "transform.json", "weight": 0.05 }
   ],
   "basics": [
     { "key": "add-subtract", "label": "Add and subtract", "icon": "add", "colorKey": 1, "file": "add-subtract.json" },

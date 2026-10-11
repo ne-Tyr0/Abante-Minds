@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 28;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 29;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -53,6 +53,7 @@
       profile: null,               /* {name, school, colorKey, iconKey, username} */
       levels: {},                  /* "topic/level": {correct, attempts, cleared, lessonSeen} */
       facts: {},                   /* fact key: {seen, right, miss, days, last}; days are the days it was right and quick */
+      exams: [],                   /* practice exams, the last EXAMS_KEPT: {day, score, total, seconds, topics: {key: [right, asked]}} */
       lastLevel: null,             /* {topic, level}: where the learner last practised */
       streakDays: 0,
       lastActiveDay: null,
@@ -381,6 +382,25 @@
     return row;
   }
 
+  /* ---------- practice exams ----------
+     Kept apart from the path and Basics: an exam never clears a level or
+     masters a fact. It is practice all the same, so it keeps the streak. */
+  var EXAMS_KEPT = 20;
+  function recordExam(r) {
+    rollDay();
+    markPractice();
+    state.exams = (state.exams || []).concat([{ day: today(), score: r.score, total: r.total, seconds: r.seconds, topics: r.topics }])
+      .slice(-EXAMS_KEPT);
+    commit();
+  }
+  /* The last and the best, by the share right, the later one on a tie. */
+  function examStats() {
+    var list = state.exams || [];
+    if (!list.length) return null;
+    var best = list.reduce(function (b, x) { return x.score / x.total >= b.score / b.total ? x : b; }, list[0]);
+    return { taken: list.length, last: list[list.length - 1], best: best };
+  }
+
   function hasProgress() {
     return state.totalCorrect > 0 || Object.keys(state.levels).length > 0 || Object.keys(state.facts).length > 0;
   }
@@ -430,6 +450,9 @@
     },
     badges: badges,
     hasProgress: hasProgress,
+    recordExam: recordExam,
+    examStats: examStats,
+    EXAMS_KEPT: EXAMS_KEPT,
     logAttempt: logAttempt,
     attempts: function () { return loadLog().slice(); },
     reset: reset,

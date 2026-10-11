@@ -46,7 +46,7 @@ const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const TEMPLATE_KEYS = new Set(["id", "competency", "domain", "construct", "schema", "params", "where",
   "answer", "formats", "hints", "steps", "explain", "fallback", "distractors", "grid", "chart"]);
 const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals", "unit", "form", "order"]);
-const TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file", "comingSoon"]);
+const TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file", "comingSoon", "weight"]);
 const LEVEL_KEYS = new Set(["id", "title", "templates", "lesson", "kind"]);
 const BASICS_TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file"]);
 const DOMAINS = new Set(blueprint.domains.map((d) => d.key));
@@ -572,6 +572,9 @@ for (const packName of packs) {
     if (!ICONS.has(topic.icon)) fail(`icon '${topic.icon}' is not in the icon set`);
     if (![1, 2, 3, 4].includes(topic.colorKey)) fail("colorKey must be 1 to 4");
     if (typeof topic.label !== "string" || !topic.label.trim()) fail("topic needs a label");
+    /* The practice exam shares its questions out by these weights. */
+    const weight = (BLUEPRINT_TOPIC[topic.key] || {}).weight;
+    if (topic.weight !== weight) fail(`weight must be the blueprint's, ${weight}`);
     if (topic.comingSoon) {
       if (topic.comingSoon !== true) fail("comingSoon is true or absent");
       if ("file" in topic) fail("a topic coming soon has no file yet");

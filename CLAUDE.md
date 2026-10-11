@@ -132,6 +132,10 @@ Settled with the project owner. Build on them; don't reopen them.
 - **A Basics fact is mastered when it is right and quick (under 4 seconds, no hint) on two
   different days.** A miss sends it back, mastered or not. A slow right answer is practice,
   not mastery.
+- **A practice exam rehearses the paper** (decided 2026-10-11): 20 questions in 30
+  minutes, drawn from all 13 topics by the blueprint's weights, with no hints and no right
+  or wrong until the end, then a score, each topic and a review of every question. It is
+  kept apart from the path and Basics: it never clears a level or masters a fact.
 - **Basics teach understanding first**: each group opens with strategy cards (arrays and
   turning round, doubling, times 10 then halve, the 9s check), and the times table is
   shown as a grid that fills in as facts are mastered.

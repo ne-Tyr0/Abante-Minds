@@ -89,7 +89,8 @@ to the exam rather than a tier ladder, Topics is the whole path, frame 14 celebr
 cleared level rather than a tier, and frame 15, the demotion card, is gone with tiers.
 
 Routes not in the document: `topic` (a topic's levels), `lesson` (the cards that open a
-level), `basics` and `basicsTopic` (the Basics track and one of its topics), `installSteps` (how to add the app to the home screen in a browser that cannot do
+level), `basics` and `basicsTopic` (the Basics track and one of its topics), `examIntro`, `exam` and `examResult`
+(the practice exam), `installSteps` (how to add the app to the home screen in a browser that cannot do
 it in one tap) and `loadFailed` (shown if the question pack cannot load).
 
 ### The questions
@@ -164,6 +165,19 @@ The facts topics each have a review level of all their facts.
   as facts are mastered.
 - A right fact moves on by itself after a moment; a wrong one shows its answer and every
   step, with no second try on the spot.
+
+### Practice exam
+
+A rehearsal of the real paper, opened from a card on Home.
+- **20 questions in 30 minutes**, drawn from all 13 topics in proportion to the blueprint's
+  weights: each topic gets the whole part of its share, and the questions left go to the
+  largest remainders, so decimals get 3 and time gets 1.
+- **No hints, and no right or wrong until the end**, as in the exam. A question can be
+  skipped; when the clock runs out, the exam ends where it stands.
+- **The results** give the score, the time taken, each topic, and every question with the
+  learner's answer, the right one, and the working for a miss.
+- **Kept apart from the path and Basics**: an exam never clears a level or masters a fact.
+  It keeps the streak, and Home shows the last and the best score.
 
 ### Offline
 

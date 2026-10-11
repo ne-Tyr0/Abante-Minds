@@ -377,6 +377,23 @@ function run() {
       case "transform-mirror":
         topicItem("transform", "moves", "transform.mirror-distance", { d: 3, side: "left" }, "6");
         break;
+      /* Not in the PDF: the practice exam, for review. */
+      case "exam-intro":
+        AM.app.go("examIntro");
+        break;
+      case "exam":
+        AM.app.startExam();
+        while (AM.app.session.questions[AM.app.session.index].type !== "compute") AM.app.skipQuestion();
+        typeIn("1");
+        break;
+      case "exam-result":
+        AM.app.startExam();
+        for (var ei = 0; ei < 20; ei++) {
+          var eq = AM.app.session.questions[AM.app.session.index];
+          if (eq.type === "choice") { AM.app.session.picked = ei % 3 ? eq.answerIndex : (eq.answerIndex + 1) % 4; AM.app.check(); }
+          else AM.app.skipQuestion();
+        }
+        break;
       default:
         document.title = "UNKNOWN-SCREEN";
         return;

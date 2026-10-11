@@ -40,6 +40,11 @@ const M = [
   ["Basics levels locked", "        unlocked: true,", "        unlocked: i === 0,"],
   ["next ignores what is done", "      next: own.filter(function (lv) { return !lv.done; })[0] || null", "      next: own[0]"],
   ["Basics move the path", "    var topics = AM.content.TOPICS.map(topicPath);", "    var topics = AM.content.TOPICS.concat(AM.content.BASICS).map(topicPath);"],
+  // practice exams
+  ["exam moves the path", "    state.exams = (state.exams || []).concat(", "    state.totalCorrect += r.score;\n    state.exams = (state.exams || []).concat("],
+  ["exam breaks the streak", "    rollDay();\n    markPractice();\n    state.exams", "    rollDay();\n    state.exams"],
+  ["every exam kept", "      .slice(-EXAMS_KEPT);", "      ;"],
+  ["best tie goes to the earlier", "x.score / x.total >= b.score / b.total ? x : b", "x.score / x.total > b.score / b.total ? x : b"],
   // the attempt log
   ["log kept without its cap", "    if (log.length > LOG_MAX) log.splice(0, log.length - LOG_MAX);\n", ""],
   ["log not saved", "    saveLog();\n    return row;", "    return row;"],
