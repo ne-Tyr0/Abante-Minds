@@ -165,11 +165,13 @@
         flex: "none"
       }
     },
-      el("span.caption", {
+      el("span.caption" + (o.clock ? ".am-exam-clock" : ""), {
+        role: o.clock ? "timer" : null,
         style: {
           display: "inline-flex", alignItems: "center", gap: "var(--space-1)",
           padding: "var(--space-1) var(--space-3)", borderRadius: "var(--radius-pill)",
-          background: "var(--brand-blue-100)", color: "var(--brand-blue-600)", whiteSpace: "nowrap"
+          background: "var(--brand-blue-100)", color: "var(--brand-blue-600)", whiteSpace: "nowrap",
+          fontVariantNumeric: o.clock ? "tabular-nums" : null
         }
       }, o.tier || "Tier 1"),
       el("div.am-practice-header-track", {

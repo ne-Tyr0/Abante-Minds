@@ -108,6 +108,8 @@ const MUTANTS = [
   ["pinned not a choice", D, (j) => { pin(j, { params: { vi: 30 } }); }, "not one of its choices"],
   ["pinned unknown format", D, (j) => { pin(j, { format: "rope" }); }, "no format 'rope'"],
   // the manifest and the path
+  ["topic weight not the blueprint's", M, (j) => { j.topics[0].weight = 0.5; }, "weight must be the blueprint's, 0.13"],
+  ["topic without a weight", M, (j) => { delete j.topics[1].weight; }, "weight must be the blueprint's, 0.11"],
   ["manifest unknown icon", M, (j) => { j.topics[0].icon = "banana"; }, "icon 'banana'"],
   ["manifest bad colorKey", M, (j) => { j.topics[0].colorKey = 7; }, "colorKey"],
   ["manifest bad version", M, (j) => { j.version = "1"; }, "version must be"],

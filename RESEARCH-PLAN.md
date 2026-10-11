@@ -192,7 +192,10 @@ templates is an afternoon, migrating 300 is a project.
     have a word problem carrying a number it does not need, which says so in its hints and
     names the mistake of using it. The attempt log keeps the template id, so a per-schema
     report can be built from it.
-14. **Timed mode and exam simulation.** The real exam is timed and competitive at an 84.50%
+14. **Timed mode and exam simulation.** **Exam simulation done 2026-10-11**: a practice
+    exam of 20 questions in 30 minutes by blueprint weight, answers shown only at the end,
+    results kept apart from the path. A timed mode for ordinary practice is still open.
+    The real exam is timed and competitive at an 84.50%
     mean. Speed is part of the construct, so latency becomes a learner-facing feature, not
     only a research variable.
 15. **Replace the progression model.** **Done 2026-10-10** — a path of levels per topic,

@@ -752,6 +752,7 @@
   var PACK = null;
   var TOPIC_BY_KEY = Object.create(null);
   var TEMPLATE_BY_ID = Object.create(null);
+  var PATH = [];                /* the path's topics, in order, for the practice exam */
   var KINDS = ["practice", "facts", "review"];
 
   /* Installs a pack: a manifest, one file per written topic on the path
@@ -765,7 +766,7 @@
     function install(meta, file, track) {
       if (topics[meta.key]) throw ContentError("topic key used twice: " + meta.key);
       var topic = {
-        key: meta.key, label: meta.label, icon: meta.icon, colorKey: meta.colorKey, track: track,
+        key: meta.key, label: meta.label, icon: meta.icon, colorKey: meta.colorKey, track: track, weight: meta.weight || 0,
         ready: !meta.comingSoon, levels: [], templates: [], pinned: [], grid: null
       };
       if (meta.comingSoon) {
@@ -821,6 +822,7 @@
     };
     TOPIC_BY_KEY = topics;
     TEMPLATE_BY_ID = templates;
+    PATH = list;
     FACTS = Object.create(null);
     AM.content.TOPICS = list.map(publicTopic);
     AM.content.BASICS = basics.map(publicTopic);
@@ -916,6 +918,46 @@
       var qseed = Math.floor(r() * 4294967296) >>> 0;
       out.push(decorate(generateFrom(level.templates[i], PACK, o.tier, qseed), topic, level, out.length));
     }
+    return out;
+  }
+
+  /* ---------- the practice exam ----------
+     A mixed paper across the written topics of the path, shared out by the
+     blueprint's weights (each topic's `weight` in the manifest). Every topic
+     gets the whole part of its share of the questions; the questions left go
+     to the largest remainders, the earlier topic first on a tie. Within a
+     topic no template comes twice unless the topic runs out, and the paper is
+     then shuffled. The numbers are those of a level well under way. */
+  var EXAM_TIER = 3;
+  function examPlan(count) {
+    var ready = PATH.filter(function (t) { return t.ready && t.weight > 0; });
+    var total = ready.reduce(function (a, t) { return a + t.weight; }, 0);
+    if (!ready.length) throw ContentError("no weighted topic to set an exam from");
+    var plan = ready.map(function (t, i) {
+      var exact = count * t.weight / total, whole = Math.floor(exact + 1e-9);
+      return { key: t.key, count: whole, rest: exact - whole, at: i };
+    });
+    var left = count - plan.reduce(function (a, p) { return a + p.count; }, 0);
+    plan.slice().sort(function (a, b) { return b.rest - a.rest || a.at - b.at; })
+      .slice(0, left).forEach(function (p) { p.count += 1; });
+    return plan.filter(function (p) { return p.count > 0; }).map(function (p) { return { key: p.key, count: p.count }; });
+  }
+  function buildExam(o) {
+    if (!PACK) throw ContentError("no content pack installed yet");
+    var r = rng(o.seed === undefined ? Date.now() : o.seed);
+    var out = [];
+    examPlan(o.count).forEach(function (p) {
+      var topic = TOPIC_BY_KEY[p.key];
+      var pool = shuffle(topic.templates.slice(), r);
+      for (var k = 0; k < p.count; k++) {
+        var t = pool[k % pool.length];
+        var level = topic.levels.filter(function (lv) { return lv.templates.indexOf(t) > -1; })[0];
+        var qseed = Math.floor(r() * 4294967296) >>> 0;
+        out.push(decorate(generateFrom(t, PACK, o.tier || EXAM_TIER, qseed), topic, level, 0));
+      }
+    });
+    shuffle(out, r);
+    out.forEach(function (q, i) { q.id = "exam-" + i; });
     return out;
   }
 
@@ -1140,6 +1182,9 @@
       return t ? publicTopic(t) : undefined;
     },
     buildSession: buildSession,
+    buildExam: buildExam,
+    examPlan: examPlan,
+    EXAM_TIER: EXAM_TIER,
     lesson: lesson,
     facts: factKeys,
     /* A listed fact's template and params, for checking it in every format. */

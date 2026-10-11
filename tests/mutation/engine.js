@@ -91,6 +91,12 @@ const M = [
   ["lesson drops the chart", "chart: q.chart || null,", "chart: null,"],
   ["degree sign spaced", "(spec.unit === \"°\" ? \"\" : \" \") + spec.unit", "\" \" + spec.unit"],
   ["pinned items lose their place", "          q.pinnedAt = at;\n", ""],
+  // the practice exam
+  ["exam remainders go to the first topics", "    plan.slice().sort(function (a, b) { return b.rest - a.rest || a.at - b.at; })", "    plan.slice().sort(function (a, b) { return a.at - b.at; })"],
+  ["exam ignores the weights", "      var exact = count * t.weight / total, whole = Math.floor(exact + 1e-9);", "      var exact = count / ready.length, whole = Math.floor(exact + 1e-9);"],
+  ["exam not shuffled", "    shuffle(out, r);\n    out.forEach(function (q, i) { q.id = \"exam-\" + i; });", "    out.forEach(function (q, i) { q.id = \"exam-\" + i; });"],
+  ["exam repeats a template", "        var t = pool[k % pool.length];", "        var t = pool[0];"],
+  ["exam at tier 1", "  var EXAM_TIER = 3;", "  var EXAM_TIER = 1;"],
   // figures
   ["overlapping shapes allowed", "      if (used > 360) throw ContentError(\"the shapes round the point overlap: \" + used + \"°\");\n", ""],
   ["any number of sides drawn", "        if (!SHAPE_NAMES[sides]) throw ContentError(\"a tiling picture cannot show a regular shape of \" + sides + \" sides\");\n", ""],

@@ -46,9 +46,9 @@ this yet.
   "fallbackFeedback": "Start from the first step below.",
   "formFeedback": { "not-lowest-terms": "…", "not-a-mixed-number": "…", "fraction-part-not-proper": "…" },
   "topics": [
-    { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json" },
-    { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "file": "fractions.json" },
-    { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "comingSoon": true }
+    { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json", "weight": 0.13 },
+    { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "file": "fractions.json", "weight": 0.11 },
+    { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "comingSoon": true, "weight": 0.05 }
   ]
 }
 ```
@@ -66,6 +66,7 @@ this yet.
 | `formFeedback` | Required once any template takes `fraction` or `mixed` answers: the words for `not-lowest-terms`, `not-a-mixed-number` and `fraction-part-not-proper` |
 | `topics[].icon` | One of the 22 names in `app/icons.js` |
 | `topics[].colorKey` | 1 to 4, the skill hue |
+| `topics[].weight` | The topic's weight in the blueprint, which the validator checks: the practice exam shares its questions out by it |
 | `basics` | Optional: the Basics topics, each `{ key, label, icon, colorKey, file }`. Never `comingSoon`, and a key no topic on the path uses. Below |
 
 ## A topic: levels and lessons

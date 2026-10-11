@@ -531,7 +531,7 @@
           ) : null)
       : AM.Card({ style: { gap: 10 } },
           sectionLabel("Up next"),
-          el("span.body", { style: { textWrap: "pretty" } }, "Every level written so far is cleared. More topics are on the way; review any level from the path."));
+          el("span.body", { style: { textWrap: "pretty" } }, "Every level on the path is cleared. Review any level from the path, or try a practice exam."));
 
     var streakBlock = (first || desktop) ? null : el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
       sectionLabel(s.streakDays + " day" + (s.streakDays === 1 ? "" : "s") + " in a row"),
@@ -544,7 +544,9 @@
       AM.TopicBars(written.map(function (t) {
         return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels", color: "var(--skill-" + t.colorKey + "-600)" };
       }), { height: 10 }),
-      el("span.body-sm", { style: { color: "var(--ink-600)" } }, (p.topics.length - written.length) + " more topics coming"));
+      p.topics.length > written.length
+        ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (p.topics.length - written.length) + " more topic" + (p.topics.length - written.length === 1 ? "" : "s") + " coming")
+        : null);
 
     var badgeCard = (first || AM.device() === "phone") ? null : AM.Card({ style: { padding: "var(--space-6)", gap: "var(--space-3)" } },
       sectionLabel("Badges · " + store.badges().filter(function (b) { return b.earned; }).length + " of 4"),
@@ -566,17 +568,35 @@
         })),
       AM.Button({ label: "Practise the basics", variant: "ghost", fullWidth: true, onClick: function () { app.go("basics"); } })) : null;
 
+    /* The practice exam: the whole paper at once, against the clock. */
+    var exam = store.examStats();
+    var examCard = first ? null : AM.Card({ style: { gap: 12 } },
+      sectionLabel("Practice exam"),
+      el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
+        el("span", {
+          style: {
+            width: 40, height: 40, flex: "none", borderRadius: "var(--radius-sm)", background: "var(--brand-blue-100)",
+            color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
+          }
+        }, icon("clock", 22)),
+        el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
+          el("span.label", null, app.EXAM_COUNT + " questions · " + app.EXAM_MINUTES + " minutes"),
+          el("span.caption", { style: { color: "var(--ink-600)" } },
+            exam ? "Last " + exam.last.score + " of " + exam.last.total + " · best " + exam.best.score + " of " + exam.best.total
+              : "Every topic, as the exam weighs them"))),
+      AM.Button({ label: exam ? "Take another" : "Try a practice exam", variant: "ghost", fullWidth: true, onClick: function () { app.go("examIntro"); } }));
+
     var offer = app.canOfferInstall() && !s.installCardDismissed ? installCard(app) : null;
 
     /* Tablet and desktop spend the extra width on a second card rather than on
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          offer, upNext, countdown, basicsCard, streakBlock)
+          offer, upNext, countdown, examCard, basicsCard, streakBlock)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
           offer,
           el("div.am-pair", null, upNext, countdown),
-          basicsCard,
+          el("div.am-pair", null, examCard, basicsCard),
           streakBlock,
           el("div.am-pair", null, pathCard, badgeCard));
 
@@ -1442,6 +1462,156 @@
     };
   }
 
+  /* ---------- Practice exam ----------
+     A rehearsal of the real paper: mixed questions from every topic by the
+     blueprint's weights, a clock, no hints, and right or wrong only at the
+     end. Three screens: the rules before starting, the questions, and the
+     results with every question reviewed. */
+  function minutesSeconds(total) {
+    var m = Math.floor(total / 60), s = total % 60;
+    return m + " min " + (s < 10 ? "0" : "") + s + " s";
+  }
+
+  screens.examIntro = function (app) {
+    var stats = store.examStats();
+    var rule = function (glyph, text) {
+      return el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "flex-start" } },
+        el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon(glyph, 22)),
+        el("span.body", { style: { textWrap: "pretty" } }, text));
+    };
+    return {
+      nav: "home", bottomNav: false,
+      back: function () { app.go("home", "back"); },
+      body: column([
+        el("div", { style: { padding: "16px " + gutter() + "px 0" } },
+          el("div.heading-lg", null, "Practice exam"),
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } },
+            app.EXAM_COUNT + " questions · " + app.EXAM_MINUTES + " minutes · every topic")),
+        el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 14 } },
+            rule("clock", app.EXAM_COUNT + " questions in " + app.EXAM_MINUTES + " minutes. When the time is up, the exam ends where you are."),
+            rule("level-up", "The questions come from all 13 topics, more from the ones the exam weighs more, like decimals and fractions."),
+            rule("hint", "No hints, and no right or wrong until the end, as in the real exam. You can skip a question."),
+            rule("check", "At the end you see your score, each topic, and the working for every question you missed."),
+            rule("lock", "It does not change your path or your Basics."))),
+        stats ? el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 6 } },
+            sectionLabel("Your exams · " + stats.taken),
+            el("span.body", null, "Last: " + stats.last.score + " of " + stats.last.total + " · Best: " + stats.best.score + " of " + stats.best.total))) : null
+      ], { paddingBottom: 24 }),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520 } },
+          AM.Button({ label: "Start the exam", fullWidth: true, onClick: function () { app.startExam(); } })))
+    };
+  };
+
+  screens.exam = function (app) {
+    var ses = app.session;
+    if (!ses || !ses.exam) { app.go("home"); return screens.home(app); }
+    var q = ses.questions[ses.index];
+    var desktop = AM.device() === "desktop";
+    var last = ses.index + 1 >= ses.questions.length;
+    var header = AM.PracticeHeader({
+      tier: app.examClock(ses) + " left", clock: true,
+      questionIndex: ses.index, questionTotal: ses.questions.length
+    });
+    var prompt = el("div", { style: { padding: (desktop ? 0 : 24) + "px " + (desktop ? 0 : gutter()) + "px 0" } },
+      el("div.caption", { style: { color: "var(--ink-600)", marginBottom: 6 } }, "Question " + (ses.index + 1) + " of " + ses.questions.length),
+      el(desktop ? "div.heading-lg" : "div.body-lg", { style: desktop ? { textWrap: "pretty" } : { fontWeight: 500, textWrap: "pretty" } }, q.prompt));
+    var chart = q.chart ? el("div", { style: { padding: desktop ? 0 : "16px " + gutter() + "px 0", display: "flex" } }, AM.Chart(q.chart)) : null;
+
+    var answer;
+    if (q.type === "choice") {
+      answer = el("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)", padding: desktop ? 0 : "24px " + gutter() + "px 0" } },
+        q.choices.map(function (label, i) {
+          return AM.AnswerTile({
+            text: label, state: ses.picked === i ? "selected" : "idle", tall: true,
+            onClick: function () { ses.picked = i; app.render(); }
+          });
+        }));
+    } else {
+      answer = el("div", { style: { padding: desktop ? 0 : "20px " + gutter() + "px 0" } },
+        AM.AnswerField({ entry: ses.entry, prefix: q.unit, suffix: q.suffix, tall: desktop, onFocusBox: app.focusBox }));
+    }
+    var ready = q.type === "choice" ? ses.picked !== null : AM.entry.complete(ses.entry);
+    var buttons = el("div", { style: { display: "flex", flexDirection: desktop ? "row" : "column", gap: 10 } },
+      AM.Button({ label: last ? "Finish the exam" : "Next", iconRight: last ? null : "next", fullWidth: !desktop, disabled: !ready, onClick: function () { app.check(); } }),
+      AM.Button({ label: "Skip", variant: "ghost", fullWidth: !desktop, onClick: function () { app.skipQuestion(); } }));
+    var keypad = q.type === "compute" ? AM.Keypad({
+      kind: q.entry, tall: desktop,
+      onPress: function (d) { app.type(d); }, onDelete: function () { app.backspace(); }, onNext: function () { app.nextBox(); }
+    }) : null;
+
+    if (desktop) {
+      var left = el("div", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: "var(--space-4)" } },
+        answer, buttons);
+      var row = el("div", { style: { display: "flex", gap: 32, alignItems: "flex-start" } }, left,
+        keypad ? el("div", { style: { flex: "none", width: 280 } }, keypad) : null);
+      return {
+        nav: "practice", bottomNav: false, header: header,
+        body: el("div", { style: { flex: 1, display: "flex", justifyContent: "center", padding: gutter() + "px", minHeight: 0, overflowY: "auto" } },
+          el("div", { style: { width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: 32 } }, prompt, chart, row))
+      };
+    }
+    return {
+      nav: "practice", bottomNav: false, header: header,
+      body: column([prompt, chart, answer]),
+      belowFold: keypad ? el("div", { style: { padding: "0 " + gutter() + "px" } }, keypad) : null,
+      footer: el("div", { style: { flex: "none", padding: "16px " + gutter() + "px 20px" } }, buttons)
+    };
+  };
+
+  screens.examResult = function (app) {
+    var r = app.scratch.exam;
+    if (!r) { app.go("home"); return screens.home(app); }
+    function stat(value, label) {
+      return el("div", {
+        style: { background: "var(--surface-200)", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-card)", padding: "var(--space-3)", textAlign: "center" }
+      }, el("div.heading-lg", null, String(value)), el("div.caption", { style: { color: "var(--ink-600)" } }, label));
+    }
+    var review = el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } });
+    r.questions.forEach(function (q, i) {
+      var a = r.answers[i] || { given: null, correct: false, shown: null };
+      var right = q.type === "choice" ? q.choices[q.answerIndex] : (q.unit || "") + q.answerText + q.suffix;
+      var ink = a.correct ? "var(--success-700)" : "var(--danger-700)";
+      review.appendChild(AM.Card({ style: { gap: 10 } },
+        el("span", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } },
+          el("span", { style: { color: ink, flex: "none" } }, icon(a.correct ? "check" : "x", 20, { glyph: true })),
+          el("span.caption", { style: { color: "var(--ink-600)" } }, "Question " + (i + 1) + " · " + q.topicLabel)),
+        el("span.body", { style: { textWrap: "pretty" } }, q.prompt),
+        q.chart ? AM.Chart(q.chart) : null,
+        el("span.body-sm", null,
+          a.given === null ? "Not answered. " : (a.correct ? "Your answer, " + a.shown + ", is right." : "Your answer: " + a.shown + ". "),
+          a.correct ? null : el("span", { style: { fontWeight: 700 } }, "The answer is " + right + ".")),
+        a.correct ? null : el("div", { style: { display: "flex", flexDirection: "column", gap: 6 } },
+          q.steps.map(function (st, k) { return el("span.body-sm", { style: { color: "var(--ink-600)" } }, (k + 1) + ". " + st); }))));
+    });
+    return {
+      nav: "practice", bottomNav: false,
+      banner: connectionBanner(),
+      body: column([
+        el("div", { style: { padding: "24px " + gutter() + "px 0" } },
+          el("div.heading-lg", null, r.timedOut ? "Time is up" : "Exam done"),
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, "Practice exam · " + minutesSeconds(r.seconds))),
+        el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
+          stat(r.score + "/" + r.total, "right"), stat(Math.round(100 * r.score / r.total) + "%", "score"),
+          stat(r.answers.filter(function (a) { return a && a.given === null; }).length + (r.total - r.answers.length), "not answered")),
+        el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 14 } },
+            sectionLabel("By topic"),
+            AM.TopicBars(r.byTopic.map(function (t) {
+              return { label: t.label, correct: t.right, total: t.asked, caption: t.right + " of " + t.asked, color: "var(--skill-" + t.colorKey + "-600)" };
+            }), { height: 8 }))),
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
+          sectionLabel("Every question"), review)
+      ], { paddingBottom: 24 }),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
+          AM.Button({ label: "Another practice exam", fullWidth: true, onClick: function () { app.go("examIntro"); } }),
+          AM.Button({ label: "Home", variant: "ghost", fullWidth: true, onClick: function () { app.go("home"); } })))
+    };
+  };
+
   /* ---------- 20 · Profile ----------
      The ID card from login, reused. Sign out is a ghost, not the primary. */
   screens.profile = function (app) {
@@ -1485,7 +1655,9 @@
           AM.TopicBars(written.map(function (t) {
             return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels", color: "var(--skill-" + t.colorKey + "-600)" };
           })),
-          el("span.body-sm", { style: { color: "var(--ink-600)" } }, (path.topics.length - written.length) + " more topics coming")),
+          path.topics.length > written.length
+            ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (path.topics.length - written.length) + " more topic" + (path.topics.length - written.length === 1 ? "" : "s") + " coming")
+            : null),
 
         /* One button, no card: it fits the space Profile had spare on a
            390x844 phone, so the footer and nav stay on screen. */

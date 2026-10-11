@@ -124,7 +124,7 @@
     if (key === "home") app.go("home");
     else if (key === "profile") app.go("profile");
     else if (key === "practice") {
-      if (app.session && app.route !== "practice") app.go("practice");
+      if (app.session && app.route !== "practice" && app.route !== "exam") app.go(app.session.exam ? "exam" : "practice");
       else app.go("topics");
     }
   }
@@ -254,7 +254,7 @@
     return {
       topicKey: meta.topic.key, topicLabel: meta.topic.label, colorKey: meta.topic.colorKey,
       levelId: meta.id, levelTitle: meta.title, levelNumber: meta.number,
-      track: meta.track, kind: meta.kind, facts: meta.kind !== "practice",
+      track: meta.track, kind: meta.kind, facts: meta.kind === "facts" || meta.kind === "review",
       redo: !!redo, questions: questions,
       index: 0, phase: "ask", entry: null, picked: null, diagnosis: null,
       showHints: false, hintsRevealed: 0, stepsRevealed: 1,
@@ -342,6 +342,7 @@
     var q = s.questions[s.index];
     if (q.type === "choice" ? s.picked === null : !AM.entry.complete(s.entry)) return;
     var given = q.type === "choice" ? s.picked : AM.entry.text(s.entry);
+    if (s.exam) { examAnswer(s, q, given); return; }
 
     /* A wrong answer that matches a mistake the template expects gets that
        mistake's explanation; any other gets the honest fallback. */
@@ -461,11 +462,12 @@
     s.hintsRevealed = 0;
     s.stepsRevealed = 1;
     s.shownAt = Date.now();
-    app.go("practice");
+    app.go(s.exam ? "exam" : "practice");
   }
 
   function finish() {
     var s = app.session;
+    if (s.exam) { finishExam(s, false); return; }
     var minutes = Math.max(1, Math.round((Date.now() - s.startedAt) / 60000));
     var result = {
       topicKey: s.topicKey,
@@ -496,11 +498,104 @@
     app.go("summary");
   }
 
+  /* ---------- the practice exam ----------
+     EXAM_COUNT questions across the path by blueprint weight, against a clock
+     of EXAM_MINUTES. No hints and no right or wrong until the end, as in the
+     real exam; a question can be skipped. Its results are kept on their own
+     and never move the path or Basics. */
+  var EXAM_COUNT = 20, EXAM_MINUTES = 30, examTimer = null;
+
+  app.EXAM_COUNT = EXAM_COUNT;
+  app.EXAM_MINUTES = EXAM_MINUTES;
+
+  app.startExam = function () {
+    store.rollDay();
+    var seed = Date.now() >>> 0;
+    var meta = { topic: { key: "exam", label: "Practice exam", colorKey: 1 }, id: "exam", title: "Practice exam", number: 0, track: "exam", kind: "exam" };
+    var s = newSession(meta, C.buildExam({ count: EXAM_COUNT, seed: seed }), false);
+    s.exam = { seed: seed, endsAt: Date.now() + EXAM_MINUTES * 60000, answers: [], done: false };
+    s.entry = freshEntry(s);
+    app.session = s;
+    if (examTimer) window.clearInterval(examTimer);
+    examTimer = window.setInterval(tickExam, 1000);
+    app.go("exam");
+  };
+
+  /* Minutes and seconds left, as the clock shows them: 29:41. */
+  app.examClock = function (s) {
+    var left = Math.max(0, Math.ceil((s.exam.endsAt - Date.now()) / 1000));
+    var m = Math.floor(left / 60), sec = left % 60;
+    return m + ":" + (sec < 10 ? "0" : "") + sec;
+  };
+
+  /* The clock updates in place, so typing is never interrupted by a redraw.
+     When it runs out, the exam ends where it stands. */
+  function tickExam() {
+    var s = app.session;
+    if (!s || !s.exam || s.exam.done) { window.clearInterval(examTimer); examTimer = null; return; }
+    if (Date.now() >= s.exam.endsAt) { finishExam(s, true); return; }
+    var node = document.querySelector(".am-exam-clock");
+    if (node) node.textContent = app.examClock(s) + " left";
+  }
+
+  /* The answer is taken and checked, but nothing is shown: the next question
+     comes straight up. A skipped question has no answer. */
+  function examAnswer(s, q, given) {
+    var d = given === null ? { correct: false, error: null } : C.diagnose(q, given);
+    s.exam.answers[s.index] = {
+      given: given, correct: d.correct, error: d.error,
+      shown: given === null ? null : q.type === "choice" ? q.choices[given] : (q.unit || "") + given + q.suffix
+    };
+    s.attempted += 1;
+    if (d.correct) s.correct += 1;
+    store.logAttempt({
+      session: s.id, topic: q.topicKey, level: q.levelId, kind: "exam",
+      template: q.templateId, tier: q.tier, seed: q.seed, pinned: null,
+      format: q.format, fact: null, pack: q.packVersion,
+      ordinal: s.index, attempt: 1, given: given, correct: d.correct, error: d.error,
+      ms: Date.now() - s.shownAt, hints: 0, steps: 0
+    });
+    advance();
+  }
+
+  app.skipQuestion = function () {
+    var s = app.session;
+    if (!s || !s.exam || s.exam.done) return;
+    examAnswer(s, s.questions[s.index], null);
+  };
+
+  function finishExam(s, timedOut) {
+    if (s.exam.done) return;
+    s.exam.done = true;
+    window.clearInterval(examTimer);
+    examTimer = null;
+    var byTopic = [], seen = {};
+    s.questions.forEach(function (q, i) {
+      var t = seen[q.topicKey];
+      if (!t) { t = seen[q.topicKey] = { key: q.topicKey, label: q.topicLabel, colorKey: q.colorKey, right: 0, asked: 0 }; byTopic.push(t); }
+      t.asked += 1;
+      if (s.exam.answers[i] && s.exam.answers[i].correct) t.right += 1;
+    });
+    /* In path order, as the learner knows the topics. */
+    var order = C.TOPICS.map(function (t) { return t.key; });
+    byTopic.sort(function (a, b) { return order.indexOf(a.key) - order.indexOf(b.key); });
+    var topics = {};
+    byTopic.forEach(function (t) { topics[t.key] = [t.right, t.asked]; });
+    var seconds = Math.min(EXAM_MINUTES * 60, Math.round((Date.now() - s.startedAt) / 1000));
+    store.recordExam({ score: s.correct, total: s.questions.length, seconds: seconds, topics: topics });
+    app.scratch.exam = {
+      score: s.correct, total: s.questions.length, seconds: seconds, timedOut: !!timedOut,
+      byTopic: byTopic, questions: s.questions, answers: s.exam.answers
+    };
+    app.session = null;
+    app.go("examResult");
+  }
+
   /* ---------- keyboard ----------
      A shared school desktop has a keyboard; a phone in a jeepney does not.
      Both routes into the field are live wherever they exist. */
   document.addEventListener("keydown", function (e) {
-    if (app.route !== "practice" || !app.session) return;
+    if ((app.route !== "practice" && app.route !== "exam") || !app.session) return;
     var s = app.session;
     var q = s.questions[s.index];
     if (e.metaKey || e.ctrlKey || e.altKey) return;
