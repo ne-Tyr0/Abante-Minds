@@ -4,7 +4,7 @@
     {
       "id": "reading",
       "title": "Choosing and reading graphs",
-      "templates": ["data.which-graph", "data.read-bar", "data.read-line"],
+      "templates": ["data.which-graph", "data.read-bar", "data.read-line", "data.read-table"],
       "lesson": [
         {
           "title": "Which graph?",
@@ -1306,6 +1306,72 @@
           "value": "sum / 4",
           "error": "divided-by-four",
           "feedback": "{value} is the total divided by 4, but there are 5 days."
+        }
+      ]
+    },
+    {
+      "id": "data.read-table",
+      "competency": "G6.Q4.8",
+      "domain": "DP",
+      "construct": "Read one value from a table by its row and column",
+      "schema": "compare",
+      "params": {
+        "u1": {"range": [5, 40]},
+        "v1": {"range": [5, 40]},
+        "u2": {"range": [5, 40]},
+        "v2": {"range": [5, 40]},
+        "u3": {"range": [5, 40]},
+        "v3": {"range": [5, 40]},
+        "u4": {"range": [5, 40]},
+        "v4": {"range": [5, 40]},
+        "g": {"range": [1, 2]},
+        "d": {"range": [1, 4]}
+      },
+      "where": [
+        "pick(d, u1, u2, u3, u4) != pick(d, v1, v2, v3, v4)",
+        "pick(d % 4 + 1, pick(g, u1, v1), pick(g, u2, v2), pick(g, u3, v3), pick(g, u4, v4)) != pick(d, pick(g, u1, v1), pick(g, u2, v2), pick(g, u3, v3), pick(g, u4, v4))"
+      ],
+      "chart": {
+        "kind": "table",
+        "title": "Books borrowed from the library",
+        "axis": "Day",
+        "categories": ["Monday", "Tuesday", "Wednesday", "Thursday"],
+        "series": [
+          {"name": "Grade 5", "values": ["u1", "u2", "u3", "u4"]},
+          {"name": "Grade 6", "values": ["v1", "v2", "v3", "v4"]}
+        ]
+      },
+      "answer": {
+        "type": "integer",
+        "value": "pick(d, pick(g, u1, v1), pick(g, u2, v2), pick(g, u3, v3), pick(g, u4, v4))"
+      },
+      "formats": [
+        {
+          "id": "books",
+          "prompt": "The table shows the books Grade 5 and Grade 6 borrowed from the library. How many books did Grade {g + 4} borrow on {pick(d, 'Monday', 'Tuesday', 'Wednesday', 'Thursday')}?"
+        }
+      ],
+      "hints": [
+        "Find the row for {pick(d, 'Monday', 'Tuesday', 'Wednesday', 'Thursday')}.",
+        "Then the column for Grade {g + 4}.",
+        "Read the number where they meet."
+      ],
+      "steps": [
+        "Row: {pick(d, 'Monday', 'Tuesday', 'Wednesday', 'Thursday')}",
+        "Column: Grade {g + 4}",
+        "The number there: {answer}"
+      ],
+      "explain": "On {pick(d, 'Monday', 'Tuesday', 'Wednesday', 'Thursday')}, Grade {g + 4} borrowed {answer} books.",
+      "distractors": [
+        {
+          "value": "pick(d, pick(g, v1, u1), pick(g, v2, u2), pick(g, v3, u3), pick(g, v4, u4))",
+          "error": "read-the-other-grade",
+          "feedback": "{value} is Grade {7 - g}'s number for {pick(d, 'Monday', 'Tuesday', 'Wednesday', 'Thursday')}. Use the column for Grade {g + 4}."
+        },
+        {
+          "value": "pick(d % 4 + 1, pick(g, u1, v1), pick(g, u2, v2), pick(g, u3, v3), pick(g, u4, v4))",
+          "error": "read-another-day",
+          "feedback": "{value} is Grade {g + 4}'s number for {pick(d % 4 + 1, 'Monday', 'Tuesday', 'Wednesday', 'Thursday')}. Use the row for {pick(d, 'Monday', 'Tuesday', 'Wednesday', 'Thursday')}."
         }
       ]
     }
