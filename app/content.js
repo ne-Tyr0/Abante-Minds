@@ -921,6 +921,29 @@
     return out;
   }
 
+  /* A question again, exactly as it was asked: from its template, tier and
+     seed, or for a pinned item, from its place in the topic's pinned list.
+     Null when a later pack no longer has it, so a stale recipe is dropped
+     rather than shown as something else. */
+  function rebuild(r) {
+    var t = TEMPLATE_BY_ID[r.template], topic = TOPIC_BY_KEY[r.topic];
+    if (!t || !topic) return null;
+    var level = topic.levels.filter(function (lv) { return lv.kind === "practice" && lv.templates.indexOf(t) > -1; })[0];
+    if (!level) return null;
+    var q;
+    try {
+      if (r.pinnedAt !== null && r.pinnedAt !== undefined) {
+        var p = topic.pinned[r.pinnedAt];
+        if (!p || p.template !== r.template) return null;
+        q = instanceFrom(t, PACK, r.tier, p.params, p.format);
+        q.pinnedAt = r.pinnedAt;
+      } else {
+        q = generateFrom(t, PACK, r.tier, r.seed);
+      }
+    } catch (e) { return null; }
+    return decorate(q, topic, level, 0);
+  }
+
   /* ---------- the practice exam ----------
      A mixed paper across the written topics of the path, shared out by the
      blueprint's weights (each topic's `weight` in the manifest). Every topic
@@ -1183,6 +1206,7 @@
     },
     buildSession: buildSession,
     buildExam: buildExam,
+    rebuild: rebuild,
     examPlan: examPlan,
     EXAM_TIER: EXAM_TIER,
     lesson: lesson,

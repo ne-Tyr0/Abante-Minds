@@ -91,6 +91,10 @@ const M = [
   ["lesson drops the chart", "chart: q.chart || null,", "chart: null,"],
   ["degree sign spaced", "(spec.unit === \"°\" ? \"\" : \" \") + spec.unit", "\" \" + spec.unit"],
   ["pinned items lose their place", "          q.pinnedAt = at;\n", ""],
+  // spaced review
+  ["rebuild ignores the pinned place", "      if (r.pinnedAt !== null && r.pinnedAt !== undefined) {", "      if (false) {"],
+  ["rebuild takes any template in a pinned place", "        if (!p || p.template !== r.template) return null;", "        if (!p) return null;"],
+  ["rebuild from another topic", "    var level = topic.levels.filter(function (lv) { return lv.kind === \"practice\" && lv.templates.indexOf(t) > -1; })[0];", "    var level = topic.levels[0];"],
   // the practice exam
   ["exam remainders go to the first topics", "    plan.slice().sort(function (a, b) { return b.rest - a.rest || a.at - b.at; })", "    plan.slice().sort(function (a, b) { return a.at - b.at; })"],
   ["exam ignores the weights", "      var exact = count * t.weight / total, whole = Math.floor(exact + 1e-9);", "      var exact = count / ready.length, whole = Math.floor(exact + 1e-9);"],

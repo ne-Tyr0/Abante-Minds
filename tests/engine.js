@@ -674,6 +674,21 @@ test("a degree sign sits against its number; other units take a space", () => {
   C.use(PACK.manifest, PACK.files);
 });
 
+/* ---------- spaced review ---------- */
+
+test("rebuild: a missed question comes back exactly as it was asked", () => {
+  const ses = C.buildSession({ topic: "t", level: "one", count: 6, tier: 2, seed: 5, pinned: true });
+  for (const q of ses) {
+    const again = C.rebuild({ topic: q.topicKey, template: q.templateId, tier: q.tier, seed: q.pinned ? null : q.seed, pinnedAt: q.pinned ? q.pinnedAt : null });
+    assert.deepStrictEqual([again.prompt, again.answer, again.format, again.levelId], [q.prompt, q.answer, q.format, q.levelId], q.id);
+  }
+  assert.strictEqual(C.rebuild({ topic: "t", template: "t.nope", tier: 1, seed: 1 }), null, "a template a later pack retired");
+  assert.strictEqual(C.rebuild({ topic: "u", template: "t.formats", tier: 1, seed: 1 }), null, "a template from another topic");
+  assert.strictEqual(C.rebuild({ topic: "t", template: "t.tiers", tier: 1, seed: null, pinnedAt: 0 }), null, "a pinned place now holding another template");
+  assert.strictEqual(C.rebuild({ topic: "t", template: "t.formats", tier: 1, seed: null, pinnedAt: 7 }), null, "a pinned place that is gone");
+  assert.strictEqual(C.rebuild({ topic: "v", template: "t.formats", tier: 1, seed: 1 }), null, "a topic not yet written");
+});
+
 /* ---------- the practice exam ---------- */
 
 const WEIGHTED = {

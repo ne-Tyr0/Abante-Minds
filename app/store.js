@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 30;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 31;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -53,6 +53,7 @@
       profile: null,               /* {name, school, colorKey, iconKey, username} */
       levels: {},                  /* "topic/level": {correct, attempts, cleared, lessonSeen} */
       facts: {},                   /* fact key: {seen, right, miss, days, last}; days are the days it was right and quick */
+      review: {},                  /* missed questions coming back: key: {topic, template, tier, seed, pinnedAt, step, due, added} */
       exams: [],                   /* practice exams, the last EXAMS_KEPT: {day, score, total, seconds, topics: {key: [right, asked]}} */
       lastLevel: null,             /* {topic, level}: where the learner last practised */
       streakDays: 0,
@@ -382,6 +383,76 @@
     return row;
   }
 
+  /* ---------- spaced review ----------
+     A question missed on the path or in a practice exam comes back a day
+     later, then three days after that, then seven (REVIEW_DAYS). Right on
+     its first try moves it on; wrong sends it back to a day; right at the
+     last step and it is done. It is kept as its recipe (template, tier, and
+     seed or pinned place), so it comes back exactly as it was asked. At most
+     REVIEW_MAX are kept, the oldest going first. A review never moves the
+     path, but it keeps the streak (RESEARCH-PLAN.md item 17). */
+  var REVIEW_DAYS = [1, 3, 7], REVIEW_MAX = 200;
+  function addDays(day, n) {
+    var d = new Date(day + "T12:00:00");
+    d.setDate(d.getDate() + n);
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function reviewKey(q) {
+    return q.templateId + ":" + q.tier + ":" + (q.pinned ? "p" + q.pinnedAt : q.seed);
+  }
+  function scheduleReview(q) {
+    var review = state.review || (state.review = {});
+    var key = reviewKey(q);
+    review[key] = {
+      topic: q.topicKey, template: q.templateId, tier: q.tier,
+      seed: q.pinned ? null : q.seed, pinnedAt: q.pinned ? q.pinnedAt : null,
+      step: 0, due: addDays(today(), REVIEW_DAYS[0]), added: Date.now()
+    };
+    var keys = Object.keys(review);
+    if (keys.length > REVIEW_MAX) {
+      keys.sort(function (a, b) { return review[a].added - review[b].added; })
+        .slice(0, keys.length - REVIEW_MAX).forEach(function (k) { delete review[k]; });
+    }
+    commit();
+    return key;
+  }
+  /* Due today or earlier, the longest waiting first. */
+  function reviewDue() {
+    var review = state.review || {}, t = today();
+    return Object.keys(review)
+      .filter(function (k) { return review[k].due <= t; })
+      .sort(function (a, b) {
+        var x = review[a], y = review[b];
+        return x.due < y.due ? -1 : x.due > y.due ? 1 : x.added - y.added;
+      })
+      .map(function (k) {
+        var e = { key: k };
+        Object.keys(review[k]).forEach(function (f) { e[f] = review[k][f]; });
+        return e;
+      });
+  }
+  /* The next day something comes back, when nothing is due now. */
+  function reviewNext() {
+    var review = state.review || {}, t = today();
+    return Object.keys(review).map(function (k) { return review[k].due; })
+      .filter(function (d) { return d > t; }).sort()[0] || null;
+  }
+  function recordReview(key, right) {
+    var review = state.review || {}, e = review[key];
+    if (!e) return null;
+    rollDay();
+    markPractice();
+    var done = false;
+    if (!right) { e.step = 0; e.due = addDays(today(), REVIEW_DAYS[0]); }
+    else if (e.step + 1 >= REVIEW_DAYS.length) { delete review[key]; done = true; }
+    else { e.step += 1; e.due = addDays(today(), REVIEW_DAYS[e.step]); }
+    commit();
+    return { done: done, due: done ? null : e.due };
+  }
+  function dropReview(key) {
+    if (state.review && state.review[key]) { delete state.review[key]; commit(); }
+  }
+
   /* ---------- practice exams ----------
      Kept apart from the path and Basics: an exam never clears a level or
      masters a fact. It is practice all the same, so it keeps the streak. */
@@ -451,6 +522,13 @@
     badges: badges,
     hasProgress: hasProgress,
     recordExam: recordExam,
+    scheduleReview: scheduleReview,
+    reviewDue: reviewDue,
+    reviewNext: reviewNext,
+    recordReview: recordReview,
+    dropReview: dropReview,
+    REVIEW_DAYS: REVIEW_DAYS,
+    REVIEW_MAX: REVIEW_MAX,
     examStats: examStats,
     EXAMS_KEPT: EXAMS_KEPT,
     logAttempt: logAttempt,

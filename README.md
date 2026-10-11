@@ -179,6 +179,14 @@ A rehearsal of the real paper, opened from a card on Home.
 - **Kept apart from the path and Basics**: an exam never clears a level or masters a fact.
   It keeps the streak, and Home shows the last and the best score.
 
+### Spaced review
+
+A question missed on its first try, on the path or in a practice exam, comes back to be
+tried again: a day later, then 3 days after that, then 7, and then it is done. A miss sends
+it back to the next day. It comes back as the same question, rebuilt from its seed. Home
+shows a Review card when questions are due, and a review session takes up to 10 of them,
+the longest waiting first. Reviews keep the streak and never move the path.
+
 ### Kinds of problem
 
 Every template is tagged with the kind of problem it is (change, comparing, equal groups,

@@ -369,8 +369,11 @@
       if (right) s.correct += 1;
     }
     if (s.facts) checkFact(s, q, right);
+    else if (s.review) { if (firstTry) store.recordReview(q.reviewKey, right); else store.notePractice(); }
     else if (s.redo) store.notePractice();
     else if (store.recordAnswer(s.topicKey, s.levelId, right, firstTry).cleared) s.pendingLevelUp = true;
+    /* A miss on the path comes back in a day, then three, then seven. */
+    if (!right && firstTry && !s.facts && !s.redo && !s.review) store.scheduleReview(q);
 
     if (right) {
       s.run += 1;
@@ -468,6 +471,7 @@
   function finish() {
     var s = app.session;
     if (s.exam) { finishExam(s, false); return; }
+    if (s.review) { finishReview(s); return; }
     var minutes = Math.max(1, Math.round((Date.now() - s.startedAt) / 60000));
     var result = {
       topicKey: s.topicKey,
@@ -496,6 +500,37 @@
     store.set({ lastSession: { topicLabel: s.topicLabel, levelTitle: s.levelTitle, correct: s.correct, attempted: s.attempted } });
     app.session = null;
     app.go("summary");
+  }
+
+  /* ---------- spaced review ----------
+     Up to REVIEW_SESSION missed questions that are due, the longest waiting
+     first, each exactly as it was first asked. A question whose template a
+     later pack has retired is dropped. */
+  var REVIEW_SESSION = 10;
+  app.startReview = function () {
+    store.rollDay();
+    var questions = [];
+    store.reviewDue().forEach(function (e) {
+      if (questions.length >= REVIEW_SESSION) return;
+      var q = C.rebuild(e);
+      if (!q) { store.dropReview(e.key); return; }
+      q.reviewKey = e.key;
+      q.id = "review-" + questions.length;
+      questions.push(q);
+    });
+    if (!questions.length) { app.go("home"); return; }
+    var meta = { topic: { key: "review", label: "Review", colorKey: 1 }, id: "review", title: "Review", number: 0, track: "review", kind: "practice" };
+    var s = newSession(meta, questions, false);
+    s.review = true;
+    s.entry = freshEntry(s);
+    app.session = s;
+    app.go("practice");
+  };
+
+  function finishReview(s) {
+    app.scratch.review = { attempted: s.attempted, correct: s.correct, due: store.reviewDue().length, next: store.reviewNext() };
+    app.session = null;
+    app.go("reviewDone");
   }
 
   /* ---------- the practice exam ----------
@@ -555,6 +590,7 @@
       ordinal: s.index, attempt: 1, given: given, correct: d.correct, error: d.error,
       ms: Date.now() - s.shownAt, hints: 0, steps: 0
     });
+    if (given !== null && !d.correct) store.scheduleReview(q);
     advance();
   }
 

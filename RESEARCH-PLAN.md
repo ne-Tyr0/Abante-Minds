@@ -217,6 +217,10 @@ templates is an afternoon, migrating 300 is a project.
     days, a miss sends it back, and every round brings back a few mastered facts. The
     per-fact record (seen, right, missed, the days it was right and quick) is a fluency
     measure in its own right once the attempt log (item 6 in `CLAUDE.md`) keeps latency.
+    **Done for the path 2026-10-11**: a question missed on its first try, in practice or in a
+    practice exam, comes back a day later, then 3 days after that, then 7, rebuilt from its
+    seed so it is the same question. A miss sends it back to a day; right at 7 days and it
+    is done. Home offers the questions due; a review never moves the path.
 
 ## Phase 3 — Research instrumentation
 
