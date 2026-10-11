@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.30.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.31.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -13,17 +13,17 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Decimals | 13% | 6 | 26 | 20 | 68 |
 | Fractions | 11% | 6 | 21 | 10 | 51 |
 | Order of operations | 9% | 4 | 16 | 5 | 37 |
-| Factors and primes | 4% | 4 | 15 | 5 | 38 |
-| Ratio and proportion | 8% | 4 | 13 | 7 | 27 |
+| Factors and primes | 4% | 4 | 16 | 5 | 41 |
+| Ratio and proportion | 8% | 4 | 16 | 7 | 35 |
 | Percentages | 5% | 3 | 14 | 2 | 30 |
 | Time | 4% | 4 | 15 | 5 | 32 |
-| Perimeter and area | 9% | 4 | 16 | 6 | 35 |
-| Solids and volume | 9% | 5 | 24 | 13 | 64 |
+| Perimeter and area | 9% | 4 | 17 | 6 | 37 |
+| Solids and volume | 9% | 5 | 26 | 13 | 68 |
 | Circles | 8% | 4 | 17 | 7 | 36 |
 | Graphs and data | 11% | 5 | 17 | 9 | 37 |
-| Probability | 4% | 3 | 12 | 2 | 24 |
+| Probability | 4% | 3 | 13 | 2 | 27 |
 | Transformations | 5% | 4 | 15 | 3 | 36 |
-| **All** | | **56** | **221** | **94** | **515** |
+| **All** | | **56** | **229** | **94** | **535** |
 
 The path's templates serve 94 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 15 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
@@ -35,12 +35,12 @@ Problem schemas on the path:
 | combine | additive | 6 |
 | compare | additive | 25 |
 | equal-groups | multiplicative | 33 |
-| rate | multiplicative | 5 |
-| multiplicative-compare | multiplicative | 21 |
-| part-whole | multiplicative | 56 |
-| work-backwards | non-routine | 7 |
+| rate | multiplicative | 6 |
+| multiplicative-compare | multiplicative | 24 |
+| part-whole | multiplicative | 57 |
+| work-backwards | non-routine | 9 |
 | missing-middle | non-routine | 4 |
-| multi-step | non-routine | 37 |
+| multi-step | non-routine | 38 |
 | excess-info | non-routine | 9 |
 
 Basics: 99 templates in 7 topics, practised beside the path and not counted towards the blueprint.
@@ -1072,7 +1072,7 @@ Count a prime in a prime factorisation by dividing.
 - **Named mistakes:** `counted-all-the-primes`, `gave-the-power`
 - **Example:** 60 = 2 to the power of what, times 15? **Answer: 2**
 
-**Level 3: Greatest common factor** (`gcf`, 3 templates)
+**Level 3: Greatest common factor** (`gcf`, 4 templates)
 
 #### `factors.gcf`
 
@@ -1115,6 +1115,20 @@ Solve a GCF problem, ignoring a number the question does not use.
 - **Formats:** `ribbons`
 - **Named mistakes:** `found-the-lcm`, `gave-the-class-size`
 - **Example:** A class of 45 pupils has 18 red ribbons and 45 blue ribbons. The ribbons are tied into bundles, every bundle with the same number of red ribbons and the same number of blue, with none left over. What is the greatest number of bundles? **Answer: 9**
+
+#### `factors.gcf-three`
+
+Find the GCF of three numbers, two at a time.
+
+- **Competency:** G6.Q4.11, GCF by listing, prime factorisation and continuous division
+- **Domain:** NA, Number and Algebra
+- **Schema:** part-whole (multiplicative)
+- **Answer:** whole number
+- **Draws:** `g: 2 to 6 (tiers 1–2), 2 to 12 (tiers 3–4)`; `x: 2 to 6`; `y: x + 1 to 10`; `z: y + 1 to 12`
+- **Kept only when:** `gcd(x, y) > 1`; `gcd(gcd(x, y), z) == 1`
+- **Formats:** `gcf`, `words`
+- **Named mistakes:** `left-one-out`, `gave-the-lcm`, `gave-1`
+- **Example:** What is the GCF of 8, 12 and 14? **Answer: 2**
 
 **Level 4: Least common multiple** (`lcm`, 4 templates)
 
@@ -1178,7 +1192,7 @@ Find how many packs make two pack sizes come out even, with the LCM.
 
 Blueprint weight 8%.
 
-**Level 1: What a ratio says** (`what-a-ratio-says`, 3 templates)
+**Level 1: What a ratio says** (`what-a-ratio-says`, 4 templates)
 
 #### `ratio.part-whole`
 
@@ -1222,7 +1236,21 @@ Express one quantity as a fraction of the whole from a ratio.
 - **Named mistakes:** `used-the-other-part`, `used-the-wrong-part`
 - **Example:** A drink is made of juice and water in the ratio 4 : 1. What fraction of the drink is juice? **Answer: 4/5**
 
-**Level 2: Equivalent ratios** (`equivalent`, 3 templates)
+#### `ratio.for-every`
+
+Read a ratio as for every so many of one, so many of the other.
+
+- **Competency:** G6.Q2.1, describe quantities using part-whole and part-part ratio
+- **Domain:** NA, Number and Algebra
+- **Schema:** multiplicative-compare (multiplicative)
+- **Answer:** whole number
+- **Draws:** `x: 1 to 5`; `y: x + 1 to 9`; `m: 2 to 6 (tiers 1–2), 3 to 12 (tiers 3–4)`
+- **Kept only when:** `gcd(x, y) == 1`
+- **Formats:** `class`, `farm`
+- **Named mistakes:** `gave-the-total`, `gave-how-many-more`, `took-the-terms-apart`
+- **Example:** A farm has 16 cows and 20 goats. For every 4 cows, how many goats are there? **Answer: 5**
+
+**Level 2: Equivalent ratios** (`equivalent`, 4 templates)
 
 #### `ratio.simplest`
 
@@ -1264,6 +1292,20 @@ Complete a ratio table.
 - **Formats:** `bags`, `packs`
 - **Named mistakes:** `counted-on-by-one`, `took-the-next-number`
 - **Example:** A ratio table: 1 pack has 7 pencils, 2 packs have 14, 3 packs have 21. How many pencils are in 4 packs? **Answer: 28**
+
+#### `ratio.equal-ratio`
+
+Choose the ratio equal to a given one: both terms divided by the same number.
+
+- **Competency:** G6.Q2.3, identify and write equivalent ratios
+- **Domain:** NA, Number and Algebra
+- **Schema:** multiplicative-compare (multiplicative)
+- **Answer:** multiple choice
+- **Draws:** `x: 1 to 6`; `y: x + 1 to 9`; `m: 2 to 4 (tiers 1–2), 2 to 8 (tiers 3–4)`
+- **Kept only when:** `gcd(x, y) == 1`
+- **Formats:** `which`
+- **Named mistakes:** `swapped-the-terms`, `added-to-both-terms`, `divided-one-term`
+- **Example:** Which ratio is equal to 12 : 15? Choices: 5 : 4; 4 : 5; 12 : 5; 14 : 17. **Answer: 4 : 5**
 
 **Level 3: Ratio problems** (`problems`, 4 templates)
 
@@ -1322,7 +1364,7 @@ Find a quantity from a ratio and the other quantity, ignoring numbers the questi
 - **Named mistakes:** `found-the-whole-club`, `turned-the-ratio-round`
 - **Example:** A chess club meets 3 times a week, and each member pays ₱50 a month. The ratio of boys to girls in the club is 3:4. There are 32 girls. How many boys are there? **Answer: 24**
 
-**Level 4: Proportion** (`proportion`, 3 templates)
+**Level 4: Proportion** (`proportion`, 4 templates)
 
 #### `ratio.recipe`
 
@@ -1363,6 +1405,19 @@ Use a map scale.
 - **Formats:** `towns`, `road`
 - **Named mistakes:** `added-instead`, `gave-the-scale`
 - **Example:** A map's scale is 1 cm to 20 km. A road is 2 cm long on the map. How long is the real road, in kilometres? **Answer: 40**
+
+#### `ratio.steady-speed`
+
+Find a distance at a steady speed by proportion: as many times the time, as many times the distance.
+
+- **Competency:** G6.Q2.7, solve problems involving ratio and proportion
+- **Domain:** NA, Number and Algebra
+- **Schema:** rate (multiplicative)
+- **Answer:** number with a unit, in km
+- **Draws:** `t1: one of 20, 30, 40, 45`; `k: 2 to 4`; `d1: 5 to 20 (tiers 1–2), 10 to 40 (tiers 3–4)`
+- **Formats:** `jeepney`, `bike`
+- **Named mistakes:** `added-the-extra-time`, `multiplied-by-the-minutes`
+- **Example:** Lito cycles 13 km in 40 minutes. At the same speed, how far does he cycle in 1 hour 20 minutes? **Answer: 26 km**
 
 ### 6. Percentages (`percent`)
 
@@ -1867,7 +1922,7 @@ Find the area of a parallelogram drawn on squared paper.
 - **Named mistakes:** `used-the-full-width`, `halved-it`
 - **Example:** Picture: squared paper 9 squares across and 4 up, with a shape whose corners are at 1 across and 1 up; 6 across and 1 up; 8 across and 3 up; 3 across and 3 up. Each square is 1 square unit. Each small square on the grid is 1 square unit. What is the area of the parallelogram? **Answer: 10 square units**
 
-**Level 2: Trapezoids** (`trapezoids`, 3 templates)
+**Level 2: Trapezoids** (`trapezoids`, 4 templates)
 
 #### `area.trapezoid`
 
@@ -1909,6 +1964,20 @@ Find the area of a trapezoid drawn on squared paper.
 - **Formats:** `grid`
 - **Named mistakes:** `used-only-the-bottom`, `forgot-to-halve`
 - **Example:** Picture: squared paper 8 squares across and 6 up, with a shape whose corners are at 1 across and 1 up; 7 across and 1 up; 7 across and 5 up; 6 across and 5 up. Each square is 1 square unit. Each small square on the grid is 1 square unit. What is the area of the trapezoid? **Answer: 14 square units**
+
+#### `area.trapezoid-height`
+
+Find a trapezoid's height from its area and parallel sides, working backwards.
+
+- **Competency:** G5.Q1.11, find the area of a parallelogram, triangle, trapezoid
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** work-backwards (non-routine)
+- **Answer:** number with a unit, in cm
+- **Draws:** `a: 3 to 10 (tiers 1–2), 5 to 20 (tiers 3–4)`; `b: a + 1 to a + 12`; `h: 2 to 10 (tiers 1–2), 4 to 20 (tiers 3–4)`
+- **Kept only when:** `(a + b) * h % 2 == 0`
+- **Formats:** `height`, `window`
+- **Named mistakes:** `forgot-to-double`, `used-one-side`
+- **Example:** A window shaped like a trapezoid has an area of 51 cm². Its parallel sides are 8 cm and 9 cm. How tall is it? **Answer: 6 cm**
 
 **Level 3: Square units** (`square-units`, 3 templates)
 
@@ -2118,7 +2187,7 @@ Choose the picture of a named solid.
 - **Named mistakes:** `picked-a-similar-solid`, `picked-another-solid`, `picked-a-third-solid`
 - **Example:** Which picture shows a cylinder? Choices: A: Picture: a solid drawn in outline, its hidden edges dashed: one curved surface and no flat faces.; B: Picture: a solid drawn in outline, its hidden edges dashed: a circular base and a curved surface that comes to a point.; C: Picture: a solid drawn in outline, its hidden edges dashed: 2 circular ends joined by one curved surface.; D: Picture: a solid drawn in outline, its hidden edges dashed: 6 rectangular faces, not all the same size. **Answer: Picture C**
 
-**Level 2: Surface area** (`surface-area`, 3 templates)
+**Level 2: Surface area** (`surface-area`, 4 templates)
 
 #### `solids.cube-surface`
 
@@ -2161,6 +2230,19 @@ Solve a surface area problem: a box with no lid.
 - **Formats:** `paint`, `paper`
 - **Named mistakes:** `counted-the-lid`, `left-out-the-bottom`
 - **Example:** Ana covers the outside of an open box, 9 cm by 3 cm and 5 cm high, with paper: the bottom and the four sides. How much paper does she need? **Answer: 147 cm²**
+
+#### `solids.cube-from-surface`
+
+Find a cube's edge from its surface area, working backwards.
+
+- **Competency:** G5.Q4.8, illustrate and find the surface area of solid figures
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** work-backwards (non-routine)
+- **Answer:** number with a unit, in cm
+- **Draws:** `s: 2 to 10 (tiers 1–2), 3 to 20 (tiers 3–4)`
+- **Formats:** `edge`, `box`
+- **Named mistakes:** `gave-one-face`, `divided-by-the-edges`
+- **Example:** A cube has a surface area of 294 cm². How long is each edge? **Answer: 7 cm**
 
 **Level 3: Volume** (`volume`, 7 templates)
 
@@ -2257,7 +2339,7 @@ Find how many cubes one more layer on a block takes.
 - **Named mistakes:** `gave-the-whole-block`, `gave-the-new-total`, `used-the-front`, `added-the-edges`
 - **Example:** Picture: a block built from small cubes with no gaps, 3 cubes long, 2 cubes deep and 3 cubes high. This block of small cubes is made one layer taller. How many more cubes does it need? **Answer: 6**
 
-**Level 4: Units of volume and capacity** (`units`, 3 templates)
+**Level 4: Units of volume and capacity** (`units`, 4 templates)
 
 #### `solids.best-unit`
 
@@ -2297,6 +2379,19 @@ Convert litres to cubic centimetres.
 - **Formats:** `convert`, `ml`
 - **Named mistakes:** `multiplied-by-100`, `divided-instead`
 - **Example:** 3.25 L = ? cm³ **Answer: 3250 cm³**
+
+#### `solids.ml-to-litres`
+
+Convert millilitres to litres.
+
+- **Competency:** G6.Q3.2, convert cubic centimetres to litres and back
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** multiplicative-compare (multiplicative)
+- **Answer:** number with a unit, in L, up to 3 decimal places
+- **Draws:** `n: 1 to 9 (tiers 1–2), 1 to 25 (tiers 3–4)`; `c: one of 0, 100, 250, 500, 750`
+- **Formats:** `convert`, `bottle`
+- **Named mistakes:** `divided-by-100`, `multiplied`
+- **Example:** A bottle holds 6000 mL of water. How many litres is that? **Answer: 6 L**
 
 **Level 5: Capacity problems** (`capacity`, 3 templates)
 
@@ -2956,7 +3051,7 @@ Work back from a probability and a count to the number of outcomes.
 - **Named mistakes:** `gave-the-blue`, `multiplied-by-the-bottom`
 - **Example:** A bag holds red and blue marbles. The probability of picking red is 2/3. There are 10 red marbles. How many marbles are in the bag? **Answer: 15**
 
-**Level 3: Two at once** (`two-at-once`, 3 templates)
+**Level 3: Two at once** (`two-at-once`, 4 templates)
 
 #### `probability.coins`
 
@@ -2997,6 +3092,19 @@ Find how many times to expect an outcome.
 - **Formats:** `spinner`
 - **Named mistakes:** `gave-the-not-red`, `did-not-divide`
 - **Example:** A spinner has 8 equal parts, and 1 of them are red. It is spun 48 times. About how many times would you expect it to land on red? **Answer: 6**
+
+#### `probability.spinner-and-coin`
+
+Find a probability for a spinner and a coin together, by counting outcomes.
+
+- **Competency:** G5.Q3.8, theoretical probability of a simple event by listing outcomes
+- **Domain:** DP, Data and Probability
+- **Schema:** multi-step (non-routine)
+- **Answer:** fraction
+- **Draws:** `p: one of 3, 4, 5, 6`; `ev: 1 to 4`; `side: 1 to 2`
+- **Formats:** `spin`
+- **Named mistakes:** `forgot-the-coin`, `only-the-coin`, `added-the-outcomes`
+- **Example:** A spinner has 5 equal parts numbered 1 to 5. You spin it and toss a coin. What is the probability of an even number and tails? **Answer: 1/5**
 
 ### 13. Transformations (`transform`)
 

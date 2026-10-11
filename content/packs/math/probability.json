@@ -46,7 +46,7 @@
     {
       "id": "two-at-once",
       "title": "Two at once",
-      "templates": ["probability.coins", "probability.two-dice", "probability.expect"],
+      "templates": ["probability.coins", "probability.two-dice", "probability.expect", "probability.spinner-and-coin"],
       "lesson": [
         {
           "title": "List carefully",
@@ -562,6 +562,54 @@
           "value": "r * den",
           "error": "multiplied-by-the-bottom",
           "feedback": "{value} is {r} × {den}. Only {num} in every {den} are red: divide {r} by {num} first."
+        }
+      ]
+    },
+    {
+      "id": "probability.spinner-and-coin",
+      "competency": "G5.Q3.8",
+      "domain": "DP",
+      "construct": "Find a probability for a spinner and a coin together, by counting outcomes",
+      "schema": "multi-step",
+      "params": {
+        "p": {"choose": [3, 4, 5, 6]},
+        "ev": {"range": [1, 4]},
+        "side": {"range": [1, 2]},
+        "f": {"value": "pick(ev, floor(p / 2), p - floor(p / 2), p - 2, 1)"}
+      },
+      "answer": {"type": "fraction", "value": "f / (2 * p)"},
+      "formats": [
+        {
+          "id": "spin",
+          "prompt": "A spinner has {p} equal parts numbered 1 to {p}. You spin it and toss a coin. What is the probability of {pick(ev, 'an even number', 'an odd number', 'a number greater than 2', 'a 1')} and {side == 1 ? 'heads' : 'tails'}?"
+        }
+      ],
+      "hints": [
+        "Each of the {p} numbers can come with heads or with tails: {2 * p} outcomes in all.",
+        "{f} of the {p} numbers {f == 1 ? 'is' : 'are'} {pick(ev, 'even', 'odd', 'greater than 2', 'equal to 1')}, and each comes with {side == 1 ? 'heads' : 'tails'} once.",
+        "{f} out of {2 * p} = ?"
+      ],
+      "steps": [
+        "Outcomes: {p} numbers × 2 sides = {2 * p}",
+        "Ones that fit: {f}",
+        "Probability = {f}/{2 * p}{gcd(f, 2 * p) > 1 ? ' = ' : ''}{gcd(f, 2 * p) > 1 ? frac(answer) : ''}"
+      ],
+      "explain": "{f} of the {2 * p} equally likely outcomes fit, so the probability is {frac(answer)}.",
+      "distractors": [
+        {
+          "value": "f / p",
+          "error": "forgot-the-coin",
+          "feedback": "{frac(value)} leaves out the coin. Each number comes with heads or tails, so there are {2 * p} outcomes."
+        },
+        {
+          "value": "1 / 2",
+          "error": "only-the-coin",
+          "feedback": "1/2 is the coin alone. The spinner must land on {pick(ev, 'an even number', 'an odd number', 'a number greater than 2', 'a 1')} too."
+        },
+        {
+          "value": "f / (p + 2)",
+          "error": "added-the-outcomes",
+          "feedback": "{frac(value)} adds the {p} numbers and the 2 sides. Multiply them: {2 * p} outcomes."
         }
       ]
     }

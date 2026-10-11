@@ -47,7 +47,7 @@
     {
       "id": "gcf",
       "title": "Greatest common factor",
-      "templates": ["factors.gcf", "factors.gcf-word", "factors.extra-ribbons"],
+      "templates": ["factors.gcf", "factors.gcf-word", "factors.extra-ribbons", "factors.gcf-three"],
       "lesson": [
         {
           "title": "The GCF",
@@ -756,6 +756,56 @@
           "value": "a",
           "error": "crossed-the-pack-sizes",
           "feedback": "{value} packs of {b} work too, but they are not the least: {value} × {b} = {a * b}, and the LCM is only {g * x * y}."
+        }
+      ]
+    },
+    {
+      "id": "factors.gcf-three",
+      "competency": "G6.Q4.11",
+      "domain": "NA",
+      "construct": "Find the GCF of three numbers, two at a time",
+      "schema": "part-whole",
+      "params": {
+        "g": {"tiers": {"1": [2, 6], "3": [2, 12]}},
+        "x": {"range": [2, 6]},
+        "y": {"range": ["x + 1", 10]},
+        "z": {"range": ["y + 1", 12]},
+        "a": {"value": "g * x"},
+        "b": {"value": "g * y"},
+        "c": {"value": "g * z"}
+      },
+      "where": ["gcd(x, y) > 1", "gcd(gcd(x, y), z) == 1"],
+      "answer": {"type": "integer", "value": "g"},
+      "formats": [
+        {"id": "gcf", "prompt": "What is the GCF of {a}, {b} and {c}?"},
+        {"id": "words", "prompt": "What is the greatest common factor of {a}, {b} and {c}?"}
+      ],
+      "hints": [
+        "Find the GCF of two of them first, then the GCF of that and the third.",
+        "The GCF of {a} and {b} is {gcd(a, b)}.",
+        "Now the GCF of {gcd(a, b)} and {c}."
+      ],
+      "steps": [
+        "GCF of {a} and {b} = {gcd(a, b)}",
+        "GCF of {gcd(a, b)} and {c} = {answer}",
+        "{answer} is the greatest number that divides all three"
+      ],
+      "explain": "The GCF of {a} and {b} is {gcd(a, b)}, and the GCF of {gcd(a, b)} and {c} is {answer}.",
+      "distractors": [
+        {
+          "value": "gcd(a, b)",
+          "error": "left-one-out",
+          "feedback": "{value} is the GCF of {a} and {b} only. It does not divide {c}."
+        },
+        {
+          "value": "lcm(lcm(a, b), c)",
+          "error": "gave-the-lcm",
+          "feedback": "{value} is the LCM, a multiple of all three. The GCF is the greatest number that divides all three."
+        },
+        {
+          "value": "g > 1 ? 1 : -1",
+          "error": "gave-1",
+          "feedback": "1 divides every number. Look for a bigger common factor."
         }
       ]
     }
