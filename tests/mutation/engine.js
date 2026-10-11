@@ -110,6 +110,7 @@ const M = [
   ["mirror side unchecked", "      if (c.side !== \"left\" && c.side !== \"right\") throw ContentError(\"a point is to the left or the right of the mirror line\");\n", ""],
   ["1 squares", "(c.distance === 1 ? \"\" : \"s\")", "\"s\""],
   ["grid wider than the screen", "whole(spec.cols, scope, 2, 16, \"a grid's width\")", "whole(spec.cols, scope, 2, 99, \"a grid's width\")"],
+  ["circle part described as the next", "CIRCLE_PARTS[c.part - 1]", "CIRCLE_PARTS[c.part % CIRCLE_PARTS.length]"],
   ["UTC+0", "return zone ? \"UTC+\" + zone : \"UTC\";", "return \"UTC+\" + zone;"],
   ["a map of any width", "Math.min(14, c.from + 9)", "14"],
   ["a city off the map", "whole(p[1], scope, c.from, c.to, \"a city's zone\")", "whole(p[1], scope, 0, 14, \"a city's zone\")"],

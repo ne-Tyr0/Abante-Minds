@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.31.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.32.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -19,11 +19,11 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Time | 4% | 4 | 15 | 5 | 32 |
 | Perimeter and area | 9% | 4 | 17 | 6 | 37 |
 | Solids and volume | 9% | 5 | 26 | 13 | 68 |
-| Circles | 8% | 4 | 17 | 7 | 36 |
+| Circles | 8% | 4 | 18 | 7 | 39 |
 | Graphs and data | 11% | 5 | 17 | 9 | 37 |
 | Probability | 4% | 3 | 13 | 2 | 27 |
 | Transformations | 5% | 4 | 15 | 3 | 36 |
-| **All** | | **56** | **229** | **94** | **535** |
+| **All** | | **56** | **230** | **94** | **538** |
 
 The path's templates serve 94 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 15 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
@@ -33,7 +33,7 @@ Problem schemas on the path:
 |---|---|---:|
 | change | additive | 18 |
 | combine | additive | 6 |
-| compare | additive | 25 |
+| compare | additive | 26 |
 | equal-groups | multiplicative | 33 |
 | rate | multiplicative | 6 |
 | multiplicative-compare | multiplicative | 24 |
@@ -2440,7 +2440,7 @@ Find how deep water stands from its volume in litres and the floor of the tank.
 
 Blueprint weight 8%.
 
-**Level 1: Parts of a circle** (`parts`, 3 templates)
+**Level 1: Parts of a circle** (`parts`, 4 templates)
 
 #### `circles.diameter`
 
@@ -2480,6 +2480,19 @@ Name a part of a circle from its description.
 - **Formats:** `name`
 - **Named mistakes:** `picked-the-next-part`, `picked-another-part`, `picked-a-third-part`
 - **Example:** What is the name for a line joining two points on a circle that does not pass through the centre? Choices: radius; diameter; chord; circumference. **Answer: chord**
+
+#### `circles.name-the-part`
+
+Name the marked part of a circle from a picture.
+
+- **Competency:** G6.Q3.10, identify and describe the parts of a circle
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** compare (additive)
+- **Answer:** multiple choice
+- **Draws:** `p: 1 to 5`
+- **Formats:** `name`
+- **Named mistakes:** `picked-a-similar-part`, `picked-another-part`, `picked-a-third-part`
+- **Example:** Picture: a circle with its centre marked. Drawn in a heavier line: the whole edge of the circle. The heavier line marks a part of the circle. What is it called? Choices: An arc; The circumference; A diameter; A radius. **Answer: The circumference**
 
 **Level 2: Circumference** (`circumference`, 5 templates)
 

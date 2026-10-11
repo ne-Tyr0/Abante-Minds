@@ -250,6 +250,7 @@ const MUTANTS = [
   ["image stretched", TR, (j) => { pick(j, "slide").answer.figure.image[1][0] = "x0 + w + a + 1"; }, "image is not the shape moved"],
   ["mirror line with no length", TR, (j) => { pick(j, "flip").chart.line[1] = ["m", "0"]; }, "mirror line has no length"],
   ["lesson that shows picture options", TR, (j) => { lvl(j, "moves").lesson.find((c) => c.example).example = { template: "transform.pick-the-turn", format: "turn", params: { w: 3, t: 1, h: 2, dir: 1 } }; }, "whose options are pictures"],
+  ["circle part past the fifth", "circles.json", (j) => { j.templates.find((t) => t.id === "circles.name-the-part").chart.part = "p + 5"; }, "a circle's marked part is 1 to 5"],
   ["map of one city", "time.json", (j) => { const c = j.templates.find((t) => t.id === "time.zone-map").chart; c.cities = c.cities.slice(0, 1); }, "a time zone map marks 2 to 4 cities"],
   ["city with no zone", "time.json", (j) => { j.templates.find((t) => t.id === "time.zone-map").chart.cities[0] = ["Manila"]; }, "city 0 is [name, zone]"],
   ["city marked twice", "time.json", (j) => { j.templates.find((t) => t.id === "time.zone-map").chart.cities[2] = ["Manila", "8"]; }, "marks a city twice"],

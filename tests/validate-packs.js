@@ -59,12 +59,12 @@ let usesFractionAnswers = false;
 const FORMAT_KEYS = new Set(["id", "prompt", "hints", "steps", "explain"]);
 const DISTRACTOR_KEYS = new Set(["value", "error", "feedback"]);
 const CHART_KEYS = new Set(["kind", "title", "axis", "categories", "series", "step", "label", "unit", "slices",
-  "shapes", "hand", "distance", "side", "cols", "rows", "points", "image", "line", "dot", "length", "width", "height", "shape", "from", "to", "cities"]);
-const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror", "grid", "cubes", "solid", "zones"];
+  "shapes", "hand", "distance", "side", "cols", "rows", "points", "image", "line", "dot", "length", "width", "height", "shape", "from", "to", "cities", "part"]);
+const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror", "grid", "cubes", "solid", "zones", "circle"];
 /* A picture takes only its own fields: the shapes round a point, the hour a
    clock hand points to, or a point's distance and side from a mirror line. */
 const FIGURE_FIELDS = { tiling: ["shapes"], clock: ["hand"], mirror: ["distance", "side"], grid: ["cols", "rows", "points", "image", "line", "dot"],
-  cubes: ["length", "width", "height"], solid: ["shape"], zones: ["from", "to", "cities"] };
+  cubes: ["length", "width", "height"], solid: ["shape"], zones: ["from", "to", "cities"], circle: ["part"] };
 const GRAPH_ONLY = ["axis", "categories", "series", "step", "label", "unit", "slices"];
 const PIE_TOTAL = { "%": 100, "°": 360 };
 /* What fits on a phone: the category names along a graph's bottom share its
@@ -581,9 +581,10 @@ function inspectChart(c, label, option) {
     }
     if (c.slices.filter((s) => s.hidden).length > 1) bad("hides more than one slice");
     if (new Set(c.slices.map((s) => s.name)).size !== c.slices.length) bad("names two slices the same");
-  } else if (c.kind !== "cubes" && c.kind !== "solid") {
-    /* A block of cubes or a solid has only its words to read: the engine
-       keeps it in range. Everything else here is a graph or a table. */
+  } else if (c.kind !== "cubes" && c.kind !== "solid" && c.kind !== "circle") {
+    /* A block of cubes, a solid or a marked circle has only its words to
+       read: the engine keeps it in range. Everything else here is a graph
+       or a table. */
     words.push(c.axis, ...c.categories, ...c.series.flatMap((s) => [s.name, ...s.labels]));
     if (new Set(c.categories).size !== c.categories.length) bad("names two categories the same");
     if (new Set(c.series.map((s) => s.name)).size !== c.series.length) bad("names two series the same");
