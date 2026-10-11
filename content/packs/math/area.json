@@ -23,7 +23,7 @@
     {
       "id": "trapezoids",
       "title": "Trapezoids",
-      "templates": ["area.trapezoid", "area.trapezoid-lot", "area.grid-trapezoid"],
+      "templates": ["area.trapezoid", "area.trapezoid-lot", "area.grid-trapezoid", "area.trapezoid-height"],
       "lesson": [
         {
           "title": "The trapezoid formula",
@@ -747,6 +747,50 @@
           "value": "(a + t) * h",
           "error": "forgot-to-halve",
           "feedback": "{value} square units is twice the area. After ({a} + {t}) × {h}, halve it."
+        }
+      ]
+    },
+    {
+      "id": "area.trapezoid-height",
+      "competency": "G5.Q1.11",
+      "domain": "MG",
+      "construct": "Find a trapezoid's height from its area and parallel sides, working backwards",
+      "schema": "work-backwards",
+      "params": {
+        "a": {"tiers": {"1": [3, 10], "3": [5, 20]}},
+        "b": {"range": ["a + 1", "a + 12"]},
+        "h": {"tiers": {"1": [2, 10], "3": [4, 20]}},
+        "A": {"value": "(a + b) * h / 2"}
+      },
+      "where": ["(a + b) * h % 2 == 0"],
+      "answer": {"type": "unit", "value": "h", "unit": "cm"},
+      "formats": [
+        {
+          "id": "height",
+          "prompt": "A trapezoid has an area of {A} cm² and parallel sides of {a} cm and {b} cm. What is its height?"
+        },
+        {
+          "id": "window",
+          "prompt": "A window shaped like a trapezoid has an area of {A} cm². Its parallel sides are {a} cm and {b} cm. How tall is it?"
+        }
+      ],
+      "hints": [
+        "Area = (sum of the parallel sides) × height ÷ 2.",
+        "So (sum of the parallel sides) × height = 2 × {A} = {2 * A}.",
+        "{2 * A} ÷ ({a} + {b}) = ?"
+      ],
+      "steps": ["2 × {A} = {2 * A}", "{a} + {b} = {a + b}", "{2 * A} ÷ {a + b} = {answer} cm"],
+      "explain": "({a} + {b}) × {answer} ÷ 2 = {A}, so the height is {answer} cm.",
+      "distractors": [
+        {
+          "value": "A / (a + b)",
+          "error": "forgot-to-double",
+          "feedback": "{fmt(value)} cm divides {A} by {a + b} without doubling. The area is half of (sum of the parallel sides) × height: double {A} first."
+        },
+        {
+          "value": "2 * A / b",
+          "error": "used-one-side",
+          "feedback": "{fmt(value)} cm uses only the {b} cm side. Add both parallel sides: {a} + {b} = {a + b}."
         }
       ]
     }

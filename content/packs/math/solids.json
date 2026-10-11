@@ -23,7 +23,7 @@
     {
       "id": "surface-area",
       "title": "Surface area",
-      "templates": ["solids.cube-surface", "solids.box-surface", "solids.open-box"],
+      "templates": ["solids.cube-surface", "solids.box-surface", "solids.open-box", "solids.cube-from-surface"],
       "lesson": [
         {
           "title": "Add the faces",
@@ -58,7 +58,7 @@
     {
       "id": "units",
       "title": "Units of volume and capacity",
-      "templates": ["solids.best-unit", "solids.cm3-to-litres", "solids.litres-to-cm3"],
+      "templates": ["solids.best-unit", "solids.cm3-to-litres", "solids.litres-to-cm3", "solids.ml-to-litres"],
       "lesson": [
         {
           "title": "Volume and capacity",
@@ -1153,6 +1153,73 @@
           "value": "d3",
           "error": "picked-a-third-solid",
           "feedback": "That picture is {pick(value, 'a cube', 'a rectangular prism', 'a triangular prism', 'a square pyramid', 'a triangular pyramid', 'a cylinder', 'a cone', 'a sphere')}: it has {pick(value, '6 square faces, all the same size', '6 rectangular faces, not all the same size', '2 triangular ends joined by 3 rectangles', 'a square base and 4 triangular faces that meet at a point', '4 triangular faces', '2 circular ends joined by one curved surface', 'a circular base and a curved surface that comes to a point', 'one curved surface and no flat faces')}."
+        }
+      ]
+    },
+    {
+      "id": "solids.cube-from-surface",
+      "competency": "G5.Q4.8",
+      "domain": "MG",
+      "construct": "Find a cube's edge from its surface area, working backwards",
+      "schema": "work-backwards",
+      "params": {"s": {"tiers": {"1": [2, 10], "3": [3, 20]}}, "S": {"value": "6 * s * s"}},
+      "answer": {"type": "unit", "value": "s", "unit": "cm"},
+      "formats": [
+        {"id": "edge", "prompt": "A cube has a surface area of {S} cm². How long is each edge?"},
+        {
+          "id": "box",
+          "prompt": "Covering every face of a cube-shaped box takes {S} cm² of paper. How long is each edge of the box?"
+        }
+      ],
+      "hints": [
+        "A cube has 6 equal square faces.",
+        "One face is {S} ÷ 6 = {s * s} cm².",
+        "Which number times itself makes {s * s}?"
+      ],
+      "steps": ["One face: {S} ÷ 6 = {s * s} cm²", "{s} × {s} = {s * s}", "Each edge is {answer} cm"],
+      "explain": "Each face is {S} ÷ 6 = {s * s} cm², and {answer} × {answer} = {s * s}, so each edge is {answer} cm.",
+      "distractors": [
+        {
+          "value": "S / 6",
+          "error": "gave-one-face",
+          "feedback": "{value} cm² is one face. The edge is the number that times itself makes {s * s}."
+        },
+        {
+          "value": "S / 12",
+          "error": "divided-by-the-edges",
+          "feedback": "{fmt(value)} divides by 12, the edges. Surface area covers the 6 faces: {S} ÷ 6, then find the side of that square."
+        }
+      ]
+    },
+    {
+      "id": "solids.ml-to-litres",
+      "competency": "G6.Q3.2",
+      "domain": "MG",
+      "construct": "Convert millilitres to litres",
+      "schema": "multiplicative-compare",
+      "params": {
+        "n": {"tiers": {"1": [1, 9], "3": [1, 25]}},
+        "c": {"choose": [0, 100, 250, 500, 750]},
+        "mL": {"value": "n * 1000 + c"}
+      },
+      "answer": {"type": "unit", "value": "mL / 1000", "unit": "L", "maxDecimals": 3},
+      "formats": [
+        {"id": "convert", "prompt": "{mL} mL = ? L"},
+        {"id": "bottle", "prompt": "A bottle holds {mL} mL of water. How many litres is that?"}
+      ],
+      "hints": ["1 L = 1000 mL.", "To change millilitres to litres, divide by 1000.", "{mL} ÷ 1000 = ?"],
+      "steps": ["1 L = 1000 mL", "{mL} ÷ 1000", "= {fmt(answer)} L"],
+      "explain": "{mL} mL ÷ 1000 = {fmt(answer)} L.",
+      "distractors": [
+        {
+          "value": "mL / 100",
+          "error": "divided-by-100",
+          "feedback": "{fmt(value)} L divides by 100. A litre is 1000 mL: divide by 1000."
+        },
+        {
+          "value": "mL * 1000",
+          "error": "multiplied",
+          "feedback": "{value} L multiplies by 1000. A litre is bigger than a millilitre, so there are fewer litres: divide."
         }
       ]
     }

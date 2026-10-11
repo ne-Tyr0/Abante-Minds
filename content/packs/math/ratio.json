@@ -4,7 +4,7 @@
     {
       "id": "what-a-ratio-says",
       "title": "What a ratio says",
-      "templates": ["ratio.part-whole", "ratio.part-part", "ratio.fraction-of"],
+      "templates": ["ratio.part-whole", "ratio.part-part", "ratio.fraction-of", "ratio.for-every"],
       "lesson": [
         {
           "title": "Part to part, part to whole",
@@ -23,7 +23,7 @@
     {
       "id": "equivalent",
       "title": "Equivalent ratios",
-      "templates": ["ratio.simplest", "ratio.missing-term", "ratio.table"],
+      "templates": ["ratio.simplest", "ratio.missing-term", "ratio.table", "ratio.equal-ratio"],
       "lesson": [
         {
           "title": "Multiply or divide both",
@@ -61,7 +61,7 @@
     {
       "id": "proportion",
       "title": "Proportion",
-      "templates": ["ratio.recipe", "ratio.unit-rate", "ratio.map-scale"],
+      "templates": ["ratio.recipe", "ratio.unit-rate", "ratio.map-scale", "ratio.steady-speed"],
       "lesson": [
         {
           "title": "In proportion",
@@ -593,6 +593,141 @@
           "value": "G * g / b",
           "error": "turned-the-ratio-round",
           "feedback": "{fmt(value)} uses the ratio the wrong way round. {b}:{g} is boys to girls, so the boys are {b} parts."
+        }
+      ]
+    },
+    {
+      "id": "ratio.equal-ratio",
+      "competency": "G6.Q2.3",
+      "domain": "NA",
+      "construct": "Choose the ratio equal to a given one: both terms divided by the same number",
+      "schema": "multiplicative-compare",
+      "params": {
+        "x": {"range": [1, 6]},
+        "y": {"range": ["x + 1", 9]},
+        "m": {"tiers": {"1": [2, 4], "3": [2, 8]}},
+        "a": {"value": "m * x"},
+        "b": {"value": "m * y"}
+      },
+      "where": ["gcd(x, y) == 1"],
+      "answer": {
+        "type": "choice",
+        "value": "x * 100 + y",
+        "label": "{floor(value / 100)} : {value % 100}",
+        "order": "mixed"
+      },
+      "formats": [{"id": "which", "prompt": "Which ratio is equal to {a} : {b}?"}],
+      "hints": [
+        "Two ratios are equal when both terms are multiplied or divided by the same number.",
+        "{a} and {b} can both be divided by {m}.",
+        "{a} ÷ {m} = {x} and {b} ÷ {m} = {y}."
+      ],
+      "steps": ["Divide both terms by {m}", "{a} ÷ {m} = {x}; {b} ÷ {m} = {y}", "{a} : {b} = {x} : {y}"],
+      "explain": "Dividing both terms by {m} gives {x} : {y}, a ratio equal to {a} : {b}.",
+      "distractors": [
+        {
+          "value": "y * 100 + x",
+          "error": "swapped-the-terms",
+          "feedback": "{floor(value / 100)} : {value % 100} swaps the terms. The order matters: {a} comes first, so the equal ratio starts with {x}."
+        },
+        {
+          "value": "(a + 2) * 100 + b + 2",
+          "error": "added-to-both-terms",
+          "feedback": "{floor(value / 100)} : {value % 100} adds 2 to both terms. Adding changes a ratio; equal ratios multiply or divide both terms by the same number."
+        },
+        {
+          "value": "a * 100 + y",
+          "error": "divided-one-term",
+          "feedback": "{floor(value / 100)} : {value % 100} divides only the second term. Divide both terms by {m}."
+        }
+      ]
+    },
+    {
+      "id": "ratio.for-every",
+      "competency": "G6.Q2.1",
+      "domain": "NA",
+      "construct": "Read a ratio as for every so many of one, so many of the other",
+      "schema": "multiplicative-compare",
+      "params": {
+        "x": {"range": [1, 5]},
+        "y": {"range": ["x + 1", 9]},
+        "m": {"tiers": {"1": [2, 6], "3": [3, 12]}},
+        "a": {"value": "m * x"},
+        "b": {"value": "m * y"}
+      },
+      "where": ["gcd(x, y) == 1"],
+      "answer": {"type": "integer", "value": "y"},
+      "formats": [
+        {
+          "id": "class",
+          "prompt": "A class has {a} boys and {b} girls. For every {x} boy{x == 1 ? '' : 's'}, how many girls are there?"
+        },
+        {
+          "id": "farm",
+          "prompt": "A farm has {a} cows and {b} goats. For every {x} cow{x == 1 ? '' : 's'}, how many goats are there?"
+        }
+      ],
+      "hints": [
+        "Write the ratio {a} : {b} in simplest form.",
+        "Divide both terms by {m}: {x} : {y}.",
+        "So for every {x}, there are how many?"
+      ],
+      "steps": ["Ratio: {a} : {b}", "÷ {m}: {x} : {y}", "For every {x}, there are {answer}"],
+      "explain": "{a} : {b} = {x} : {y}, so for every {x} there are {answer}.",
+      "distractors": [
+        {
+          "value": "b",
+          "error": "gave-the-total",
+          "feedback": "{value} is all of them. For every {x}, divide both numbers by {m}: {x} : {y}."
+        },
+        {
+          "value": "b - a",
+          "error": "gave-how-many-more",
+          "feedback": "{value} is how many more there are in all. The question asks how many for every {x}."
+        },
+        {
+          "value": "y - x",
+          "error": "took-the-terms-apart",
+          "feedback": "{value} is the difference between the terms of {x} : {y}. For every {x} there are {y}."
+        }
+      ]
+    },
+    {
+      "id": "ratio.steady-speed",
+      "competency": "G6.Q2.7",
+      "domain": "NA",
+      "construct": "Find a distance at a steady speed by proportion: as many times the time, as many times the distance",
+      "schema": "rate",
+      "params": {
+        "t1": {"choose": [20, 30, 40, 45]},
+        "k": {"range": [2, 4]},
+        "d1": {"tiers": {"1": [5, 20], "3": [10, 40]}},
+        "t2": {"value": "t1 * k"}
+      },
+      "answer": {"type": "unit", "value": "d1 * k", "unit": "km"},
+      "formats": [
+        {
+          "id": "jeepney",
+          "prompt": "A jeepney travels {d1} km in {t1} minutes at a steady speed. How far does it travel in {hm(t2)}?"
+        },
+        {
+          "id": "bike",
+          "prompt": "Lito cycles {d1} km in {t1} minutes. At the same speed, how far does he cycle in {hm(t2)}?"
+        }
+      ],
+      "hints": ["{hm(t2)} is {t2} minutes.", "{t2} minutes is {k} times {t1} minutes.", "{k} × {d1} = ?"],
+      "steps": ["{hm(t2)} = {t2} minutes", "{t2} ÷ {t1} = {k}", "{k} × {d1} = {answer} km"],
+      "explain": "{t2} minutes is {k} times as long as {t1} minutes, so the distance is {k} × {d1} = {answer} km.",
+      "distractors": [
+        {
+          "value": "d1 + t2 - t1",
+          "error": "added-the-extra-time",
+          "feedback": "{value} km adds the extra {t2 - t1} minutes to the distance. In proportion, multiply: {t2} minutes is {k} times as long."
+        },
+        {
+          "value": "d1 * t2",
+          "error": "multiplied-by-the-minutes",
+          "feedback": "{value} km multiplies by {t2} minutes. Find how many times as long it is: {t2} ÷ {t1} = {k}."
         }
       ]
     }
