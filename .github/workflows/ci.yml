@@ -25,7 +25,7 @@ jobs:
 
       - name: JavaScript parses
         run: |
-          for f in app/*.js sw.js motion/*.js tests/*.js tests/mutation/*.js poc/*.js; do
+          for f in app/*.js sw.js motion/*.js tests/*.js tests/mutation/*.js poc/*.js tools/*.js; do
             node --check "$f" || exit 1
           done
 
@@ -52,6 +52,12 @@ jobs:
 
       - name: Question-generator fuzz
         run: node tests/fuzz.js
+
+      - name: Item specification generator
+        run: node tests/item-spec.js
+
+      - name: Item specifications match the packs
+        run: node tools/item-spec.js --check
 
       - name: Progress-code proof
         run: node poc/progress-code.js

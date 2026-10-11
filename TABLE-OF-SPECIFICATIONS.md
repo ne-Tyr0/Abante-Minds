@@ -5,6 +5,9 @@ table of specifications for the National Competitive Examination; this one is co
 from the DepEd MATATAG mathematics curriculum and must never be presented as the exam's
 own blueprint. See *Provenance* and *Revision triggers*.
 
+What each topic's templates ask, one by one, is in `ITEM-SPECIFICATIONS.md`, generated from
+the question packs.
+
 Scope: the **mathematics / quantitative ability** subtest only. The NCE also tests
 scientific ability, verbal ability and abstract reasoning, and ranks candidates across all
 four; those are out of scope here.

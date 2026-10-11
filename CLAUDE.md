@@ -32,6 +32,8 @@ node tests/insights.js         # strengths and gaps by kind of problem, from the
 node tests/progress.js         # the path's rules, Basics mastery, exams and the attempt log
 node tests/validate-packs.js   # every question pack against the schema and the blueprint
 node tests/fuzz.js             # about two million generated questions; exits 1 on any violation
+node tests/item-spec.js        # the item specification generator: what it says about a template
+node tools/item-spec.js        # rewrite ITEM-SPECIFICATIONS.md from the packs (--check: is it current?)
 node poc/progress-code.js      # proves the backup-code codec; exits 1 if a claim fails
 node tests/invariants.js       # repo rules that fail silently at runtime; exits 1 on any
 node tests/cache-bump.js main  # did a precached file change without a CACHE bump?
@@ -43,14 +45,15 @@ the live site, so work goes on a branch, through a pull request, and merges only
 green.
 
 Run `tests/engine.js`, `tests/validate-packs.js` and `tests/fuzz.js` before committing any
-change to `app/content.js` or `content/packs/`. The fuzz has caught two shipped bugs: a
+change to `app/content.js` or `content/packs/`, then `node tools/item-spec.js` to rewrite
+`ITEM-SPECIFICATIONS.md`: CI fails while it disagrees with the packs. The fuzz has caught two shipped bugs: a
 question whose answer was negative (the keypad has no minus key, so it was unanswerable)
 and a hint telling learners to "break 9 into 10 and -1". Testing the validator caught a
 third before it shipped: a pinned item on a template with more than one format crashed.
 
 `tests/mutation/` breaks the engine, the entry rules, the facts drill, the strengths and
 gaps, the progress rules and the packs one way at a time and requires the tests to fail:
-`node tests/mutation/engine.js`, `entry.js`, `facts.js`, `insights.js`, `progress.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
+`node tests/mutation/engine.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -69,6 +72,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/ui.js` | Design-system components as DOM builders, and the chart a question can carry (`AM.Chart`: bar, line and pie graphs in SVG, and tables) |
 | `_ds/`, `motion/` | Vendored design system and motion layer. Do not edit; they come from the design project |
 | `poc/` | Proofs for features not yet built. Not shipped, not loaded by the app |
+| `tools/item-spec.js` | Writes `ITEM-SPECIFICATIONS.md` from the packs: per template its competency, construct, schema, answer, ranges by tier, named mistakes and an example drawn by the engine. `--csv` gives the same as a spreadsheet, for expert raters. CI checks the file is current |
 | `tools/overview-pdf/` | Builds the teacher overview PDF from real screenshots. Its copy predates the retarget, so `build.py` refuses to run until it is rewritten |
 | `abante-minds-claude-design/` | Original design kit; source of the brand mark |
 | `RESEARCH-PLAN.md` | The ordered build plan: content rebuild, research instrumentation, citability. Read it before starting anything below |
