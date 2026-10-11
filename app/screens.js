@@ -1007,7 +1007,7 @@
           else if (i === q.answerIndex) state = "correct";
           else if (ses.picked === i) state = "wrong";
           grid.appendChild(AM.AnswerTile({
-            text: label, state: state, tall: true, disabled: answered,
+            text: label, state: state, tall: true, disabled: answered, figure: q.choiceFigures ? q.choiceFigures[i] : null,
             onClick: function () { if (!answered) { ses.picked = i; app.render(); } }
           }));
         });
@@ -1056,7 +1056,7 @@
     function verdict() {
       if (ses.phase === "ask") return null;
       var right = ses.phase === "correct";
-      var given = q.type === "choice" ? q.choices[ses.picked] : (q.unit || "") + AM.entry.text(ses.entry) + q.suffix;
+      var given = q.type === "choice" ? AM.content.choiceText(q, ses.picked) : (q.unit || "") + AM.entry.text(ses.entry) + q.suffix;
       return el("div", { style: { padding: "16px " + gutter() + "px 0" } },
         el("div", {
           style: {
@@ -1076,7 +1076,11 @@
           el("span", null,
             el("span.heading-md", { style: { display: "block" } }, given),
             el("span.label", { style: { color: right ? "var(--success-700)" : "var(--danger-700)" } }, right ? "Tama" : "Not yet"))
-        ));
+        ),
+        /* On a phone the options are gone once answered, so a picture answer
+           shows the picture picked. Not the right one: a retry follows. */
+        q.choiceFigures && !desktop ? el("div", { style: { paddingTop: "var(--space-3)", display: "flex" } },
+          AM.Chart(Object.assign({}, q.choiceFigures[ses.picked], { title: "Your answer, picture " + q.choices[ses.picked] }))) : null);
     }
 
     /* Correct explains how it works. Wrong names the mistake when the answer
@@ -1600,7 +1604,7 @@
       answer = el("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)", padding: desktop ? 0 : "24px " + gutter() + "px 0" } },
         q.choices.map(function (label, i) {
           return AM.AnswerTile({
-            text: label, state: ses.picked === i ? "selected" : "idle", tall: true,
+            text: label, state: ses.picked === i ? "selected" : "idle", tall: true, figure: q.choiceFigures ? q.choiceFigures[i] : null,
             onClick: function () { ses.picked = i; app.render(); }
           });
         }));
@@ -1647,14 +1651,23 @@
     var review = el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } });
     r.questions.forEach(function (q, i) {
       var a = r.answers[i] || { given: null, correct: false, shown: null };
-      var right = q.type === "choice" ? q.choices[q.answerIndex] : (q.unit || "") + q.answerText + q.suffix;
+      var right = q.type === "choice" ? AM.content.choiceText(q, q.answerIndex) : (q.unit || "") + q.answerText + q.suffix;
       var ink = a.correct ? "var(--success-700)" : "var(--danger-700)";
+      /* A picture answer is shown as pictures: the right one, and the one
+         picked if it was wrong. */
+      var pictures = q.choiceFigures ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
+        [q.answerIndex].concat(!a.correct && a.given !== null ? [a.given] : []).map(function (k) {
+          return AM.Chart(Object.assign({}, q.choiceFigures[k], {
+            title: (k === q.answerIndex ? "The answer, picture " : "Your answer, picture ") + q.choices[k]
+          }));
+        })) : null;
       review.appendChild(AM.Card({ style: { gap: 10 } },
         el("span", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)" } },
           el("span", { style: { color: ink, flex: "none" } }, icon(a.correct ? "check" : "x", 20, { glyph: true })),
           el("span.caption", { style: { color: "var(--ink-600)" } }, "Question " + (i + 1) + " · " + q.topicLabel)),
         el("span.body", { style: { textWrap: "pretty" } }, q.prompt),
         q.chart ? AM.Chart(q.chart) : null,
+        pictures,
         el("span.body-sm", null,
           a.given === null ? "Not answered. " : (a.correct ? "Your answer, " + a.shown + ", is right." : "Your answer: " + a.shown + ". "),
           a.correct ? null : el("span", { style: { fontWeight: 700 } }, "The answer is " + right + ".")),

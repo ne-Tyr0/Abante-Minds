@@ -110,6 +110,13 @@ const M = [
   ["mirror side unchecked", "      if (c.side !== \"left\" && c.side !== \"right\") throw ContentError(\"a point is to the left or the right of the mirror line\");\n", ""],
   ["1 squares", "(c.distance === 1 ? \"\" : \"s\")", "\"s\""],
   ["grid wider than the screen", "whole(spec.cols, scope, 2, 16, \"a grid's width\")", "whole(spec.cols, scope, 2, 99, \"a grid's width\")"],
+  ["image not drawn", "      if (spec.image) {", "      if (false) {"],
+  ["mirror line of one end", "c.line = spec.line.map(onGrid);", "c.line = [onGrid(spec.line[0]), onGrid(spec.line[0])];"],
+  ["dot left out of the words", "        c.text += \" A dot marks the point \" + spot(c.dot) + \".\";\n", ""],
+  ["picture options keep words", "      if (t.answer.figure) {\n        q.choiceFigures", "      if (false) {\n        q.choiceFigures"],
+  ["every option drawn with the answer", "    ls.value = v;\n    return renderFigure", "    ls.value = scope.answer;\n    return renderFigure"],
+  ["pictures drawn the same allowed", "if (drawn[p] === drawn[q]) return false;", "if (false) return false;"],
+  ["a picture named by its letter alone", "return q.choiceFigures ? \"Picture \" + q.choices[i] : q.choices[i];", "return q.choices[i];"],
   ["grid corners read across for up", "return [whole(p[0], scope, 0, c.cols, \"a corner's distance across\"), whole(p[1], scope, 0, c.rows, \"a corner's height\")];", "return [whole(p[1], scope, 0, c.rows, \"a corner's height\"), whole(p[0], scope, 0, c.cols, \"a corner's distance across\")];"],
   // clock times
   ["noon called 12:00 p.m.", "    if (n === 720) return \"12:00 noon\";\n", ""],

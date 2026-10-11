@@ -221,7 +221,7 @@ function name.
 | `fraction` | Typed as a numerator over a denominator. Never a whole number; each part at most three digits |
 | `mixed` | Typed as a whole number beside a fraction. More than 1 and not a whole number |
 | `time` | A 24-hour clock time, typed as hours then minutes: 14:05. The value is whole minutes after midnight, 0 to 1439, so 14:05 is `14 * 60 + 5`. The boxes refuse an hour past 23 and minutes past 59. Ask for a 12-hour time or a length of time as a `choice`, with `"{clock12(value)}"` or `"{hm(value)}"` as the label |
-| `choice` | Four options: the answer and exactly three distractors, shown in order of size. Needs a `label`, such as `"{value} km"` or `"{frac(value)}"`, to print each option. Set `"order": "mixed"` when order of size would give the answer away ("which is the greatest?"); the options are then shuffled, the same way every time for a given question |
+| `choice` | Four options: the answer and exactly three distractors, shown in order of size. Needs a `label`, such as `"{value} km"` or `"{frac(value)}"`, to print each option. Set `"order": "mixed"` when order of size would give the answer away ("which is the greatest?"); the options are then shuffled, the same way every time for a given question. For options that are pictures, give a `figure` instead of a `label`: a `tiling`, `clock`, `mirror` or `grid` picture with no `title`, drawn once per option with `value` set to that option. The options are lettered A to D, a screen reader reads each picture's description, `order` must be `"mixed"`, and a draw whose options would look the same is drawn again. A lesson's worked example cannot use such a template: it gives its answer in words |
 
 The keypad has no minus key, so a draw whose answer is negative or has too many decimal
 places is drawn again, as is a choice item whose options collide. The engine tries 500
@@ -288,7 +288,7 @@ A question can come with a graph or a table, drawn from the template's own numbe
 | `tiling` | A picture: `title`; `shapes`, 1 or 2 kinds of regular shape fitted round a point in turn, each a number of `sides` (3, 4, 5, 6, 8, 9, 10 or 12) and a `count`. Whatever is left of the 360° is shown as a gap marked "?". The shapes may not overlap |
 | `clock` | A picture: `title`; `hand`, the number from 1 to 12 the hand points to |
 | `mirror` | A picture: `title`; squared paper with a mirror line and one point, `distance` squares (1 to 10) to its `side`, `'left'` or `'right'` |
-| `grid` | A picture to answer from: `title`; squared paper `cols` squares across (2 to 16) and `rows` up (2 to 12), with a shape of 3 to 6 `points`, each `[across, up]` counted from the bottom left. The shape must have an area and no corner twice |
+| `grid` | A picture to answer from: `title`; squared paper `cols` squares across (2 to 16) and `rows` up (2 to 12), with a shape of 3 to 6 `points`, each `[across, up]` counted from the bottom left. The shape must have an area and no corner twice. For a move, optionally: `image`, the shape after it, its corners in the same order as the shape's and every distance between them kept; `line`, a dashed mirror line `[from, to]`; `dot`, the point it turns about. With an `image` the shape is drawn dashed and its image coloured in |
 
 The chart is part of the question, so like the prompt it may use the params but never
 `answer`. The validator draws every chart and holds it to what a phone can show:
@@ -338,7 +338,7 @@ What each piece of text can refer to:
 | `prompt`, `chart` | yes | no, so the question can never state its answer | a chart's `label`: that number |
 | `where` | yes | | |
 | `hints`, `steps`, `explain`, `fallback`, distractor `value` | yes | yes | |
-| distractor `feedback`, choice `label` | yes | yes | that option's value |
+| distractor `feedback`, choice `label` or `figure` | yes | yes | that option's value |
 
 ## Expressions
 

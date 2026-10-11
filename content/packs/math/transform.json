@@ -61,7 +61,7 @@
     {
       "id": "moves",
       "title": "Slides, flips and turns",
-      "templates": ["transform.name-the-move", "transform.mirror-distance", "transform.clock-turn"],
+      "templates": ["transform.name-the-move", "transform.mirror-distance", "transform.clock-turn", "transform.pick-the-flip", "transform.pick-the-slide", "transform.pick-the-turn"],
       "lesson": [
         {
           "title": "Three moves",
@@ -581,6 +581,281 @@
           "value": "z",
           "error": "picked-a-third-shape-that-leaves-a-gap",
           "feedback": "{pick(value, 'Copies of any triangle tile: two of each angle make 360°.', 'Copies of any four-sided shape tile: its four angles make 360°.', 'Each angle of a regular pentagon is 108°. 360 ÷ 108 is not a whole number, so copies leave a gap.', 'Each angle of a regular octagon is 135°. Two make 270°, and a third would overlap, so copies leave a gap.', 'Circles always leave gaps between them: curved edges cannot fit together without one.', 'Each angle of a regular decagon is 144°. Two make 288°, and a third would overlap, so copies leave a gap.')}"
+        }
+      ]
+    },
+    {
+      "id": "transform.pick-the-flip",
+      "competency": "G6.Q1.3",
+      "domain": "MG",
+      "construct": "Choose the picture of a shape reflected in a mirror line",
+      "schema": "compare",
+      "params": {
+        "w": {"range": [2, 4]},
+        "t": {"range": [1, "w - 1"]},
+        "h": {"range": [2, 4]},
+        "d": {"range": [0, 1]},
+        "s": {"range": [1, 2]},
+        "m": {"value": "5"},
+        "y0": {"value": "1"},
+        "x0": {"value": "s == 1 ? m - d - w : m + d"}
+      },
+      "chart": {
+        "kind": "grid",
+        "title": "A shape and a mirror line",
+        "cols": "2 * m",
+        "rows": "6",
+        "points": [["x0 + 0", "y0 + 0"], ["x0 + w", "y0 + 0"], ["x0 + t", "y0 + h"], ["x0 + 0", "y0 + h"]],
+        "line": [["m", "0"], ["m", "6"]]
+      },
+      "answer": {
+        "type": "choice",
+        "value": "1",
+        "order": "mixed",
+        "figure": {
+          "kind": "grid",
+          "cols": "2 * m",
+          "rows": "6",
+          "points": [["x0 + 0", "y0 + 0"], ["x0 + w", "y0 + 0"], ["x0 + t", "y0 + h"], ["x0 + 0", "y0 + h"]],
+          "line": [["m", "0"], ["m", "6"]],
+          "image": [
+            [
+              "pick(value, 2 * m - (x0 + 0), x0 + 0 + 2 * m - 2 * x0 - w, 2 * m - (x0 + 0), x0 + 0 + 2 * m - 2 * x0 - w)",
+              "pick(value, y0 + 0, y0 + 0, y0 + h - 0, y0 + h - 0)"
+            ],
+            [
+              "pick(value, 2 * m - (x0 + w), x0 + w + 2 * m - 2 * x0 - w, 2 * m - (x0 + w), x0 + w + 2 * m - 2 * x0 - w)",
+              "pick(value, y0 + 0, y0 + 0, y0 + h - 0, y0 + h - 0)"
+            ],
+            [
+              "pick(value, 2 * m - (x0 + t), x0 + t + 2 * m - 2 * x0 - w, 2 * m - (x0 + t), x0 + t + 2 * m - 2 * x0 - w)",
+              "pick(value, y0 + h, y0 + h, y0 + h - h, y0 + h - h)"
+            ],
+            [
+              "pick(value, 2 * m - (x0 + 0), x0 + 0 + 2 * m - 2 * x0 - w, 2 * m - (x0 + 0), x0 + 0 + 2 * m - 2 * x0 - w)",
+              "pick(value, y0 + h, y0 + h, y0 + h - h, y0 + h - h)"
+            ]
+          ]
+        }
+      },
+      "formats": [
+        {
+          "id": "reflection",
+          "prompt": "Which picture shows the reflection of the shape in the dashed mirror line?"
+        },
+        {
+          "id": "flip",
+          "prompt": "The shape is flipped over the dashed mirror line. Which picture shows where it lands?"
+        }
+      ],
+      "hints": [
+        "In a reflection, every corner lands the same distance from the mirror line, on the other side.",
+        "{d == 0 ? 'The side touching the line stays touching it.' : 'The side 1 square from the line lands 1 square from it on the other side.'}",
+        "The mirror line runs up and down, so left and right swap and the top stays at the top."
+      ],
+      "steps": [
+        "The mirror line runs straight up the paper, {m} squares across",
+        "Each corner lands as far from the line on the other side, so the side nearest the line stays nearest it",
+        "The top stays at the top: the shape is turned over from left to right"
+      ],
+      "explain": "Each corner lands the same distance from the mirror line on the other side: the side nearest the line stays nearest it, and the top stays at the top.",
+      "distractors": [
+        {
+          "value": "2",
+          "error": "slid-instead-of-flipped",
+          "feedback": "That picture slides the shape across without turning it over. In a reflection the side nearest the mirror line stays nearest it."
+        },
+        {
+          "value": "3",
+          "error": "turned-it-round",
+          "feedback": "That picture turns the shape half way round, so it is upside down. A reflection in an up-and-down line keeps the top at the top."
+        },
+        {
+          "value": "4",
+          "error": "flipped-top-to-bottom",
+          "feedback": "That picture flips the shape top to bottom. The mirror line runs up and down, so left and right swap and the top stays at the top."
+        }
+      ]
+    },
+    {
+      "id": "transform.pick-the-slide",
+      "competency": "G6.Q1.3",
+      "domain": "MG",
+      "construct": "Choose the picture of a shape after a translation",
+      "schema": "compare",
+      "params": {
+        "w": {"range": [2, 4]},
+        "t": {"range": [1, "w - 1"]},
+        "h": {"range": [2, 3]},
+        "a": {"range": [3, 5]},
+        "b": {"range": [1, 3]},
+        "x0": {"value": "1"},
+        "y0": {"value": "1"}
+      },
+      "where": ["a != b"],
+      "chart": {
+        "kind": "grid",
+        "title": "A shape on squared paper",
+        "cols": "10",
+        "rows": "10",
+        "points": [["x0 + 0", "y0 + 0"], ["x0 + w", "y0 + 0"], ["x0 + t", "y0 + h"], ["x0 + 0", "y0 + h"]]
+      },
+      "answer": {
+        "type": "choice",
+        "value": "1",
+        "order": "mixed",
+        "figure": {
+          "kind": "grid",
+          "cols": "10",
+          "rows": "10",
+          "points": [["x0 + 0", "y0 + 0"], ["x0 + w", "y0 + 0"], ["x0 + t", "y0 + h"], ["x0 + 0", "y0 + h"]],
+          "image": [
+            [
+              "pick(value, x0 + 0 + a, x0 + 0 + b, x0 + a + w - 0, x0 + a + w - 0)",
+              "pick(value, y0 + 0 + b, y0 + 0 + a, y0 + 0 + b, y0 + b + h - 0)"
+            ],
+            [
+              "pick(value, x0 + w + a, x0 + w + b, x0 + a + w - w, x0 + a + w - w)",
+              "pick(value, y0 + 0 + b, y0 + 0 + a, y0 + 0 + b, y0 + b + h - 0)"
+            ],
+            [
+              "pick(value, x0 + t + a, x0 + t + b, x0 + a + w - t, x0 + a + w - t)",
+              "pick(value, y0 + h + b, y0 + h + a, y0 + h + b, y0 + b + h - h)"
+            ],
+            [
+              "pick(value, x0 + 0 + a, x0 + 0 + b, x0 + a + w - 0, x0 + a + w - 0)",
+              "pick(value, y0 + h + b, y0 + h + a, y0 + h + b, y0 + b + h - h)"
+            ]
+          ]
+        }
+      },
+      "formats": [
+        {
+          "id": "translation",
+          "prompt": "Which picture shows the shape after a translation of {a} squares to the right and {b} {b == 1 ? 'square' : 'squares'} up?"
+        },
+        {
+          "id": "slide",
+          "prompt": "The shape slides {a} squares to the right and {b} {b == 1 ? 'square' : 'squares'} up. Which picture shows where it lands?"
+        }
+      ],
+      "hints": [
+        "In a translation every corner moves the same way: {a} squares right and {b} up.",
+        "A translation never turns the shape or flips it over: it still faces the same way.",
+        "Follow the bottom-left corner: it starts at {x0} across and {y0} up, so it ends at {x0 + a} across and {y0 + b} up."
+      ],
+      "steps": [
+        "Bottom-left corner: {x0} across, {y0} up",
+        "{a} right and {b} up: {x0 + a} across, {y0 + b} up",
+        "The picture with that corner there, facing the same way, is the translation"
+      ],
+      "explain": "Every corner moves {a} squares right and {b} up, and the shape still faces the same way: a translation never turns or flips it.",
+      "distractors": [
+        {
+          "value": "2",
+          "error": "swapped-the-moves",
+          "feedback": "That picture moves the shape {b} right and {a} up: the two moves are swapped round."
+        },
+        {
+          "value": "3",
+          "error": "flipped-it-too",
+          "feedback": "That picture is in the right place but flipped over. A translation keeps the shape facing the same way."
+        },
+        {
+          "value": "4",
+          "error": "turned-it-too",
+          "feedback": "That picture is in the right place but turned half way round. A translation never turns the shape."
+        }
+      ]
+    },
+    {
+      "id": "transform.pick-the-turn",
+      "competency": "G5.Q4.12",
+      "domain": "MG",
+      "construct": "Choose the picture of a shape after a quarter turn about a point",
+      "schema": "compare",
+      "params": {
+        "w": {"range": [2, 4]},
+        "t": {"range": [1, "w - 1"]},
+        "h": {"range": [2, 3]},
+        "dir": {"range": [1, 2]},
+        "px": {"value": "5"},
+        "py": {"value": "4"}
+      },
+      "chart": {
+        "kind": "grid",
+        "title": "A shape and the point it turns about",
+        "cols": "10",
+        "rows": "8",
+        "points": [["px + 0", "py + 0"], ["px + w", "py + 0"], ["px + t", "py + h"], ["px + 0", "py + h"]],
+        "dot": ["px", "py"]
+      },
+      "answer": {
+        "type": "choice",
+        "value": "1",
+        "order": "mixed",
+        "figure": {
+          "kind": "grid",
+          "cols": "10",
+          "rows": "8",
+          "points": [["px + 0", "py + 0"], ["px + w", "py + 0"], ["px + t", "py + h"], ["px + 0", "py + h"]],
+          "dot": ["px", "py"],
+          "image": [
+            [
+              "pick(value, (dir == 1 ? px + 0 : px - 0), (dir == 1 ? px - 0 : px + 0), px - 0, px - 0)",
+              "pick(value, (dir == 1 ? py - 0 : py + 0), (dir == 1 ? py + 0 : py - 0), py - 0, py + 0)"
+            ],
+            [
+              "pick(value, (dir == 1 ? px + 0 : px - 0), (dir == 1 ? px - 0 : px + 0), px - w, px - w)",
+              "pick(value, (dir == 1 ? py - w : py + w), (dir == 1 ? py + w : py - w), py - 0, py + 0)"
+            ],
+            [
+              "pick(value, (dir == 1 ? px + h : px - h), (dir == 1 ? px - h : px + h), px - t, px - t)",
+              "pick(value, (dir == 1 ? py - t : py + t), (dir == 1 ? py + t : py - t), py - h, py + h)"
+            ],
+            [
+              "pick(value, (dir == 1 ? px + h : px - h), (dir == 1 ? px - h : px + h), px - 0, px - 0)",
+              "pick(value, (dir == 1 ? py - 0 : py + 0), (dir == 1 ? py + 0 : py - 0), py - h, py + h)"
+            ]
+          ]
+        }
+      },
+      "formats": [
+        {
+          "id": "rotation",
+          "prompt": "Which picture shows the shape after a rotation of a quarter turn {dir == 1 ? 'clockwise' : 'anticlockwise'} about the dot?"
+        },
+        {
+          "id": "turn",
+          "prompt": "The shape turns a quarter of the way round {dir == 1 ? 'clockwise' : 'anticlockwise'}, about the dot. Which picture shows where it lands?"
+        }
+      ],
+      "hints": [
+        "In a rotation the dot stays still and every other point swings round it.",
+        "A quarter turn {dir == 1 ? 'clockwise' : 'anticlockwise'} moves the bottom side, which points right from the dot, to point {dir == 1 ? 'down' : 'up'}.",
+        "Look for the picture whose bottom side now points {dir == 1 ? 'straight down' : 'straight up'} from the dot."
+      ],
+      "steps": [
+        "The dot stays still; the bottom side starts pointing right from it",
+        "A quarter turn {dir == 1 ? 'clockwise' : 'anticlockwise'} swings that side to point {dir == 1 ? 'down' : 'up'}",
+        "The picture with that side pointing {dir == 1 ? 'down' : 'up'} from the dot, and the shape not flipped, is the rotation"
+      ],
+      "explain": "A quarter turn {dir == 1 ? 'clockwise' : 'anticlockwise'} about the dot swings the side pointing right from it round to point {dir == 1 ? 'down' : 'up'}, and the shape is turned, not flipped.",
+      "distractors": [
+        {
+          "value": "2",
+          "error": "turned-the-other-way",
+          "feedback": "That picture turns the shape a quarter turn {dir == 1 ? 'anticlockwise' : 'clockwise'}. The question asks for {dir == 1 ? 'clockwise' : 'anticlockwise'}."
+        },
+        {
+          "value": "3",
+          "error": "turned-half-way",
+          "feedback": "That picture turns the shape half way round, two quarter turns. The question asks for one."
+        },
+        {
+          "value": "4",
+          "error": "flipped-instead-of-turned",
+          "feedback": "That picture flips the shape over, like a reflection. A rotation turns it about the dot without flipping it."
         }
       ]
     }

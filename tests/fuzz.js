@@ -128,7 +128,7 @@ function check(q) {
   }
   /* A chart's words are read too: its title, names and labels, and the
      description a screen reader speaks. */
-  const chart = q.chart ? [q.chart.title, q.chart.text] : [];
+  const chart = (q.chart ? [q.chart.title, q.chart.text] : []).concat((q.choiceFigures || []).map((f) => f.text));
   for (const s of [q.prompt, q.explain, ...(q.hints || []), ...(q.steps || []), ...q.distractors.map((d) => d.feedback), ...chart]) {
     if (signed(s)) fail("a negative number in the words", q, s);
     if (article(s)) fail("'a' before a number read with a vowel sound", q, s);
@@ -141,6 +141,7 @@ function check(q) {
     if (!q.choices || q.choices.length !== 4) fail("not 4 choices", q, String(q.choices && q.choices.length));
     else {
       if (new Set(q.choices).size !== 4) fail("duplicate choices", q, q.choices.join(" / "));
+      if (q.choiceFigures && new Set(q.choiceFigures.map((f) => f.text)).size !== 4) fail("two picture options drawn the same", q, q.choices.join(" / "));
       if (q.answerIndex == null || q.answerIndex < 0 || q.answerIndex > 3)
         fail("answer not among choices", q, String(q.answerIndex));
     }

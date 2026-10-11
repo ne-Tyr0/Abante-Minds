@@ -146,7 +146,10 @@ templates is an afternoon, migrating 300 is a project.
    abstract reasoning subtest will need, so it pays for itself twice. **Begun 2026-10-11** —
    questions can now carry a picture drawn from their numbers (bar, line and pie graphs and
    tables for `data`; shapes round a point, a clock face and a mirror line for `transform`).
-   Picture answer options are still to build.
+   **Picture answer options done 2026-10-11**: a choice's options can be pictures, lettered
+   A to D and each read out by its description; `transform` asks which picture shows a
+   shape after a reflection, a translation or a quarter turn about a point, on squared
+   paper with the shape before the move dashed.
 8. **Attempt log.** **Done 2026-10-11** (`store.logAttempt`, `store.attempts()`, under its
    own key so the main record stays small to write). Append-only, ring-buffered (~5,000 attempts). Per answer: timestamp,
    session id, topic, template id, tier, **question seed**, answer given, correct, latency

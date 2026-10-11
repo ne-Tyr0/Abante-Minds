@@ -368,6 +368,15 @@ function run() {
       case "area-grid":
         topicItem("area", "trapezoids", "area.grid-trapezoid", { a: 7, t: 3, h: 4, o: 2 }, "20");
         break;
+      case "transform-pick-flip":
+        topicItem("transform", "moves", "transform.pick-the-flip", { w: 3, t: 1, h: 3, d: 1, s: 1 }, null);
+        break;
+      case "transform-pick-slide":
+        topicItem("transform", "moves", "transform.pick-the-slide", { w: 3, t: 1, h: 2, a: 4, b: 2 }, 0, true);
+        break;
+      case "transform-pick-turn":
+        topicItem("transform", "moves", "transform.pick-the-turn", { w: 3, t: 1, h: 3, dir: 2 }, 1, true);
+        break;
       case "transform-gap":
         topicItem("transform", "angles-at-a-point", "transform.gap-at-a-point", { i: 1 }, "36");
         break;

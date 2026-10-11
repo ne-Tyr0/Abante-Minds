@@ -729,7 +729,7 @@ const FIGS = {
   manifest: Object.assign({}, PACK.manifest, { topics: [{ key: "g", label: "Figures", icon: "star", colorKey: 1, file: "g.json" }] }),
   files: [{
     topic: "g",
-    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side", "g.grid"] }],
+    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side", "g.grid", "g.move", "g.pick", "g.same"] }],
     templates: [
       T("g.tiling", { params: ONE_TO(6), chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "5", count: "a" }] } }),
       T("g.two", { chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "8", count: "2" }, { sides: "4", count: "1" }] } }),
@@ -737,7 +737,21 @@ const FIGS = {
       T("g.clock", { params: ONE_TO(13), chart: { kind: "clock", title: "Clock", hand: "a" } }),
       T("g.mirror", { params: ONE_TO(11), chart: { kind: "mirror", title: "Paper", distance: "a", side: "'left'" } }),
       T("g.side", { chart: { kind: "mirror", title: "Paper", distance: "a", side: "'up'" } }),
-      T("g.grid", { params: ONE_TO(16), chart: { kind: "grid", title: "Grid", cols: "a + 2", rows: "4", points: [["1", "1"], ["a + 1", "1"], ["1", "3"]] } })
+      T("g.grid", { params: ONE_TO(16), chart: { kind: "grid", title: "Grid", cols: "a + 2", rows: "4", points: [["1", "1"], ["a + 1", "1"], ["1", "3"]] } }),
+      T("g.move", { chart: { kind: "grid", title: "Move", cols: "6", rows: "4", points: [["1", "1"], ["2", "1"], ["1", "3"]],
+        image: [["5", "1"], ["4", "1"], ["5", "3"]], line: [["3", "0"], ["3", "4"]], dot: ["3", "2"] } }),
+      /* Options that are pictures: the shape slid along by the option's value. */
+      T("g.pick", {
+        answer: { type: "choice", value: "1", order: "mixed", figure: { kind: "grid", cols: "6", rows: "4",
+          points: [["1", "1"], ["2", "1"], ["1", "3"]], image: [["value + 1", "1"], ["value + 2", "1"], ["value + 1", "3"]] } },
+        distractors: [{ value: "2", error: "two", feedback: "Two." }, { value: "3", error: "three", feedback: "Three." }, { value: "4", error: "four", feedback: "Four." }]
+      }),
+      /* ...and a figure that ignores the value, so every option looks the same. */
+      T("g.same", {
+        answer: { type: "choice", value: "1", order: "mixed", figure: { kind: "grid", cols: "6", rows: "4",
+          points: [["1", "1"], ["2", "1"], ["1", "3"]], image: [["2", "1"], ["3", "1"], ["2", "3"]] } },
+        distractors: [{ value: "2", error: "two", feedback: "Two." }, { value: "3", error: "three", feedback: "Three." }, { value: "4", error: "four", feedback: "Four." }]
+      })
     ]
   }]
 };
@@ -761,6 +775,40 @@ test("figures: a shape on squared paper, its corners on grid points", () => {
   assert.strictEqual(g.text, "Picture: squared paper 5 squares across and 4 up, with a shape whose corners are at 1 across and 1 up; 4 across and 1 up; 1 across and 3 up. Each square is 1 square unit.");
   throws(() => C.instance("g.grid", 1, { a: 15 }), /a grid's width is 2 to 16/);
   C.use(PACK.manifest, PACK.files);
+});
+test("figures: a move on squared paper, with its image, its mirror line and the point it turns about", () => {
+  C.use(FIGS.manifest, FIGS.files);
+  const g = C.instance("g.move", 1, { a: 2, b: 2 }).chart;
+  assert.deepStrictEqual([g.points, g.image, g.line, g.dot], [[[1, 1], [2, 1], [1, 3]], [[5, 1], [4, 1], [5, 3]], [[3, 0], [3, 4]], [3, 2]]);
+  assert.strictEqual(g.text, "Picture: squared paper 6 squares across and 4 up, with a shape whose corners are at 1 across and 1 up; " +
+    "2 across and 1 up; 1 across and 3 up. Its image after the move has corners at 5 across and 1 up; 4 across and 1 up; " +
+    "5 across and 3 up. A mirror line runs from 3 across and 0 up to 3 across and 4 up. A dot marks the point 3 across and 2 up. " +
+    "Each square is 1 square unit.");
+  assert.ok(!("image" in C.instance("g.grid", 1, { a: 3 }).chart), "a plain grid has no image");
+  C.use(PACK.manifest, PACK.files);
+});
+test("picture choices: each option drawn with its own value, lettered, and named by its picture", () => {
+  C.use(FIGS.manifest, FIGS.files);
+  const where = new Set();
+  for (let s = 0; s < 30; s++) {
+    const q = C.generate("g.pick", 1, s);
+    assert.deepStrictEqual(q.choices, ["A", "B", "C", "D"]);
+    assert.strictEqual(q.choiceFigures.length, 4);
+    q.choiceFigures.forEach((f, i) => {
+      assert.strictEqual(f.image[0][0], q.choiceValues[i].n + 1, "option " + q.choices[i] + " is drawn with its own value");
+      assert.strictEqual(f.title, "");
+    });
+    assert.strictEqual(q.choiceFigures[q.answerIndex].image[0][0], 2, "the right picture is the answer's");
+    assert.strictEqual(C.choiceText(q, q.answerIndex), "Picture " + q.choices[q.answerIndex]);
+    assert.strictEqual(C.diagnose(q, q.choiceValues.findIndex((v) => v.n === 3)).error, "three");
+    where.add(q.answerIndex);
+  }
+  assert.ok(where.size > 1, "the right picture is not always in the same place");
+  throws(() => C.generate("g.same", 1, 0), /no usable question/);
+  C.use(PACK.manifest, PACK.files);
+  const c = C.instance("t.choice", 1, { a: 2, b: 3 });
+  assert.strictEqual(C.choiceText(c, c.answerIndex), "6 things", "an option in words is its label");
+  assert.ok(!("choiceFigures" in c));
 });
 test("figures: a clock face and a mirror line", () => {
   C.use(FIGS.manifest, FIGS.files);

@@ -76,6 +76,7 @@ const TYPE_NAME = {
   time: "clock time"
 };
 function answerText(a) {
+  if (a.figure) return "choice of pictures";
   const bits = [TYPE_NAME[a.type] || a.type];
   if (a.prefix) bits.push(`in ${a.prefix}`);
   if (a.unit) bits.push(`in ${a.unit}`);
@@ -95,16 +96,14 @@ function schemaText(s) {
 }
 
 /* The example as a learner would meet it: its picture, its prompt, its
-   choices, and the right answer written as the app would show it. */
+   choices, and the right answer written as the app would show it. Options
+   that are pictures are given as the words a screen reader speaks for them. */
 function example(t) {
   const q = C.generate(t.id, EXAMPLE_TIER, EXAMPLE_SEED);
-  const answer = q.answerType === "choice" ? q.choices[q.answerIndex] : (q.unit || "") + q.answerText + (q.suffix || "");
-  return {
-    picture: q.chart ? q.chart.text : "",
-    prompt: q.prompt,
-    choices: q.answerType === "choice" ? q.choices : [],
-    answer
-  };
+  const answer = q.answerType === "choice" ? C.choiceText(q, q.answerIndex) : (q.unit || "") + q.answerText + (q.suffix || "");
+  const choices = q.answerType !== "choice" ? []
+    : q.choiceFigures ? q.choices.map((letter, i) => `${letter}: ${q.choiceFigures[i].text}`) : q.choices;
+  return { picture: q.chart ? q.chart.text : "", prompt: q.prompt, choices, answer };
 }
 
 function describe(topic, kind, level, levelNo, t) {
@@ -200,7 +199,8 @@ function block(r) {
   lines.push(`- **Formats:** ${r.formats.map(code).join(", ")}`);
   lines.push(`- **Named mistakes:** ${r.mistakes.length ? r.mistakes.map(code).join(", ") : "none"}`);
   lines.push(`- **Example:** ${e.picture ? e.picture + " " : ""}${e.prompt}` +
-    (e.choices.length ? ` Choices: ${e.choices.join("; ")}.` : "") + ` **Answer: ${e.answer}**`);
+    (e.choices.length ? ` Choices: ${e.choices.join("; ")}` + (/[.?!]$/.test(e.choices[e.choices.length - 1]) ? "" : ".") : "") +
+    ` **Answer: ${e.answer}**`);
   return lines.join("\n");
 }
 

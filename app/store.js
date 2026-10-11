@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 35;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 36;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();

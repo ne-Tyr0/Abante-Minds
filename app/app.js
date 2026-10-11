@@ -579,7 +579,7 @@
     var d = given === null ? { correct: false, error: null } : C.diagnose(q, given);
     s.exam.answers[s.index] = {
       given: given, correct: d.correct, error: d.error,
-      shown: given === null ? null : q.type === "choice" ? q.choices[given] : (q.unit || "") + given + q.suffix
+      shown: given === null ? null : q.type === "choice" ? C.choiceText(q, given) : (q.unit || "") + given + q.suffix
     };
     s.attempted += 1;
     if (d.correct) s.correct += 1;
