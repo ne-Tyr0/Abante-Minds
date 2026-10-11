@@ -339,10 +339,12 @@ By October 2026 the app had pictures in questions (graphs, shapes round a point,
 face, a mirror line), and words could reach more of these than first thought: a solid from
 its faces or its net, π as the circumference over the diameter, a circle cut into slices to
 find its area, turning a clock hand, naming a slide, flip or turn, and the uses of
-percentages. A shape on squared paper reaches estimating area on a grid, a block drawn in
-small cubes reaches volume in non-standard units (G5.Q4.11), and solids drawn in outline
-reach pictorial models of solids (G5.Q4.3). The one still unreached, time zones on a map,
-needs a map.
+percentages. A shape on squared paper reaches estimating area on a grid; a block drawn in
+small cubes, volume in non-standard units (G5.Q4.11); solids drawn in outline, pictorial
+models of solids (G5.Q4.3); and a strip of time zones with cities marked, comparing times on
+a map (G5.Q1.4). **Every one of the 94 reachable competencies now has a template**
+(`ITEM-SPECIFICATIONS.md` counts them from the packs); the 7 left are the physical and
+classroom tasks below.
 
 ## Problem schemas
 

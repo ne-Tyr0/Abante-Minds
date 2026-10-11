@@ -59,12 +59,12 @@ let usesFractionAnswers = false;
 const FORMAT_KEYS = new Set(["id", "prompt", "hints", "steps", "explain"]);
 const DISTRACTOR_KEYS = new Set(["value", "error", "feedback"]);
 const CHART_KEYS = new Set(["kind", "title", "axis", "categories", "series", "step", "label", "unit", "slices",
-  "shapes", "hand", "distance", "side", "cols", "rows", "points", "image", "line", "dot", "length", "width", "height", "shape"]);
-const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror", "grid", "cubes", "solid"];
+  "shapes", "hand", "distance", "side", "cols", "rows", "points", "image", "line", "dot", "length", "width", "height", "shape", "from", "to", "cities"]);
+const CHART_KINDS = ["bar", "line", "pie", "table", "tiling", "clock", "mirror", "grid", "cubes", "solid", "zones"];
 /* A picture takes only its own fields: the shapes round a point, the hour a
    clock hand points to, or a point's distance and side from a mirror line. */
 const FIGURE_FIELDS = { tiling: ["shapes"], clock: ["hand"], mirror: ["distance", "side"], grid: ["cols", "rows", "points", "image", "line", "dot"],
-  cubes: ["length", "width", "height"], solid: ["shape"] };
+  cubes: ["length", "width", "height"], solid: ["shape"], zones: ["from", "to", "cities"] };
 const GRAPH_ONLY = ["axis", "categories", "series", "step", "label", "unit", "slices"];
 const PIE_TOTAL = { "%": 100, "°": 360 };
 /* What fits on a phone: the category names along a graph's bottom share its
@@ -163,6 +163,15 @@ function checkChart(c, params, option) {
         unknownKeys(s, new Set(["sides", "count"]), `shape ${i}`);
         expr(s.sides, params, `shape ${i} sides`);
         expr(s.count, params, `shape ${i} count`);
+      });
+    } else if (c.kind === "zones") {
+      expr(c.from, params, "chart from");
+      expr(c.to, params, "chart to");
+      if (!Array.isArray(c.cities) || c.cities.length < 2 || c.cities.length > 4) { fail("a time zone map marks 2 to 4 cities"); return; }
+      c.cities.forEach((p, i) => {
+        if (!Array.isArray(p) || p.length !== 2) { fail(`city ${i} is [name, zone]`); return; }
+        text(p[0], params, `city ${i} name`);
+        expr(p[1], params, `city ${i} zone`);
       });
     } else if (c.kind === "grid") {
       expr(c.cols, params, "chart cols");
@@ -554,6 +563,11 @@ function inspectChart(c, label, option) {
       if (!kept) bad("image is not the shape moved: the distances between its corners differ");
     }
     if (c.line && c.line[0].join(",") === c.line[1].join(",")) bad("mirror line has no length");
+  } else if (c.kind === "zones") {
+    /* Each city once, and every name short enough to sit beside its dot. */
+    words.push(...c.cities.map((x) => x.name));
+    if (new Set(c.cities.map((x) => x.name)).size !== c.cities.length) bad("marks a city twice");
+    for (const x of c.cities) if (x.name.length > CHART_NAME_MAX) bad(`city name '${x.name}' is longer than ${CHART_NAME_MAX} characters`);
   } else if (c.kind === "mirror") {
     if (!["left", "right"].includes(c.side)) bad(`point is to the ${c.side} of the line`);
   } else if (c.kind === "pie") {

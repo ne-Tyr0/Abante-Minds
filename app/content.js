@@ -567,6 +567,7 @@
     "4 triangular faces", "2 circular ends joined by one curved surface",
     "a circular base and a curved surface that comes to a point", "one curved surface and no flat faces"
   ];
+  function utcName(zone) { return zone ? "UTC+" + zone : "UTC"; }
   function whole(src, scope, lo, hi, what) {
     var v = toNumber(int(evalExpr(src, scope)));
     if (v < lo || v > hi) throw ContentError(what + " is " + lo + " to " + hi + ", not " + v);
@@ -575,7 +576,8 @@
   /* A picture: shapes round a point, a clock face, a mirror line on squared
      paper, a shape drawn on a grid with its corners on grid points -- with,
      for a move, its image, the mirror line or the point it turns about -- a
-     block built from small cubes, or a solid drawn in outline. */
+     block built from small cubes, a solid drawn in outline, or a strip of
+     time zones with cities marked in them. */
   function renderFigure(spec, scope, c) {
     if (spec.kind === "tiling") {
       var used = 0;
@@ -625,6 +627,16 @@
          the question asks. */
       c.shape = whole(spec.shape, scope, 1, SOLID_FACES.length, "a solid's shape");
       c.text = "Picture: a solid drawn in outline, its hidden edges dashed: " + SOLID_FACES[c.shape - 1] + ".";
+    } else if (spec.kind === "zones") {
+      /* Zones east of London only, UTC to UTC+14: the learner meets no
+         negative numbers. At most 10 columns, to fit a phone. */
+      c.from = whole(spec.from, scope, 0, 13, "a map's first zone");
+      c.to = whole(spec.to, scope, c.from + 1, Math.min(14, c.from + 9), "a map's last zone");
+      c.cities = spec.cities.map(function (p) {
+        return { name: interpolate(p[0], scope), zone: whole(p[1], scope, c.from, c.to, "a city's zone") };
+      });
+      c.text = "Picture: a time zone map, one column for each hour, from " + utcName(c.from) + " to " + utcName(c.to) + ". " +
+        c.cities.map(function (x) { return x.name + " is in " + utcName(x.zone); }).join("; ") + ".";
     } else if (spec.kind === "clock") {
       c.hand = whole(spec.hand, scope, 1, 12, "a clock hand");
       c.text = "Picture: a clock face, with its hand pointing to " + c.hand + ".";
@@ -644,7 +656,7 @@
   }
   function renderChart(spec, scope) {
     var c = { kind: spec.kind, title: interpolate(spec.title, scope) };
-    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror" || spec.kind === "grid" || spec.kind === "cubes" || spec.kind === "solid") return renderFigure(spec, scope, c);
+    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror" || spec.kind === "grid" || spec.kind === "cubes" || spec.kind === "solid" || spec.kind === "zones") return renderFigure(spec, scope, c);
     if (spec.kind === "pie") {
       c.unit = spec.unit;
       c.slices = spec.slices.map(function (s) {

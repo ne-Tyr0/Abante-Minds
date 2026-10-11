@@ -61,7 +61,7 @@
     {
       "id": "time-zones",
       "title": "Time zones",
-      "templates": ["time.zone-convert", "time.zone-to-manila", "time.zone-flight"],
+      "templates": ["time.zone-convert", "time.zone-to-manila", "time.zone-flight", "time.zone-map", "time.zone-map-hours"],
       "lesson": [
         {
           "title": "Ahead and behind",
@@ -641,6 +641,127 @@
           "value": "km",
           "error": "gave-the-distance",
           "feedback": "{value} is the distance in kilometres. The question asks how long the trip takes: count on from {clock(s)} to {clock(e)}."
+        }
+      ]
+    },
+    {
+      "id": "time.zone-map",
+      "competency": "G5.Q1.4",
+      "domain": "MG",
+      "construct": "Read two cities' time zones off a map, then change Philippine time",
+      "schema": "change",
+      "params": {
+        "p": {"range": [1, 6]},
+        "z": {"value": "pick(p, 9, 9, 7, 7, 4, 3)"},
+        "z3": {"value": "pick(p, 4, 3, 4, 3, 9, 7)"},
+        "off": {"value": "z - 8"},
+        "k": {"value": "abs(off)"},
+        "t": {"range": [0, 1435], "step": 5}
+      },
+      "where": ["t + off * 60 >= 0", "t + off * 60 < 1440", "t - off * 60 >= 0", "t - off * 60 < 1440"],
+      "chart": {
+        "kind": "zones",
+        "title": "Time zones",
+        "from": "min(z, z3, 8) - 1",
+        "to": "max(z, z3, 8) + 1",
+        "cities": [
+          ["Manila", "8"],
+          ["{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}", "z"],
+          ["{pick(p, 'Dubai', 'Riyadh', 'Dubai', 'Riyadh', 'Tokyo', 'Bangkok')}", "z3"]
+        ]
+      },
+      "answer": {"type": "time", "value": "t + off * 60"},
+      "formats": [
+        {
+          "id": "map",
+          "prompt": "The map shows time zones, one hour apart. When it is {clock(t)} in Manila, what time is it in {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}?"
+        }
+      ],
+      "hints": [
+        "Find Manila and {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} on the map. Manila is in UTC+8.",
+        "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is in UTC+{z}, so it is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'ahead of' : 'behind'} Manila.",
+        "{clock(t)} {off > 0 ? '+' : '−'} {k} hour{k == 1 ? '' : 's'} = ?"
+      ],
+      "steps": [
+        "Manila: UTC+8. {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}: UTC+{z}",
+        "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'ahead of' : 'behind'} Manila",
+        "{clock(t)} {off > 0 ? '+' : '−'} {k} hour{k == 1 ? '' : 's'} = {clock(answer)}"
+      ],
+      "explain": "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {k} hour{k == 1 ? '' : 's'} {off > 0 ? 'ahead of' : 'behind'} Manila, so when it is {clock(t)} in Manila it is {clock(answer)} in {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}.",
+      "distractors": [
+        {
+          "value": "t - off * 60",
+          "error": "went-the-wrong-way",
+          "feedback": "{clock(value)} goes the wrong way. {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is {off > 0 ? 'ahead of' : 'behind'} Manila, so {off > 0 ? 'add' : 'take away'} the hours."
+        },
+        {
+          "value": "t + (z3 - 8) * 60",
+          "error": "read-the-wrong-city",
+          "feedback": "{clock(value)} uses the zone of {pick(p, 'Dubai', 'Riyadh', 'Dubai', 'Riyadh', 'Tokyo', 'Bangkok')}, UTC+{z3}. {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is in UTC+{z}."
+        }
+      ]
+    },
+    {
+      "id": "time.zone-map-hours",
+      "competency": "G5.Q1.4",
+      "domain": "MG",
+      "construct": "Read how many hours apart two cities are from a time zone map",
+      "schema": "compare",
+      "params": {
+        "p": {"range": [1, 6]},
+        "z": {"value": "pick(p, 9, 9, 7, 7, 4, 3)"},
+        "z3": {"value": "pick(p, 4, 3, 4, 3, 9, 7)"},
+        "off": {"value": "z - 8"},
+        "k": {"value": "abs(off)"}
+      },
+      "chart": {
+        "kind": "zones",
+        "title": "Time zones",
+        "from": "min(z, z3, 8) - 1",
+        "to": "max(z, z3, 8) + 1",
+        "cities": [
+          ["Manila", "8"],
+          ["{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}", "z"],
+          ["{pick(p, 'Dubai', 'Riyadh', 'Dubai', 'Riyadh', 'Tokyo', 'Bangkok')}", "z3"]
+        ]
+      },
+      "answer": {"type": "integer", "value": "k"},
+      "formats": [
+        {
+          "id": "apart",
+          "prompt": "Use the map. How many hours apart are the times in Manila and {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}?"
+        },
+        {
+          "id": "ahead",
+          "prompt": "Use the map. How many hours {off > 0 ? 'ahead of' : 'behind'} Manila is {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}?"
+        }
+      ],
+      "hints": [
+        "Find Manila and {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} on the map. Manila is in UTC+8.",
+        "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is in UTC+{z}.",
+        "Count the steps from UTC+8 to UTC+{z}: each step is 1 hour."
+      ],
+      "steps": [
+        "Manila: UTC+8",
+        "{pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}: UTC+{z}",
+        "{max(z, 8)} − {min(z, 8)} = {answer} hour{answer == 1 ? '' : 's'}"
+      ],
+      "explain": "Manila is in UTC+8 and {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} in UTC+{z}, so they are {k} hour{k == 1 ? '' : 's'} apart.",
+      "distractors": [
+        {
+          "value": "z",
+          "error": "gave-the-zone",
+          "feedback": "{value} is {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}'s zone, UTC+{z}. Find how far it is from Manila's, UTC+8."
+        },
+        {
+          "value": "abs(z3 - 8)",
+          "error": "read-the-wrong-city",
+          "feedback": "{value} is how far {pick(p, 'Dubai', 'Riyadh', 'Dubai', 'Riyadh', 'Tokyo', 'Bangkok')} is from Manila. {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')} is in UTC+{z}."
+        },
+        {
+          "value": "k + 1",
+          "error": "counted-the-columns",
+          "feedback": "{value} counts the columns from Manila to {pick(p, 'Tokyo', 'Seoul', 'Bangkok', 'Jakarta', 'Dubai', 'Riyadh')}, both included. Count the steps between them: {k}."
         }
       ]
     }
