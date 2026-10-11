@@ -27,9 +27,11 @@ Two consequences that are easy to forget:
 python devserver.py            # static server with no-store caching; also prints a LAN URL
 node tests/engine.js           # question-engine unit tests; exits 1 on any failure
 node tests/entry.js            # what each keypad key does to the answer boxes
-node tests/progress.js         # the path's rules: clearing, unlocking, first tries
+node tests/facts.js            # the Basics drill: which facts a round asks, and when a miss comes back
+node tests/insights.js         # strengths and gaps by kind of problem, from the attempt log
+node tests/progress.js         # the path's rules, Basics mastery, exams and the attempt log
 node tests/validate-packs.js   # every question pack against the schema and the blueprint
-node tests/fuzz.js             # 160,000 generated questions; exits 1 on any violation
+node tests/fuzz.js             # about two million generated questions; exits 1 on any violation
 node poc/progress-code.js      # proves the backup-code codec; exits 1 if a claim fails
 node tests/invariants.js       # repo rules that fail silently at runtime; exits 1 on any
 node tests/cache-bump.js main  # did a precached file change without a CACHE bump?
@@ -46,9 +48,9 @@ question whose answer was negative (the keypad has no minus key, so it was unans
 and a hint telling learners to "break 9 into 10 and -1". Testing the validator caught a
 third before it shipped: a pinned item on a template with more than one format crashed.
 
-`tests/mutation/` breaks the engine, the entry rules, the facts drill, the progress rules
-and the packs one way at a time and requires the tests to fail: `node tests/mutation/engine.js`,
-`entry.js`, `facts.js`, `progress.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
+`tests/mutation/` breaks the engine, the entry rules, the facts drill, the strengths and
+gaps, the progress rules and the packs one way at a time and requires the tests to fail:
+`node tests/mutation/engine.js`, `entry.js`, `facts.js`, `insights.js`, `progress.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -57,6 +59,7 @@ mutant for it, so a test that can never fail does not pass for one.
 |---|---|
 | `app/content.js` | The question engine: installs a pack, draws numbers, renders questions and their charts, checks answers and names mistakes. Expressions are parsed, never `eval`'d, and computed in exact fractions. No questions live in code |
 | `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
+| `app/insights.js` | Strengths and gaps by kind of problem, from the attempt log, for Profile. Pure, like `facts.js` |
 | `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
 | `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |

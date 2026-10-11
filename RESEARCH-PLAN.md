@@ -188,7 +188,9 @@ templates is an afternoon, migrating 300 is a project.
     problems carrying identical arithmetic*. A real diagnostic for the learner, and a
     finding almost nothing in Philippine maths-app research reports. The schema field
     exists in every template since item 6; the varied structures and the per-schema
-    report are what remain. **Started 2026-10-11** for `excess-info`: nine topics now each
+    report are what remain. **Report done 2026-10-11**: Profile shows each kind of problem
+    from the attempt log and names the strongest and the weakest (`app/insights.js`).
+    **Started 2026-10-11** for `excess-info`: nine topics now each
     have a word problem carrying a number it does not need, which says so in its hints and
     names the mistake of using it. The attempt log keeps the template id, so a per-schema
     report can be built from it.

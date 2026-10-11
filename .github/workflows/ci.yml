@@ -41,6 +41,9 @@ jobs:
       - name: Basics facts drill
         run: node tests/facts.js
 
+      - name: Strengths and gaps
+        run: node tests/insights.js
+
       - name: Progress on the path and in Basics
         run: node tests/progress.js
 
