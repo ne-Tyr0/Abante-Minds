@@ -1612,6 +1612,23 @@
     };
   };
 
+  /* What kind of problem each template is: its schema, for the strengths and
+     gaps on Profile. Built once, after the pack has loaded. */
+  var problemTypes = null;
+  function problemType(templateId) {
+    if (!problemTypes) {
+      problemTypes = Object.create(null);
+      C.templates().forEach(function (t) { problemTypes[t.id] = t.schema; });
+    }
+    return problemTypes[templateId] || null;
+  }
+  function kindsNote(k) {
+    if (!k.types.length) return "Answer a few more questions on the path, and this shows which kinds of problem come easily and which need practice.";
+    if (k.strongest) return "Strongest: " + k.strongest.name.charAt(0).toLowerCase() + k.strongest.name.slice(1) +
+      ". Needs practice: " + k.weakest.name.charAt(0).toLowerCase() + k.weakest.name.slice(1) + ".";
+    return "No kind of problem stands out yet: they are all about as strong.";
+  }
+
   /* ---------- 20 · Profile ----------
      The ID card from login, reused. Sign out is a ghost, not the primary. */
   screens.profile = function (app) {
@@ -1658,6 +1675,18 @@
           path.topics.length > written.length
             ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (path.topics.length - written.length) + " more topic" + (path.topics.length - written.length === 1 ? "" : "s") + " coming")
             : null),
+
+        /* The same sums in different stories: which stories come easily. First
+           tries on the path and in practice exams, the most recent ones. */
+        (function () {
+          var kinds = AM.insights.summarize(store.attempts(), problemType);
+          return el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
+            sectionLabel("Kinds of problem"),
+            kinds.types.length ? AM.TopicBars(kinds.types.map(function (t) {
+              return { label: t.name, correct: t.right, total: t.asked, caption: t.right + " of " + t.asked, color: "var(--brand-blue-600)" };
+            })) : null,
+            el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, kindsNote(kinds)));
+        })(),
 
         /* One button, no card: it fits the space Profile had spare on a
            390x844 phone, so the footer and nav stay on screen. */

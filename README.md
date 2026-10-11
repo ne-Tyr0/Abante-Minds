@@ -179,6 +179,14 @@ A rehearsal of the real paper, opened from a card on Home.
 - **Kept apart from the path and Basics**: an exam never clears a level or masters a fact.
   It keeps the streak, and Home shows the last and the best score.
 
+### Kinds of problem
+
+Every template is tagged with the kind of problem it is (change, comparing, equal groups,
+working backwards, setting aside extra information...). Profile shows, from the learner's
+own first tries on the path and in practice exams, how each kind goes, once it has been
+met five times, and names the strongest and the one needing practice when they are at
+least 20 points apart. The same sums in different stories, told apart.
+
 ### Offline
 
 The service worker precaches the shell and serves it stale-while-revalidate, so a cold
@@ -251,6 +259,7 @@ scroll.
 node tests/engine.js
 node tests/entry.js
 node tests/facts.js
+node tests/insights.js
 node tests/progress.js
 node tests/validate-packs.js
 node tests/fuzz.js
@@ -267,6 +276,10 @@ point for a number, the Next key and the boxes for a fraction or mixed number.
 `tests/facts.js` pins the Basics drill: which facts a round asks, in what order, and when
 a missed one comes back.
 
+`tests/insights.js` pins the strengths and gaps on Profile: which answers count (a first
+try on the path or in a practice exam), how each kind of problem is tallied, and when the
+strongest and the weakest are named.
+
 `tests/progress.js` pins the path's rules: what clears a level, what opens the next, what
 counts as right first time, and how an older saved record is carried over. It also pins
 Basics mastery: right and quick on two days, lost on a miss, and never moving the path.
@@ -280,8 +293,10 @@ against the fact it holds.
 million questions), and plays Basics rounds for learners at every stage. It fails if any
 question can produce a negative answer or one too long for the keypad, an incomplete
 scaffold, a hint with an unfollowable number, a negative number anywhere in its words, "a"
-before a number read with a vowel sound ("a 8 m ribbon"), a broken multiple choice, an answer the checker rejects, or a named mistake that does not
-bring back its own feedback.
+before a number read with a vowel sound ("a 8 m ribbon"), two full stops in a row ("9:30
+p.m.."), a time answer that is not on the clock, a broken multiple choice, an answer the
+checker rejects, or a named mistake that does not bring back its own feedback. It reads a
+question's chart too.
 The app is offline, so a bad question cannot be hotfixed on a phone that has already
 installed it; these are the guard.
 
