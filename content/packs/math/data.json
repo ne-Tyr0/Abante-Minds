@@ -62,7 +62,7 @@
     {
       "id": "conclusions",
       "title": "Drawing conclusions",
-      "templates": ["data.most-difference", "data.trend", "data.average"],
+      "templates": ["data.most-difference", "data.trend", "data.average", "data.busiest-month"],
       "lesson": [
         {
           "title": "Look at the whole graph",
@@ -1434,6 +1434,82 @@
           "value": "5 * abs(a4 - b4)",
           "error": "compared-one-month",
           "feedback": "{value} is the difference in September only. Add each grade's four months first."
+        }
+      ]
+    },
+    {
+      "id": "data.busiest-month",
+      "competency": "G5.Q3.5",
+      "domain": "DP",
+      "construct": "Add the two bars for each month and find the month with the greatest total",
+      "schema": "compare",
+      "params": {
+        "a1": {"range": [1, 10]},
+        "a2": {"range": [1, 10]},
+        "a3": {"range": [1, 10]},
+        "a4": {"range": [1, 10]},
+        "b1": {"range": [1, 10]},
+        "b2": {"range": [1, 10]},
+        "b3": {"range": [1, 10]},
+        "b4": {"range": [1, 10]},
+        "t1": {"value": "5 * (a1 + b1)"},
+        "t2": {"value": "5 * (a2 + b2)"},
+        "t3": {"value": "5 * (a3 + b3)"},
+        "t4": {"value": "5 * (a4 + b4)"}
+      },
+      "where": [
+        "t1 != t2 && t1 != t3 && t1 != t4 && t2 != t3 && t2 != t4 && t3 != t4",
+        "max(a1, a2, a3, a4, b1, b2, b3, b4) >= 4"
+      ],
+      "chart": {
+        "kind": "bar",
+        "title": "Books borrowed",
+        "axis": "Books",
+        "step": "5",
+        "categories": ["Jun", "Jul", "Aug", "Sep"],
+        "series": [
+          {"name": "Grade 5", "values": ["a1 * 5", "a2 * 5", "a3 * 5", "a4 * 5"]},
+          {"name": "Grade 6", "values": ["b1 * 5", "b2 * 5", "b3 * 5", "b4 * 5"]}
+        ]
+      },
+      "answer": {
+        "type": "choice",
+        "value": "(t1 >= max(t2, t3, t4) ? 1 : (t2 >= max(t3, t4) ? 2 : (t3 >= t4 ? 3 : 4)))",
+        "label": "{pick(value, 'June', 'July', 'August', 'September')}",
+        "order": "size"
+      },
+      "formats": [
+        {
+          "id": "most",
+          "prompt": "The graph shows the books Grade 5 and Grade 6 borrowed from the library. In which month did the two grades borrow the most books altogether?"
+        }
+      ],
+      "hints": [
+        "For each month, add the Grade 5 bar and the Grade 6 bar.",
+        "June: {t1}. July: {t2}.",
+        "August: {t3}. September: {t4}. Which is the greatest?"
+      ],
+      "steps": [
+        "June {t1}, July {t2}",
+        "August {t3}, September {t4}",
+        "The greatest total: {pick(answer, 'June', 'July', 'August', 'September')}"
+      ],
+      "explain": "Altogether: June {t1}, July {t2}, August {t3}, September {t4}. The most was in {pick(answer, 'June', 'July', 'August', 'September')}.",
+      "distractors": [
+        {
+          "value": "answer % 4 + 1",
+          "error": "picked-another-month",
+          "feedback": "In {pick(value, 'June', 'July', 'August', 'September')} the two grades borrowed {pick(value, t1, t2, t3, t4)} books altogether, fewer than in {pick(answer, 'June', 'July', 'August', 'September')}."
+        },
+        {
+          "value": "(answer + 1) % 4 + 1",
+          "error": "picked-a-second-month",
+          "feedback": "In {pick(value, 'June', 'July', 'August', 'September')} the two grades borrowed {pick(value, t1, t2, t3, t4)} books altogether, fewer than in {pick(answer, 'June', 'July', 'August', 'September')}."
+        },
+        {
+          "value": "(answer + 2) % 4 + 1",
+          "error": "picked-a-third-month",
+          "feedback": "In {pick(value, 'June', 'July', 'August', 'September')} the two grades borrowed {pick(value, t1, t2, t3, t4)} books altogether, fewer than in {pick(answer, 'June', 'July', 'August', 'September')}."
         }
       ]
     }

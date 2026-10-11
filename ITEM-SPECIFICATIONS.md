@@ -1,6 +1,6 @@
 # Item specifications
 
-Generated from the question packs (math pack 1.34.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
+Generated from the question packs (math pack 1.35.0) by `node tools/item-spec.js`. Do not edit it by hand: CI fails when this file and the packs disagree, so it always describes what the app asks.
 
 Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. **Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the question drawn at tier 1 from seed 1, exactly as the app would show it.
 
@@ -11,19 +11,19 @@ For a spreadsheet, or a panel of expert raters, `node tools/item-spec.js --csv` 
 | Topic | Weight | Levels | Templates | Competencies | Named mistakes |
 |---|---:|---:|---:|---:|---:|
 | Decimals | 13% | 6 | 26 | 20 | 68 |
-| Fractions | 11% | 6 | 23 | 10 | 56 |
+| Fractions | 11% | 6 | 24 | 10 | 59 |
 | Order of operations | 9% | 4 | 17 | 5 | 39 |
 | Factors and primes | 4% | 4 | 16 | 5 | 41 |
 | Ratio and proportion | 8% | 4 | 16 | 7 | 35 |
 | Percentages | 5% | 3 | 15 | 2 | 33 |
-| Time | 4% | 4 | 16 | 5 | 35 |
+| Time | 4% | 4 | 17 | 5 | 37 |
 | Perimeter and area | 9% | 4 | 18 | 6 | 40 |
 | Solids and volume | 9% | 5 | 27 | 13 | 71 |
 | Circles | 8% | 4 | 18 | 7 | 39 |
-| Graphs and data | 11% | 5 | 19 | 9 | 42 |
+| Graphs and data | 11% | 5 | 20 | 9 | 45 |
 | Probability | 4% | 3 | 14 | 2 | 30 |
-| Transformations | 5% | 4 | 16 | 3 | 38 |
-| **All** | | **56** | **241** | **94** | **567** |
+| Transformations | 5% | 4 | 18 | 3 | 42 |
+| **All** | | **56** | **246** | **94** | **579** |
 
 The path's templates serve 94 of the blueprint's 101 competencies: 79 of the 79 it marks practicable in the app, 15 of the 15 marked partly practicable, and 0 of the 7 marked not practicable.
 
@@ -33,14 +33,14 @@ Problem schemas on the path:
 |---|---|---:|
 | change | additive | 18 |
 | combine | additive | 6 |
-| compare | additive | 30 |
+| compare | additive | 31 |
 | equal-groups | multiplicative | 35 |
 | rate | multiplicative | 7 |
 | multiplicative-compare | multiplicative | 24 |
 | part-whole | multiplicative | 57 |
-| work-backwards | non-routine | 10 |
+| work-backwards | non-routine | 11 |
 | missing-middle | non-routine | 4 |
-| multi-step | non-routine | 41 |
+| multi-step | non-routine | 44 |
 | excess-info | non-routine | 9 |
 
 Basics: 99 templates in 7 topics, practised beside the path and not counted towards the blueprint.
@@ -715,7 +715,7 @@ Share a mixed number equally by a whole number, through an improper fraction.
 - **Named mistakes:** `multiplied-instead`, `divided-only-the-whole-number`, `took-away`
 - **Example:** A ribbon 5 1/5 m long is cut into 2 equal pieces. How long is each piece, in metres? **Answer: 2 3/5**
 
-**Level 6: Divide in steps** (`divide-in-steps`, 3 templates)
+**Level 6: Divide in steps** (`divide-in-steps`, 4 templates)
 
 #### `fractions.cut-the-rest`
 
@@ -758,6 +758,20 @@ Add two mixed amounts, then count how many fraction-sized portions they make.
 - **Formats:** `juice`, `flour`
 - **Named mistakes:** `used-only-one-amount`, `gave-the-total`, `multiplied-instead`
 - **Example:** Lito has two jugs of juice: one holds 1 1/2 L and the other 1 3/4 L. He pours all of it into cups of 1/4 L each. How many cups does he fill? **Answer: 13**
+
+#### `fractions.cost-of-several`
+
+Find the price of 1 kg by dividing by a fraction, then the cost of several kilograms.
+
+- **Competency:** G6.Q1.14, multi-step division with fraction combinations
+- **Domain:** NA, Number and Algebra
+- **Schema:** multi-step (non-routine)
+- **Answer:** whole number, in ₱
+- **Draws:** `b: 2 to 5`; `a: 1 to b - 1`; `k: 4 to 40`; `n: 2 to 5`
+- **Kept only when:** `gcd(a, b) == 1`; `P >= 100 && P <= 400`; `n * a != b`
+- **Formats:** `pork`, `chicken`
+- **Named mistakes:** `gave-the-price-of-one`, `multiplied-the-part-price`, `multiplied-by-the-fraction`
+- **Example:** 2/3 kg of pork costs ₱200. At the same price, how much do 3 kg cost? **Answer: ₱900**
 
 ### 3. Order of operations (`gemdas`)
 
@@ -1790,7 +1804,7 @@ Find a length of time, ignoring numbers that are not times.
 - **Named mistakes:** `subtracted-like-numbers`, `gave-the-distance`
 - **Example:** A bus with 30 passengers leaves the terminal at 06:30 and arrives 100 km away at 08:15. How many minutes does the trip take? **Answer: 105**
 
-**Level 3: Start and end times** (`start-and-end`, 3 templates)
+**Level 3: Start and end times** (`start-and-end`, 4 templates)
 
 #### `time.end-time`
 
@@ -1832,6 +1846,19 @@ Work back from a deadline through two lengths of time.
 - **Formats:** `school`, `mia`
 - **Named mistakes:** `forgot-the-walk`, `forgot-getting-ready`
 - **Example:** Mia's class starts at 07:40. She needs 40 minutes to get ready and 25 minutes to walk to school. What is the latest time she can wake up? **Answer: 06:35**
+
+#### `time.two-steps`
+
+Add two lengths of time to a start time.
+
+- **Competency:** G5.Q1.3, solve problems involving 12- and 24-hour time
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** multi-step (non-routine)
+- **Answer:** clock time
+- **Draws:** `s: 420 to 900 in steps of 5`; `d1: 40 to 90 in steps of 5`; `d2: 10 to 30 in steps of 5`
+- **Formats:** `class`
+- **Named mistakes:** `forgot-the-break`, `forgot-the-lesson`
+- **Example:** A class starts at 12:00. The math lesson lasts 40 minutes, and then there is a 20-minute break. What time does the break end? **Answer: 13:00**
 
 **Level 4: Time zones** (`time-zones`, 5 templates)
 
@@ -2900,7 +2927,7 @@ Add each series of a double bar graph, then compare the totals.
 - **Named mistakes:** `gave-one-total`, `added-both`, `compared-one-month`
 - **Example:** Double bar graph: Books borrowed (Books). Grade 5: Jun 35, Jul 5, Aug 30, Sep 50. Grade 6: Jun 50, Jul 15, Aug 35, Sep 40. The graph shows the books Grade 5 and Grade 6 borrowed from the library from June to September. Altogether, how many more books did Grade 6 borrow than Grade 5? **Answer: 20**
 
-**Level 3: Drawing conclusions** (`conclusions`, 3 templates)
+**Level 3: Drawing conclusions** (`conclusions`, 4 templates)
 
 #### `data.most-difference`
 
@@ -2942,6 +2969,20 @@ Find the average of the values in a bar graph.
 - **Formats:** `average`
 - **Named mistakes:** `gave-the-total`, `divided-by-four`
 - **Example:** Bar graph: Glasses of juice sold (Glasses). Glasses: Mon 25, Tue 15, Wed 10, Thu 25, Fri 25. The graph shows the glasses of calamansi juice a canteen sold each day. What was the average number sold per day? **Answer: 20**
+
+#### `data.busiest-month`
+
+Add the two bars for each month and find the month with the greatest total.
+
+- **Competency:** G5.Q3.5, draw conclusions from a double bar or line graph
+- **Domain:** DP, Data and Probability
+- **Schema:** compare (additive)
+- **Answer:** multiple choice
+- **Draws:** `a1: 1 to 10`; `a2: 1 to 10`; `a3: 1 to 10`; `a4: 1 to 10`; `b1: 1 to 10`; `b2: 1 to 10`; `b3: 1 to 10`; `b4: 1 to 10`
+- **Kept only when:** `t1 != t2 && t1 != t3 && t1 != t4 && t2 != t3 && t2 != t4 && t3 != t4`; `max(a1, a2, a3, a4, b1, b2, b3, b4) >= 4`
+- **Formats:** `most`
+- **Named mistakes:** `picked-another-month`, `picked-a-second-month`, `picked-a-third-month`
+- **Example:** Double bar graph: Books borrowed (Books). Grade 5: Jun 35, Jul 5, Aug 30, Sep 50. Grade 6: Jun 50, Jul 15, Aug 35, Sep 40. The graph shows the books Grade 5 and Grade 6 borrowed from the library. In which month did the two grades borrow the most books altogether? Choices: June; July; August; September. **Answer: September**
 
 **Level 4: Pie graphs** (`pie-graphs`, 4 templates)
 
@@ -3315,7 +3356,7 @@ Find the third angle round a point from the other two.
 - **Named mistakes:** `gave-the-sum`, `took-away-one`
 - **Example:** Three tiles meet at a point on a floor, with no gap. Two of their corners are 145° and 60°. What is the angle of the third corner? **Answer: 155°**
 
-**Level 2: Which shapes tile?** (`which-tile`, 3 templates)
+**Level 2: Which shapes tile?** (`which-tile`, 4 templates)
 
 #### `transform.tessellates`
 
@@ -3356,7 +3397,20 @@ Choose the shape whose copies always tile: any triangle or any four-sided shape.
 - **Named mistakes:** `picked-a-shape-that-leaves-a-gap`, `picked-another-shape-that-leaves-a-gap`, `picked-a-third-shape-that-leaves-a-gap`
 - **Example:** Copies of which of these will always tile a floor with no gaps or overlaps, however it is drawn? Choices: Any four-sided shape; A regular pentagon; A circle; A regular octagon. **Answer: Any four-sided shape**
 
-**Level 3: Tiling with any shape** (`any-shape`, 3 templates)
+#### `transform.gap-left`
+
+Find the gap left when copies of a regular shape are fitted round a point.
+
+- **Competency:** G6.Q1.1, explore whether or not a shape tessellates
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** multi-step (non-routine)
+- **Answer:** number with a unit, in °
+- **Draws:** `j: 1 to 5`
+- **Formats:** `gap`, `tiler`
+- **Named mistakes:** `gave-the-angles-added`, `took-away-one`
+- **Example:** Each angle of a regular decagon is 144°. Two of them are fitted round a point, with no overlaps. How big is the gap that is left? **Answer: 72°**
+
+**Level 3: Tiling with any shape** (`any-shape`, 4 templates)
 
 #### `transform.triangle-tiles`
 
@@ -3398,6 +3452,20 @@ Fill a point with two kinds of regular shape.
 - **Formats:** `fill`
 - **Named mistakes:** `filled-the-whole-point`, `filled-the-used-part`
 - **Example:** Picture: 2 regular octagons round a point, with a gap left. 2 regular octagons meet at a point, taking up 270° of the 360°. How many squares fill the gap that is left? **Answer: 1**
+
+#### `transform.fourth-angle`
+
+Find the fourth angle of a four-sided tile: its four angles make 360°.
+
+- **Competency:** G6.Q1.1, explore whether or not a shape tessellates
+- **Domain:** MG, Measurement and Geometry
+- **Schema:** work-backwards (non-routine)
+- **Answer:** number with a unit, in °
+- **Draws:** `a: 60 to 130 in steps of 5`; `b: 60 to 130 in steps of 5`; `c: 60 to 130 in steps of 5`
+- **Kept only when:** `360 - a - b - c >= 45`; `360 - a - b - c <= 150`
+- **Formats:** `tile`, `shape`
+- **Named mistakes:** `took-away-two`, `gave-the-sum`
+- **Example:** Three angles of a four-sided shape are 105°, 60° and 95°. What is the fourth angle? **Answer: 100°**
 
 **Level 4: Slides, flips and turns** (`moves`, 6 templates)
 

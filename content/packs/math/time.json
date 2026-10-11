@@ -42,7 +42,7 @@
     {
       "id": "start-and-end",
       "title": "Start and end times",
-      "templates": ["time.end-time", "time.start-time", "time.wake-up"],
+      "templates": ["time.end-time", "time.start-time", "time.wake-up", "time.two-steps"],
       "lesson": [
         {
           "title": "Adding a length of time",
@@ -826,6 +826,44 @@
           "value": "vD",
           "error": "picked-an-earlier-hour",
           "feedback": "{value % 2 == 1 ? clock12((value - 1) / 2) : clock(value / 2)} is earlier than {clock(max(tA, tB))}: an earlier hour."
+        }
+      ]
+    },
+    {
+      "id": "time.two-steps",
+      "competency": "G5.Q1.3",
+      "domain": "MG",
+      "construct": "Add two lengths of time to a start time",
+      "schema": "multi-step",
+      "params": {
+        "s": {"range": [420, 900], "step": 5},
+        "d1": {"range": [40, 90], "step": 5},
+        "d2": {"range": [10, 30], "step": 5}
+      },
+      "answer": {"type": "time", "value": "s + d1 + d2"},
+      "formats": [
+        {
+          "id": "class",
+          "prompt": "A class starts at {clock(s)}. The math lesson lasts {hm(d1)}, and then there is a {d2}-minute break. What time does the break end?"
+        }
+      ],
+      "hints": [
+        "Add the lesson and the break: {hm(d1)} + {d2} minutes = {hm(d1 + d2)}.",
+        "Then add that to {clock(s)}.",
+        "{clock(s)} + {hm(d1 + d2)} = ?"
+      ],
+      "steps": ["{hm(d1)} + {d2} minutes = {hm(d1 + d2)}", "{clock(s)} + {hm(d1 + d2)}", "= {clock(answer)}"],
+      "explain": "The lesson and the break take {hm(d1 + d2)}, so the break ends at {clock(answer)}.",
+      "distractors": [
+        {
+          "value": "s + d1",
+          "error": "forgot-the-break",
+          "feedback": "{clock(value)} is when the lesson ends. Add the {d2}-minute break too."
+        },
+        {
+          "value": "s + d2",
+          "error": "forgot-the-lesson",
+          "feedback": "{clock(value)} adds only the break. Add the lesson's {hm(d1)} as well."
         }
       ]
     }
