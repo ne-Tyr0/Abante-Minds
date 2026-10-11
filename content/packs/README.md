@@ -286,6 +286,7 @@ A question can come with a graph or a table, drawn from the template's own numbe
 | `tiling` | A picture: `title`; `shapes`, 1 or 2 kinds of regular shape fitted round a point in turn, each a number of `sides` (3, 4, 5, 6, 8, 9, 10 or 12) and a `count`. Whatever is left of the 360° is shown as a gap marked "?". The shapes may not overlap |
 | `clock` | A picture: `title`; `hand`, the number from 1 to 12 the hand points to |
 | `mirror` | A picture: `title`; squared paper with a mirror line and one point, `distance` squares (1 to 10) to its `side`, `'left'` or `'right'` |
+| `grid` | A picture to answer from: `title`; squared paper `cols` squares across (2 to 16) and `rows` up (2 to 12), with a shape of 3 to 6 `points`, each `[across, up]` counted from the bottom left. The shape must have an area and no corner twice |
 
 The chart is part of the question, so like the prompt it may use the params but never
 `answer`. The validator draws every chart and holds it to what a phone can show:

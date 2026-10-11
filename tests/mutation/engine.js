@@ -109,6 +109,8 @@ const M = [
   ["clock hand past 12", "whole(spec.hand, scope, 1, 12, \"a clock hand\")", "whole(spec.hand, scope, 1, 13, \"a clock hand\")"],
   ["mirror side unchecked", "      if (c.side !== \"left\" && c.side !== \"right\") throw ContentError(\"a point is to the left or the right of the mirror line\");\n", ""],
   ["1 squares", "(c.distance === 1 ? \"\" : \"s\")", "\"s\""],
+  ["grid wider than the screen", "whole(spec.cols, scope, 2, 16, \"a grid's width\")", "whole(spec.cols, scope, 2, 99, \"a grid's width\")"],
+  ["grid corners read across for up", "return [whole(p[0], scope, 0, c.cols, \"a corner's distance across\"), whole(p[1], scope, 0, c.rows, \"a corner's height\")];", "return [whole(p[1], scope, 0, c.rows, \"a corner's height\"), whole(p[0], scope, 0, c.cols, \"a corner's distance across\")];"],
   // clock times
   ["noon called 12:00 p.m.", "    if (n === 720) return \"12:00 noon\";\n", ""],
   ["midnight called 12:00 a.m.", "    if (n === 0) return \"12:00 midnight\";\n", ""],

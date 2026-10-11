@@ -4,7 +4,7 @@
     {
       "id": "parallelograms-triangles",
       "title": "Parallelograms and triangles",
-      "templates": ["area.parallelogram", "area.triangle", "area.height", "area.extra-side"],
+      "templates": ["area.parallelogram", "area.triangle", "area.height", "area.extra-side", "area.grid-triangle", "area.grid-parallelogram"],
       "lesson": [
         {
           "title": "Base times height",
@@ -23,7 +23,7 @@
     {
       "id": "trapezoids",
       "title": "Trapezoids",
-      "templates": ["area.trapezoid", "area.trapezoid-lot"],
+      "templates": ["area.trapezoid", "area.trapezoid-lot", "area.grid-trapezoid"],
       "lesson": [
         {
           "title": "The trapezoid formula",
@@ -583,6 +583,142 @@
           "value": "b * h",
           "error": "forgot-to-halve",
           "feedback": "{value} m² is the rectangle round the triangle. A triangle is half of it."
+        }
+      ]
+    },
+    {
+      "id": "area.grid-triangle",
+      "competency": "G5.Q1.12",
+      "domain": "MG",
+      "construct": "Find the area of a triangle drawn on squared paper",
+      "schema": "part-whole",
+      "params": {"b": {"range": [2, 8]}, "h": {"range": [2, 6]}, "cx": {"range": [0, "b"]}},
+      "chart": {
+        "kind": "grid",
+        "title": "On squared paper",
+        "cols": "b + 2",
+        "rows": "h + 2",
+        "points": [["1", "1"], ["b + 1", "1"], ["cx + 1", "h + 1"]]
+      },
+      "answer": {"type": "unit", "value": "b * h / 2", "unit": "square units", "maxDecimals": 1},
+      "formats": [
+        {
+          "id": "grid",
+          "prompt": "Each small square on the grid is 1 square unit. What is the area of the triangle?"
+        }
+      ],
+      "hints": [
+        "The triangle is half of a rectangle {b} squares wide and {h} squares tall.",
+        "That rectangle is {b} × {h} = {b * h} square units.",
+        "Half of {b * h} = ?"
+      ],
+      "steps": ["Base: {b} squares. Height: {h} squares", "{b} × {h} = {b * h}", "{b * h} ÷ 2 = {answer} square units"],
+      "explain": "The base is {b} squares and the height {h}, so the area is {b} × {h} ÷ 2 = {answer} square units.",
+      "distractors": [
+        {
+          "value": "b * h",
+          "error": "forgot-to-halve",
+          "feedback": "{value} square units is the whole rectangle round the triangle. The triangle is half of it."
+        },
+        {
+          "value": "b + h",
+          "error": "added-base-and-height",
+          "feedback": "{value} adds the base and the height. Area multiplies them, then halves: {b} × {h} ÷ 2."
+        }
+      ]
+    },
+    {
+      "id": "area.grid-parallelogram",
+      "competency": "G5.Q1.12",
+      "domain": "MG",
+      "construct": "Find the area of a parallelogram drawn on squared paper",
+      "schema": "part-whole",
+      "params": {"b": {"range": [2, 7]}, "h": {"range": [2, 5]}, "s": {"range": [1, 3]}},
+      "chart": {
+        "kind": "grid",
+        "title": "On squared paper",
+        "cols": "b + s + 2",
+        "rows": "h + 2",
+        "points": [["1", "1"], ["b + 1", "1"], ["b + s + 1", "h + 1"], ["s + 1", "h + 1"]]
+      },
+      "answer": {"type": "unit", "value": "b * h", "unit": "square units", "maxDecimals": 1},
+      "formats": [
+        {
+          "id": "grid",
+          "prompt": "Each small square on the grid is 1 square unit. What is the area of the parallelogram?"
+        }
+      ],
+      "hints": [
+        "Cut the triangle off one slanted end and move it to the other end: the shape becomes a rectangle.",
+        "The rectangle is {b} squares long and {h} squares tall.",
+        "{b} × {h} = ?"
+      ],
+      "steps": [
+        "Base: {b} squares. Height: {h} squares",
+        "Moving the end triangle makes a {b} by {h} rectangle",
+        "{b} × {h} = {answer} square units"
+      ],
+      "explain": "Moving the triangle from one end to the other makes a {b} by {h} rectangle: {answer} square units.",
+      "distractors": [
+        {
+          "value": "(b + s) * h",
+          "error": "used-the-full-width",
+          "feedback": "{value} square units uses the full width, {b + s} squares. The slanted ends make up for each other: the base is {b}."
+        },
+        {
+          "value": "b * h / 2",
+          "error": "halved-it",
+          "feedback": "{fmt(value)} square units halves the area, as for a triangle. A parallelogram is a whole rectangle, rearranged."
+        }
+      ]
+    },
+    {
+      "id": "area.grid-trapezoid",
+      "competency": "G5.Q1.12",
+      "domain": "MG",
+      "construct": "Find the area of a trapezoid drawn on squared paper",
+      "schema": "part-whole",
+      "params": {
+        "a": {"range": [3, 8]},
+        "t": {"range": [1, "a - 1"]},
+        "h": {"range": [2, 5]},
+        "o": {"range": [0, "a - t"]}
+      },
+      "chart": {
+        "kind": "grid",
+        "title": "On squared paper",
+        "cols": "a + 2",
+        "rows": "h + 2",
+        "points": [["1", "1"], ["a + 1", "1"], ["o + t + 1", "h + 1"], ["o + 1", "h + 1"]]
+      },
+      "answer": {"type": "unit", "value": "(a + t) * h / 2", "unit": "square units", "maxDecimals": 1},
+      "formats": [
+        {
+          "id": "grid",
+          "prompt": "Each small square on the grid is 1 square unit. What is the area of the trapezoid?"
+        }
+      ],
+      "hints": [
+        "The two parallel sides are {a} and {t} squares long, and the height is {h}.",
+        "Add the parallel sides: {a} + {t} = {a + t}.",
+        "{a + t} × {h} ÷ 2 = ?"
+      ],
+      "steps": [
+        "Parallel sides: {a} and {t}. Height: {h}",
+        "({a} + {t}) × {h} = {(a + t) * h}",
+        "{(a + t) * h} ÷ 2 = {answer} square units"
+      ],
+      "explain": "The parallel sides are {a} and {t} squares and the height {h}: ({a} + {t}) × {h} ÷ 2 = {answer} square units.",
+      "distractors": [
+        {
+          "value": "a * h",
+          "error": "used-only-the-bottom",
+          "feedback": "{value} square units uses only the bottom side, as if it were a rectangle. Average the two parallel sides: ({a} + {t}) ÷ 2."
+        },
+        {
+          "value": "(a + t) * h",
+          "error": "forgot-to-halve",
+          "feedback": "{value} square units is twice the area. After ({a} + {t}) × {h}, halve it."
         }
       ]
     }

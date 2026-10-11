@@ -868,6 +868,28 @@
     return [root];
   }
 
+  /* A shape on squared paper, its corners on grid points, counted from the
+     bottom left, so its area can be found by counting squares. */
+  function gridFigure(c) {
+    var cell = 24, W = c.cols * cell, H = c.rows * cell;
+    var root = svg("svg", { viewBox: "-3 -3 " + (W + 6) + " " + (H + 6), width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    root.style.maxWidth = Math.min(420, c.cols * 36) + "px";
+    root.style.margin = "0 auto";
+    for (var i = 0; i <= c.cols; i++) root.appendChild(svg("line", { x1: i * cell, x2: i * cell, y1: 0, y2: H, style: "stroke: var(--surface-300); stroke-width: 1" }));
+    for (var j = 0; j <= c.rows; j++) root.appendChild(svg("line", { x1: 0, x2: W, y1: j * cell, y2: j * cell, style: "stroke: var(--surface-300); stroke-width: 1" }));
+    var at = function (p) { return [p[0] * cell, H - p[1] * cell]; };
+    root.appendChild(svg("polygon", {
+      points: c.points.map(function (p) { return at(p).join(","); }).join(" "),
+      style: "fill: var(--brand-blue-100); fill-opacity: 0.85; stroke: var(--brand-blue-600); stroke-width: 2.5; stroke-linejoin: round"
+    }));
+    c.points.forEach(function (p) {
+      var xy = at(p);
+      root.appendChild(svg("circle", { cx: xy[0], cy: xy[1], r: 3.5, style: "fill: var(--brand-blue-600)" }));
+    });
+    return [root];
+  }
+
   function Chart(c) {
     var box = {
       background: "var(--surface-200)", borderRadius: "var(--radius-md)", boxShadow: "inset 0 0 0 1px var(--surface-300)",
@@ -876,7 +898,7 @@
     };
     if (c.kind === "table") return el("div.am-chart", { style: box }, tableChart(c));
     var parts = c.kind === "pie" ? pieChart(c) : c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c)
-      : c.kind === "mirror" ? mirrorFigure(c) : axisChart(c, "am-chart-" + (++chartCount));
+      : c.kind === "mirror" ? mirrorFigure(c) : c.kind === "grid" ? gridFigure(c) : axisChart(c, "am-chart-" + (++chartCount));
     return el("figure.am-chart", { role: "img", "aria-label": c.text, style: box },
       el("div.label", { "aria-hidden": "true", style: { color: "var(--ink-900)" } }, c.title), parts);
   }
