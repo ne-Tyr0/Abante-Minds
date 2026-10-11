@@ -330,6 +330,14 @@ is explanatory rather than computational — practicable only as a multiple-choi
 a weak one. So **94 of 101 competencies are reachable**, 15 of them only after the renderer
 exists.
 
+By October 2026 the app had pictures in questions (graphs, shapes round a point, a clock
+face, a mirror line), and words could reach more of these than first thought: a solid from
+its faces or its net, π as the circumference over the diameter, a circle cut into slices to
+find its area, turning a clock hand, naming a slide, flip or turn, and the uses of
+percentages. The ones still unreached need a picture to answer from, not just one to look
+at: estimating area on a grid, models of solids, non-standard units of volume, and time
+zones on a map.
+
 ## Problem schemas
 
 Every topic should be exercised through varied word-problem structures, not just varied

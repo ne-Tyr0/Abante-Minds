@@ -23,7 +23,7 @@
     {
       "id": "circumference",
       "title": "Circumference",
-      "templates": ["circles.circumference-pi", "circles.circumference-314", "circles.wheel-227", "circles.extra-table"],
+      "templates": ["circles.circumference-pi", "circles.circumference-314", "circles.wheel-227", "circles.extra-table", "circles.pi-from-measuring"],
       "lesson": [
         {
           "title": "π",
@@ -42,7 +42,7 @@
     {
       "id": "area",
       "title": "Area of a circle",
-      "templates": ["circles.area-pi", "circles.area-from-diameter", "circles.area-314"],
+      "templates": ["circles.area-pi", "circles.area-from-diameter", "circles.area-314", "circles.slices-to-parallelogram"],
       "lesson": [
         {
           "title": "Why π × r × r",
@@ -595,6 +595,74 @@
           "value": "6.28 * d",
           "error": "used-the-diameter-as-radius",
           "feedback": "{value} cm is 2 × π × {d}, as if {d} cm were the radius. {d} cm across is the diameter."
+        }
+      ]
+    },
+    {
+      "id": "circles.pi-from-measuring",
+      "competency": "G6.Q3.12",
+      "domain": "MG",
+      "construct": "Find pi as the circumference over the diameter, from measurements",
+      "schema": "multiplicative-compare",
+      "params": {
+        "d": {"choose": [10, 20, 25, 30, 40, 50]},
+        "e": {"range": [0, 4]},
+        "c": {"value": "d * 3.14 + (e - 2) / 10"}
+      },
+      "answer": {"type": "decimal", "value": "round(c / d, 2)", "maxDecimals": 2},
+      "formats": [
+        {
+          "id": "plate",
+          "prompt": "Ana wraps a string round a plate: it is {c} cm long. The plate is {d} cm across. Divide the distance round by the distance across. What do you get, to the nearest hundredth?"
+        },
+        {
+          "id": "can",
+          "prompt": "The distance round a can is {c} cm, and the can is {d} cm across. What is the distance round divided by the distance across, to the nearest hundredth?"
+        }
+      ],
+      "hints": ["Divide the circumference by the diameter.", "{c} ÷ {d} = ?", "Round to two places after the point."],
+      "steps": ["Circumference ÷ diameter", "{c} ÷ {d} ≈ {round(c / d, 3)}", "To the nearest hundredth: {answer}"],
+      "explain": "{c} ÷ {d} is about {answer}. For any circle this comes out close to 3.14: the number we call π.",
+      "distractors": [
+        {
+          "value": "round(d / c, 2)",
+          "error": "divided-the-wrong-way",
+          "feedback": "{value} is the distance across divided by the distance round. Divide the circumference by the diameter: {c} ÷ {d}."
+        },
+        {
+          "value": "c - d",
+          "error": "took-away",
+          "feedback": "{value} is {c} − {d}. The question asks how many times the diameter fits round: divide."
+        }
+      ]
+    },
+    {
+      "id": "circles.slices-to-parallelogram",
+      "competency": "G6.Q4.1",
+      "domain": "MG",
+      "construct": "See why a circle's area is pi times r times r, by cutting it into slices",
+      "schema": "multi-step",
+      "params": {"k": {"range": [1, 4]}, "r": {"value": "7 * k"}},
+      "answer": {"type": "unit", "value": "22 * r / 7", "unit": "cm"},
+      "formats": [
+        {
+          "id": "slices",
+          "prompt": "A circle with a radius of {r} cm is cut into many equal slices. The slices are laid side by side, points up and points down, to make a shape very close to a parallelogram. Its height is the radius, and its base is half the circumference. With π = 22/7, how long is the base?"
+        }
+      ],
+      "hints": ["The whole circumference is 2 × π × r.", "Half of it is π × r.", "22/7 × {r} = ?"],
+      "steps": ["Circumference: 2 × π × {r}", "Half of it: π × {r}", "22/7 × {r} = {answer} cm"],
+      "explain": "The base is half the circumference, π × {r} = {answer} cm. So the area is base × height = π × r × r: {answer} × {r} = {answer * r} cm².",
+      "distractors": [
+        {
+          "value": "44 * r / 7",
+          "error": "gave-the-whole-circumference",
+          "feedback": "{value} cm is the whole circumference. The slices pointing up make half of it, and the ones pointing down the other half."
+        },
+        {
+          "value": "r",
+          "error": "gave-the-radius",
+          "feedback": "{value} cm is the radius, which is the height of the shape. The base is half the circumference."
         }
       ]
     }
