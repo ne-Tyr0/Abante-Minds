@@ -567,6 +567,13 @@
     "4 triangular faces", "2 circular ends joined by one curved surface",
     "a circular base and a curved surface that comes to a point", "one curved surface and no flat faces"
   ];
+  /* The parts of a circle a picture can mark, by number: a radius, a
+     diameter, a chord, the circumference and an arc. */
+  var CIRCLE_PARTS = [
+    "a line from the centre to the edge", "a line across the circle through its centre",
+    "a line joining two points on the edge, not through the centre", "the whole edge of the circle",
+    "a part of the edge"
+  ];
   function utcName(zone) { return zone ? "UTC+" + zone : "UTC"; }
   function whole(src, scope, lo, hi, what) {
     var v = toNumber(int(evalExpr(src, scope)));
@@ -576,8 +583,8 @@
   /* A picture: shapes round a point, a clock face, a mirror line on squared
      paper, a shape drawn on a grid with its corners on grid points -- with,
      for a move, its image, the mirror line or the point it turns about -- a
-     block built from small cubes, a solid drawn in outline, or a strip of
-     time zones with cities marked in them. */
+     block built from small cubes, a solid drawn in outline, a strip of time
+     zones with cities marked in them, or a circle with one part marked. */
   function renderFigure(spec, scope, c) {
     if (spec.kind === "tiling") {
       var used = 0;
@@ -627,6 +634,10 @@
          the question asks. */
       c.shape = whole(spec.shape, scope, 1, SOLID_FACES.length, "a solid's shape");
       c.text = "Picture: a solid drawn in outline, its hidden edges dashed: " + SOLID_FACES[c.shape - 1] + ".";
+    } else if (spec.kind === "circle") {
+      /* Described, never named: the name is what the question asks. */
+      c.part = whole(spec.part, scope, 1, CIRCLE_PARTS.length, "a circle's marked part");
+      c.text = "Picture: a circle with its centre marked. Drawn in a heavier line: " + CIRCLE_PARTS[c.part - 1] + ".";
     } else if (spec.kind === "zones") {
       /* Zones east of London only, UTC to UTC+14: the learner meets no
          negative numbers. At most 10 columns, to fit a phone. */
@@ -656,7 +667,7 @@
   }
   function renderChart(spec, scope) {
     var c = { kind: spec.kind, title: interpolate(spec.title, scope) };
-    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror" || spec.kind === "grid" || spec.kind === "cubes" || spec.kind === "solid" || spec.kind === "zones") return renderFigure(spec, scope, c);
+    if (spec.kind === "tiling" || spec.kind === "clock" || spec.kind === "mirror" || spec.kind === "grid" || spec.kind === "cubes" || spec.kind === "solid" || spec.kind === "zones" || spec.kind === "circle") return renderFigure(spec, scope, c);
     if (spec.kind === "pie") {
       c.unit = spec.unit;
       c.slices = spec.slices.map(function (s) {

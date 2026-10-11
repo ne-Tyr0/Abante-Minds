@@ -729,7 +729,7 @@ const FIGS = {
   manifest: Object.assign({}, PACK.manifest, { topics: [{ key: "g", label: "Figures", icon: "star", colorKey: 1, file: "g.json" }] }),
   files: [{
     topic: "g",
-    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side", "g.grid", "g.move", "g.pick", "g.same", "g.cubes", "g.solid", "g.zones", "g.wide"] }],
+    levels: [{ id: "all", title: "All", templates: ["g.tiling", "g.two", "g.seven", "g.clock", "g.mirror", "g.side", "g.grid", "g.move", "g.pick", "g.same", "g.cubes", "g.solid", "g.zones", "g.wide", "g.circle"] }],
     templates: [
       T("g.tiling", { params: ONE_TO(6), chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "5", count: "a" }] } }),
       T("g.two", { chart: { kind: "tiling", title: "Round a point", shapes: [{ sides: "8", count: "2" }, { sides: "4", count: "1" }] } }),
@@ -748,6 +748,7 @@ const FIGS = {
       }),
       T("g.cubes", { params: ONE_TO(9), chart: { kind: "cubes", title: "Block", length: "a", width: "2", height: "1" } }),
       T("g.solid", { params: ONE_TO(9), chart: { kind: "solid", title: "Solid", shape: "a" } }),
+      T("g.circle", { params: ONE_TO(6), chart: { kind: "circle", title: "Circle", part: "a" } }),
       T("g.zones", { params: ONE_TO(11), chart: { kind: "zones", title: "Zones", from: "a - 1", to: "a + 2", cities: [["Manila", "a"], ["Tokyo", "a + 1"]] } }),
       T("g.wide", { params: ONE_TO(13), chart: { kind: "zones", title: "Zones", from: "0", to: "a", cities: [["Here", "0"], ["There", "5"]] } }),
       /* ...and a figure that ignores the value, so every option looks the same. */
@@ -839,6 +840,15 @@ test("figures: a strip of time zones, with cities in theirs", () => {
   assert.match(C.instance("g.zones", 1, { a: 1 }).chart.text, /from UTC to UTC\+3\./, "London's zone is plain UTC");
   throws(() => C.instance("g.wide", 1, { a: 12 }), /a map's last zone is 1 to 9/);
   throws(() => C.instance("g.wide", 1, { a: 3 }), /a city's zone is 0 to 3, not 5/);
+  C.use(PACK.manifest, PACK.files);
+});
+test("figures: a circle with one part marked, described and never named", () => {
+  C.use(FIGS.manifest, FIGS.files);
+  const c = C.instance("g.circle", 1, { a: 3 }).chart;
+  assert.strictEqual(c.part, 3);
+  assert.strictEqual(c.text, "Picture: a circle with its centre marked. Drawn in a heavier line: a line joining two points on the edge, not through the centre.");
+  for (let a = 1; a <= 5; a++) assert.ok(!/radius|diameter|chord|circumference|arc/.test(C.instance("g.circle", 1, { a }).chart.text), "part " + a + " is named");
+  throws(() => C.instance("g.circle", 1, { a: 6 }), /a circle's marked part is 1 to 5/);
   C.use(PACK.manifest, PACK.files);
 });
 test("figures: a clock face and a mirror line", () => {

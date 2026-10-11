@@ -4,7 +4,7 @@
     {
       "id": "parts",
       "title": "Parts of a circle",
-      "templates": ["circles.diameter", "circles.radius", "circles.parts"],
+      "templates": ["circles.diameter", "circles.radius", "circles.parts", "circles.name-the-part"],
       "lesson": [
         {
           "title": "Centre, radius, diameter",
@@ -667,6 +667,55 @@
           "value": "r",
           "error": "gave-the-radius",
           "feedback": "{value} cm is the radius, which is the height of the shape. The base is half the circumference."
+        }
+      ]
+    },
+    {
+      "id": "circles.name-the-part",
+      "competency": "G6.Q3.10",
+      "domain": "MG",
+      "construct": "Name the marked part of a circle from a picture",
+      "schema": "compare",
+      "params": {
+        "p": {"range": [1, 5]},
+        "d1": {"value": "pick(p, 2, 1, 2, 5, 4)"},
+        "d2": {"value": "pick(p, 3, 3, 1, 2, 3)"},
+        "d3": {"value": "pick(p, 4, 5, 5, 1, 1)"}
+      },
+      "chart": {"kind": "circle", "title": "A circle", "part": "p"},
+      "answer": {
+        "type": "choice",
+        "value": "p",
+        "label": "{pick(value, 'A radius', 'A diameter', 'A chord', 'The circumference', 'An arc')}",
+        "order": "mixed"
+      },
+      "formats": [{"id": "name", "prompt": "The heavier line marks a part of the circle. What is it called?"}],
+      "hints": [
+        "Look at where the heavier line starts and ends.",
+        "Does it go through the centre? Does it stay on the edge?",
+        "It is {pick(p, 'a line from the centre to the edge', 'a line across the circle through its centre', 'a line joining two points on the edge that does not go through the centre', 'the whole distance round the edge', 'a part of the edge')}."
+      ],
+      "steps": [
+        "The heavier line is {pick(p, 'a line from the centre to the edge', 'a line across the circle through its centre', 'a line joining two points on the edge that does not go through the centre', 'the whole distance round the edge', 'a part of the edge')}",
+        "That is the meaning of {pick(p, 'a radius', 'a diameter', 'a chord', 'the circumference', 'an arc')}",
+        "So it is {pick(p, 'a radius', 'a diameter', 'a chord', 'the circumference', 'an arc')}"
+      ],
+      "explain": "{pick(p, 'A radius', 'A diameter', 'A chord', 'The circumference', 'An arc')} is {pick(p, 'a line from the centre to the edge', 'a line across the circle through its centre', 'a line joining two points on the edge that does not go through the centre', 'the whole distance round the edge', 'a part of the edge')}.",
+      "distractors": [
+        {
+          "value": "d1",
+          "error": "picked-a-similar-part",
+          "feedback": "{pick(value, 'A radius', 'A diameter', 'A chord', 'The circumference', 'An arc')} is {pick(value, 'a line from the centre to the edge', 'a line across the circle through its centre', 'a line joining two points on the edge that does not go through the centre', 'the whole distance round the edge', 'a part of the edge')}."
+        },
+        {
+          "value": "d2",
+          "error": "picked-another-part",
+          "feedback": "{pick(value, 'A radius', 'A diameter', 'A chord', 'The circumference', 'An arc')} is {pick(value, 'a line from the centre to the edge', 'a line across the circle through its centre', 'a line joining two points on the edge that does not go through the centre', 'the whole distance round the edge', 'a part of the edge')}."
+        },
+        {
+          "value": "d3",
+          "error": "picked-a-third-part",
+          "feedback": "{pick(value, 'A radius', 'A diameter', 'A chord', 'The circumference', 'An arc')} is {pick(value, 'a line from the centre to the edge', 'a line across the circle through its centre', 'a line joining two points on the edge that does not go through the centre', 'the whole distance round the edge', 'a part of the edge')}."
         }
       ]
     }

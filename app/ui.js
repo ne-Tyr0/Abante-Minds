@@ -995,10 +995,30 @@
     return [root];
   }
 
+  /* A circle with its centre, and one part marked in a heavier line:
+     numbered as the engine numbers them. */
+  function circleFigure(c) {
+    var root = svg("svg", { viewBox: "0 0 160 160", width: "100%", focusable: "false", "aria-hidden": "true" });
+    root.style.display = "block";
+    root.style.maxWidth = "200px";
+    root.style.margin = "0 auto";
+    var thin = "fill: var(--brand-blue-100); fill-opacity: 0.45; stroke: var(--ink-600); stroke-width: 1.5";
+    var bold = "fill: none; stroke: var(--brand-blue-600); stroke-width: 4; stroke-linecap: round";
+    /* The circumference is the edge itself, so it is the circle drawn heavier. */
+    var edge = c.part === 4 ? "fill: var(--brand-blue-100); fill-opacity: 0.45; stroke: var(--brand-blue-600); stroke-width: 4" : thin;
+    root.appendChild(svg("circle", { cx: 80, cy: 80, r: 60, style: edge }));
+    var mark = [
+      "M80 80 L132 50", "M23.6 59.5 L136.4 100.5", "M28 110 L132 110", null, "M80 20 A60 60 0 0 1 140 80"
+    ][c.part - 1];
+    if (mark) root.appendChild(svg("path", { d: mark, style: bold }));
+    root.appendChild(svg("circle", { cx: 80, cy: 80, r: 3.5, style: "fill: var(--ink-900)" }));
+    return [root];
+  }
+
   /* A picture with no frame or title, for an answer tile. */
   function figureParts(c) {
     return c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c) : c.kind === "mirror" ? mirrorFigure(c)
-      : c.kind === "cubes" ? cubesFigure(c) : c.kind === "solid" ? solidFigure(c) : c.kind === "zones" ? zonesFigure(c) : gridFigure(c);
+      : c.kind === "cubes" ? cubesFigure(c) : c.kind === "solid" ? solidFigure(c) : c.kind === "zones" ? zonesFigure(c) : c.kind === "circle" ? circleFigure(c) : gridFigure(c);
   }
 
   function Chart(c) {
@@ -1010,7 +1030,8 @@
     if (c.kind === "table") return el("div.am-chart", { style: box }, tableChart(c));
     var parts = c.kind === "pie" ? pieChart(c) : c.kind === "tiling" ? tilingFigure(c) : c.kind === "clock" ? clockFigure(c)
       : c.kind === "mirror" ? mirrorFigure(c) : c.kind === "grid" ? gridFigure(c) : c.kind === "cubes" ? cubesFigure(c)
-      : c.kind === "solid" ? solidFigure(c) : c.kind === "zones" ? zonesFigure(c) : axisChart(c, "am-chart-" + (++chartCount));
+      : c.kind === "solid" ? solidFigure(c) : c.kind === "zones" ? zonesFigure(c)
+      : c.kind === "circle" ? circleFigure(c) : axisChart(c, "am-chart-" + (++chartCount));
     return el("figure.am-chart", { role: "img", "aria-label": c.text, style: box },
       el("div.label", { "aria-hidden": "true", style: { color: "var(--ink-900)" } }, c.title), parts);
   }
