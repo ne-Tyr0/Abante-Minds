@@ -54,7 +54,7 @@
     {
       "id": "word-problems",
       "title": "Word problems",
-      "templates": ["decimals.share-cost", "decimals.how-many-pieces"],
+      "templates": ["decimals.share-cost", "decimals.how-many-pieces", "decimals.cost-of-more"],
       "lesson": [
         { "title": "Find the question first", "body": "Read to the end to see what is asked, then decide which numbers you need. Some numbers in a problem are there only to distract you." },
         { "title": "Worked example", "example": { "template": "decimals.how-many-pieces", "params": { "vi": 25, "t": 30, "p": 45 }, "format": "ribbon" } },
@@ -868,6 +868,51 @@
       "distractors": [
         { "value": "p / v", "error": "used-the-price", "feedback": "{fmt(value)} divides the price. The price does not tell you how many; the two amounts do." },
         { "value": "len * v", "error": "multiplied-instead-of-divided", "feedback": "{fmt(value)} multiplies the two amounts. To find how many fit, divide." }
+      ]
+    },
+    {
+      "id": "decimals.cost-of-more",
+      "competency": "G5.Q4.1",
+      "domain": "NA",
+      "construct": "Find the price of 1 by dividing by a decimal, then the cost of several",
+      "schema": "multi-step",
+      "params": {
+        "k": {"tiers": {"1": [4, 18], "3": [8, 36]}},
+        "u": {"value": "5 * k"},
+        "w": {"choose": [0.5, 0.75, 1.25, 1.5, 2.5, 3.5]},
+        "n": {"range": [2, 6]},
+        "price": {"value": "u * w"},
+        "m": {"range": [1, 2]}
+      },
+      "answer": {"type": "decimal", "value": "u * n", "maxDecimals": 2, "prefix": "₱"},
+      "formats": [
+        {
+          "id": "per-unit",
+          "prompt": "{pick(m, 'A piece of cloth', 'A bag of rice weighing')} {fmt(w)} {pick(m, 'm long', 'kg')} costs {peso(price)}. At the same price per {pick(m, 'metre', 'kilogram')}, how much do {n} {pick(m, 'm', 'kg')} cost?"
+        }
+      ],
+      "hints": [
+        "First find the price of 1 {pick(m, 'metre', 'kilogram')}: {peso(price)} ÷ {fmt(w)}.",
+        "{peso(price)} ÷ {fmt(w)} = {peso(u)}.",
+        "{peso(u)} × {n} = ?"
+      ],
+      "steps": [
+        "Price of 1 {pick(m, 'metre', 'kilogram')}: {peso(price)} ÷ {fmt(w)} = {peso(u)}",
+        "Price of {n} {pick(m, 'm', 'kg')}: {peso(u)} × {n}",
+        "= {peso(answer)}"
+      ],
+      "explain": "{peso(price)} ÷ {fmt(w)} = {peso(u)} a {pick(m, 'metre', 'kilogram')}, so {n} {pick(m, 'm', 'kg')} cost {peso(u)} × {n} = {peso(answer)}.",
+      "distractors": [
+        {
+          "value": "u",
+          "error": "gave-the-price-of-one",
+          "feedback": "{peso(value)} is the price of 1 {pick(m, 'metre', 'kilogram')}. The question asks for {n} {pick(m, 'm', 'kg')}."
+        },
+        {
+          "value": "price * n",
+          "error": "multiplied-the-whole-price",
+          "feedback": "{peso(value)} is {n} times the price of {fmt(w)} {pick(m, 'm', 'kg')}. Find the price of 1 {pick(m, 'metre', 'kilogram')} first: {peso(price)} ÷ {fmt(w)}."
+        }
       ]
     }
   ]

@@ -66,7 +66,7 @@
     {
       "id": "lcm",
       "title": "Least common multiple",
-      "templates": ["factors.lcm", "factors.lcm-word"],
+      "templates": ["factors.lcm", "factors.lcm-word", "factors.lcm-three", "factors.lcm-packs"],
       "lesson": [
         {
           "title": "The LCM",
@@ -655,6 +655,107 @@
           "value": "c",
           "error": "gave-the-class-size",
           "feedback": "{value} is the number of pupils, which the question does not use. Find the GCF of {a} and {b}."
+        }
+      ]
+    },
+    {
+      "id": "factors.lcm-three",
+      "competency": "G6.Q4.12",
+      "domain": "NA",
+      "construct": "Find the LCM of three numbers, two at a time",
+      "schema": "multiplicative-compare",
+      "params": {
+        "a": {"tiers": {"1": [2, 8], "3": [2, 12]}},
+        "b": {"range": ["a + 1", 15]},
+        "c": {"range": ["b + 1", 16]},
+        "cap": {"tiers": {"1": [120, 120], "3": [240, 240]}}
+      },
+      "where": [
+        "lcm(lcm(a, b), c) < a * b * c",
+        "lcm(a, b) % c != 0",
+        "lcm(lcm(a, b), c) != c",
+        "lcm(lcm(a, b), c) <= cap"
+      ],
+      "answer": {"type": "integer", "value": "lcm(lcm(a, b), c)"},
+      "formats": [
+        {"id": "lcm", "prompt": "What is the LCM of {a}, {b} and {c}?"},
+        {"id": "words", "prompt": "What is the least common multiple of {a}, {b} and {c}?"}
+      ],
+      "hints": [
+        "Find the LCM of two of them first, then the LCM of that and the third.",
+        "The LCM of {a} and {b} is {lcm(a, b)}.",
+        "Now the smallest multiple of {lcm(a, b)} that {c} divides into."
+      ],
+      "steps": [
+        "LCM of {a} and {b} = {lcm(a, b)}",
+        "LCM of {lcm(a, b)} and {c} = {answer}",
+        "{answer} is the smallest number all three divide into"
+      ],
+      "explain": "The LCM of {a} and {b} is {lcm(a, b)}, and the LCM of {lcm(a, b)} and {c} is {answer}.",
+      "distractors": [
+        {
+          "value": "a * b * c",
+          "error": "multiplied-them",
+          "feedback": "{value} is {a} × {b} × {c}: a common multiple, but not the least."
+        },
+        {
+          "value": "lcm(a, b)",
+          "error": "left-one-out",
+          "feedback": "{value} is the LCM of {a} and {b} only. {c} does not divide into it."
+        }
+      ]
+    },
+    {
+      "id": "factors.lcm-packs",
+      "competency": "G6.Q4.13",
+      "domain": "NA",
+      "construct": "Find how many packs make two pack sizes come out even, with the LCM",
+      "schema": "multi-step",
+      "params": {
+        "g": {"tiers": {"1": [2, 4], "3": [2, 6]}},
+        "x": {"range": [2, 5]},
+        "y": {"range": ["x + 1", 6]},
+        "a": {"value": "g * x"},
+        "b": {"value": "g * y"}
+      },
+      "where": ["gcd(x, y) == 1"],
+      "answer": {"type": "integer", "value": "x"},
+      "formats": [
+        {
+          "id": "hotdogs",
+          "prompt": "Hotdogs come in packs of {a} and buns in packs of {b}. Kiko wants exactly one bun for each hotdog, with none left over. What is the least number of packs of buns he can buy?"
+        },
+        {
+          "id": "pencils",
+          "prompt": "Pencils come in packs of {a} and erasers in packs of {b}. Teacher Ana wants the same number of pencils and erasers. What is the least number of packs of erasers she can buy?"
+        }
+      ],
+      "hints": [
+        "The total must be a multiple of both {a} and {b}: a common multiple.",
+        "The least one is the LCM: {a} = {g} × {x} and {b} = {g} × {y}, so the LCM is {g} × {x} × {y} = {g * x * y}.",
+        "How many packs of {b} make {g * x * y}?"
+      ],
+      "steps": [
+        "LCM of {a} and {b} = {g * x * y}",
+        "{g * x * y} ÷ {b} = {answer} packs of {b}",
+        "Check: {g * x * y} ÷ {a} = {y} packs of {a}"
+      ],
+      "explain": "The least total both pack sizes make is the LCM, {g * x * y}, and {g * x * y} ÷ {b} = {answer} packs of {b}.",
+      "distractors": [
+        {
+          "value": "g * x * y",
+          "error": "gave-the-lcm",
+          "feedback": "{value} is how many items: the LCM. Each pack holds {b}, so divide: {value} ÷ {b}."
+        },
+        {
+          "value": "y",
+          "error": "counted-the-other-packs",
+          "feedback": "{value} packs of {a} make the LCM. The question asks for packs of {b}."
+        },
+        {
+          "value": "a",
+          "error": "crossed-the-pack-sizes",
+          "feedback": "{value} packs of {b} work too, but they are not the least: {value} × {b} = {a * b}, and the LCM is only {g * x * y}."
         }
       ]
     }

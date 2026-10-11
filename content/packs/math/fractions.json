@@ -54,7 +54,7 @@
     {
       "id": "divide-in-steps",
       "title": "Divide in steps",
-      "templates": ["fractions.cut-the-rest", "fractions.share-the-rest"],
+      "templates": ["fractions.cut-the-rest", "fractions.share-the-rest", "fractions.pour-together"],
       "lesson": [
         { "title": "Take away first", "body": "When some is used before the rest is cut up or shared, take away what is used first. Then divide what is left." },
         { "title": "Worked example", "example": { "template": "fractions.cut-the-rest", "params": { "d": 4, "c": 3, "k": 5, "j": 1 }, "format": "ribbon" } },
@@ -780,6 +780,62 @@
           "value": "g - g * num / den",
           "error": "gave-the-rest",
           "feedback": "{value} is the part that is not. The question asks for {num}/{den} of the {g}."
+        }
+      ]
+    },
+    {
+      "id": "fractions.pour-together",
+      "competency": "G6.Q1.14",
+      "domain": "NA",
+      "construct": "Add two mixed amounts, then count how many fraction-sized portions they make",
+      "schema": "multi-step",
+      "params": {
+        "d": {"tiers": {"1": [2, 4], "3": [2, 8]}},
+        "c": {"range": [1, "d - 1"]},
+        "k1": {"tiers": {"1": [3, 8], "3": [3, 14]}},
+        "k2": {"tiers": {"1": [3, 8], "3": [3, 14]}},
+        "a1": {"value": "k1 * c / d"},
+        "a2": {"value": "k2 * c / d"},
+        "total": {"value": "(k1 + k2) * c / d"}
+      },
+      "where": ["gcd(c, d) == 1", "k1 != k2", "k1 * c > d", "k2 * c > d", "k1 * c % d != 0", "k2 * c % d != 0"],
+      "answer": {"type": "integer", "value": "k1 + k2"},
+      "formats": [
+        {
+          "id": "juice",
+          "prompt": "Lito has two jugs of juice: one holds {mixed(a1)} L and the other {mixed(a2)} L. He pours all of it into cups of {frac(c / d)} L each. How many cups does he fill?"
+        },
+        {
+          "id": "flour",
+          "prompt": "A baker has {mixed(a1)} kg of flour in one sack and {mixed(a2)} kg in another. Each batch of pandesal uses {frac(c / d)} kg. How many batches can she make with all of it?"
+        }
+      ],
+      "hints": [
+        "First find the total: {mixed(a1)} + {mixed(a2)}.",
+        "{mixed(a1)} + {mixed(a2)} = {mixed(total)}. Now divide it by {frac(c / d)}.",
+        "{mixed(total)} ÷ {frac(c / d)} = {frac(total)} × {d}/{c}."
+      ],
+      "steps": [
+        "{mixed(a1)} + {mixed(a2)} = {mixed(total)}",
+        "{mixed(total)} ÷ {frac(c / d)} = {frac(total)} × {d}/{c}",
+        "= {answer}"
+      ],
+      "explain": "Together that makes {mixed(total)}, and {mixed(total)} ÷ {frac(c / d)} = {answer}.",
+      "distractors": [
+        {
+          "value": "k1",
+          "error": "used-only-one-amount",
+          "feedback": "{value} is how many fit in {mixed(a1)} alone. Add the {mixed(a2)} first."
+        },
+        {
+          "value": "total",
+          "error": "gave-the-total",
+          "feedback": "{mixed(value)} is the total amount. Now find how many {frac(c / d)}s fit in it."
+        },
+        {
+          "value": "total * c / d",
+          "error": "multiplied-instead",
+          "feedback": "{mixed(value)} is {mixed(total)} × {frac(c / d)}. To find how many fit, divide."
         }
       ]
     }
