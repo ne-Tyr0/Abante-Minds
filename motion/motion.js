@@ -202,8 +202,66 @@
     glyph.classList.add("am-glyph-pop");
   }
 
+  /* ---------- Haptics ----------
+     A short buzz with the moments that should feel physical. Android browsers
+     take a pattern through navigator.vibrate. iPhone Safari has no vibrate,
+     but from iOS 18 toggling a switch control ticks the Taptic Engine, so a
+     hidden one is clicked instead: one tick per call, and only inside the tap
+     that caused it. Anywhere else, nothing happens and nothing breaks.
+     Patterns are on/off milliseconds, kept short so fifty answers never nag. */
+  var HAPTICS = {
+    correct: [14],
+    wrong: [30],
+    combo: [14, 50, 22],
+    mastered: [14, 40, 14],
+    levelUp: [18, 70, 18, 70, 60]
+  };
+  var HAPTICS_KEY = "am-haptics";
+  var iosSwitch = null;
+
+  function hapticsOn() {
+    try { return window.localStorage.getItem(HAPTICS_KEY) !== "off"; } catch (e) { return true; }
+  }
+
+  function setHaptics(on) {
+    try { window.localStorage.setItem(HAPTICS_KEY, on ? "on" : "off"); } catch (e) { /* private mode: stays on */ }
+  }
+
+  function isIOS() {
+    var ua = navigator.userAgent || "";
+    return /iPhone|iPad|iPod/.test(ua) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  }
+
+  function iosTick() {
+    if (!iosSwitch) {
+      var label = document.createElement("label");
+      label.setAttribute("aria-hidden", "true");
+      label.style.cssText = "position:fixed;left:-9999px;top:0;width:1px;height:1px;opacity:0;pointer-events:none";
+      var input = document.createElement("input");
+      input.type = "checkbox";
+      input.setAttribute("switch", "");
+      input.tabIndex = -1;
+      label.appendChild(input);
+      document.body.appendChild(label);
+      iosSwitch = label;
+    }
+    iosSwitch.click();
+  }
+
+  function haptic(kind) {
+    var pattern = HAPTICS[kind];
+    if (!pattern || !hapticsOn() || document.hidden) return;
+    try {
+      if (typeof navigator.vibrate === "function") navigator.vibrate(pattern);
+      else if (isIOS()) iosTick();
+    } catch (e) { /* a browser that refuses is a browser without haptics */ }
+  }
+
   window.AbanteMinds = window.AbanteMinds || {};
   window.AbanteMinds.motion = {
+    haptic: haptic,
+    hapticsOn: hapticsOn,
+    setHaptics: setHaptics,
     dur: dur,
     reduced: reduced,
     easings: { out: EASE_OUT, in: EASE_IN, pop: EASE_POP },
