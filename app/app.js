@@ -385,6 +385,14 @@
       s.stepsRevealed = s.facts ? q.steps.length : 1;
       if (!s.missed.some(function (m) { return m.id === q.id; })) s.missed.push(q);
     }
+    /* Felt as well as seen: a tick for right, a double for a run of 3, 5,
+       10 and every 5 after, and a softer buzz for a miss. Inside the tap, as
+       the iPhone needs. */
+    if (motion) {
+      motion.haptic(!right ? "wrong"
+        : s.facts && s.lastMastered ? "mastered"
+        : s.run === 3 || (s.run > 0 && s.run % 5 === 0) ? "combo" : "correct");
+    }
     render();
     /* A right fact moves on by itself, so a round keeps its pace; the button
        is still there, and whichever comes first wins. */
@@ -435,7 +443,12 @@
   app.next = function () {
     var s = app.session;
     if (!s) return;
-    if (s.pendingLevelUp) { s.pendingLevelUp = false; app.go("levelup"); return; }
+    if (s.pendingLevelUp) {
+      s.pendingLevelUp = false;
+      if (motion) motion.haptic("levelUp");
+      app.go("levelup");
+      return;
+    }
     advance();
   };
 
