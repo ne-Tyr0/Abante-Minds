@@ -63,6 +63,15 @@
 
     root.appendChild(slots.rail);
     root.appendChild(frame);
+
+    /* Words for a screen reader when something happens that is only seen:
+       a level cleared, a streak, a badge. */
+    var live = el("div.am-live", { role: "status", "aria-live": "polite" });
+    root.appendChild(live);
+    AM.announce = function (text) {
+      live.textContent = "";
+      window.setTimeout(function () { live.textContent = text; }, 60);
+    };
   }
 
   function fill(slot, node) {
@@ -110,6 +119,9 @@
     slots.body.scrollTop = app.keepScroll ? slots.body.scrollTop : 0;
     app.keepScroll = false;
     app.direction = "forward";
+
+    /* A screen that plays something once it is on the page. */
+    if (view.after) view.after();
   }
   app.render = render;
 
@@ -379,11 +391,14 @@
     /* A miss on the path comes back in a day, then three, then seven. */
     if (!right && firstTry && !s.facts && !s.redo && !s.review) store.scheduleReview(q);
 
+    s.lostRun = 0;
     if (right) {
       s.run += 1;
+      s.bestRun = Math.max(s.bestRun || 0, s.run);
       /* A question first answered wrong stops being a miss once it lands. */
       s.missed = s.missed.filter(function (m) { return m.id !== q.id; });
     } else {
+      s.lostRun = s.run;
       s.run = 0;
       /* A fact's answer is shown in full: it comes back later to be tried again. */
       s.stepsRevealed = s.facts ? q.steps.length : 1;
@@ -405,6 +420,12 @@
       else sound.play("correct");
     }
     render();
+    var moments = window.AbanteMinds && window.AbanteMinds.moments;
+    if (moments) {
+      var chip = root.querySelector(".am-combo");
+      if (right && s.run >= 2) moments.combo(chip, s.run);
+      else if (!right && s.lostRun >= 3) moments.putOut(chip);
+    }
     /* A right fact moves on by itself, so a round keeps its pace; the button
        is still there, and whichever comes first wins. */
     if (s.facts && right) {
@@ -476,6 +497,13 @@
     } else once();
   };
 
+  /* From the level-up to the badges, and back into the session after. */
+  app.levelUpToBadges = function () {
+    app.scratch.badgesBack = function () { app.scratch.badgesBack = null; advance(); };
+    app.scratch.badgesHighlight = true;
+    app.go("badges");
+  };
+
   function advance() {
     var s = app.session;
     if (!s) { app.go("home"); return; }
@@ -523,7 +551,19 @@
     app.scratch.result = result;
     store.set({ lastSession: { topicLabel: s.topicLabel, levelTitle: s.levelTitle, correct: s.correct, attempted: s.attempted } });
     app.session = null;
-    app.go("summary");
+    afterSession("summary");
+  }
+
+  /* The first session finished on a day goes by the streak screen on its
+     way to the summary. */
+  function afterSession(route) {
+    var s = store.get(), t = store.today();
+    if (s.lastActiveDay === t && s.streakShownDay !== t) {
+      store.set({ streakShownDay: t });
+      app.scratch.afterStreak = route;
+      app.scratch.streak = null;
+      app.go("streak");
+    } else app.go(route);
   }
 
   /* ---------- spaced review ----------
@@ -554,7 +594,7 @@
   function finishReview(s) {
     app.scratch.review = { attempted: s.attempted, correct: s.correct, due: store.reviewDue().length, next: store.reviewNext() };
     app.session = null;
-    app.go("reviewDone");
+    afterSession("reviewDone");
   }
 
   /* ---------- the practice exam ----------

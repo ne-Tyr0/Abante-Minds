@@ -18,6 +18,7 @@ var SHELL = [
   "assets/fonts/baloo2-latin-ext.woff2",
   "app/icons.js",
   "app/ui.js",
+  "app/badgeart.js",
   "app/content.js",
   "app/entry.js",
   "app/facts.js",
@@ -51,6 +52,7 @@ var SHELL = [
   "motion/motion.css",
   "motion/motion.js",
   "motion/sound.js",
+  "motion/moments.js",
   "assets/abante-minds-mark.png",
   "assets/abante-minds-maskable.png",
   /* styles.css and tokens/fonts.css are deliberately absent: index.html lists the

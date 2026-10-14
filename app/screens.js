@@ -517,9 +517,13 @@
           sectionLabel("Up next"),
           el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
             topicTile(next.topic),
-            el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
+            el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0, flex: 1 } },
               el("span.label", null, levelLabel(next)),
-              el("span.body", { style: { color: "var(--ink-600)" } }, next.level.title))),
+              el("span.body", { style: { color: "var(--ink-600)" } }, next.level.title)),
+            (function () {
+              var nb = store.findBadge("lv:" + next.topic.key + "/" + next.level.id);
+              return nb ? badgeButton(nb, 44) : null;
+            })()),
           AM.ProgressBar({ ratio: next.level.correct / next.level.target, height: 8, color: "var(--skill-" + next.topic.colorKey + "-bright)", label: "Level progress" }),
           el("span.caption", { style: { color: "var(--ink-600)" } },
             !next.level.lessonSeen && next.level.hasLesson
@@ -548,10 +552,14 @@
         ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (p.topics.length - written.length) + " more topic" + (p.topics.length - written.length === 1 ? "" : "s") + " coming")
         : null);
 
-    var badgeCard = (first || AM.device() === "phone") ? null : AM.Card({ style: { padding: "var(--space-6)", gap: "var(--space-3)" } },
-      sectionLabel("Badges · " + store.badges().filter(function (b) { return b.earned; }).length + " of 4"),
-      AM.BadgeShelf({ badges: store.badges(), lockedBackground: "var(--surface-100)" })
-    );
+    var badgeCard = (first || AM.device() === "phone") ? null : (function () {
+      var cat = store.catalog(), shown = store.showcase();
+      return AM.Card({ style: { padding: "var(--space-6)", gap: "var(--space-3)" } },
+        sectionLabel("Badges · " + cat.earned + " of " + cat.total),
+        shown.length ? el("div", { style: { display: "flex", gap: "var(--space-4)", alignItems: "flex-end" } },
+          shown.map(function (k) { return badgeButton(store.findBadge(k, cat), 64); })) : null,
+        AM.Button({ label: "See all badges", variant: "ghost", onClick: function () { app.scratch.badgesBack = null; app.go("badges"); } }));
+    })();
 
     /* Basics sit beside the path: open any time, and never counted on it. */
     var basics = store.basics();
@@ -1129,11 +1137,20 @@
       return null;
     }
 
-    /* The streak is stated, not celebrated — gold stays out of practice. */
+    /* The combo: a run of answers right first time. It arrives at two with
+       its flame unlit, lights at three, and every fifth turns gold for a
+       moment (motion/moments.js plays it). A broken run of three or more
+       shows once more, as its flame goes out. */
     function streakChip() {
-      if (ses.phase !== "correct" || ses.run < 2) return null;
+      var lost = ses.phase === "wrong" && ses.lostRun >= 3;
+      if (!lost && (ses.phase !== "correct" || ses.run < 2)) return null;
+      var n = lost ? ses.lostRun : ses.run, gold = !lost && n % 5 === 0;
       return el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex" } },
-        AM.Chip({ icon: "streak", label: ses.run + " in a row", large: true }));
+        el("span", { style: { position: "relative", display: "inline-flex" } },
+          el("span.am-combo" + (gold ? ".am-combo-gold" : "") + (lost ? ".am-combo-out" : ""), null,
+            AM.Flame ? AM.Flame(28, lost || n >= 3) : icon("streak", 20),
+            el("span.am-combo-num", null, String(n)), el("span.label", null, "in a row")),
+          gold ? el("span.am-combo-word", { "aria-hidden": "true" }, n >= 10 ? "Unstoppable!" : "On fire!") : null));
     }
 
     /* A facts round shows the level's facts mastered instead. */
@@ -1338,52 +1355,477 @@
     return mins + " minute" + (mins === 1 ? "" : "s") + " today";
   }
 
-  /* ---------- 14 · Level cleared ----------
-     No header, no nav, one action. The only gold field in the product; the
-     topic's levels below show the one just cleared and the one now open. */
+  /* ---------- badges on screens ----------
+     Badges just earned wait here until a screen shows them: the level-up
+     takes its own level's badge, the streak screen the streak and Welcome
+     back badges, and a summary whatever is left. A screen keeps what it took
+     in its own scratch, so drawing it again shows the same ones. */
+  var pendingBadges = [];
+  function takeBadges(test) {
+    pendingBadges = pendingBadges.concat(store.takeRecent());
+    var mine = pendingBadges.filter(test);
+    pendingBadges = pendingBadges.filter(function (k) { return !test(k); });
+    return mine;
+  }
+  function anyBadge() { return true; }
+
+  var MONTH_NAMES = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  function earnedOn(b) {
+    if (b.before) return "Earned before badges began";
+    if (b.at === store.today()) return "Earned today";
+    var p = String(b.at).split("-");
+    return "Earned " + (+p[2]) + " " + MONTH_NAMES[+p[1] - 1];
+  }
+
+  /* A badge to tap, which opens its card. */
+  function badgeButton(found, size, opts) {
+    var o = opts || {};
+    var isNew = found.badge.earned && found.badge.seen === false;
+    return el("button.am-reset.am-badge-btn", {
+      type: "button", "aria-label": found.badge.name + (found.badge.earned ? "" : ", not earned yet") + (isNew ? ", new" : ""),
+      onClick: function () { openBadge(found.badge.key); },
+      style: o.style || null
+    }, AM.Badge(found, size), isNew ? el("span.am-newtag", { "aria-hidden": "true" }, "New") : null,
+       o.caption ? el("span.caption", { style: { display: "block", lineHeight: 1.25, marginTop: 2, color: "var(--ink-600)", textAlign: "center" } }, o.caption) : null);
+  }
+
+  /* ----- the badge card -----
+     Laid over whatever screen is up, outside the render cycle, so a redraw
+     underneath leaves it be. Opening it marks the badge seen. */
+  function openBadge(key) {
+    var frame = document.querySelector(".am-frame");
+    var found = store.findBadge(key);
+    if (!frame || !found) return;
+    var b = found.badge;
+    store.markBadgeSeen(key);
+    var sound = window.AbanteMinds && window.AbanteMinds.sound;
+    if (sound) sound.play("pop");
+    var old = frame.querySelectorAll(".am-badge-sheet, .am-badge-sheet-scrim");
+    Array.prototype.forEach.call(old, function (n) { n.parentNode.removeChild(n); });
+
+    var lines = [];
+    if (found.topic) {
+      lines.push(found.topic.label + " · level " + b.number + " of " + b.total + (b.title ? " · " + b.title : ""));
+      if (b.earned) {
+        lines.push(earnedOn(b));
+        lines.push(b.shiny ? "Shiny: every first try right." : (b.kind === "facts" ? "Shiny when every fact is mastered without a miss." : "Clear it with every first try right to collect the shiny one."));
+      } else {
+        lines.push(b.kind === "facts" ? "Master every fact in this level to collect it." : "Clear this level to collect it: " + store.CLEAR_TARGET + " right first time.");
+      }
+    } else {
+      lines.push(b.how);
+      if (b.earned) lines.push(earnedOn(b));
+    }
+    var previous = document.activeElement;
+    var scrim = el("div.am-badge-sheet-scrim", { onClick: function () { close(); } });
+    var pin = b.earned ? AM.Button({
+      label: store.isPinned(key) ? "Take off my profile" : "Show on my profile", variant: "ghost", fullWidth: true,
+      onClick: function () {
+        store.togglePin(key);
+        var label = pin.lastChild;
+        if (label && label.nodeType === 3) label.nodeValue = store.isPinned(key) ? "Take off my profile" : "Show on my profile";
+        else pin.textContent = store.isPinned(key) ? "Take off my profile" : "Show on my profile";
+      }
+    }) : null;
+    var closeBtn = AM.Button({ label: "Close", fullWidth: true, onClick: function () { close(); } });
+    var sheet = el("div.am-badge-sheet", { role: "dialog", "aria-modal": "true", "aria-label": b.name },
+      el("div", { style: { lineHeight: 0 } }, AM.Badge(found, 128)),
+      b.earned && b.shiny ? AM.Chip({ label: "Shiny", background: "var(--celebration-gold-500)", color: "var(--ink-900)" }) : null,
+      el("div.heading-md", { style: { marginTop: 4 } }, b.name),
+      lines.map(function (l, i) { return el(i === 0 ? "div.label" : "div.body", { style: { color: i === 0 ? "var(--ink-600)" : "var(--ink-900)", textWrap: "pretty", maxWidth: 360 } }, l); }),
+      el("div", { style: { width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 10, marginTop: 12 } }, pin, closeBtn));
+    function close() {
+      if (sheet.parentNode) sheet.parentNode.removeChild(sheet);
+      if (scrim.parentNode) scrim.parentNode.removeChild(scrim);
+      document.removeEventListener("keydown", onKey);
+      if (previous && previous.focus) previous.focus();
+      app().keepScroll = true;
+      app().render();
+    }
+    function onKey(e) { if (e.key === "Escape") close(); }
+    document.addEventListener("keydown", onKey);
+    frame.appendChild(scrim);
+    frame.appendChild(sheet);
+    closeBtn.focus();
+    var m = window.AbanteMinds && window.AbanteMinds.moments;
+    if (m && !m.reduced()) {
+      sheet.animate([{ transform: "translateY(100%)" }, { transform: "none" }], { duration: 380, easing: m.ease.backSoft });
+      scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250 });
+      if (b.earned) sheet.firstChild.animate([{ transform: "scale(0.6) rotate(-20deg)" }, { transform: "none" }], { duration: 600, delay: 100, easing: m.ease.back, fill: "both" });
+    }
+  }
+  function app() { return AM.app; }
+  AM.openBadge = openBadge;
+
+  /* New badges, as a card on a summary. */
+  function newBadgesCard(keys) {
+    if (!keys || !keys.length) return null;
+    var cat = store.catalog();
+    var found = keys.map(function (k) { return store.findBadge(k, cat); }).filter(Boolean);
+    if (!found.length) return null;
+    return el("div", { style: { padding: "18px " + gutter() + "px 0" } },
+      AM.Card({ style: { gap: 10 } },
+        sectionLabel(found.length === 1 ? "New badge" : found.length + " new badges"),
+        el("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
+          found.map(function (f, i) {
+            return el("button.am-reset", {
+              type: "button", onClick: function () { openBadge(f.badge.key); },
+              style: { display: "flex", alignItems: "center", gap: 12, textAlign: "left", background: "none", border: 0, padding: 2, cursor: "pointer", color: "var(--ink-900)" }
+            },
+              el("span.am-reveal", { style: { lineHeight: 0, animationDelay: (i * 120) + "ms" } }, AM.Badge(f, 56)),
+              el("span", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0 } },
+                el("span.label", null, f.badge.name + (f.badge.shiny ? " · shiny" : "")),
+                el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+                  f.topic ? "Level " + f.badge.number + (f.badge.title ? " · " + f.badge.title : "") : f.badge.how)));
+          }))));
+  }
+
+  /* ---------- the badge collection ---------- */
+  screens.badges = function (app) {
+    var cat = store.catalog();
+    var shown = store.showcase();
+    var p = store.path();
+    var nextKey = p.next ? "lv:" + p.next.topic.key + "/" + p.next.level.id : null;
+    var nextFound = nextKey ? store.findBadge(nextKey, cat) : null;
+
+    function row(t) {
+      return el("div", {
+        style: {
+          padding: "8px 10px", borderRadius: "var(--radius-md)",
+          background: t.complete ? "var(--gold-tint, #fff1c2)" : "var(--surface-200)",
+          border: "2px solid " + (t.complete ? "var(--celebration-gold-500)" : "var(--surface-300)")
+        }
+      },
+        el("div", { style: { display: "flex", alignItems: "center", gap: 8 } },
+          el("span.label", null, t.label),
+          t.complete ? AM.Chip({ label: "Set complete", background: "var(--celebration-gold-500)", color: "var(--ink-900)" }) : null,
+          el("span.caption", { style: { marginLeft: "auto", color: "var(--ink-600)", whiteSpace: "nowrap" } }, t.earned + " of " + t.levels.length)),
+        el("div.am-badge-row", { style: { marginTop: 4 } },
+          t.levels.map(function (b) { return badgeButton({ topic: t, badge: b }, 40); })));
+    }
+
+    /* Opened from a level-up mid-session, the way back is the session. */
+    var resume = app.scratch.badgesBack || null;
+    return {
+      nav: "profile",
+      back: function () { if (resume) resume(); else app.go("profile", "back"); },
+      footer: resume ? el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 20px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520 } }, AM.Button({ label: "Back to practice", fullWidth: true, onClick: resume }))) : null,
+      after: function () {
+        if (!app.scratch.badgesHighlight) return;
+        app.scratch.badgesHighlight = false;
+        var tag = document.querySelector(".am-slot-body .am-newtag");
+        if (!tag) return;
+        var btn = tag.parentNode;
+        if (btn.scrollIntoView) btn.scrollIntoView({ block: "center" });
+        var m = window.AbanteMinds && window.AbanteMinds.moments;
+        if (m && !m.reduced()) {
+          btn.animate([{ transform: "scale(1)" }, { transform: "scale(1.3)", offset: 0.35 }, { transform: "scale(1)" }], { duration: 700, delay: 300, easing: m.ease.backSoft });
+          window.setTimeout(function () { var c = m.centre(btn); m.FX.stars(c.x, c.y, 8, ["#7b6cf6", "#ffd23f", "#ffffff"]); if (window.AbanteMinds.sound) window.AbanteMinds.sound.play("sparkle"); }, 420);
+        }
+      },
+      body: column([
+        el("div", { style: { padding: "12px " + gutter() + "px 0" } },
+          el("div", { style: { display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 } },
+            el("div.heading-lg", null, "Your badges"),
+            el("span.label", { style: { color: "var(--ink-600)" } }, cat.earned + " of " + cat.total)),
+          el("div", { style: { marginTop: 8 } }, AM.ProgressBar({ ratio: cat.total ? cat.earned / cat.total : 0, height: 10, label: "Badges collected" }))),
+        el("div", { style: { padding: "16px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 6 } },
+            sectionLabel("Showcase"),
+            shown.length
+              ? el("div", { style: { display: "flex", justifyContent: "space-around", alignItems: "flex-end" } },
+                  shown.map(function (k) { return badgeButton(store.findBadge(k, cat), 72); }))
+              : el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "Clear a level to earn your first badge. Your newest three show here, or pick your own from any badge's card."))),
+        nextFound ? el("div", { style: { padding: "12px " + gutter() + "px 0" } },
+          AM.Card({ style: { flexDirection: "row", alignItems: "center", gap: 12 } },
+            badgeButton(nextFound, 56),
+            el("span", { style: { display: "flex", flexDirection: "column", gap: 2, minWidth: 0 } },
+              sectionLabel("Next badge"),
+              el("span.label", null, nextFound.badge.name),
+              el("span.body-sm", { style: { color: "var(--ink-600)" } }, "Clear level " + p.next.level.number + ", " + p.next.level.title + ": " + p.next.level.correct + " of " + p.next.level.target + " right first time so far.")))) : null,
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
+          sectionLabel("Topics"),
+          cat.topics.filter(function (t) { return t.track === "path"; }).map(row)),
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
+          sectionLabel("Basics"),
+          cat.topics.filter(function (t) { return t.track === "basics"; }).map(row)),
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
+          sectionLabel("Special badges"),
+          el("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))", gap: 6 } },
+            cat.specials.map(function (sp) { return badgeButton({ topic: null, badge: sp }, 54, { caption: sp.name, style: { display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 } }); })))
+      ], { paddingBottom: 24 })
+    };
+  };
+
+  /* ---------- the level-up ----------
+     Five beats, one at a time, about seven seconds, and a tap anywhere
+     lands them all at once:
+     1. Gold rises up the screen from where the level's bar was.
+     2. The badge arrives as its grey shape, wobbles, and turns over into
+        colour with one gong, one burst of confetti. Then what this level
+        adds lands: a new segment of the rim lights, and a new ornament
+        drops on if the level brings one.
+     3. The proof it was earned: the share right first time fills a ring,
+        and the best run of the session is there with its flame.
+     4. Where it leads: the learner's marker walks along the topic's levels
+        to the one that just opened, and its lock springs open as it gets
+        there. (In Basics every level is already open, so this beat rests.)
+     5. The way on.
+     With Calm animations the screen shows its end straight away. */
   screens.levelup = function (app) {
     var s = store.get();
     var ses = app.session;
     if (!ses) { app.go("home"); return screens.home(app); }
-    var t = store.topicPath(ses.topicKey) || store.basicsTopic(ses.topicKey);
-    var nextLevel = t.levels[ses.levelNumber] || null;
+    var basics = ses.track === "basics";
+    var t = basics ? store.basicsTopic(ses.topicKey) : store.topicPath(ses.topicKey);
+    var levels = basics ? t.levels.filter(function (lv) { return lv.kind !== "review"; }) : t.levels;
+    var key = "lv:" + ses.topicKey + "/" + ses.levelId;
+    var cat = store.catalog();
+    var found = store.findBadge(key, cat);
+    var view = app.scratch.levelup;
+    if (!view || view.key !== key || view.session !== ses.id) {
+      view = app.scratch.levelup = { key: key, session: ses.id, played: false };
+      takeBadges(function (k) { return k === key; });
+    }
+    var here = levels.findIndex(function (lv) { return lv.id === ses.levelId; });
+    var next = basics ? null : (levels[here + 1] || null);
+    var ls = store.levelState(ses.topicKey, ses.levelId);
+    var right = Math.min(ls.correct, store.CLEAR_TARGET), tries = Math.max(ls.attempts, right);
+    var share = tries ? Math.round(100 * right / tries) : 0;
+    var first = (s.profile && s.profile.name.split(" ")[0]) || "there";
+    var b = found ? found.badge : null;
 
-    var ladder = el("div", { style: { padding: "24px " + gutter() + "px 0", display: "flex", gap: "var(--space-2)", alignItems: "stretch", flexWrap: "wrap", justifyContent: "center" } });
-    t.levels.forEach(function (lv) {
-      var here = lv.number === ses.levelNumber;
-      var style = {
-        flex: "1 0 44px", maxWidth: 72, background: "var(--surface-200)", borderRadius: "var(--radius-md)",
-        padding: here ? "10px 6px" : "12px 6px",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: 6,
-        color: here ? "var(--celebration-coral-600)" : lv.cleared ? "var(--success-700)" : lv.unlocked ? "var(--ink-900)" : "var(--ink-600)"
-      };
-      if (here) style.border = "2px solid var(--ink-900)";
-      ladder.appendChild(el("span", { style: style },
-        icon(here ? "trophy" : lv.cleared ? "check" : lv.unlocked ? "lesson" : "lock", 20),
-        el(here ? "span.label" : "span.caption", { style: { color: here || lv.cleared || lv.unlocked ? "var(--ink-900)" : "var(--ink-600)" } }, String(lv.number))));
-    });
+    var flip = el("div.am-lvup-flip", null,
+      el("div.am-face.am-face-grey", { html: found ? AM.badgeArt.art({ topic: found.topic, badge: { number: b.number, total: b.total, earned: false, name: b.name } }, 132) : "" }),
+      el("div.am-face.am-face-colour", { html: found ? AM.badgeArt.art(found, 132, { fresh: true }) : "" }));
+
+    var ring = el("div.am-ring", null,
+      el("span", { html: '<svg viewBox="0 0 64 64" aria-hidden="true"><circle cx="32" cy="32" r="26" fill="none" stroke="var(--surface-300)" stroke-width="8"/>' +
+        '<circle class="am-ring-fill" cx="32" cy="32" r="26" fill="none" stroke="var(--success-700)" stroke-width="8" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="' + (100 - share) + '" transform="rotate(-90 32 32)"/></svg>' }),
+      el("b.am-ring-n", null, share + "%"));
+    var best = ses.bestRun || 0;
+    var flame = best >= 3 ? AM.Flame(22, true) : null;
+    var card = el("div.am-lvup-card", null, ring,
+      el("div.am-lvup-facts", null,
+        el("span.am-lvup-fact.body-sm", null, el("b.am-lvup-right", null, String(right)), "of " + tries + " right first time"),
+        best >= 3 ? el("span.am-lvup-fact.body-sm", null, flame, el("b", null, String(best)), "in a row, your best this time") : null,
+        b && !b.shiny ? el("span.am-lvup-tip.caption", null, "Every first try right earns the shiny one") : null,
+        b && b.shiny ? el("span.am-lvup-tip.caption", null, "Every first try right: this one is shiny") : null));
+
+    var pathNode = null, token = null, headCount = null;
+    if (levels.length > 1) {
+      var nodes = el("div.am-lvpath");
+      /* On the path the levels before this one are cleared and the rest
+         locked; in Basics every level is open, ticked when done. */
+      levels.forEach(function (lv, i) {
+        var kind = i === here ? "cur" : basics ? (lv.done ? "done" : "open") : i < here ? "done" : i === here + 1 ? "next" : "far";
+        if (i > 0) nodes.appendChild(el("div.am-lvconn" + (!basics && i <= here ? ".on" : "") + (kind === "next" ? ".am-lvconn-next" : ""), null, el("i")));
+        var content;
+        if (kind === "done") content = [AM.icon("check", 18)];
+        else if (kind === "cur") content = [el("span.am-lvnode-fill"), el("span.am-lvnode-n", null, String(i + 1)), el("span.am-lvnode-tick", { style: { opacity: 0 } }, AM.icon("check", 18))];
+        else if (kind === "open") content = [el("span.am-lvnode-n", null, String(i + 1))];
+        else if (kind === "next") content = [el("span.am-lvnode-pulse"), el("span.am-lvnode-lock", null, AM.icon("lock", 16)), el("span.am-lvnode-n", { style: { opacity: 0 } }, String(i + 1))];
+        else content = [AM.icon("lock", 14)];
+        nodes.appendChild(el("div.am-lvnode." + (kind === "next" ? "lock.am-lvnode-next" : kind), { "aria-hidden": "true" }, content));
+      });
+      token = basics || !next ? null : el("div.am-token", { "aria-hidden": "true" }, el("b.label", null, first.charAt(0).toUpperCase()), el("i"));
+      pathNode = el("div.am-lvpath-wrap", null, nodes, token);
+      headCount = basics ? null : el("span", null, el("span.am-lvup-count", null, String(Math.max(0, t.cleared - 1))), " of " + t.total + " levels");
+    }
+
+    var nextLine = next ? "Next up: level " + (here + 2) + ", " + next.title
+      : basics ? "Every Basics level stays open to practise."
+      : "That was the last level in " + t.label + ". The whole set is yours.";
+    var keep = AM.Button({ label: "Keep going", variant: "inverse", fullWidth: true, cta: true, onClick: function () { view.played = true; if (view.tl) view.tl.skip(); app.afterLevelUp(); } });
+    var see = el("button.am-reset.am-linkbtn.label", { type: "button", onClick: function () { view.played = true; if (view.tl) view.tl.skip(); app.levelUpToBadges(); } }, "See my badges");
+    var footer = el("div.am-lvup-foot", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+      el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 4 } }, see, keep));
+
+    var body = el("div.am-celebrate.am-lvup", { style: { "--gutter": gutter() + "px" } },
+      el("div.am-rays", { "aria-hidden": "true" }),
+      el("div.am-lvup-badge", { role: "img", "aria-label": b ? b.name + (b.shiny ? ", shiny" : "") : "" }, el("div.am-lvup-float", null, flip)),
+      el("h2.am-lvup-title", null, "Level " + (here + 1) + " cleared!"),
+      el("p.am-lvup-sub.body-lg", null, "You earned ", el("b", null, b ? b.name : "a badge"), b && b.shiny ? " · shiny" : ""),
+      card,
+      pathNode ? el("div.am-lvup-head.label", null, el("span", null, t.label), headCount || el("span", null, "Basics")) : null,
+      pathNode,
+      el("p.am-lvup-next.label", null, nextLine));
 
     return {
       nav: null, onGold: true, chrome: false,
-      body: el("div.am-celebrate", {
-        style: { flex: 1, display: "flex", flexDirection: "column", justifyContent: "center", minHeight: 0 }
-      },
-        AM.CelebrationBanner({
-          headline: "Level " + ses.levelNumber,
-          sublabel: "Cleared, " + ((s.profile && s.profile.name.split(" ")[0]) || "there"),
-          icon: "level-up",
-          style: { background: "transparent", boxShadow: "none", paddingBottom: 0 }
-        }),
-        el("div", { style: { padding: "0 32px", textAlign: "center" } },
-          el("div.body-lg", { style: { color: "var(--ink-900)", textWrap: "pretty" } },
-            store.CLEAR_TARGET + " right first time in " + ses.levelTitle.toLowerCase() + ". " +
-            (nextLevel ? "Level " + nextLevel.number + ", " + nextLevel.title.toLowerCase() + ", is open."
-                       : "That was the last level in " + t.label.toLowerCase() + "."))),
-        ladder
-      ),
-      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 32px", display: "flex", justifyContent: "center" } },
-        el("div", { style: { width: "100%", maxWidth: 520 } },
-          AM.Button({ label: "Keep going", variant: "inverse", fullWidth: true, cta: true, onClick: function () { app.afterLevelUp(); } })))
+      body: body,
+      footer: footer,
+      after: function () {
+        AM.announce("Level " + (here + 1) + " cleared. You earned " + (b ? b.name : "a badge") + (b && b.shiny ? ", shiny" : "") + ".");
+        var m = window.AbanteMinds && window.AbanteMinds.moments;
+        if (!m) return;
+        view.tl = playLevelUp(m, { body: body, footer: footer, flip: flip, ring: ring, share: share, card: card, flame: flame,
+          path: pathNode, token: token, count: headCount ? headCount.firstChild : null, cleared: t.cleared,
+          next: !!next, basics: basics, right: right });
+        if (view.played || m.reduced()) { view.tl.skip(); view.played = true; }
+        else body.addEventListener("click", function () { view.tl.skip(); view.played = true; });
+        view.played = true;
+      }
+    };
+  };
+
+  function playLevelUp(m, d) {
+    var tl = new m.Timeline(), E = m.ease, sound = window.AbanteMinds.sound;
+    function play(name, arg) { return function () { if (sound) sound.play(name, arg); }; }
+    var q = function (sel, scope) { return (scope || d.body).querySelector(sel); };
+    var grey = q(".am-face-grey"), colour = q(".am-face-colour");
+    var rise = el("div.am-lvup-rise", { "aria-hidden": "true" });
+    document.body.appendChild(rise);
+    colour.style.visibility = "hidden";
+
+    /* 1. gold rises */
+    tl.to(rise, [{ clipPath: "inset(0 0 0 0)" }, { clipPath: "inset(0 0 100% 0)" }], 700, 0.05, E.in)
+      .call(play("charge"), 0.05)
+      .call(function () { if (rise.parentNode) rise.parentNode.removeChild(rise); }, 0.8, true)
+      .to(q(".am-rays"), [{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: "none" }], 1200, 1.7);
+    /* 2. the badge */
+    tl.to(q(".am-lvup-badge"), [{ transform: "scale(0.3)", opacity: 0 }, { transform: "none", opacity: 1 }], 500, 0.6, E.back)
+      .to(d.flip, [
+        { transform: "rotate(0deg) scaleX(1)", offset: 0 },
+        { transform: "rotate(-7deg) scaleX(1)", offset: 0.1 },
+        { transform: "rotate(7deg) scaleX(1)", offset: 0.2 },
+        { transform: "rotate(-5deg) scaleX(1)", offset: 0.3 },
+        { transform: "rotate(4deg) scaleX(1)", offset: 0.4 },
+        { transform: "rotate(0deg) scaleX(1)", offset: 0.5, easing: E.in },
+        { transform: "rotate(0deg) scaleX(0)", offset: 0.62, easing: E.back },
+        { transform: "rotate(0deg) scaleX(1)", offset: 1 }
+      ], 1100, 1.1, "linear")
+      .call(play("roll"), 1.1)
+      .call(function () { grey.style.visibility = "hidden"; colour.style.visibility = ""; }, 1.78, true)
+      .call(function () {
+        play("thump")(); play("fanfare")();
+        var p = m.centre(d.flip, 0.45);
+        m.FX.confetti(p.x, p.y, -90, 170, 420, 800, 60);
+        m.FX.sparks(p.x, p.y, 14, ["#ffffff", "#fff1b8"]);
+      }, 1.8);
+    var seg = q(".am-b-newseg", colour), orn = q(".am-b-new", colour);
+    if (seg) tl.to(seg, [{ opacity: 0 }, { opacity: 1 }], 400, 2.4).call(play("step", 3), 2.4);
+    if (orn) tl.to(orn, [{ transform: "translateY(-40px)", opacity: 0 }, { transform: "translateY(4px)", opacity: 1, offset: 0.7 }, { transform: "none", opacity: 1 }], 520, 2.6, E.out).call(play("sparkle"), 2.85);
+    tl.to(q(".am-lvup-title"), [{ transform: "translateY(18px)", opacity: 0 }, { transform: "none", opacity: 1 }], 500, 2.8)
+      .to(q(".am-lvup-sub"), [{ transform: "translateY(10px)", opacity: 0 }, { transform: "none", opacity: 1 }], 450, 3.0);
+    /* 3. the proof */
+    var ringFill = q(".am-ring-fill", d.ring), ringN = q(".am-ring-n", d.ring), rightN = q(".am-lvup-right", d.card);
+    tl.to(d.card, [{ transform: "translateY(20px)", opacity: 0 }, { transform: "none", opacity: 1 }], 500, 3.3)
+      .to(ringFill, [{ strokeDashoffset: 100 }, { strokeDashoffset: 100 - d.share }], 1000, 3.45, "cubic-bezier(0.45, 0, 0.55, 1)")
+      .call(function () { m.count(ringN, d.share, "%", 1000); m.count(rightN, d.right, "", 850); }, 3.45)
+      .call(function () { ringN.textContent = d.share + "%"; rightN.textContent = String(d.right); }, 4.5, true)
+      .call(play("step", 2), 4.4)
+      .to(d.ring, [{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], 450, 4.4, E.backSoft);
+    var t = 4.6;
+    if (d.flame) { m.ignite(tl, d.flame, 4.1, 0.5); }
+    /* 4. where it leads */
+    if (d.path) {
+      tl.to(q(".am-lvup-head"), [{ transform: "translateY(14px)", opacity: 0 }, { transform: "none", opacity: 1 }], 450, t)
+        .to(d.path, [{ transform: "translateY(14px)", opacity: 0 }, { transform: "none", opacity: 1 }], 450, t + 0.08);
+      var cur = q(".am-lvnode.cur", d.path);
+      tl.to(q(".am-lvnode-fill", cur), [{ transform: "scale(0)" }, { transform: "scale(1)" }], 350, t + 0.45, E.back)
+        .to(q(".am-lvnode-n", cur), [{ opacity: 1 }, { opacity: 0 }], 150, t + 0.45)
+        .to(q(".am-lvnode-tick", cur), [{ opacity: 0 }, { opacity: 1 }], 250, t + 0.6)
+        .call(function () { cur.classList.remove("cur"); cur.classList.add("done"); cur.style.color = "var(--ink-inverse)"; }, t + 0.5, true)
+        .call(function () { if (d.count) d.count.textContent = String(d.cleared); }, t + 0.5, true)
+        .call(play("check"), t + 0.5);
+      if (d.next && !d.basics) {
+        var nn = q(".am-lvnode-next", d.path), conn = q(".am-lvconn-next", d.path);
+        tl.to(conn.firstChild, [{ transform: "scaleX(0)" }, { transform: "scaleX(1)" }], 550, t + 0.8, "cubic-bezier(0.45, 0, 0.55, 1)");
+        if (d.token) {
+          var nodes = d.path.querySelectorAll(".am-lvnode");
+          var x = function (n) { return n.offsetLeft + n.offsetWidth / 2 - d.token.offsetWidth / 2; };
+          var from = x(cur), to = x(nn);
+          d.token.style.transform = "translateX(" + from + "px)";
+          tl.to(d.token, [{ transform: "translateX(" + from + "px)" }, { transform: "translateX(" + to + "px)" }], 600, t + 0.8, "cubic-bezier(0.45, 0, 0.55, 1)")
+            .to(d.token, [{ marginTop: "0px" }, { marginTop: "-6px" }, { marginTop: "0px" }], 380, t + 1.4, E.out);
+        }
+        tl.to(q(".am-lvnode-lock", nn), [{ transform: "none", opacity: 1 }, { transform: "rotate(-14deg)", opacity: 1, offset: 0.3 }, { transform: "rotate(10deg) translateY(-3px)", opacity: 1, offset: 0.6 }, { transform: "scale(0.4) translateY(-8px)", opacity: 0 }], 600, t + 1.25)
+          .call(play("unlock"), t + 1.35)
+          .call(function () { nn.classList.remove("lock"); nn.classList.add("open"); }, t + 1.8, true)
+          .to(nn, [{ transform: "scale(0.8)" }, { transform: "none" }], 450, t + 1.8, E.back)
+          .to(q(".am-lvnode-n", nn), [{ opacity: 0, transform: "scale(0.3)" }, { opacity: 1, transform: "none" }], 400, t + 1.82, E.back)
+          .to(q(".am-lvnode-pulse", nn), [{ transform: "scale(1)", opacity: 0.9 }, { transform: "scale(1.8)", opacity: 0 }], 900, t + 1.85);
+        t += 2.2;
+      } else t += 0.9;
+    }
+    /* 5. the way on */
+    tl.to(q(".am-lvup-next"), [{ transform: "translateY(8px)", opacity: 0 }, { transform: "none", opacity: 1 }], 400, t)
+      .to(d.footer, [{ transform: "translateY(120px)" }, { transform: "none" }], 500, t + 0.2, E.backSoft);
+    return tl;
+  }
+
+  /* ---------- the daily streak ----------
+     After the first session finished on a day: the flame lights, the count
+     rolls on by one, today's day fills in on the week, and any streak or
+     Welcome back badge earned with it is shown. Then back to the summary. */
+  var DAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
+  screens.streak = function (app) {
+    var s = store.get();
+    var view = app.scratch.streak || (app.scratch.streak = { played: false, badges: takeBadges(function (k) { return k.indexOf("streak:") === 0 || k === "welcome"; }) });
+    var days = s.streakDays || 1;
+    var todayIndex = (new Date(store.today() + "T00:00:00").getDay() + 6) % 7;
+    var fl = AM.Flame(132, true);
+    var num = el("span.am-streak-num", { "aria-hidden": "true" }, el("span", null,
+      days > 1 ? el("span", null, String(days - 1)) : null, el("span", null, String(days))));
+    var week = el("div.am-week", { "aria-hidden": "true" }, DAY_LETTERS.map(function (d, i) {
+      var on = s.week && s.week[i] && i !== todayIndex;
+      return el("div.am-day.caption", null, d,
+        el("span.am-dot" + (on ? ".on" : "") + (i === todayIndex ? ".today" : ""), null, el("i"), el("b"),
+          (on || i === todayIndex) ? el("span.am-dot-tick", { style: { position: "relative", color: "var(--ink-inverse)", lineHeight: 0, opacity: on ? 1 : 0 } }, AM.icon("check", 16)) : null));
+    }));
+    var copy = days > 1 ? "Come back tomorrow to make it " + (days + 1) + "." : "Practise again tomorrow to start a streak.";
+    var fresh = newBadgesCard(view.badges);
+    var go = function () {
+      if (view.tl) view.tl.skip();
+      var next = app.scratch.afterStreak || "home";
+      app.scratch.streak = null;
+      app.go(next);
+    };
+    var body = el("div.am-streak", { style: { "--gutter": gutter() + "px", position: "relative" } },
+      el("div.am-streak-glow", { "aria-hidden": "true" }),
+      el("div", { style: { position: "relative", lineHeight: 0 } }, fl),
+      num,
+      el("div.am-streak-label", null, days === 1 ? "day of practice!" : "day streak!"),
+      week,
+      fresh ? el("div", { style: { width: "100%", maxWidth: 420, textAlign: "left" } }, fresh) : null,
+      el("p.body", { style: { color: "var(--ink-600)", margin: "14px 0 0", maxWidth: 300, textWrap: "balance" } }, copy));
+    var footer = el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center", background: "var(--surface-200)" } },
+      el("div", { style: { width: "100%", maxWidth: 520 } }, AM.Button({ label: "Continue", fullWidth: true, cta: true, onClick: go })));
+    return {
+      nav: null, chrome: false, body: body, footer: footer,
+      after: function () {
+        AM.announce(days + (days === 1 ? " day of practice." : " day streak."));
+        var m = window.AbanteMinds && window.AbanteMinds.moments;
+        if (!m) return;
+        var tl = view.tl = new m.Timeline(), E = m.ease, sound = window.AbanteMinds.sound;
+        var play = function (n) { return function () { if (sound) sound.play(n); }; };
+        var dot = week.querySelector(".am-dot.today");
+        tl.to(body.querySelector(".am-streak-glow"), [{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: "none" }], 1200, 0.1);
+        m.ignite(tl, fl, 0.1, 1);
+        tl.call(play("ignite"), 0.15)
+          .to(num, [{ opacity: 0, transform: "translateY(16px)" }, { opacity: 1, transform: "none" }], 450, 0.6);
+        if (days > 1) tl.to(num.firstChild, [{ transform: "translateY(0)" }, { transform: "translateY(-50%)" }], 600, 1.0, E.back).call(play("roll"), 1.0);
+        tl.to(num, [{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], 650, 1.25, E.backSoft)
+          .to(body.querySelector(".am-streak-label"), [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], 450, 1.35)
+          .to(week, [{ opacity: 0, transform: "translateY(20px)" }, { opacity: 1, transform: "none" }], 500, 1.75);
+        if (dot) {
+          tl.to(dot, [{ transform: "scale(1)" }, { transform: "scale(0.88)", offset: 0.25 }, { transform: "scale(1)" }], 640, 2.25, E.backSoft)
+            .to(dot.firstChild, [{ transform: "scale(0)" }, { transform: "scale(1)" }], 400, 2.41, E.back)
+            .to(dot.querySelector(".am-dot-tick"), [{ opacity: 0 }, { opacity: 1 }], 250, 2.5)
+            .to(dot.querySelector("b"), [{ transform: "scale(1)", opacity: 0.9 }, { transform: "scale(2)", opacity: 0 }], 700, 2.43)
+            .call(function () { dot.classList.remove("today"); dot.classList.add("on"); }, 2.45, true)
+            .call(play("check"), 2.43);
+        }
+        var cards = body.querySelectorAll(".am-card");
+        if (cards.length) tl.to(cards[0], [{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], 450, 2.85).call(play("sparkle"), 2.9);
+        tl.to(body.querySelector("p.body"), [{ opacity: 0 }, { opacity: 1 }], 450, 3.1)
+          .to(footer, [{ transform: "translateY(110px)" }, { transform: "none" }], 500, 3.3, E.backSoft);
+        if (view.played || m.reduced()) tl.skip();
+        else body.addEventListener("click", function () { tl.skip(); });
+        view.played = true;
+      }
     };
   };
 
@@ -1415,6 +1857,7 @@
           el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, "Questions you missed before")),
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 } },
           stat(r.attempted, "reviewed"), stat(r.correct, "right first time")),
+        newBadgesCard(r.badges || (r.badges = takeBadges(anyBadge))),
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 10 } },
             sectionLabel("How review works"),
@@ -1446,7 +1889,6 @@
     }
 
     var missed = r.missed.length;
-    var earned = store.badges().filter(function (b) { return b.earned; }).length;
     var levelNote = r.redo ? "Redoing missed questions keeps your streak but does not count towards the level."
       : lv.cleared ? (nextLevel ? "Cleared. Level " + nextLevel.number + ", " + nextLevel.title.toLowerCase() + ", is open." : "Cleared. That was the last level in " + t.label.toLowerCase() + ".")
       : (lv.target - lv.correct) + " more right first time to clear it.";
@@ -1473,6 +1915,8 @@
             AM.ProgressBar({ ratio: lv.correct / lv.target, height: 10, color: "var(--skill-" + t.colorKey + "-bright)", label: "Level progress" }),
             el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, levelNote))),
 
+        newBadgesCard(r.badges || (r.badges = takeBadges(anyBadge))),
+
         missed ? el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
           sectionLabel("Do next"),
           AM.Card({ style: { flexDirection: "row", gap: "var(--space-3)", alignItems: "center", padding: 14, cursor: "pointer" },
@@ -1486,11 +1930,7 @@
             }, icon("retry", 20)),
             el("span.body", { style: { textWrap: "pretty" } },
               "Redo the " + missed + " you missed" + (r.missedTheme ? ", all " + r.missedTheme + " questions." : ".")))
-        ) : null,
-
-        el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
-          sectionLabel("Badges · " + earned + " of 4"),
-          AM.BadgeShelf({ badges: store.badges() }))
+        ) : null
       ], { paddingBottom: 24 }),
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
@@ -1524,6 +1964,7 @@
             t.label + " · " + lv.title + " · " + r.minutes + " minute" + (r.minutes === 1 ? "" : "s"))),
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
           stat(r.attempted, "answered"), stat(r.correct, "right first time"), stat(r.quick, "quick")),
+        newBadgesCard(r.badges || (r.badges = takeBadges(anyBadge))),
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 10 } },
             sectionLabel(lv.title),
@@ -1684,6 +2125,7 @@
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
           stat(r.score + "/" + r.total, "right"), stat(Math.round(100 * r.score / r.total) + "%", "score"),
           stat(r.answers.filter(function (a) { return a && a.given === null; }).length + (r.total - r.answers.length), "not answered")),
+        newBadgesCard(r.badges || (r.badges = takeBadges(anyBadge))),
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 14 } },
             sectionLabel("By topic"),
@@ -1722,7 +2164,6 @@
   screens.profile = function (app) {
     var s = store.get();
     var p = s.profile || { name: "Ligaya Mendoza", school: "Poblacion, Pilar", colorKey: 2 };
-    var earned = store.badges().filter(function (b) { return b.earned; }).length;
     var path = store.path();
     var written = path.topics.filter(function (t) { return t.ready; });
 
@@ -1751,9 +2192,17 @@
           stat(s.streakDays, "days in a row"), stat(s.totalCorrect, "right first time"),
           store.basics().length ? stat(store.basics().reduce(function (n, t) { return n + t.mastered; }, 0), "facts mastered") : null),
 
-        el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
-          sectionLabel("Badges · " + earned + " of 4"),
-          AM.BadgeShelf({ badges: store.badges() })),
+        (function () {
+          var cat = store.catalog(), shown = store.showcase();
+          return el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
+            sectionLabel("Badges · " + cat.earned + " of " + cat.total),
+            AM.Card({ style: { gap: 10 } },
+              shown.length
+                ? el("div", { style: { display: "flex", justifyContent: "space-around", alignItems: "flex-end" } },
+                    shown.map(function (k) { return badgeButton(store.findBadge(k, cat), 64); }))
+                : el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "Every level you clear is a badge. Clear one to earn your first."),
+              AM.Button({ label: "See all badges", variant: "ghost", fullWidth: true, onClick: function () { app.scratch.badgesBack = null; app.go("badges"); } })));
+        })(),
 
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
           sectionLabel("Progress by topic"),
