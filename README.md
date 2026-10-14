@@ -52,7 +52,7 @@ components it imports are reimplemented natively in `app/ui.js`.
 | File | Responsibility |
 | --- | --- |
 | `index.html` | Shell. Loads the design system, then the app |
-| `app/icons.js` | The 22-glyph Phosphor Bold subset from the design system, and a drawn icon for each topic and Basics topic |
+| `app/icons.js` | The 22-glyph Phosphor Bold subset from the design system, and a drawn icon for each topic and Basics topic, in two tones of the topic's colour |
 | `app/ui.js` | The design system components as DOM builders, plus the patterns the system deliberately left out (answer tile, keypad, nav) |
 | `app/badgeart.js` | The badges, drawn: topic hexagons, Basics tokens, special badges |
 | `app/content.js` | The question engine |
@@ -62,7 +62,7 @@ components it imports are reimplemented natively in `app/ui.js`.
 | `app/store.js` | Learner state: progress level by level, Basics facts mastered, the streak |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
-| `app/app.css` | Shell layout, the three width rules, the brighter topic colours, and how the celebrations look at rest |
+| `app/app.css` | Shell layout, the three width rules, the seven topic colours, and how the celebrations look at rest |
 | `motion/motion.js` | Press, fills, screen and question transitions, vibration |
 | `motion/moments.js` | The combo, the level-up and the daily streak: a skippable timeline, confetti, the flame |
 | `motion/sound.js` | Every sound, made on the phone: kulintang gong-chimes |
@@ -123,6 +123,10 @@ Writing a pack: `content/packs/README.md`.
   missed question after seeing its solution, does not count. Clearing a level opens the
   next, and the level-cleared takeover is the only gold screen in the product.
 - The numbers get harder as a level fills, and hardest when reviewing a cleared level.
+- Each topic has its own colour, one of seven, so no two topics side by side on the path or
+  in Basics match; its tile, bars, path and badges all wear it, and its icon is drawn in two
+  tones of it. None of the seven is a colour the app keeps for something else (amber for the
+  main action, gold for rewards, teal and coral for right and wrong).
 - Home counts down to 30 January and shows the share of the blueprint's competencies the
   cleared levels cover.
 - A missed day resets the streak and nothing else.

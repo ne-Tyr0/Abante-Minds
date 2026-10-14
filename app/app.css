@@ -19,6 +19,14 @@
   --skill-2-bright: #13a3b3; --skill-2-deep: #0d7b88; --skill-2-tint: #e1f6f8;
   --skill-3-bright: #e2559f; --skill-3-deep: #b8387c; --skill-3-tint: #ffeaf4;
   --skill-4-bright: #25a356; --skill-4-deep: #1c7f43; --skill-4-tint: #e3f6ea;
+  /* Three more, so the 13 topics on the path cycle through seven and no two
+     side by side match (the owner's choice, October 2026). The design system
+     has no 600 and 100 shades for them, so they are set here. None is a
+     colour the app keeps for something else: amber is the main action, gold
+     a reward, teal and coral right and wrong, brand blue the app itself. */
+  --skill-5-bright: #2f95e0; --skill-5-deep: #1d6fb0; --skill-5-tint: #e3f2fd; --skill-5-600: #17609c; --skill-5-100: #d6e9fa;
+  --skill-6-bright: #b14fd8; --skill-6-deep: #8a34ad; --skill-6-tint: #f6e8fc; --skill-6-600: #7a2d99; --skill-6-100: #f0dcf8;
+  --skill-7-bright: #679f14; --skill-7-deep: #4a7510; --skill-7-tint: #eef6dc; --skill-7-600: #426a0e; --skill-7-100: #e3f0cc;
 }
 
 html, body {

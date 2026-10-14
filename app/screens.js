@@ -452,17 +452,18 @@
      path replaced tiers. */
   function pct(ratio) { return Math.round(ratio * 100); }
 
-  /* The coloured tile a topic carries everywhere: its icon on its skill hue. */
+  /* The tile a topic carries everywhere: its icon in two tones of its own
+     colour, on the pale tint of it. */
   function topicTile(t, size) {
     size = size || 40;
     return el("span", {
       style: {
         flex: "none", width: size, height: size, borderRadius: "var(--radius-sm)",
-        background: t.ready ? "var(--skill-" + t.colorKey + "-bright)" : "var(--surface-300)",
-        color: t.ready ? "var(--ink-inverse)" : "var(--ink-600)",
+        background: t.ready ? "var(--skill-" + t.colorKey + "-tint)" : "var(--surface-300)",
+        color: "var(--ink-600)",
         display: "flex", alignItems: "center", justifyContent: "center"
       }
-    }, icon(t.ready ? t.icon : "lock", Math.round(size / 2)));
+    }, t.ready ? AM.topicIcon(t.icon, Math.round(size * 0.66), t.colorKey) : icon("lock", Math.round(size / 2)));
   }
 
   function levelLabel(next) { return next.topic.label + " · Level " + next.level.number; }
