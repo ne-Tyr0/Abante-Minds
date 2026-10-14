@@ -261,8 +261,75 @@
     } catch (e) { /* a browser that refuses is a browser without haptics */ }
   }
 
+  /* ---------- Press ----------
+     press.css draws a press with :active, which a phone does not always
+     show: iOS Safari applies :active only while the page listens for
+     touches, and a quick tap can lift before the press is drawn. So the
+     press is also a class, am-pressed, put on at the touch and kept at
+     least PRESS_HOLD ms, and lifting a finger plays the soft tap sound.
+
+     Most taps re-render their own screen, which swaps the pressed button
+     for a fresh one at rest and cuts the release short. app.js asks
+     pressCarry() before such a render and calls what it returns after:
+     the button that took the old one's place starts pressed and springs
+     back up. */
+  var PRESS_HOLD = 90, PRESS_CARRY = 700;
+  var pressedEl = null, lastPressed = null, pressedAt = 0, pressedId = null;
+
+  function pressable(target) {
+    var t = target && target.closest ? target.closest(".am-pressable") : null;
+    return t && !t.disabled ? t : null;
+  }
+  function pressIdOf(t) {
+    var all = document.querySelectorAll(".am-pressable");
+    return { index: Array.prototype.indexOf.call(all, t), text: (t.textContent || "").trim() };
+  }
+
+  document.addEventListener("touchstart", function () {}, { passive: true });
+  document.addEventListener("pointerdown", function (e) {
+    if (e.button > 0) return;
+    var t = pressable(e.target);
+    if (!t) return;
+    pressedEl = lastPressed = t;
+    pressedAt = Date.now();
+    pressedId = pressIdOf(t);
+    t.classList.add("am-pressed");
+  }, true);
+  function lift(e) {
+    var t = pressedEl;
+    if (!t) return;
+    pressedEl = null;
+    if (e.type === "pointerup") {
+      var sound = window.AbanteMinds && window.AbanteMinds.sound;
+      if (sound) sound.play("tap");
+    } else lastPressed = null;  /* a scroll took the touch: nothing was tapped */
+    window.setTimeout(function () { t.classList.remove("am-pressed"); }, Math.max(0, PRESS_HOLD - (Date.now() - pressedAt)));
+  }
+  document.addEventListener("pointerup", lift, true);
+  document.addEventListener("pointercancel", lift, true);
+
+  function pressCarry() {
+    var old = lastPressed, id = pressedId;
+    lastPressed = null;
+    if (!old || !id || Date.now() - pressedAt > PRESS_CARRY || reduced()) return null;
+    return function () {
+      if (old.isConnected) return;  /* still on the page: the CSS releases it */
+      var t = document.querySelectorAll(".am-pressable")[id.index];
+      if (!t || t.disabled || !t.animate || (t.textContent || "").trim() !== id.text) return;
+      var cs = getComputedStyle(t);
+      var d = parseFloat(cs.getPropertyValue("--am-depth")) || 5;
+      var edge = cs.getPropertyValue("--am-edge").trim() || "transparent";
+      t.animate([
+        { transform: "translateY(" + d + "px)", boxShadow: "0 0 0 " + edge },
+        { transform: "translateY(-1px)", boxShadow: "0 " + (d + 1) + "px 0 " + edge, offset: 0.55 },
+        { transform: "none", boxShadow: "0 " + d + "px 0 " + edge }
+      ], { duration: 240, easing: "ease-out" });
+    };
+  }
+
   window.AbanteMinds = window.AbanteMinds || {};
   window.AbanteMinds.motion = {
+    pressCarry: pressCarry,
     haptic: haptic,
     hapticsOn: hapticsOn,
     setHaptics: setHaptics,

@@ -126,6 +126,13 @@ Writing a pack: `content/packs/README.md`.
 - Home counts down to 30 January and shows the share of the blueprint's competencies the
   cleared levels cover.
 - A missed day resets the streak and nothing else.
+- A round can be left at any question, from the X in its header or the phone's Back button,
+  and both ask first. What it got right is kept. A level whose round was left can no longer
+  earn a shiny badge, so leaving before a hard question is not a way to stay perfect, and
+  the question says so only when there is still a shiny badge to lose. A practice exam left
+  is not scored. Leaving on the last question, already answered, is finishing.
+- The phone's Back button goes back inside the app, closing an open sheet first; on Home it
+  leaves the app.
 
 ### Celebrations and badges
 
@@ -133,8 +140,8 @@ Writing a pack: `content/packs/README.md`.
   level in Basics. A topic's badges are one hexagon in its colour that improves level by
   level. The rim has a segment per level and lights one more each time; laurels arrive at
   halfway, then a star, a gem, and at the last level a crown and a gold edge. Basics earn round
-  tokens. A badge is shiny when its level was cleared with every first try right. Names come
-  from one ladder, Starter to Master.
+  tokens. A badge is shiny when its level was cleared with every first try right and no round
+  of it left partway. Names come from one ladder, Starter to Master.
 - **Special badges**: streaks of 3, 7, 14 and 30 days, practice exams at 60, 75 and 90 per cent,
   Improver (five missed questions put right in review) and Welcome back (practising again after
   three or more days away). A badge is never taken away.
@@ -151,6 +158,9 @@ Writing a pack: `content/packs/README.md`.
   motion, shows every celebration's end straight away, with no confetti or movement.
 - Sounds are made on the phone with Web Audio in the voice of the kulintang, so there is
   nothing to download. Practice exams have no celebration until their result.
+- **Every press** goes down at the touch, stays down long enough to be seen even on a quick
+  tap, and springs back a pixel past rest, with a soft tap sound. A tap that redraws its own
+  screen (a key, a choice) springs back the button that replaced the one pressed.
 
 ### Basics
 
@@ -324,7 +334,8 @@ strongest and the weakest are named.
 counts as right first time, and how an older saved record is carried over. It also pins
 Basics mastery: right and quick on two days, lost on a miss, and never moving the path; the
 badges (when each is earned, shiny, never taken away, and how progress from before badges is
-counted once); the settings; and the participant code on every logged answer, whose check
+counted once); leaving a round (its answers kept, its level no longer shiny, and what the
+learner is told before leaving); the settings; and the participant code on every logged answer, whose check
 character catches any one character copied wrong.
 
 `tests/validate-packs.js` checks every pack against its schema and the blueprint, then

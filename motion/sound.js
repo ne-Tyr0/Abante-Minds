@@ -126,10 +126,27 @@
     try { SOUNDS[name](arg); } catch (e) { /* a browser that refuses is a quiet browser */ }
   }
 
-  /* The first tap anywhere wakes the audio, so the first sound is not lost. */
-  function wake() { if (enabled()) ctx(); }
-  document.addEventListener("pointerdown", wake, { once: true, capture: true });
-  document.addEventListener("keydown", wake, { once: true, capture: true });
+  /* A phone lets audio start only inside a tap: a finger's pointerup or
+     touchend, a mouse's pointerdown, a key. Each of them wakes the audio,
+     with a silent note so iOS counts it as started, until it is running,
+     so the first sound is not lost. */
+  var WAKERS = ["pointerdown", "pointerup", "touchend", "keydown"];
+  function wake() {
+    if (!enabled()) return;
+    var a = ctx();
+    if (!a) return;
+    if (a.state === "running") {
+      WAKERS.forEach(function (ev) { document.removeEventListener(ev, wake, true); });
+      return;
+    }
+    try {
+      var src = a.createBufferSource();
+      src.buffer = a.createBuffer(1, 1, a.sampleRate);
+      src.connect(a.destination);
+      src.start(0);
+    } catch (e) { /* nothing to wake */ }
+  }
+  WAKERS.forEach(function (ev) { document.addEventListener(ev, wake, true); });
 
   window.AbanteMinds = window.AbanteMinds || {};
   window.AbanteMinds.sound = { play: play, wake: wake, NAMES: Object.keys(SOUNDS) };
