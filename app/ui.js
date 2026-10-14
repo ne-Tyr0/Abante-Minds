@@ -113,7 +113,7 @@
 
   /* ---------- ProfileCard ----------
      The personalised ID-card moment at login, reused on the profile tab. */
-  var SKILL_INK = { 1: "var(--skill-1-600)", 2: "var(--skill-2-600)", 3: "var(--skill-3-600)", 4: "var(--skill-4-600)" };
+  var SKILL_INK = { 1: "var(--skill-1-bright)", 2: "var(--skill-2-bright)", 3: "var(--skill-3-bright)", 4: "var(--skill-4-bright)" };
 
   function ProfileCard(o) {
     o = o || {};
