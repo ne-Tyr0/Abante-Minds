@@ -189,23 +189,170 @@ test("an unknown setting is ignored and a missing one takes its default", () => 
   assert.ok(!("banana" in S.get().settings));
 });
 
+/* ---------- badges ---------- */
+
+const keys = (S) => Object.keys(S.get().badges).sort();
+test("clearing a level awards its badge, once", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  const results = times(9, () => S.recordAnswer("a", "a1", true, true));
+  assert.deepStrictEqual(results.map((r) => r.badge), [null, null, null, null, null, null, null, "lv:a/a1", null]);
+  assert.strictEqual(results[7].shiny, true, "eight out of eight first tries");
+  assert.deepStrictEqual(S.get().badges["lv:a/a1"], { at: "2026-10-10", shiny: true });
+  assert.deepStrictEqual(S.takeRecent(), ["lv:a/a1"]);
+  assert.deepStrictEqual(S.takeRecent(), [], "asking empties the list");
+});
+test("a first try wrong on the way to clearing means no shiny badge", () => {
+  const S = launch();
+  S.recordAnswer("a", "a1", false, true);
+  const last = times(8, () => S.recordAnswer("a", "a1", true, true)).pop();
+  assert.deepStrictEqual([last.badge, last.shiny], ["lv:a/a1", false]);
+  assert.ok(!("shiny" in S.get().badges["lv:a/a1"]));
+});
+test("a facts level's badge comes with its last fact mastered, and stays", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  ["k1", "k2", "k3"].forEach((k) => S.recordFact(k, true, true));
+  onDay("2026-10-11");
+  const got = ["k1", "k2", "k3"].map((k) => S.recordFact(k, true, true).badges);
+  assert.deepStrictEqual(got, [[], [], ["lv:b/f1"]]);
+  assert.strictEqual(S.get().badges["lv:b/f1"].shiny, true, "no fact ever missed");
+  S.recordFact("k1", false, false);
+  assert.strictEqual(S.factState("k1").mastered, false);
+  assert.ok(S.get().badges["lv:b/f1"], "a lost fact does not take the badge");
+});
+test("a missed fact on the way means the facts badge is not shiny", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  S.recordFact("k2", false, false);
+  ["k1", "k2", "k3"].forEach((k) => S.recordFact(k, true, true));
+  onDay("2026-10-11");
+  ["k1", "k2", "k3"].forEach((k) => S.recordFact(k, true, true));
+  assert.deepStrictEqual(S.get().badges["lv:b/f1"], { at: "2026-10-11" });
+});
+test("every level but a review level is a badge, named on one ladder", () => {
+  const S = launch();
+  const cat = S.catalog();
+  assert.deepStrictEqual(cat.topics.map((t) => [t.key, t.levels.map((l) => l.key)]),
+    [["a", ["lv:a/a1", "lv:a/a2"]], ["c", ["lv:c/c1"]], ["b", ["lv:b/f1", "lv:b/p1"]]]);
+  assert.deepStrictEqual([cat.earned, cat.total], [0, 5]);
+  assert.deepStrictEqual(cat.topics[0].levels.map((l) => l.name), ["A Starter", "A Master"]);
+  assert.strictEqual(cat.topics[2].track, "basics");
+  assert.deepStrictEqual(cat.specials.map((s) => s.key),
+    ["streak:3", "streak:7", "streak:14", "streak:30", "exam:60", "exam:75", "exam:90", "improver", "welcome"]);
+});
+test("the ladder spreads across a topic, Starter first and Master last", () => {
+  const S = launch();
+  const ladder = (n) => times(n, (i) => S.tierName(i + 1, n));
+  assert.deepStrictEqual(ladder(2), ["Starter", "Master"]);
+  assert.deepStrictEqual(ladder(3), ["Starter", "Expert", "Master"]);
+  assert.deepStrictEqual(ladder(4), ["Starter", "Builder", "Expert", "Master"]);
+  assert.deepStrictEqual(ladder(5), ["Starter", "Explorer", "Expert", "Champion", "Master"]);
+  assert.deepStrictEqual(ladder(6), ["Starter", "Explorer", "Builder", "Expert", "Champion", "Master"]);
+});
+test("progress made before badges is awarded once, quietly", () => {
+  /* The store rolls the day as it launches, on the real date: a streak
+     last kept today is still running. */
+  const d = new Date(), real = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+  const S = launch({
+    version: 2, streakDays: 7, lastActiveDay: real,
+    levels: { "a/a1": { correct: 8, attempts: 8, cleared: true }, "c/c1": { correct: 8, attempts: 10, cleared: true }, "a/a2": { correct: 5, attempts: 5, cleared: false } },
+    exams: [{ day: "2026-10-01", score: 16, total: 20 }]
+  });
+  onDay("2026-10-10");
+  S.syncBadges();
+  assert.deepStrictEqual(keys(S), ["exam:60", "exam:75", "lv:a/a1", "lv:c/c1", "streak:3", "streak:7"]);
+  const b = S.get().badges;
+  assert.deepStrictEqual(b["lv:a/a1"], { at: "2026-10-10", shiny: true, before: true, seen: true });
+  assert.deepStrictEqual(b["lv:c/c1"], { at: "2026-10-10", before: true, seen: true });
+  assert.deepStrictEqual(S.takeRecent(), [], "nothing to celebrate");
+  assert.strictEqual(S.get().badgesSince, "2026-10-10");
+  assert.ok(JSON.parse(storage[KEY]).badges["lv:a/a1"], "saved at once");
+  const last = times(3, () => S.recordAnswer("a", "a2", true, true)).pop();
+  assert.deepStrictEqual(S.get().badges[last.badge], { at: "2026-10-10", shiny: true }, "a badge earned now is not from before");
+  onDay("2026-10-12");
+  S.syncBadges();
+  assert.strictEqual(S.get().badgesSince, "2026-10-10", "the first count happens once");
+});
+test("streak badges at 3 and 7 days in a row", () => {
+  const S = launch();
+  const on = ["10", "11", "12", "13", "14", "15", "16"].map((d) => { onDay("2026-10-" + d); S.recordAnswer("a", "a1", true, true); return keys(S).filter((k) => k.startsWith("streak")); });
+  assert.deepStrictEqual(on.map((k) => k.length), [0, 0, 1, 1, 1, 1, 2]);
+  assert.deepStrictEqual(on[6], ["streak:3", "streak:7"]);
+  assert.strictEqual(S.get().badges["streak:3"].at, "2026-10-12", "a badge keeps the day it was earned");
+  assert.deepStrictEqual(S.takeRecent().filter((k) => k.startsWith("streak")), ["streak:3", "streak:7"], "each celebrated once");
+});
+test("a practice exam earns its score's badges", () => {
+  const S = launch();
+  S.recordExam({ score: 15, total: 20, seconds: 900, topics: {} });
+  assert.deepStrictEqual(keys(S), ["exam:60", "exam:75"]);
+  S.recordExam({ score: 18, total: 20, seconds: 900, topics: {} });
+  assert.deepStrictEqual(keys(S), ["exam:60", "exam:75", "exam:90"]);
+});
+test("Improver comes with the fifth missed question put right", () => {
+  const S = launch({ version: 2, reviewsFixed: 3, review: {
+    r1: { topic: "a", template: "t", tier: 1, seed: 1, pinnedAt: null, step: 2, due: "2026-10-10", added: 1 },
+    r2: { topic: "a", template: "t", tier: 1, seed: 2, pinnedAt: null, step: 2, due: "2026-10-10", added: 2 } } });
+  onDay("2026-10-10");
+  S.recordReview("r1", true);
+  assert.ok(!S.get().badges.improver, "four is not yet");
+  S.recordReview("r2", true);
+  assert.ok(S.get().badges.improver);
+  assert.strictEqual(S.get().reviewsFixed, 5);
+});
+test("Welcome back after a few days away, once", () => {
+  const S = launch();
+  onDay("2026-10-10"); S.recordAnswer("a", "a1", true, true);
+  onDay("2026-10-12"); S.rollDay(); S.recordAnswer("a", "a1", true, true);
+  assert.ok(!S.get().badges.welcome, "one day missed is not away");
+  onDay("2026-10-15"); S.rollDay(); S.recordAnswer("a", "a1", true, true);
+  assert.deepStrictEqual(S.get().badges.welcome, { at: "2026-10-15" });
+  assert.strictEqual(S.get().welcomeDue, false);
+});
+test("the showcase shows the newest three until the learner picks", () => {
+  const S = launch();
+  onDay("2026-10-10"); times(8, () => S.recordAnswer("a", "a1", true, true));
+  onDay("2026-10-11"); times(8, () => S.recordAnswer("a", "a2", true, true));
+  onDay("2026-10-12"); times(8, () => S.recordAnswer("c", "c1", true, true));
+  S.recordExam({ score: 12, total: 20, seconds: 600, topics: {} });
+  assert.deepStrictEqual(S.showcase(), ["exam:60", "lv:c/c1", "streak:3"], "newest first, the older ones off the end");
+  assert.strictEqual(S.togglePin("streak:30"), false, "an unearned badge cannot be pinned");
+  S.togglePin("lv:a/a1");
+  assert.deepStrictEqual(S.showcase(), ["lv:a/a1"]);
+  S.togglePin("lv:a/a2"); S.togglePin("lv:c/c1"); S.togglePin("exam:60");
+  assert.deepStrictEqual(S.showcase(), ["lv:a/a2", "lv:c/c1", "exam:60"], "a fourth pick drops the oldest");
+  S.togglePin("lv:c/c1");
+  assert.deepStrictEqual(S.showcase(), ["lv:a/a2", "exam:60"]);
+  assert.strictEqual(S.isPinned("exam:60"), true);
+});
+test("a new badge is unseen until its card is opened", () => {
+  const S = launch();
+  times(8, () => S.recordAnswer("a", "a1", true, true));
+  const seen = () => S.findBadge("lv:a/a1").badge.seen;
+  assert.strictEqual(seen(), true, "seen until the store says otherwise");
+  S.get().badges["lv:a/a1"].seen = false;
+  assert.strictEqual(seen(), false);
+  S.markBadgeSeen("lv:a/a1");
+  assert.strictEqual(seen(), true);
+});
+
 /* ---------- Basics facts ---------- */
 
 const quickRight = (S, k) => S.recordFact(k, true, true);
 test("a fact is mastered when right and quick on two different days", () => {
   const S = launch();
   onDay("2026-10-10");
-  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: false, lost: false });
-  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: false, lost: false }, "twice on one day is still one day");
+  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: false, lost: false, badges: [] });
+  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: false, lost: false, badges: [] }, "twice on one day is still one day");
   let f = S.factState("k1");
   assert.deepStrictEqual([f.seen, f.right, f.days, f.mastered, f.quickToday], [2, 2, ["2026-10-10"], false, true]);
   onDay("2026-10-11");
   assert.strictEqual(S.factState("k1").quickToday, false);
-  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: true, lost: false });
+  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: true, lost: false, badges: [] });
   f = S.factState("k1");
   assert.deepStrictEqual([f.days, f.mastered, f.last], [["2026-10-10", "2026-10-11"], true, "2026-10-11"]);
   onDay("2026-10-14");
-  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: false, lost: false }, "mastered once, not again");
+  assert.deepStrictEqual(quickRight(S, "k1"), { mastered: false, lost: false, badges: [] }, "mastered once, not again");
   assert.deepStrictEqual(S.factState("k1").days, ["2026-10-11", "2026-10-14"]);
 });
 test("a slow right answer is practice, not mastery", () => {
@@ -223,10 +370,10 @@ test("a miss sends a fact back, even a mastered one", () => {
   quickRight(S, "k1");
   onDay("2026-10-11");
   quickRight(S, "k1");
-  assert.deepStrictEqual(S.recordFact("k1", false, false), { mastered: false, lost: true });
+  assert.deepStrictEqual(S.recordFact("k1", false, false), { mastered: false, lost: true, badges: [] });
   const f = S.factState("k1");
   assert.deepStrictEqual([f.miss, f.days, f.mastered], [1, [], false]);
-  assert.deepStrictEqual(S.recordFact("k2", false, false), { mastered: false, lost: false });
+  assert.deepStrictEqual(S.recordFact("k2", false, false), { mastered: false, lost: false, badges: [] });
 });
 test("facts keep the streak, count as right first time, and are progress", () => {
   const S = launch();
