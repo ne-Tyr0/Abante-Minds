@@ -482,6 +482,13 @@
     var f = store.factState(key);
     return f.mastered ? "mastered" : f.seen ? "learning" : "fresh";
   }
+  /* The day streak on Home: the flame, lit once there is a day to count,
+     beside the number. Still here; it moves only in a celebration. */
+  function streakBadge(days) {
+    return el("span.am-combo", { role: "img", "aria-label": days + " day" + (days === 1 ? "" : "s") + " in a row", style: { padding: "4px 14px 4px 6px" } },
+      AM.Flame ? AM.Flame(24, days > 0) : icon("streak", 20),
+      el("span.am-combo-num", { "aria-hidden": "true", style: { fontSize: 22 } }, String(days)));
+  }
   function startLabel(next) {
     return (next.level.attempts || next.level.lessonSeen ? "Continue: " : "Start: ") + next.level.title;
   }
@@ -501,7 +508,7 @@
           style: { padding: "24px " + gutter() + "px 0", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-3)" }
         },
           greetingBlock(s, "Back for day " + s.streakDays),
-          desktop ? null : AM.Chip({ icon: "streak", label: String(s.streakDays), large: true })
+          desktop ? null : streakBadge(s.streakDays)
         );
 
     var countdown = AM.Card({ style: { gap: 10 } },

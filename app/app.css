@@ -245,8 +245,9 @@ html, body {
 .am-combo.am-combo-gold { background: var(--celebration-gold-500); border-color: #b98400; box-shadow: 0 3px 0 #b98400; color: var(--ink-900); }
 .am-combo.am-combo-out { opacity: 0.55; }
 .am-combo-num { font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1; }
+/* Beside the chip, not above it, so it never crosses the working above. */
 .am-combo-word {
-  position: absolute; left: 50%; top: 4px; transform: translateX(-50%);
+  position: absolute; left: calc(100% + 10px); top: 50%; transform: translateY(-50%);
   font-family: var(--font-display); font-weight: 800; font-size: 24px; color: var(--action-600);
   white-space: nowrap; pointer-events: none; opacity: 0;
 }
