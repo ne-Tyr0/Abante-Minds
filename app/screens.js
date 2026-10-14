@@ -286,7 +286,7 @@
             el("span", {
               style: {
                 width: 48, height: 48, flex: "none", borderRadius: "var(--radius-md)",
-                background: "var(--skill-2-600)", color: "var(--ink-inverse)",
+                background: "var(--skill-2-bright)", color: "var(--ink-inverse)",
                 display: "flex", alignItems: "center", justifyContent: "center"
               }
             }, icon("profile", 24)),
@@ -384,9 +384,9 @@
         "aria-label": "Colour " + k, "aria-pressed": on ? "true" : "false",
         onClick: function () { draft.colorKey = k; app.render(); },
         style: {
-          "--am-edge": on ? "var(--ink-900)" : "var(--skill-" + k + "-600)",
+          "--am-edge": on ? "var(--ink-900)" : "var(--skill-" + k + "-deep)",
           width: 56, height: 56, borderRadius: "50%",
-          background: on ? "var(--skill-" + k + "-600)" : "var(--skill-" + k + "-100)",
+          background: on ? "var(--skill-" + k + "-bright)" : "var(--skill-" + k + "-tint)",
           display: "block", padding: 0
         }
       }));
@@ -458,8 +458,8 @@
     return el("span", {
       style: {
         flex: "none", width: size, height: size, borderRadius: "var(--radius-sm)",
-        background: t.ready ? "var(--skill-" + t.colorKey + "-100)" : "var(--surface-300)",
-        color: t.ready ? "var(--skill-" + t.colorKey + "-600)" : "var(--ink-600)",
+        background: t.ready ? "var(--skill-" + t.colorKey + "-bright)" : "var(--surface-300)",
+        color: t.ready ? "var(--ink-inverse)" : "var(--ink-600)",
         display: "flex", alignItems: "center", justifyContent: "center"
       }
     }, icon(t.ready ? t.icon : "lock", Math.round(size / 2)));
@@ -520,7 +520,7 @@
             el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
               el("span.label", null, levelLabel(next)),
               el("span.body", { style: { color: "var(--ink-600)" } }, next.level.title))),
-          AM.ProgressBar({ ratio: next.level.correct / next.level.target, height: 8, color: "var(--skill-" + next.topic.colorKey + "-600)", label: "Level progress" }),
+          AM.ProgressBar({ ratio: next.level.correct / next.level.target, height: 8, color: "var(--skill-" + next.topic.colorKey + "-bright)", label: "Level progress" }),
           el("span.caption", { style: { color: "var(--ink-600)" } },
             !next.level.lessonSeen && next.level.hasLesson
               ? "Starts with a short lesson. " + next.level.target + " right first time clears it."
@@ -542,7 +542,7 @@
     var pathCard = (first || AM.device() === "phone") ? null : AM.Card({ style: { padding: "var(--space-6)", gap: 14 } },
       sectionLabel("Your path"),
       AM.TopicBars(written.map(function (t) {
-        return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels", color: "var(--skill-" + t.colorKey + "-600)" };
+        return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels", color: "var(--skill-" + t.colorKey + "-bright)" };
       }), { height: 10 }),
       p.topics.length > written.length
         ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (p.topics.length - written.length) + " more topic" + (p.topics.length - written.length === 1 ? "" : "s") + " coming")
@@ -563,7 +563,7 @@
             topicTile(t, 32),
             el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4 } },
               el("span.label", null, t.label),
-              AM.ProgressBar({ ratio: basicsRatio(t), height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: t.label + " progress" }),
+              AM.ProgressBar({ ratio: basicsRatio(t), height: 6, color: "var(--skill-" + t.colorKey + "-bright)", label: t.label + " progress" }),
               el("span.caption", { style: { color: "var(--ink-600)" } }, basicsCaption(t))));
         })),
       AM.Button({ label: "Practise the basics", variant: "ghost", fullWidth: true, onClick: function () { app.go("basics"); } })) : null;
@@ -667,7 +667,7 @@
           el("span", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" } },
             el("span.label", null, t.label),
             t.key === nextKey ? AM.Chip({ label: "Up next" }) : null),
-          t.ready ? AM.ProgressBar({ ratio: t.total ? t.cleared / t.total : 0, height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: t.label + " levels cleared" }) : null,
+          t.ready ? AM.ProgressBar({ ratio: t.total ? t.cleared / t.total : 0, height: 6, color: "var(--skill-" + t.colorKey + "-bright)", label: t.label + " levels cleared" }) : null,
           el("span.caption", { style: { color: "var(--ink-600)" } }, caption)),
         t.ready ? el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("next", 20)) : null));
     });
@@ -739,13 +739,13 @@
           style: {
             flex: "none", width: 40, height: 40, borderRadius: "50%",
             display: "flex", alignItems: "center", justifyContent: "center",
-            background: lv.cleared ? "var(--skill-" + t.colorKey + "-600)" : lv.unlocked ? "var(--skill-" + t.colorKey + "-100)" : "var(--surface-300)",
-            color: lv.cleared ? "var(--ink-inverse)" : lv.unlocked ? "var(--skill-" + t.colorKey + "-600)" : "var(--ink-600)"
+            background: lv.cleared ? "var(--skill-" + t.colorKey + "-bright)" : lv.unlocked ? "var(--skill-" + t.colorKey + "-tint)" : "var(--surface-300)",
+            color: lv.cleared ? "var(--ink-inverse)" : lv.unlocked ? "var(--skill-" + t.colorKey + "-deep)" : "var(--ink-600)"
           }
         }, icon(glyph, 20)),
         el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 } },
           el("span.label", null, "Level " + lv.number + " · " + lv.title),
-          isCurrent ? AM.ProgressBar({ ratio: lv.correct / lv.target, height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: "Level progress" }) : null,
+          isCurrent ? AM.ProgressBar({ ratio: lv.correct / lv.target, height: 6, color: "var(--skill-" + t.colorKey + "-bright)", label: "Level progress" }) : null,
           el("span.caption", { style: { color: "var(--ink-600)" } }, caption))));
     });
 
@@ -795,7 +795,7 @@
       topicTile(t),
       el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 } },
         el("span.label", null, t.label),
-        AM.ProgressBar({ ratio: ratio, height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: t.label + " progress" }),
+        AM.ProgressBar({ ratio: ratio, height: 6, color: "var(--skill-" + t.colorKey + "-bright)", label: t.label + " progress" }),
         el("span.caption", { style: { color: "var(--ink-600)" } }, caption)),
       el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("next", 20)));
   }
@@ -845,15 +845,15 @@
           style: {
             flex: "none", width: 40, height: 40, borderRadius: "50%",
             display: "flex", alignItems: "center", justifyContent: "center",
-            background: lv.done ? "var(--skill-" + t.colorKey + "-600)" : "var(--skill-" + t.colorKey + "-100)",
-            color: lv.done ? "var(--ink-inverse)" : "var(--skill-" + t.colorKey + "-600)"
+            background: lv.done ? "var(--skill-" + t.colorKey + "-bright)" : "var(--skill-" + t.colorKey + "-tint)",
+            color: lv.done ? "var(--ink-inverse)" : "var(--skill-" + t.colorKey + "-deep)"
           }
         }, icon(glyph, 20)),
         el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 } },
           el("span", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" } },
             el("span.label", null, lv.title),
             isNext ? AM.Chip({ label: "Up next" }) : null),
-          ratio === null ? null : AM.ProgressBar({ ratio: ratio, height: 6, color: "var(--skill-" + t.colorKey + "-600)", label: lv.title + " progress" }),
+          ratio === null ? null : AM.ProgressBar({ ratio: ratio, height: 6, color: "var(--skill-" + t.colorKey + "-bright)", label: lv.title + " progress" }),
           el("span.caption", { style: { color: "var(--ink-600)" } }, caption))));
     });
 
@@ -911,7 +911,7 @@
       dots.appendChild(el("span", {
         style: {
           width: i === l.page ? 20 : 8, height: 8, borderRadius: "var(--radius-pill)",
-          background: i <= l.page ? "var(--skill-" + t.colorKey + "-600)" : "var(--surface-300)"
+          background: i <= l.page ? "var(--skill-" + t.colorKey + "-bright)" : "var(--surface-300)"
         }
       }));
     });
@@ -1470,7 +1470,7 @@
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 10 } },
             sectionLabel("Level " + lv.number + " · " + lv.title),
-            AM.ProgressBar({ ratio: lv.correct / lv.target, height: 10, color: "var(--skill-" + t.colorKey + "-600)", label: "Level progress" }),
+            AM.ProgressBar({ ratio: lv.correct / lv.target, height: 10, color: "var(--skill-" + t.colorKey + "-bright)", label: "Level progress" }),
             el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, levelNote))),
 
         missed ? el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
@@ -1480,7 +1480,7 @@
             el("span", {
               style: {
                 width: 36, height: 36, flex: "none", borderRadius: "var(--radius-sm)",
-                background: "var(--skill-" + r.colorKey + "-100)", color: "var(--skill-" + r.colorKey + "-600)",
+                background: "var(--skill-" + r.colorKey + "-tint)", color: "var(--skill-" + r.colorKey + "-deep)",
                 display: "flex", alignItems: "center", justifyContent: "center"
               }
             }, icon("retry", 20)),
@@ -1527,7 +1527,7 @@
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 10 } },
             sectionLabel(lv.title),
-            AM.ProgressBar({ ratio: lv.facts ? lv.mastered / lv.facts : 0, height: 10, color: "var(--skill-" + t.colorKey + "-600)", label: "Facts mastered" }),
+            AM.ProgressBar({ ratio: lv.facts ? lv.mastered / lv.facts : 0, height: 10, color: "var(--skill-" + t.colorKey + "-bright)", label: "Facts mastered" }),
             el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, note))),
         grid ? el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 12 } },
@@ -1688,7 +1688,7 @@
           AM.Card({ style: { gap: 14 } },
             sectionLabel("By topic"),
             AM.TopicBars(r.byTopic.map(function (t) {
-              return { label: t.label, correct: t.right, total: t.asked, caption: t.right + " of " + t.asked, color: "var(--skill-" + t.colorKey + "-600)" };
+              return { label: t.label, correct: t.right, total: t.asked, caption: t.right + " of " + t.asked, color: "var(--skill-" + t.colorKey + "-bright)" };
             }), { height: 8 }))),
         el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
           sectionLabel("Every question"), review)
@@ -1758,7 +1758,7 @@
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
           sectionLabel("Progress by topic"),
           AM.TopicBars(written.map(function (t) {
-            return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels", color: "var(--skill-" + t.colorKey + "-600)" };
+            return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels", color: "var(--skill-" + t.colorKey + "-bright)" };
           })),
           path.topics.length > written.length
             ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (path.topics.length - written.length) + " more topic" + (path.topics.length - written.length === 1 ? "" : "s") + " coming")

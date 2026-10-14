@@ -1,7 +1,12 @@
-/* Abante Minds — the 22-icon Phosphor Bold subset, inlined.
-   Lifted verbatim from the design system bundle (components/actions/Icon.jsx).
-   The source SVGs hardcode fill="#16202c"; the fill is stripped here so every
-   glyph paints with currentColor. Nothing outside this list is an app icon —
+/* Abante Minds — the 22-icon Phosphor Bold subset, inlined, and the topic
+   icons drawn for the app.
+   The subset is lifted verbatim from the design system bundle
+   (components/actions/Icon.jsx). The source SVGs hardcode fill="#16202c"; the
+   fill is stripped here so every glyph paints with currentColor.
+   The topic icons (topic-*) are one per topic and Basics topic, so no two
+   share a glyph and none borrows a control's. They are drawn on the same
+   256 grid with a 22-unit round stroke, the weight of Phosphor Bold, and
+   paint with currentColor too. Nothing outside this list is an app icon:
    when a state has no glyph (offline), the design says state it in words. */
 (function () {
   "use strict";
@@ -28,7 +33,27 @@
     "streak": '<path d="M177.62 159.6a52 52 0 0 1-34 34a12.2 12.2 0 0 1-3.6.55a12 12 0 0 1-3.6-23.45a28 28 0 0 0 18.32-18.32a12 12 0 0 1 22.9 7.2ZM220 144a92 92 0 0 1-184 0c0-28.81 11.27-58.18 33.48-87.28a12 12 0 0 1 17.9-1.33l19.69 19.11L127 19.89a12 12 0 0 1 18.94-5.12C168.2 33.25 220 82.85 220 144m-24 0c0-41.71-30.61-78.39-52.52-99.29l-20.21 55.4a12 12 0 0 1-19.63 4.5L80.71 82.36C67 103.38 60 124.06 60 144a68 68 0 0 0 136 0"></path>',
     "triangle": '<path d="M240.26 186.1L152.81 34.23a28.74 28.74 0 0 0-49.62 0L15.74 186.1a27.45 27.45 0 0 0 0 27.71A28.31 28.31 0 0 0 40.55 228h174.9a28.31 28.31 0 0 0 24.79-14.19a27.45 27.45 0 0 0 .02-27.71m-20.8 15.7a4.46 4.46 0 0 1-4 2.2H40.55a4.46 4.46 0 0 1-4-2.2a3.56 3.56 0 0 1 0-3.73L124 46.2a4.75 4.75 0 0 1 8 0l87.45 151.87a3.56 3.56 0 0 1 .01 3.73"></path>',
     "trophy": '<path d="M232 60h-20V48a12 12 0 0 0-12-12H56a12 12 0 0 0-12 12v12H24A20 20 0 0 0 4 80v16a44.05 44.05 0 0 0 44 44h.77A84.18 84.18 0 0 0 116 195.15V212H96a12 12 0 0 0 0 24h64a12 12 0 0 0 0-24h-20v-16.89c30.94-4.51 56.53-26.2 67-55.11h1a44.05 44.05 0 0 0 44-44V80a20 20 0 0 0-20-20M28 96V84h16v28c0 1.21 0 2.41.09 3.61A20 20 0 0 1 28 96m160 15.1c0 33.33-26.71 60.65-59.54 60.9A60 60 0 0 1 68 112V60h120ZM228 96a20 20 0 0 1-16.12 19.62c.08-1.5.12-3 .12-4.52V84h16Z"></path>',
-    "x": '<path d="M208.49 191.51a12 12 0 0 1-17 17L128 145l-63.51 63.49a12 12 0 0 1-17-17L111 128L47.51 64.49a12 12 0 0 1 17-17L128 111l63.51-63.52a12 12 0 0 1 17 17L145 128Z"></path>'
+    "x": '<path d="M208.49 191.51a12 12 0 0 1-17 17L128 145l-63.51 63.49a12 12 0 0 1-17-17L111 128L47.51 64.49a12 12 0 0 1 17-17L128 111l63.51-63.52a12 12 0 0 1 17 17L145 128Z"></path>',
+    "topic-decimals": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="68" cy="128" rx="38" ry="66"/><circle cx="128" cy="184" r="14" fill="currentColor" stroke="none"/><path d="M220 62H176L168 120C180 112 198 110 208 118C228 132 226 176 206 190C192 200 172 198 160 188"/></g>',
+    "topic-fractions": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M120 140V56A84 84 0 1 0 204 140Z"/><path d="M144 116V32A84 84 0 0 1 228 116Z" fill="currentColor" fill-opacity=".35"/></g>',
+    "topic-order": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M76 36C36 80 36 176 76 220M180 36C220 80 220 176 180 220M100 100L156 156M156 100L100 156"/></g>',
+    "topic-factors": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><circle cx="128" cy="60" r="28"/><circle cx="64" cy="192" r="28"/><circle cx="192" cy="192" r="28"/><path d="M114 84L78 168M142 84L178 168"/></g>',
+    "topic-ratio": '<g fill="currentColor" stroke="none"><circle cx="44" cy="100" r="18"/><circle cx="44" cy="156" r="18"/><circle cx="128" cy="104" r="12"/><circle cx="128" cy="152" r="12"/><circle cx="212" cy="72" r="18"/><circle cx="212" cy="128" r="18"/><circle cx="212" cy="184" r="18"/></g>',
+    "topic-percent": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M200 56L56 200"/><circle cx="76" cy="76" r="28"/><circle cx="180" cy="180" r="28"/></g>',
+    "topic-time": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><circle cx="128" cy="128" r="96"/><path d="M128 72V128H176"/></g>',
+    "topic-area": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><rect x="40" y="40" width="176" height="176" rx="12"/><rect x="40" y="128" width="88" height="88" fill="currentColor" fill-opacity=".35" stroke="none"/><path d="M128 52V204M52 128H204" stroke-width="12"/></g>',
+    "topic-solids": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M128 28L216 78V178L128 228L40 178V78ZM40 78L128 128L216 78M128 128V228"/></g>',
+    "topic-circles": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><circle cx="128" cy="128" r="96"/><circle cx="128" cy="128" r="14" fill="currentColor" stroke="none"/><path d="M128 128H220"/></g>',
+    "topic-data": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M28 220H228"/><rect x="48" y="132" width="40" height="88" rx="6"/><rect x="108" y="56" width="40" height="164" rx="6"/><rect x="168" y="100" width="40" height="120" rx="6"/></g>',
+    "topic-probability": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><rect x="40" y="40" width="176" height="176" rx="36"/><g fill="currentColor" stroke="none"><circle cx="86" cy="86" r="16"/><circle cx="128" cy="128" r="16"/><circle cx="170" cy="170" r="16"/></g></g>',
+    "topic-transform": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M128 24V232" stroke-dasharray="18 22"/><path d="M100 64L36 196H100Z"/><path d="M156 64L220 196H156Z" fill="currentColor" fill-opacity=".35"/></g>',
+    "topic-addsub": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M128 36V124M84 80H172M84 188H172"/></g>',
+    "topic-times": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><rect x="36" y="36" width="184" height="184" rx="28"/><path d="M92 92L164 164M164 92L92 164"/></g>',
+    "topic-mental": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M88 228V188C56 170 40 140 42 108C46 62 86 30 132 30C182 30 216 68 214 114L230 150H206V188C206 198 198 206 188 206H156V228"/><path d="M128 84V132M104 108H152"/></g>',
+    "topic-written": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M44 32H156V224H44Z"/><path d="M72 84H128M72 124H128M72 164H104"/><path d="M212 92L162 178L154 214L182 188L232 104Z"/></g>',
+    "topic-missing": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><rect x="40" y="40" width="176" height="176" rx="28" stroke-dasharray="30 22"/><path d="M98 102C98 80 112 68 128 68C146 68 158 80 158 98C158 122 128 122 128 150"/><circle cx="128" cy="186" r="14" fill="currentColor" stroke="none"/></g>',
+    "topic-equivalents": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><path d="M212 44L44 212"/><circle cx="76" cy="76" r="40"/><path d="M76 36A40 40 0 0 1 76 116Z" fill="currentColor" stroke="none"/><circle cx="184" cy="184" r="28"/></g>',
+    "topic-powers": '<g fill="none" stroke="currentColor" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"><rect x="20" y="104" width="84" height="84" rx="8"/><path d="M184 72L232 100V156L184 184L136 156V100ZM136 100L184 128L232 100M184 128V184"/></g>'
   };
 
   var SVG_NS = "http://www.w3.org/2000/svg";
@@ -60,5 +85,8 @@
 
   window.AM = window.AM || {};
   window.AM.ICON_NAMES = Object.keys(ICON_PATHS);
+  /* A glyph's inner markup, for drawings that place it inside their own SVG
+     (the badges). */
+  window.AM.iconMarkup = function (name) { return ICON_PATHS[name] || ""; };
   window.AM.icon = icon;
 })();

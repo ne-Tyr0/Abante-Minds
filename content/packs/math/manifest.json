@@ -1,6 +1,6 @@
 {
   "subtest": "math",
-  "version": "1.36.0",
+  "version": "1.37.0",
   "examDate": "2027-01-30",
   "blueprintCompetencies": 94,
   "fallbackFeedback": "Start from the first step below.",
@@ -10,27 +10,27 @@
     "fraction-part-not-proper": "The fraction part should be less than 1. Move the whole ones into the whole number."
   },
   "topics": [
-    { "key": "decimals", "label": "Decimals", "icon": "calculator", "colorKey": 1, "file": "decimals.json", "weight": 0.13 },
-    { "key": "fractions", "label": "Fractions", "icon": "scales", "colorKey": 2, "file": "fractions.json", "weight": 0.11 },
-    { "key": "gemdas", "label": "Order of operations", "icon": "add", "colorKey": 3, "file": "gemdas.json", "weight": 0.09 },
-    { "key": "factors", "label": "Factors and primes", "icon": "star", "colorKey": 4, "file": "factors.json", "weight": 0.04 },
-    { "key": "ratio", "label": "Ratio and proportion", "icon": "coins", "colorKey": 1, "file": "ratio.json", "weight": 0.08 },
-    { "key": "percent", "label": "Percentages", "icon": "percent", "colorKey": 2, "file": "percent.json", "weight": 0.05 },
-    { "key": "time", "label": "Time", "icon": "clock", "colorKey": 3, "file": "time.json", "weight": 0.04 },
-    { "key": "area", "label": "Perimeter and area", "icon": "ruler", "colorKey": 4, "file": "area.json", "weight": 0.09 },
-    { "key": "solids", "label": "Solids and volume", "icon": "triangle", "colorKey": 1, "file": "solids.json", "weight": 0.09 },
-    { "key": "circles", "label": "Circles", "icon": "retry", "colorKey": 2, "file": "circles.json", "weight": 0.08 },
-    { "key": "data", "label": "Graphs and data", "icon": "level-up", "colorKey": 3, "file": "data.json", "weight": 0.11 },
-    { "key": "probability", "label": "Probability", "icon": "hint", "colorKey": 4, "file": "probability.json", "weight": 0.04 },
-    { "key": "transform", "label": "Transformations", "icon": "next", "colorKey": 1, "file": "transform.json", "weight": 0.05 }
+    { "key": "decimals", "label": "Decimals", "icon": "topic-decimals", "colorKey": 1, "file": "decimals.json", "weight": 0.13 },
+    { "key": "fractions", "label": "Fractions", "icon": "topic-fractions", "colorKey": 2, "file": "fractions.json", "weight": 0.11 },
+    { "key": "gemdas", "label": "Order of operations", "icon": "topic-order", "colorKey": 3, "file": "gemdas.json", "weight": 0.09 },
+    { "key": "factors", "label": "Factors and primes", "icon": "topic-factors", "colorKey": 4, "file": "factors.json", "weight": 0.04 },
+    { "key": "ratio", "label": "Ratio and proportion", "icon": "topic-ratio", "colorKey": 1, "file": "ratio.json", "weight": 0.08 },
+    { "key": "percent", "label": "Percentages", "icon": "topic-percent", "colorKey": 2, "file": "percent.json", "weight": 0.05 },
+    { "key": "time", "label": "Time", "icon": "topic-time", "colorKey": 3, "file": "time.json", "weight": 0.04 },
+    { "key": "area", "label": "Perimeter and area", "icon": "topic-area", "colorKey": 4, "file": "area.json", "weight": 0.09 },
+    { "key": "solids", "label": "Solids and volume", "icon": "topic-solids", "colorKey": 1, "file": "solids.json", "weight": 0.09 },
+    { "key": "circles", "label": "Circles", "icon": "topic-circles", "colorKey": 2, "file": "circles.json", "weight": 0.08 },
+    { "key": "data", "label": "Graphs and data", "icon": "topic-data", "colorKey": 3, "file": "data.json", "weight": 0.11 },
+    { "key": "probability", "label": "Probability", "icon": "topic-probability", "colorKey": 4, "file": "probability.json", "weight": 0.04 },
+    { "key": "transform", "label": "Transformations", "icon": "topic-transform", "colorKey": 1, "file": "transform.json", "weight": 0.05 }
   ],
   "basics": [
-    { "key": "add-subtract", "label": "Add and subtract", "icon": "add", "colorKey": 1, "file": "add-subtract.json" },
-    { "key": "times", "label": "Times tables", "icon": "streak", "colorKey": 3, "file": "times.json" },
-    { "key": "mental", "label": "Mental math", "icon": "hint", "colorKey": 4, "file": "mental.json" },
-    { "key": "written", "label": "Pen and paper", "icon": "lesson", "colorKey": 2, "file": "written.json" },
-    { "key": "missing", "label": "Missing numbers", "icon": "scales", "colorKey": 3, "file": "missing.json" },
-    { "key": "equivalents", "label": "Fractions and per cents", "icon": "percent", "colorKey": 2, "file": "equivalents.json" },
-    { "key": "powers", "label": "Squares and cubes", "icon": "star", "colorKey": 1, "file": "powers.json" }
+    { "key": "add-subtract", "label": "Add and subtract", "icon": "topic-addsub", "colorKey": 1, "file": "add-subtract.json" },
+    { "key": "times", "label": "Times tables", "icon": "topic-times", "colorKey": 3, "file": "times.json" },
+    { "key": "mental", "label": "Mental math", "icon": "topic-mental", "colorKey": 4, "file": "mental.json" },
+    { "key": "written", "label": "Pen and paper", "icon": "topic-written", "colorKey": 2, "file": "written.json" },
+    { "key": "missing", "label": "Missing numbers", "icon": "topic-missing", "colorKey": 3, "file": "missing.json" },
+    { "key": "equivalents", "label": "Fractions and per cents", "icon": "topic-equivalents", "colorKey": 2, "file": "equivalents.json" },
+    { "key": "powers", "label": "Squares and cubes", "icon": "topic-powers", "colorKey": 1, "file": "powers.json" }
   ]
 }

@@ -6,6 +6,21 @@
 
 *, *::before, *::after { box-sizing: border-box; }
 
+/* ---------- the topic colours, brighter ----------
+   The design system's four topic hues stay as they are for text, edges and
+   ledges (--skill-N-600, --skill-N-100). These are the bright fills beside
+   them: a tile, a bar, a cleared level, a badge. Each is the brightest shade
+   that keeps a white icon on it at 3:1 or better, with a deep shade for its
+   ledge and a tint for light backgrounds. The fourth hue goes green rather
+   than brighter ochre, which would vanish on the gold celebration and sit
+   too close to the amber of the primary button. */
+:root {
+  --skill-1-bright: #7b6cf6; --skill-1-deep: #5546d6; --skill-1-tint: #efedff;
+  --skill-2-bright: #13a3b3; --skill-2-deep: #0d7b88; --skill-2-tint: #e1f6f8;
+  --skill-3-bright: #e2559f; --skill-3-deep: #b8387c; --skill-3-tint: #ffeaf4;
+  --skill-4-bright: #25a356; --skill-4-deep: #1c7f43; --skill-4-tint: #e3f6ea;
+}
+
 html, body {
   margin: 0;
   height: 100%;
