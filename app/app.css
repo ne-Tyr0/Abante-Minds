@@ -284,7 +284,7 @@ html, body {
 .am-lvup-facts { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .am-lvup-fact { display: flex; align-items: center; gap: 6px; color: var(--ink-600); }
 .am-lvup-fact b { font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1; color: var(--ink-900); font-variant-numeric: tabular-nums; }
-.am-lvup-tip { color: var(--brand-blue-600); }
+.am-lvup-tip { color: var(--brand-blue-600); text-wrap: balance; }
 .am-lvup-head { position: relative; width: 100%; max-width: 420px; display: flex; justify-content: space-between; margin-top: 16px; }
 .am-lvpath-wrap { position: relative; width: 100%; max-width: 420px; padding-top: 38px; }
 .am-lvpath { display: flex; align-items: center; }
