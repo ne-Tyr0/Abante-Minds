@@ -28,9 +28,9 @@ SCREENS = ["home", "topic", "practice", "hint", "correct", "wrong", "levelup", "
 # against the current layout: if one of these screens changes, re-check its box
 # against the full capture before rebuilding.
 DETAILS = {
-    "detail_hint": ("hint", (0, 295, 780, 715)),        # the three hints
-    "detail_correct": ("correct", (0, 260, 780, 600)),  # verdict and working
-    "detail_levelup": ("levelup", (0, 490, 780, 1180)), # the celebration
+    "detail_hint": ("hint", (0, 236, 780, 664)),        # the three hints
+    "detail_correct": ("correct", (0, 204, 780, 540)),  # verdict and working
+    "detail_levelup": ("levelup", (0, 40, 780, 764)),   # the badge and what earned it
 }
 
 CHROME_ARGS = ["--headless=new", "--disable-gpu", "--hide-scrollbars",
