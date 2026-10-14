@@ -37,7 +37,9 @@ The close-up boxes in `capture.py` and the page layout in `build.py` were tuned 
 current screens. When a screen's layout changes, check both.
 
 The harness takes `&w=360&h=640` to render a smaller phone; it defaults to 390x844, which is
-what `capture.py` uses. Most of its screens are not in the PDF; they are there for reviewing
+what `capture.py` uses. The practice exam draws its paper from the clock, so the harness fixes
+the paper (`&seed=` picks another) and the result looks the same every time it is taken. The
+level-up is shown at the end of the moment, as a tap would leave it. Most of its screens are not in the PDF; they are there for reviewing
 a screen by eye, such as the install offer (`home-install`, `profile-install`,
 `install-steps`), each kind of answer box, and each kind of picture (`data-bar`, `area-grid`,
 `solids-cubes`, `solids-pick`, `time-map`, `circles-part`, `transform-pick-flip` and more).

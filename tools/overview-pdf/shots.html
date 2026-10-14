@@ -227,7 +227,8 @@ function run() {
       case "levelup":
         AM.app.startLevel("decimals", "add-and-subtract");
         var lv = AM.store.get().levels["decimals/add-and-subtract"];
-        lv.correct = 8; lv.cleared = true;
+        /* Eight right in ten first tries: cleared, but not shiny, as most are. */
+        lv.correct = 8; lv.attempts = 10; lv.cleared = true;
         AM.store.set({ levels: AM.store.get().levels });
         AM.store.syncBadges();  /* the level's badge, as clearing it would give */
         AM.app.session.bestRun = 5;
@@ -455,7 +456,14 @@ function run() {
         typeIn("1");
         break;
       case "exam-result":
-        AM.app.startExam();
+        /* The paper is drawn from the clock, so a fixed one (or &seed=) keeps
+           the picture the same each time it is taken. */
+        var realNow = w.Date.now, paper = Number(params.get("seed")) || 7;
+        w.Date.now = function () { return paper; };  /* the app's own clock, in its frame */
+        try { AM.app.startExam(); } finally { w.Date.now = realNow; }
+        AM.app.session.exam.endsAt = Date.now() + 30 * 60000;
+        AM.app.session.startedAt = Date.now() - (24 * 60 + 35) * 1000;  /* as if it took 24 minutes */
+        AM.app.session.shownAt = Date.now();
         for (var ei = 0; ei < 20; ei++) {
           var eq = AM.app.session.questions[AM.app.session.index];
           /* Most right, a few wrong, the boxed answers skipped: a believable paper. */

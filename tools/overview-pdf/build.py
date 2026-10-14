@@ -54,6 +54,9 @@ for t in MANIFEST["topics"]:
                    "types": len(f["templates"]), "mistakes": sum(len(x["distractors"]) for x in f["templates"]),
                    "competencies": {x["competency"] for x in f["templates"]}})
 BASICS = [t["label"] for t in MANIFEST.get("basics", [])]
+# Every level is a badge, on the path and in Basics; review levels are not.
+BADGES = sum(len([lv for lv in load(t["file"])["levels"] if lv.get("kind") != "review"])
+             for t in MANIFEST["topics"] + MANIFEST.get("basics", []))
 TYPES = sum(t["types"] for t in TOPICS)
 MISTAKES = sum(t["mistakes"] for t in TOPICS)
 SERVED = set().union(*(t["competencies"] for t in TOPICS))
@@ -214,8 +217,9 @@ p2 = f"""
       Each topic is a path of short levels, and each level opens with a lesson: a few cards and
       a worked example.</p>
 
-      <p>A practice round is ten questions. Eight right on the first try clears the level and
-      opens the next. The numbers change every time, so there are no answers to memorise.</p>
+      <p>A practice round is ten questions. Eight right on the first try clears the level, earns
+      its badge and opens the next. The numbers change every time, so there are no answers to
+      memorise.</p>
 
       <h3>Basics, beside the path</h3>
       <p>The facts and methods every topic leans on, in {len(BASICS)} topics of their own:
@@ -304,11 +308,19 @@ p4 = f"""
         such as drawing with compasses. The weights are an estimate, and the exam may reach
         beyond Grade 6.
       </div>
+
+      <div class="card" style="margin-top:4mm">
+        <h3>Badges for progress, never for rank</h3>
+        <p style="margin:0;font-size:9pt">Every level is a badge, {BADGES} in all. A topic's badge
+        grows level by level, and is shiny when every first try was right. Others mark a streak
+        of days, a practice exam score, five missed questions put right, and a return after time
+        away. There is no leaderboard, and a badge is never taken away.</p>
+      </div>
     </div>
     <div style="width:56mm;flex:none">
       {phone("topic", "A topic's path: each level opens with a lesson.")}
       <div style="height:5mm"></div>
-      {detail("detail_levelup", "Clearing a level opens the next.")}
+      {detail("detail_levelup", "<b>Level cleared.</b> Each level is a badge, and the ring shows the share right first time.")}
     </div>
   </div>
 """
@@ -332,13 +344,16 @@ p5 = f"""
         than page-by-page decisions.</p>
         <table>
           <tr><td class="k">Colour</td><td>One amber, used for the main action and nothing else.
-            Each topic wears one of four hues. Gold appears only in a celebration.</td></tr>
+            Each topic wears one of four hues, in a brighter shade for fills. Gold is kept for
+            rewards.</td></tr>
           <tr><td class="k">Feedback</td><td>Teal and coral rather than green and red, always
             with a symbol beside them.</td></tr>
           <tr><td class="k">Touch</td><td>Every control sits on a visible shelf and presses down
             when tapped. Nothing is smaller than 48&nbsp;pixels.</td></tr>
           <tr><td class="k">Type</td><td>Lexend for reading, chosen for legibility. A rounded
             display face appears only in a celebration.</td></tr>
+          <tr><td class="k">Motion</td><td>Celebrations are short, and a tap skips to the end.
+            Sound, vibration and calm animations each have a switch in Profile.</td></tr>
         </table>
       </div>
     </div>
@@ -395,7 +410,7 @@ p6 = f"""
     <div class="rule" style="margin-bottom:3mm"></div>
     <div style="display:flex;justify-content:space-between;align-items:flex-end">
       <div><small class="muted">Status, October 2026: all {len(TOPICS)} topics, Basics, the
-      practice exam and review of missed questions are built and work offline. Moving progress
+      practice exam, review of missed questions and the badges are built and work offline. Moving progress
       to a new phone, sharing answers with a researcher, and the other three subtests are not
       yet built.</small></div>
       <img src="{MARK}" style="width:13mm;height:13mm;object-fit:contain;opacity:.9">
@@ -415,7 +430,7 @@ html = f"""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
 src = os.path.join(HERE, "overview.html")
 io.open(src, "w", encoding="utf-8").write(html)
 print(f"html: {len(html)/1024:.0f} KB -> {src}")
-print(f"facts: {len(TOPICS)} topics, {TYPES} kinds of question, {MISTAKES} named mistakes, "
+print(f"facts: {len(TOPICS)} topics, {TYPES} kinds of question, {MISTAKES} named mistakes, {BADGES} level badges, "
       f"{REACHED} of {REACHABLE} reachable competencies, {SIZE:.2f} MB")
 
 out = os.path.abspath(ARGS[0]) if ARGS else os.path.join(HERE, "Abante-Minds-overview.pdf")
