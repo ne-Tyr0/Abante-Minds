@@ -188,16 +188,10 @@
 
   /* ---------- SkillCard ----------
      One colour-coded tile in the topic picker. Hue is topic identity only. */
-  var SKILL = {
-    1: { face: "var(--skill-1-100)", edge: "var(--skill-1-600)" },
-    2: { face: "var(--skill-2-100)", edge: "var(--skill-2-600)" },
-    3: { face: "var(--skill-3-100)", edge: "var(--skill-3-600)" },
-    4: { face: "var(--skill-4-100)", edge: "var(--skill-4-600)" }
-  };
-
   function SkillCard(o) {
     o = o || {};
-    var c = SKILL[o.colorKey] || SKILL[1];
+    var k = o.colorKey >= 1 && o.colorKey <= 7 ? o.colorKey : 1;
+    var c = { face: "var(--skill-" + k + "-100)", edge: "var(--skill-" + k + "-600)" };
     var style = {
       "--am-depth": "var(--press-depth-lg)",
       "--am-edge": o.locked ? "var(--surface-300)" : c.edge,
