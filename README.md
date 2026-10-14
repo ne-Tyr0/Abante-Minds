@@ -52,8 +52,9 @@ components it imports are reimplemented natively in `app/ui.js`.
 | File | Responsibility |
 | --- | --- |
 | `index.html` | Shell. Loads the design system, then the app |
-| `app/icons.js` | The 22-glyph Phosphor Bold subset from the design system |
+| `app/icons.js` | The 22-glyph Phosphor Bold subset from the design system, and a drawn icon for each topic and Basics topic |
 | `app/ui.js` | The design system components as DOM builders, plus the patterns the system deliberately left out (answer tile, keypad, nav) |
+| `app/badgeart.js` | The badges, drawn: topic hexagons, Basics tokens, special badges |
 | `app/content.js` | The question engine |
 | `app/entry.js` | What each keypad key does to the answer boxes |
 | `app/facts.js` | Which facts a Basics round asks, and when a missed one comes back |
@@ -61,7 +62,10 @@ components it imports are reimplemented natively in `app/ui.js`.
 | `app/store.js` | Learner state: progress level by level, Basics facts mastered, the streak |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
-| `app/app.css` | Shell layout and the three width rules |
+| `app/app.css` | Shell layout, the three width rules, the brighter topic colours, and how the celebrations look at rest |
+| `motion/motion.js` | Press, fills, screen and question transitions, vibration |
+| `motion/moments.js` | The combo, the level-up and the daily streak: a skippable timeline, confetti, the flame |
+| `motion/sound.js` | Every sound, made on the phone: kulintang gong-chimes |
 | `sw.js`, `manifest.webmanifest` | Install to home screen, and a full session with no signal |
 
 ### Screens to routes
@@ -91,7 +95,8 @@ cleared level rather than a tier, and frame 15, the demotion card, is gone with 
 Routes not in the document: `topic` (a topic's levels), `lesson` (the cards that open a
 level), `basics` and `basicsTopic` (the Basics track and one of its topics), `examIntro`, `exam` and `examResult`
 (the practice exam), `installSteps` (how to add the app to the home screen in a browser that cannot do
-it in one tap) and `loadFailed` (shown if the question pack cannot load).
+it in one tap), `badges` (the badge collection), `streak` (the day's streak, after the first session
+finished that day) and `loadFailed` (shown if the question pack cannot load).
 
 ### The questions
 
@@ -116,11 +121,36 @@ Writing a pack: `content/packs/README.md`.
 - Each topic splits into levels that follow its competencies. A level opens with a short
   lesson the first time and clears at 8 answers right first time; a retry, or redoing a
   missed question after seeing its solution, does not count. Clearing a level opens the
-  next, and the level-cleared takeover is the only gold field in the product.
+  next, and the level-cleared takeover is the only gold screen in the product.
 - The numbers get harder as a level fills, and hardest when reviewing a cleared level.
 - Home counts down to 30 January and shows the share of the blueprint's competencies the
   cleared levels cover.
 - A missed day resets the streak and nothing else.
+
+### Celebrations and badges
+
+- **Every level is a badge**, 90 in all: each level on the path and each practice or facts
+  level in Basics. A topic's badges are one hexagon in its colour that improves level by
+  level. The rim has a segment per level and lights one more each time; laurels arrive at
+  halfway, then a star, a gem, and at the last level a crown and a gold edge. Basics earn round
+  tokens. A badge is shiny when its level was cleared with every first try right. Names come
+  from one ladder, Starter to Master.
+- **Special badges**: streaks of 3, 7, 14 and 30 days, practice exams at 60, 75 and 90 per cent,
+  Improver (five missed questions put right in review) and Welcome back (practising again after
+  three or more days away). A badge is never taken away.
+- Badges began after levels did. The first time the app counts them, it awards what a learner
+  had already earned, marked as earned before badges began, with no celebration.
+- **The combo**: two right in a row shows a chip with an unlit flame, three lights it, every
+  fifth turns it gold for a moment. A broken run of three or more goes out.
+- **The level-up**, about seven seconds and skippable with a tap: gold rises; the badge turns
+  over from grey into colour and gains what this level adds; the share right first time fills
+  a ring; the learner's marker walks to the level that opens.
+- **The daily streak**: after the first session finished each day, the flame lights and the
+  count rolls on.
+- **Settings** on Profile: Sound, Vibration and Calm animations. Calm, or a phone set to reduce
+  motion, shows every celebration's end straight away, with no confetti or movement.
+- Sounds are made on the phone with Web Audio in the voice of the kulintang, so there is
+  nothing to download. Practice exams have no celebration until their result.
 
 ### Basics
 
@@ -292,9 +322,10 @@ strongest and the weakest are named.
 
 `tests/progress.js` pins the path's rules: what clears a level, what opens the next, what
 counts as right first time, and how an older saved record is carried over. It also pins
-Basics mastery: right and quick on two days, lost on a miss, and never moving the path; and
-the participant code on every logged answer, whose check character catches any one
-character copied wrong.
+Basics mastery: right and quick on two days, lost on a miss, and never moving the path; the
+badges (when each is earned, shiny, never taken away, and how progress from before badges is
+counted once); the settings; and the participant code on every logged answer, whose check
+character catches any one character copied wrong.
 
 `tests/validate-packs.js` checks every pack against its schema and the blueprint, then
 generates every template at every tier and checks what a learner would be shown. Every
@@ -306,7 +337,7 @@ million questions), and plays Basics rounds for learners at every stage. It fail
 question can produce a negative answer or one too long for the keypad, an incomplete
 scaffold, a hint with an unfollowable number, a negative number anywhere in its words, "a"
 before a number read with a vowel sound ("a 8 m ribbon"), two full stops in a row ("9:30
-p.m.."), a time answer that is not on the clock, a broken multiple choice, an answer the
+p.m.."), a count of one read with a plural ("1 squares"), a time answer that is not on the clock, a broken multiple choice, an answer the
 checker rejects, or a named mistake that does not bring back its own feedback. It reads a
 question's chart too.
 The app is offline, so a bad question cannot be hotfixed on a phone that has already
