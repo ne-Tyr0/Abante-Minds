@@ -89,4 +89,50 @@
      (the badges). */
   window.AM.iconMarkup = function (name) { return ICON_PATHS[name] || ""; };
   window.AM.icon = icon;
+
+  /* A topic's icon in two tones of its own colour: the outline in the deep
+     shade, and its shapes filled with the bright one, strong (a), at half
+     strength (a2, a cube's shaded side) or soft (b). The drawings are the
+     outlines above; these are only the fills under them. */
+  var TOPIC_FILLS = {
+    "topic-decimals": [["b", '<ellipse cx="68" cy="128" rx="38" ry="66"/>']],
+    "topic-fractions": [["b", '<path d="M120 140V56A84 84 0 1 0 204 140Z"/>'], ["a", '<path d="M144 116V32A84 84 0 0 1 228 116Z"/>']],
+    "topic-order": [["b", '<circle cx="128" cy="128" r="50"/>']],
+    "topic-factors": [["a", '<circle cx="128" cy="60" r="28"/>'], ["b", '<circle cx="64" cy="192" r="28"/><circle cx="192" cy="192" r="28"/>']],
+    "topic-percent": [["a", '<circle cx="76" cy="76" r="28"/>'], ["b", '<circle cx="180" cy="180" r="28"/>']],
+    "topic-time": [["b", '<circle cx="128" cy="128" r="96"/>']],
+    "topic-area": [["b", '<rect x="40" y="40" width="176" height="176" rx="12"/>'], ["a", '<rect x="40" y="128" width="88" height="88"/>']],
+    "topic-solids": [["b", '<path d="M128 28L216 78L128 128L40 78Z"/>'], ["a", '<path d="M40 78L128 128V228L40 178Z"/>'], ["a2", '<path d="M216 78V178L128 228V128Z"/>']],
+    "topic-circles": [["b", '<circle cx="128" cy="128" r="96"/>'], ["a", '<path d="M128 128L220 128A92 92 0 0 0 193 63Z"/>']],
+    "topic-data": [["a", '<rect x="48" y="132" width="40" height="88" rx="6"/><rect x="168" y="100" width="40" height="120" rx="6"/>'], ["b", '<rect x="108" y="56" width="40" height="164" rx="6"/>']],
+    "topic-probability": [["b", '<rect x="40" y="40" width="176" height="176" rx="36"/>']],
+    "topic-transform": [["b", '<path d="M100 64L36 196H100Z"/>'], ["a", '<path d="M156 64L220 196H156Z"/>']],
+    "topic-addsub": [["b", '<circle cx="128" cy="80" r="62"/>']],
+    "topic-times": [["b", '<rect x="36" y="36" width="184" height="184" rx="28"/>']],
+    "topic-mental": [["b", '<path d="M88 228V188C56 170 40 140 42 108C46 62 86 30 132 30C182 30 216 68 214 114L230 150H206V188C206 198 198 206 188 206H156V228Z"/>'], ["a", '<circle cx="128" cy="108" r="40"/>']],
+    "topic-written": [["b", '<path d="M44 32H156V224H44Z"/>'], ["a", '<path d="M212 92L162 178L154 214L182 188L232 104Z"/>']],
+    "topic-missing": [["b", '<rect x="40" y="40" width="176" height="176" rx="28"/>']],
+    "topic-equivalents": [["b", '<circle cx="76" cy="76" r="40"/>'], ["a", '<circle cx="184" cy="184" r="28"/>']],
+    "topic-powers": [["a", '<rect x="20" y="104" width="84" height="84" rx="8"/><path d="M136 100L184 128V184L136 156Z"/>'], ["b", '<path d="M184 72L232 100L184 128L136 100Z"/>'], ["a2", '<path d="M232 100V156L184 184V128Z"/>']]
+  };
+  /* Ratio is drawn in dots: both sides of it bright, the colon deep. */
+  var RATIO_DUO = '<g style="fill:B"><circle cx="44" cy="100" r="18"/><circle cx="44" cy="156" r="18"/>' +
+    '<circle cx="212" cy="72" r="18"/><circle cx="212" cy="128" r="18"/><circle cx="212" cy="184" r="18"/></g>' +
+    '<g fill="currentColor"><circle cx="128" cy="104" r="12"/><circle cx="128" cy="152" r="12"/></g>';
+  var STRENGTH = { a: 1, a2: 0.55, b: 0.3 };
+
+  window.AM.topicIcon = function (name, size, colorKey) {
+    var bright = "var(--skill-" + colorKey + "-bright)";
+    var svg = icon(name, size);
+    var inner;
+    if (name === "topic-ratio") inner = RATIO_DUO.split("fill:B").join("fill:" + bright);
+    else {
+      inner = (TOPIC_FILLS[name] || []).map(function (f) {
+        return '<g style="fill:' + bright + '" fill-opacity="' + STRENGTH[f[0]] + '">' + f[1] + "</g>";
+      }).join("") + (ICON_PATHS[name] || ICON_PATHS.star).split(' fill="currentColor" fill-opacity=".35"').join("");
+    }
+    svg.innerHTML = inner;
+    svg.style.color = "var(--skill-" + colorKey + "-deep)";
+    return svg;
+  };
 })();

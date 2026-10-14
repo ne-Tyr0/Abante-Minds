@@ -640,7 +640,7 @@ for (const packName of packs) {
     if (!KEBAB.test(topic.key || "")) fail(`topic key '${topic.key}' must be kebab-case`);
     if (!BLUEPRINT_TOPICS.has(topic.key)) fail(`topic '${topic.key}' is not in the blueprint`);
     if (!ICONS.has(topic.icon)) fail(`icon '${topic.icon}' is not in the icon set`);
-    if (![1, 2, 3, 4].includes(topic.colorKey)) fail("colorKey must be 1 to 4");
+    if (![1, 2, 3, 4, 5, 6, 7].includes(topic.colorKey)) fail("colorKey must be 1 to 7");
     if (typeof topic.label !== "string" || !topic.label.trim()) fail("topic needs a label");
     /* The practice exam shares its questions out by these weights. */
     const weight = (BLUEPRINT_TOPIC[topic.key] || {}).weight;
@@ -683,7 +683,7 @@ for (const packName of packs) {
     if (basicsKeys.has(topic.key)) fail(`Basics topic '${topic.key}' is listed twice`);
     basicsKeys.add(topic.key);
     if (!ICONS.has(topic.icon)) fail(`icon '${topic.icon}' is not in the icon set`);
-    if (![1, 2, 3, 4].includes(topic.colorKey)) fail("colorKey must be 1 to 4");
+    if (![1, 2, 3, 4, 5, 6, 7].includes(topic.colorKey)) fail("colorKey must be 1 to 7");
     if (typeof topic.label !== "string" || !topic.label.trim()) fail("topic needs a label");
     if (typeof topic.file !== "string") { fail("a Basics topic needs its file"); basicsFiles.push(null); continue; }
     const file = JSON.parse(read(`content/packs/${packName}/${topic.file}`));
