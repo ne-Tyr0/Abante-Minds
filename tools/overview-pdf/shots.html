@@ -229,7 +229,26 @@ function run() {
         var lv = AM.store.get().levels["decimals/add-and-subtract"];
         lv.correct = 8; lv.cleared = true;
         AM.store.set({ levels: AM.store.get().levels });
+        AM.store.syncBadges();  /* the level's badge, as clearing it would give */
+        AM.app.session.bestRun = 5;
         AM.app.go("levelup");
+        AM.app.scratch.levelup.tl.skip();  /* the end of the moment, not a frame of it */
+        break;
+      /* Not in the PDF yet: the celebrations and the badges, for review. */
+      case "combo":
+        s = canonicalAt(3); s.run = 4; s.bestRun = 4; AM.app.go("practice"); typeIn("4.65"); AM.app.check();
+        break;
+      case "streak":
+        AM.app.scratch.afterStreak = "home";
+        AM.app.go("streak");
+        AM.app.scratch.streak.tl.skip();
+        break;
+      case "badges":
+        AM.app.go("badges");
+        break;
+      case "badge-card":
+        AM.app.go("badges");
+        AM.openBadge("lv:decimals/compare-and-round");
         break;
       case "summary":
         AM.app.startLevel("decimals", "add-and-subtract");

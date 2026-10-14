@@ -239,7 +239,7 @@
           FX.confetti(p.x - p.w / 2, p.y, -125, 50, 360, 640, 28);
           FX.confetti(p.x + p.w / 2, p.y, -55, 50, 360, 640, 28);
           var word = chip.parentNode.querySelector(".am-combo-word");
-          if (word) word.animate([{ transform: "translate(-50%, 10px) scale(0.5)", opacity: 0 }, { transform: "translate(-50%, -34px) scale(1)", opacity: 1, offset: 0.4 }, { transform: "translate(-50%, -56px)", opacity: 0 }], { duration: 1600, easing: EASE_OUT, fill: "both" });
+          if (word) word.animate([{ transform: "translate(-10px, -50%) scale(0.6)", opacity: 0 }, { transform: "translate(0, -50%) scale(1)", opacity: 1, offset: 0.3 }, { transform: "translate(0, -50%) scale(1)", opacity: 1, offset: 0.75 }, { transform: "translate(6px, -70%)", opacity: 0 }], { duration: 1800, easing: EASE_OUT, fill: "both" });
           if (window.AbanteMinds.sound) window.AbanteMinds.sound.play("sparkle");
         }, 0.15)
         .call(function () { if (glow.parentNode) glow.parentNode.removeChild(glow); }, 1.1, true);
