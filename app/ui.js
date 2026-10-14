@@ -457,24 +457,6 @@
     return row;
   }
 
-  function BadgeShelf(o) {
-    var lockedBg = o.lockedBackground || "var(--surface-200)";
-    var row = el("span", { style: { display: "flex", gap: "var(--space-2)" } });
-    o.badges.forEach(function (b) {
-      var style = {
-        flex: 1, borderRadius: "var(--radius-md)", padding: "10px 4px",
-        display: "flex", flexDirection: "column", alignItems: "center", gap: "var(--space-1)",
-        background: b.earned ? (b.face || "var(--brand-blue-100)") : lockedBg,
-        color: b.earned ? (b.ink || "var(--brand-blue-600)") : "var(--ink-600)"
-      };
-      row.appendChild(el("span", { style: style },
-        icon(b.earned ? b.icon : "lock", 20),
-        el("span.caption", { style: { color: b.earned ? "var(--ink-900)" : "var(--ink-600)", textAlign: "center" } }, b.label)
-      ));
-    });
-    return row;
-  }
-
   function TopicBars(topics, o) {
     o = o || {};
     var wrap = el("div", { style: { display: "flex", flexDirection: "column", gap: o.gap || "var(--space-3)" } });
@@ -1075,7 +1057,6 @@
   AM.Keypad = Keypad;
   AM.ProgressBar = ProgressBar;
   AM.StreakWeek = StreakWeek;
-  AM.BadgeShelf = BadgeShelf;
   AM.TopicBars = TopicBars;
   AM.BottomNav = BottomNav;
   AM.SideRail = SideRail;

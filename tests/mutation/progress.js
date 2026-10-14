@@ -25,7 +25,6 @@ const M = [
   ["coverage counts levels, not competencies", "      coverage: reachable ? Object.keys(covered).length / reachable : 0,", "      coverage: reachable ? levelsCleared / reachable : 0,"],
   ["next ignores the level last practised", "      if (lt && lt.current) next = { topic: lt, level: lt.current };", ""],
   ["lesson seen not kept", "    s.lessonSeen = true;\n    saveLevel(topic, level, s);", "    s.lessonSeen = true;"],
-  ["topic badge for one level", "earned: p.topics.some(function (t) { return t.done; }),", "earned: p.topics.some(function (t) { return t.cleared > 0; }),"],
   // badges
   ["no badge on clearing", "      award(badge, { shiny: s.attempts === s.correct });\n", ""],
   ["every badge shiny", "      award(badge, { shiny: s.attempts === s.correct });", "      award(badge, { shiny: true });"],
@@ -34,7 +33,8 @@ const M = [
   ["facts level done on any fact", "    if (!all.every(function (f) { return f.mastered; })) return null;", "    if (!all.some(function (f) { return f.mastered; })) return null;"],
   ["facts badge shiny with misses", "    return { shiny: all.every(function (f) { return f.miss === 0; }) };", "    return { shiny: true };"],
   ["facts badges not checked", "    var badges = now && !was ? awardFactLevels() : [];", "    var badges = [];"],
-  ["old progress not marked before", "    if (syncing) { b.before = true; b.seen = true; } else recent.push(key);", "    recent.push(key);"],
+  ["old progress not marked before", "    if (syncing) { b.before = true; b.seen = true; } else { b.seen = false; recent.push(key); }", "    b.seen = false; recent.push(key);"],
+  ["a new badge not new", "else { b.seen = false; recent.push(key); }", "else { recent.push(key); }"],
   ["every sync is the first", "    var first = !state.badgesSince;", "    var first = true;"],
   ["first count not saved", "    if (first || Object.keys(state.badges || {}).length !== before) commit();", ""],
   ["old shiny not proved", "        if (s.cleared) award(levelBadgeKey(t.key, lv.id), { shiny: s.attempts === s.correct });", "        if (s.cleared) award(levelBadgeKey(t.key, lv.id), { shiny: true });"],

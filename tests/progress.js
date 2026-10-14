@@ -157,18 +157,6 @@ test("next is the level last practised while it is still open", () => {
   S.recordAnswer("c", "c1", true, true);
   assert.strictEqual(S.path().next.level.id, "c1");
 });
-test("badges", () => {
-  const S = launch();
-  const earned = () => S.badges().filter((b) => b.earned).map((b) => b.key);
-  assert.deepStrictEqual(earned(), []);
-  times(8, () => S.recordAnswer("a", "a1", true, true));
-  assert.deepStrictEqual(earned(), ["level"]);
-  times(8, () => S.recordAnswer("a", "a2", true, true));
-  assert.deepStrictEqual(earned(), ["level", "topic"]);
-  times(8, () => S.recordAnswer("c", "c1", true, true));
-  assert.deepStrictEqual(earned(), ["level", "topic", "half"]);
-});
-
 /* ---------- settings ---------- */
 
 test("sound and vibration start on and calm starts off", () => {
@@ -198,7 +186,7 @@ test("clearing a level awards its badge, once", () => {
   const results = times(9, () => S.recordAnswer("a", "a1", true, true));
   assert.deepStrictEqual(results.map((r) => r.badge), [null, null, null, null, null, null, null, "lv:a/a1", null]);
   assert.strictEqual(results[7].shiny, true, "eight out of eight first tries");
-  assert.deepStrictEqual(S.get().badges["lv:a/a1"], { at: "2026-10-10", shiny: true });
+  assert.deepStrictEqual(S.get().badges["lv:a/a1"], { at: "2026-10-10", shiny: true, seen: false });
   assert.deepStrictEqual(S.takeRecent(), ["lv:a/a1"]);
   assert.deepStrictEqual(S.takeRecent(), [], "asking empties the list");
 });
@@ -228,7 +216,7 @@ test("a missed fact on the way means the facts badge is not shiny", () => {
   ["k1", "k2", "k3"].forEach((k) => S.recordFact(k, true, true));
   onDay("2026-10-11");
   ["k1", "k2", "k3"].forEach((k) => S.recordFact(k, true, true));
-  assert.deepStrictEqual(S.get().badges["lv:b/f1"], { at: "2026-10-11" });
+  assert.deepStrictEqual(S.get().badges["lv:b/f1"], { at: "2026-10-11", seen: false });
 });
 test("every level but a review level is a badge, named on one ladder", () => {
   const S = launch();
@@ -269,7 +257,7 @@ test("progress made before badges is awarded once, quietly", () => {
   assert.strictEqual(S.get().badgesSince, "2026-10-10");
   assert.ok(JSON.parse(storage[KEY]).badges["lv:a/a1"], "saved at once");
   const last = times(3, () => S.recordAnswer("a", "a2", true, true)).pop();
-  assert.deepStrictEqual(S.get().badges[last.badge], { at: "2026-10-10", shiny: true }, "a badge earned now is not from before");
+  assert.deepStrictEqual(S.get().badges[last.badge], { at: "2026-10-10", shiny: true, seen: false }, "a badge earned now is not from before");
   onDay("2026-10-12");
   S.syncBadges();
   assert.strictEqual(S.get().badgesSince, "2026-10-10", "the first count happens once");
@@ -306,7 +294,7 @@ test("Welcome back after a few days away, once", () => {
   onDay("2026-10-12"); S.rollDay(); S.recordAnswer("a", "a1", true, true);
   assert.ok(!S.get().badges.welcome, "one day missed is not away");
   onDay("2026-10-15"); S.rollDay(); S.recordAnswer("a", "a1", true, true);
-  assert.deepStrictEqual(S.get().badges.welcome, { at: "2026-10-15" });
+  assert.deepStrictEqual(S.get().badges.welcome, { at: "2026-10-15", seen: false });
   assert.strictEqual(S.get().welcomeDue, false);
 });
 test("the showcase shows the newest three until the learner picks", () => {
@@ -329,11 +317,11 @@ test("a new badge is unseen until its card is opened", () => {
   const S = launch();
   times(8, () => S.recordAnswer("a", "a1", true, true));
   const seen = () => S.findBadge("lv:a/a1").badge.seen;
-  assert.strictEqual(seen(), true, "seen until the store says otherwise");
-  S.get().badges["lv:a/a1"].seen = false;
-  assert.strictEqual(seen(), false);
+  assert.strictEqual(seen(), false, "new until its card is opened");
   S.markBadgeSeen("lv:a/a1");
   assert.strictEqual(seen(), true);
+  assert.strictEqual(JSON.parse(storage[KEY]).badges["lv:a/a1"].seen, true, "and kept");
+  assert.strictEqual(S.findBadge("lv:c/c1").badge.seen, true, "an unearned badge is never new");
 });
 
 /* ---------- Basics facts ---------- */
@@ -412,7 +400,7 @@ test("Basics never move the path", () => {
   quickRight(S, "k1");
   const p = S.path();
   assert.deepStrictEqual([p.levelsCleared, p.coverage, p.next.level.id], [0, 0, "a1"]);
-  assert.deepStrictEqual(S.badges().filter((x) => x.earned).map((x) => x.key), []);
+  assert.deepStrictEqual(S.catalog().topics.map((t) => [t.key, t.earned]), [["a", 0], ["c", 0], ["b", 1]], "a Basics badge, and none on the path");
 });
 
 /* ---------- spaced review ---------- */

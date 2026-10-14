@@ -71,7 +71,8 @@
       badgesSince: null,           /* the day badges were first counted */
       showcase: null,              /* up to three badge keys pinned on Profile; null shows the newest */
       reviewsFixed: 0,             /* missed questions put right in review, for Improver */
-      welcomeDue: false            /* back after a few days away: Welcome back on the next answer */
+      welcomeDue: false,           /* back after a few days away: Welcome back on the next answer */
+      streakShownDay: null         /* the day the streak screen last showed */
     };
   }
 
@@ -372,20 +373,6 @@
   window.addEventListener("online", function () { setOnline(true); });
   window.addEventListener("offline", function () { setOnline(false); });
 
-  function badges() {
-    var p = path();
-    return [
-      { key: "streak", label: "4 days", icon: "streak", earned: state.streakDays >= 4,
-        face: "var(--brand-blue-100)", ink: "var(--brand-blue-600)" },
-      { key: "level", label: "1st level", icon: "level-up", earned: p.levelsCleared > 0,
-        face: "var(--skill-2-100)", ink: "var(--skill-2-600)" },
-      { key: "topic", label: "1st topic", icon: "trophy", earned: p.topics.some(function (t) { return t.done; }),
-        face: "var(--skill-3-100)", ink: "var(--skill-3-600)" },
-      { key: "half", label: "Halfway", icon: "star", earned: p.coverage >= 0.5,
-        face: "var(--skill-4-100)", ink: "var(--skill-4-600)" }
-    ];
-  }
-
   /* ---------- the attempt log ----------
      One row per answer, right or wrong, first try or not: enough to rebuild
      the exact question (template, tier, seed or pinned position, format and
@@ -604,7 +591,7 @@
     if (badges[key]) return false;
     var b = { at: today() };
     if (extra && extra.shiny) b.shiny = true;
-    if (syncing) { b.before = true; b.seen = true; } else recent.push(key);
+    if (syncing) { b.before = true; b.seen = true; } else { b.seen = false; recent.push(key); }
     badges[key] = b;
     return true;
   }
@@ -790,7 +777,6 @@
       var t = (AM.content.BASICS || []).filter(function (x) { return x.key === key; })[0];
       return t ? basicsTopic(t) : null;
     },
-    badges: badges,
     syncBadges: syncBadges,
     catalog: catalog,
     findBadge: findBadge,
