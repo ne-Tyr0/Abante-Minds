@@ -1011,6 +1011,41 @@
       el("div.label", { "aria-hidden": "true", style: { color: "var(--ink-900)" } }, c.title), parts);
   }
 
+  /* ---------- Toggle ----------
+     A setting that is on or off: the label and a line on what it does, and a
+     switch drawn as a track and a knob. The whole row is the target, and a
+     screen reader hears a switch and its state. */
+  function Toggle(o) {
+    var on = !!o.on;
+    var knob = el("span", {
+      style: {
+        position: "absolute", top: 3, left: on ? 23 : 3, width: 22, height: 22, borderRadius: "50%",
+        background: "var(--surface-200)", boxShadow: "0 1px 2px rgba(22, 32, 44, 0.3)",
+        transition: "left var(--dur-fast) var(--ease-out)"
+      }
+    });
+    var track = el("span", {
+      "aria-hidden": "true",
+      style: {
+        position: "relative", flex: "none", width: 48, height: 28, borderRadius: "var(--radius-pill)",
+        background: on ? "var(--success-700)" : "var(--surface-300)",
+        transition: "background-color var(--dur-fast) var(--ease-out)"
+      }
+    }, knob);
+    return el("button.am-reset.am-toggle", {
+      type: "button", role: "switch", "aria-checked": on ? "true" : "false",
+      onClick: function () { o.onChange(!on); },
+      style: {
+        display: "flex", alignItems: "center", gap: "var(--space-3)", width: "100%", textAlign: "left",
+        minHeight: "var(--tap-button)", padding: "10px 0", background: "none", border: 0, cursor: "pointer", color: "var(--ink-900)"
+      }
+    },
+      el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 2 } },
+        el("span.label", null, o.label),
+        o.sub ? el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, o.sub) : null),
+      track);
+  }
+
   /* A pill that states a fact — streak, level, topic. Never an action. */
   function Chip(o) {
     return el("span.caption", {
@@ -1027,6 +1062,7 @@
   }
 
   AM.el = el;
+  AM.Toggle = Toggle;
   AM.append = append;
   AM.clear = clear;
   AM.Button = Button;

@@ -9,6 +9,13 @@
   var el = AM.el, icon = AM.icon;
   var store = AM.store, C = AM.content;
   var motion = (window.AbanteMinds && window.AbanteMinds.motion) || null;
+  var sound = (window.AbanteMinds && window.AbanteMinds.sound) || null;
+
+  /* The Calm animations setting, where the CSS and motion.js can read it. */
+  function applySettings() {
+    document.documentElement.dataset.calm = store.settings().calm ? "true" : "false";
+  }
+  applySettings();
 
   /* ---------- device ----------
      The gutter steps 24 → 32 → 48 and the reading column caps at 720. The
@@ -385,10 +392,17 @@
     /* Felt as well as seen: a tick for right, a double for a run of 3, 5,
        10 and every 5 after, and a softer buzz for a miss. Inside the tap, as
        the iPhone needs. */
+    var milestone = right && (s.run === 3 || (s.run > 0 && s.run % 5 === 0));
     if (motion) {
       motion.haptic(!right ? "wrong"
         : s.facts && s.lastMastered ? "mastered"
-        : s.run === 3 || (s.run > 0 && s.run % 5 === 0) ? "combo" : "correct");
+        : milestone ? "combo" : "correct");
+    }
+    if (sound) {
+      if (!right) sound.play("wrong");
+      else if (s.facts && s.lastMastered) sound.play("check");
+      else if (milestone) sound.play("combo", s.run);
+      else sound.play("correct");
     }
     render();
     /* A right fact moves on by itself, so a round keeps its pace; the button
@@ -677,6 +691,7 @@
   });
 
   store.subscribe(function () {
+    applySettings();
     if (app.route === "home" || app.route === "profile" || app.route === "summary") {
       app.keepScroll = true;
       render();
