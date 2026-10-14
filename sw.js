@@ -50,6 +50,7 @@ var SHELL = [
   "content/packs/math/transform.json",
   "motion/motion.css",
   "motion/motion.js",
+  "motion/sound.js",
   "assets/abante-minds-mark.png",
   "assets/abante-minds-maskable.png",
   /* styles.css and tokens/fonts.css are deliberately absent: index.html lists the

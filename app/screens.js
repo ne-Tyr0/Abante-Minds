@@ -1776,6 +1776,18 @@
             el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, kindsNote(kinds)));
         })(),
 
+        /* Sound, vibration and calm, for this phone. */
+        (function () {
+          var set = store.settings();
+          function change(name) { return function (v) { store.setSetting(name, v); app.keepScroll = true; app.render(); }; }
+          return el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
+            sectionLabel("Settings"),
+            AM.Card({ style: { gap: 0, paddingTop: 4, paddingBottom: 4 } },
+              AM.Toggle({ label: "Sound", sub: "Gong-chimes for answers, streaks and levels. A phone on silent stays silent.", on: set.sound, onChange: change("sound") }),
+              AM.Toggle({ label: "Vibration", sub: "A short buzz with answers and level-ups, on phones that can.", on: set.vibration, onChange: change("vibration") }),
+              AM.Toggle({ label: "Calm animations", sub: "Celebrations show their end straight away, with no confetti or movement.", on: set.calm, onChange: change("calm") })));
+        })(),
+
         /* One button, no card: it fits the space Profile had spare on a
            390x844 phone, so the footer and nav stay on screen. */
         app.canOfferInstall()

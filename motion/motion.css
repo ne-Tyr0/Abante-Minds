@@ -21,7 +21,8 @@
 }
 
 /* Durations go to near-zero, not to `none`. The rules keep firing, so every
-   position and state change still lands — only the travel is removed. */
+   position and state change still lands — only the travel is removed. The
+   learner's Calm animations setting does the same as the phone's setting. */
 @media (prefers-reduced-motion: reduce) {
   :root {
     --dur-instant: 0.01ms;
@@ -30,6 +31,13 @@
     --dur-slow: 0.01ms;
     --dur-takeover: 0.01ms;
   }
+}
+:root[data-calm="true"] {
+  --dur-instant: 0.01ms;
+  --dur-fast: 0.01ms;
+  --dur-base: 0.01ms;
+  --dur-slow: 0.01ms;
+  --dur-takeover: 0.01ms;
 }
 
 /* ---------- Press ----------
@@ -148,3 +156,5 @@
   .am-sync-pending { animation: none; }
   .am-skeleton { opacity: 0.75; }
 }
+:root[data-calm="true"] .am-skeleton,
+:root[data-calm="true"] .am-sync-pending { animation: none; }

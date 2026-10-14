@@ -21,8 +21,10 @@
   var EASE_IN = "cubic-bezier(0.4, 0, 1, 1)";
   var EASE_POP = "cubic-bezier(0.34, 1.3, 0.64, 1)";
 
+  /* Reduced when the phone asks for it, or when the learner turns on Calm
+     animations (app.js mirrors that setting onto <html data-calm>). */
   function reduced() {
-    return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    return window.matchMedia("(prefers-reduced-motion: reduce)").matches || root.dataset.calm === "true";
   }
 
   /* ---------- Fills ----------
@@ -208,7 +210,8 @@
      but from iOS 18 toggling a switch control ticks the Taptic Engine, so a
      hidden one is clicked instead: one tick per call, and only inside the tap
      that caused it. Anywhere else, nothing happens and nothing breaks.
-     Patterns are on/off milliseconds, kept short so fifty answers never nag. */
+     Patterns are on/off milliseconds, kept short so fifty answers never nag.
+     The learner's Vibration setting turns it off. */
   var HAPTICS = {
     correct: [14],
     wrong: [30],
@@ -216,15 +219,16 @@
     mastered: [14, 40, 14],
     levelUp: [18, 70, 18, 70, 60]
   };
-  var HAPTICS_KEY = "am-haptics";
   var iosSwitch = null;
 
   function hapticsOn() {
-    try { return window.localStorage.getItem(HAPTICS_KEY) !== "off"; } catch (e) { return true; }
+    var store = window.AM && window.AM.store;
+    return !store || store.settings().vibration;
   }
 
   function setHaptics(on) {
-    try { window.localStorage.setItem(HAPTICS_KEY, on ? "on" : "off"); } catch (e) { /* private mode: stays on */ }
+    var store = window.AM && window.AM.store;
+    if (store) store.setSetting("vibration", on);
   }
 
   function isIOS() {

@@ -26,6 +26,13 @@ const M = [
   ["next ignores the level last practised", "      if (lt && lt.current) next = { topic: lt, level: lt.current };", ""],
   ["lesson seen not kept", "    s.lessonSeen = true;\n    saveLevel(topic, level, s);", "    s.lessonSeen = true;"],
   ["topic badge for one level", "earned: p.topics.some(function (t) { return t.done; }),", "earned: p.topics.some(function (t) { return t.cleared > 0; }),"],
+  // settings
+  ["sound starts off", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false };", "  var DEFAULT_SETTINGS = { sound: false, vibration: true, calm: false };"],
+  ["calm starts on", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false };", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: true };"],
+  ["a saved setting ignored", "      out[k] = typeof saved[k] === \"boolean\" ? saved[k] : DEFAULT_SETTINGS[k];", "      out[k] = DEFAULT_SETTINGS[k];"],
+  ["any value taken as a setting", "      out[k] = typeof saved[k] === \"boolean\" ? saved[k] : DEFAULT_SETTINGS[k];", "      out[k] = k in saved ? saved[k] : DEFAULT_SETTINGS[k];"],
+  ["an unknown setting kept", "    if (!(name in DEFAULT_SETTINGS)) return;\n", ""],
+  ["a setting not saved", "    state.settings = next;\n    commit();", "    state.settings = next;"],
   // Basics facts
   ["mastered in one day", "  var MASTERY_DAYS = 2;", "  var MASTERY_DAYS = 1;"],
   ["slow answers count towards mastery", "      if (quick && f.days.indexOf(t) < 0) f.days", "      if (f.days.indexOf(t) < 0) f.days"],

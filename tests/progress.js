@@ -169,6 +169,26 @@ test("badges", () => {
   assert.deepStrictEqual(earned(), ["level", "topic", "half"]);
 });
 
+/* ---------- settings ---------- */
+
+test("sound and vibration start on and calm starts off", () => {
+  const S = launch();
+  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: false });
+});
+test("a setting is kept with the learner's record", () => {
+  const S = launch();
+  S.setSetting("sound", false);
+  S.setSetting("calm", true);
+  const T = launch(JSON.parse(storage[KEY]));
+  assert.deepStrictEqual(T.settings(), { sound: false, vibration: true, calm: true });
+});
+test("an unknown setting is ignored and a missing one takes its default", () => {
+  const S = launch({ version: 2, settings: { calm: true, sound: "loud" } });
+  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: true });
+  S.setSetting("banana", true);
+  assert.ok(!("banana" in S.get().settings));
+});
+
 /* ---------- Basics facts ---------- */
 
 const quickRight = (S, k) => S.recordFact(k, true, true);

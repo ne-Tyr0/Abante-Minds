@@ -65,8 +65,29 @@
       totalCorrect: 0,             /* answers right on the first try, on the path and in Basics */
       recoveryRequested: false,
       lastSession: null,
-      participant: null            /* the pseudonymous code on every logged answer, made when first needed */
+      participant: null,           /* the pseudonymous code on every logged answer, made when first needed */
+      settings: null               /* {sound, vibration, calm}; null until changed, read through settings() */
     };
+  }
+
+  /* Sound and vibration start on, as most learning apps do; a phone on
+     silent stays silent whatever this says. Calm turns the celebrations
+     into a still frame, and is on by itself when the phone asks for reduced
+     motion. */
+  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false };
+  function settings() {
+    var saved = state.settings || {}, out = {};
+    Object.keys(DEFAULT_SETTINGS).forEach(function (k) {
+      out[k] = typeof saved[k] === "boolean" ? saved[k] : DEFAULT_SETTINGS[k];
+    });
+    return out;
+  }
+  function setSetting(name, value) {
+    if (!(name in DEFAULT_SETTINGS)) return;
+    var next = settings();
+    next[name] = !!value;
+    state.settings = next;
+    commit();
   }
 
   /* Version 1 counted tiers and the four placeholder topics. The path replaced
@@ -533,6 +554,8 @@
     APP_BUILD: APP_BUILD,
 
     get: function () { return state; },
+    settings: settings,
+    setSetting: setSetting,
     set: function (patch) {
       Object.keys(patch).forEach(function (k) { state[k] = patch[k]; });
       commit();
