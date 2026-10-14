@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 50;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 51;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -182,10 +182,12 @@
 
   function levelState(topic, level) {
     var s = state.levels[levelKey(topic, level)];
-    return {
+    var out = {
       correct: s ? s.correct : 0, attempts: s ? s.attempts : 0,
       cleared: !!(s && s.cleared), lessonSeen: !!(s && s.lessonSeen)
     };
+    if (s && s.left) out.left = true;   /* a round of it was left partway; see leaveLevel */
+    return out;
   }
 
   function saveLevel(topic, level, s) { state.levels[levelKey(topic, level)] = s; }
@@ -209,7 +211,7 @@
     state.lastLevel = { topic: topic, level: level };
     if (clearedNow) {
       badge = levelBadgeKey(topic, level);
-      award(badge, { shiny: s.attempts === s.correct });
+      award(badge, { shiny: shinyLevel(s) });
     }
     commit();
     return { cleared: clearedNow, badge: badge, shiny: !!(badge && state.badges[badge].shiny) };
@@ -598,6 +600,34 @@
 
   function levelBadgeKey(topic, level) { return "lv:" + levelKey(topic, level); }
 
+  /* Shiny is a level got through without a first try wrong, and without a
+     round of it left partway: leaving before a hard question must not be a
+     way to stay perfect. */
+  function shinyLevel(s) { return s.attempts === s.correct && !s.left; }
+
+  /* A round left partway. What it got right stays; the level's badge, if it
+     is not earned yet, can no longer be shiny. */
+  function leaveLevel(topic, level) {
+    if (badgeOf(levelBadgeKey(topic, level))) return;
+    var s = levelState(topic, level);
+    if (s.left) return;
+    s.left = true;
+    saveLevel(topic, level, s);
+    commit();
+  }
+
+  /* Whether the level's badge could still come out shiny, for the question
+     a learner is asked before leaving: not earned yet, never left, and no
+     first try wrong so far (for a facts level, no fact of it ever missed). */
+  function canStillShine(topic, level) {
+    if (badgeOf(levelBadgeKey(topic, level))) return false;
+    var s = levelState(topic, level);
+    if (s.left) return false;
+    var keys = AM.content.facts(topic, level);
+    if (keys.length) return keys.every(function (k) { return factState(k).miss === 0; });
+    return s.attempts === s.correct;
+  }
+
   function awardStreak() {
     STREAK_BADGES.forEach(function (n) { if (state.streakDays >= n) award("streak:" + n); });
   }
@@ -613,7 +643,7 @@
     if (!keys.length) return null;
     var all = keys.map(factState);
     if (!all.every(function (f) { return f.mastered; })) return null;
-    return { shiny: all.every(function (f) { return f.miss === 0; }) };
+    return { shiny: !levelState(topic, level).left && all.every(function (f) { return f.miss === 0; }) };
   }
   function awardFactLevels() {
     var got = [];
@@ -638,7 +668,7 @@
       t.levels.forEach(function (lv) {
         if (lv.kind === "facts" || lv.kind === "review") return;
         var s = levelState(t.key, lv.id);
-        if (s.cleared) award(levelBadgeKey(t.key, lv.id), { shiny: s.attempts === s.correct });
+        if (s.cleared) award(levelBadgeKey(t.key, lv.id), { shiny: shinyLevel(s) });
       });
     });
     awardFactLevels();
@@ -665,7 +695,8 @@
           key: key, topic: t.key, level: lv.id, title: lv.title, kind: lv.kind || "practice",
           number: i + 1, total: own.length, tier: tierName(i + 1, own.length),
           name: t.label + " " + tierName(i + 1, own.length),
-          earned: !!b, at: b ? b.at : null, shiny: !!(b && b.shiny), before: !!(b && b.before), seen: !b || b.seen !== false
+          earned: !!b, at: b ? b.at : null, shiny: !!(b && b.shiny), before: !!(b && b.before), seen: !b || b.seen !== false,
+          left: !b && !!levelState(t.key, lv.id).left
         };
       });
       topics.push({
@@ -778,6 +809,8 @@
       return t ? basicsTopic(t) : null;
     },
     syncBadges: syncBadges,
+    leaveLevel: leaveLevel,
+    canStillShine: canStillShine,
     catalog: catalog,
     findBadge: findBadge,
     tierName: tierName,

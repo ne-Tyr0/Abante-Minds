@@ -86,6 +86,9 @@
 
     var builder = AM.screens[app.route] || AM.screens.home;
     var view = builder(app) || {};
+    /* A tap that re-renders its own screen (a key, a choice, a hint) swaps
+       the button it pressed for a new one; the new one springs back up. */
+    var carried = motion && app.route === animatedRoute ? motion.pressCarry() : null;
 
     root.dataset.gold = view.onGold ? "true" : "false";
 
@@ -119,11 +122,42 @@
     slots.body.scrollTop = app.keepScroll ? slots.body.scrollTop : 0;
     app.keepScroll = false;
     app.direction = "forward";
+    if (carried) carried();
+    currentView = view;
+    guardBack();
 
     /* A screen that plays something once it is on the page. */
     if (view.after) view.after();
   }
   app.render = render;
+
+  /* ---------- the phone's Back button ----------
+     The app is one page, so Back would leave it altogether. On any screen
+     but Home (and the screens before a learner exists), one history entry
+     stands guard: Back pops it, the app goes back itself and the guard goes
+     up again. A sheet that is open closes first, and in a round Back asks
+     before leaving, as the X does. On Home the guard is taken down, so Back
+     leaves the app there, as a phone user expects. */
+  var UNGUARDED = { home: true, splash: true, signin: true, setup: true, recover: true, recoverSent: true, loadFailed: true };
+  var currentView = null, guarded = false, unguarding = false;
+  function guardBack() {
+    var wants = !UNGUARDED[app.route];
+    try {
+      if (wants && !guarded) { window.history.pushState({ am: "guard" }, ""); guarded = true; }
+      else if (!wants && guarded) { guarded = false; unguarding = true; window.history.back(); }
+    } catch (e) { /* no history to keep: Back does what the browser does */ }
+  }
+  window.addEventListener("popstate", function () {
+    if (unguarding) { unguarding = false; return; }
+    guarded = false;
+    if (app.closeSheet) app.closeSheet();
+    else {
+      var view = currentView || {};
+      var back = view.onBack || view.back || function () { app.go("home", "back"); };
+      back();
+    }
+    guardBack();
+  });
 
   function backRow(handler) {
     return el("div", { style: { flex: "none", padding: "12px 24px 0" } },
@@ -507,6 +541,7 @@
   function advance() {
     var s = app.session;
     if (!s) { app.go("home"); return; }
+    if (s.leaving) { endLeft(s); return; }
     if (s.index + 1 >= s.questions.length) { finish(); return; }
     s.index += 1;
     s.phase = "ask";
@@ -564,6 +599,37 @@
       app.scratch.streak = null;
       app.go("streak");
     } else app.go(route);
+  }
+
+  /* ---------- leaving a round ----------
+     A round can be left at any question (screens.js asks first). What it
+     got right is kept, and a level whose round was left can no longer earn
+     a shiny badge (store.leaveLevel), so leaving before a hard question is
+     not a way to stay perfect. A practice exam left is not scored. Leaving
+     on the last question, already answered, is finishing. */
+  app.leaveSession = function () {
+    var s = app.session;
+    if (!s) return;
+    if (s.exam) {
+      s.exam.done = true;
+      window.clearInterval(examTimer);
+      examTimer = null;
+      app.session = null;
+      app.go("home", "back");
+      return;
+    }
+    if (s.phase !== "ask" && s.index + 1 >= s.questions.length) { app.next(); return; }
+    if (!s.redo && !s.review && (s.kind === "practice" || s.kind === "facts")) store.leaveLevel(s.topicKey, s.levelId);
+    s.leaving = true;
+    /* A level cleared by the question just answered still gets its moment. */
+    if (s.pendingLevelUp) { app.next(); return; }
+    endLeft(s);
+  };
+
+  function endLeft(s) {
+    app.session = null;
+    if (s.review) app.go("home", "back");
+    else backToTopic(s.topicKey);
   }
 
   /* ---------- spaced review ----------
@@ -667,6 +733,7 @@
   function finishExam(s, timedOut) {
     if (s.exam.done) return;
     s.exam.done = true;
+    if (app.closeSheet) app.closeSheet();  /* time ran out while leaving was being asked */
     window.clearInterval(examTimer);
     examTimer = null;
     var byTopic = [], seen = {};
@@ -695,7 +762,7 @@
      A shared school desktop has a keyboard; a phone in a jeepney does not.
      Both routes into the field are live wherever they exist. */
   document.addEventListener("keydown", function (e) {
-    if ((app.route !== "practice" && app.route !== "exam") || !app.session) return;
+    if ((app.route !== "practice" && app.route !== "exam") || !app.session || app.closeSheet) return;
     var s = app.session;
     var q = s.questions[s.index];
     if (e.metaKey || e.ctrlKey || e.altKey) return;

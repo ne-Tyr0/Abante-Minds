@@ -992,6 +992,7 @@
     var desktop = AM.device() === "desktop";
     var offline = !store.isOnline();
     var header = AM.PracticeHeader({
+      onClose: openLeave,
       tier: ses.review ? (offline ? "Offline · review" : "Review")
         : ses.facts ? (offline ? "Offline · " : "") + ses.levelTitle : (offline ? "Offline · level " : "Level ") + ses.levelNumber,
       questionIndex: ses.index, questionTotal: ses.questions.length
@@ -1322,7 +1323,7 @@
         ));
 
       return {
-        nav: "practice", bottomNav: false, header: header, banner: null,
+        nav: "practice", bottomNav: false, header: header, onBack: openLeave, banner: null,
         railFooter: el("span.am-rail-note", { style: { background: "var(--surface-100)", color: "var(--ink-600)" } },
           icon("clock", 22), el("span.label", { style: { color: "var(--ink-900)" } }, minutesLabel(ses))),
         body: deskBody,
@@ -1333,7 +1334,7 @@
 
     return {
       nav: "practice", bottomNav: false,
-      header: header,
+      header: header, onBack: openLeave,
       banner: null,
       /* Screen 13 moves the answer field below the scaffold once a hint is
          open, so the worked step and the box you type into read in order. */
@@ -1407,8 +1408,7 @@
     store.markBadgeSeen(key);
     var sound = window.AbanteMinds && window.AbanteMinds.sound;
     if (sound) sound.play("pop");
-    var old = frame.querySelectorAll(".am-badge-sheet, .am-badge-sheet-scrim");
-    Array.prototype.forEach.call(old, function (n) { n.parentNode.removeChild(n); });
+    clearSheets(frame);
 
     var lines = [];
     if (found.topic) {
@@ -1418,6 +1418,7 @@
         lines.push(b.shiny ? "Shiny: every first try right." : (b.kind === "facts" ? "Shiny when every fact is mastered without a miss." : "Clear it with every first try right to collect the shiny one."));
       } else {
         lines.push(b.kind === "facts" ? "Master every fact in this level to collect it." : "Clear this level to collect it: " + store.CLEAR_TARGET + " right first time.");
+        if (b.left) lines.push("A round of it was left partway, so this one won't be shiny.");
       }
     } else {
       lines.push(b.how);
@@ -1442,6 +1443,7 @@
       lines.map(function (l, i) { return el(i === 0 ? "div.label" : "div.body", { style: { color: i === 0 ? "var(--ink-600)" : "var(--ink-900)", textWrap: "pretty", maxWidth: 360 } }, l); }),
       el("div", { style: { width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 10, marginTop: 12 } }, pin, closeBtn));
     function close() {
+      if (app().closeSheet === close) app().closeSheet = null;
       if (sheet.parentNode) sheet.parentNode.removeChild(sheet);
       if (scrim.parentNode) scrim.parentNode.removeChild(scrim);
       document.removeEventListener("keydown", onKey);
@@ -1453,6 +1455,7 @@
     document.addEventListener("keydown", onKey);
     frame.appendChild(scrim);
     frame.appendChild(sheet);
+    app().closeSheet = close;  /* the phone's Back button closes it first */
     closeBtn.focus();
     var m = window.AbanteMinds && window.AbanteMinds.moments;
     if (m && !m.reduced()) {
@@ -1463,6 +1466,58 @@
   }
   function app() { return AM.app; }
   AM.openBadge = openBadge;
+
+  function clearSheets(frame) {
+    var old = frame.querySelectorAll(".am-sheet, .am-sheet-scrim, .am-badge-sheet, .am-badge-sheet-scrim");
+    Array.prototype.forEach.call(old, function (n) { n.parentNode.removeChild(n); });
+  }
+
+  /* ---------- leaving a round ----------
+     The X in a round's header, or the phone's Back button, asks first. It
+     says what leaving keeps, and, only when there is still a shiny badge to
+     lose, that leaving now loses it. "Keep going" is the default. */
+  function openLeave() {
+    var a = app(), s = a.session;
+    var frame = document.querySelector(".am-frame");
+    if (!s || !frame) return;
+    clearSheets(frame);
+    var exam = !!s.exam;
+    var badged = !exam && !s.redo && !s.review && (s.kind === "practice" || s.kind === "facts");
+    var lines = exam ? ["It won't be scored, and the clock stops."]
+      : s.redo ? ["These questions don't move the level, so nothing is lost."]
+      : s.review ? ["Questions you've put right stay put right."]
+      : s.facts ? ["Facts you've mastered stay mastered."]
+      : ["Your right answers so far are kept."];
+    if (badged && store.canStillShine(s.topicKey, s.levelId)) lines.push("If you leave now, this level's badge can't be shiny.");
+
+    var previous = document.activeElement;
+    var scrim = el("div.am-sheet-scrim", { onClick: function () { close(); } });
+    var stay = AM.Button({ label: "Keep going", fullWidth: true, cta: true, onClick: function () { close(); } });
+    var leave = AM.Button({ label: exam ? "Leave the exam" : "Leave", variant: "ghost", fullWidth: true, onClick: function () { close(true); a.leaveSession(); } });
+    var sheet = el("div.am-sheet", { role: "dialog", "aria-modal": "true", "aria-labelledby": "am-leave-title" },
+      el("div.heading-md", { id: "am-leave-title" }, exam ? "Leave the practice exam?" : "Leave this round?"),
+      lines.map(function (l) { return el("div.body", { style: { color: "var(--ink-900)", textWrap: "pretty", maxWidth: 360 } }, l); }),
+      el("div", { style: { width: "100%", maxWidth: 420, display: "flex", flexDirection: "column", gap: 10, marginTop: 12 } }, stay, leave));
+    function close(leaving) {
+      if (a.closeSheet === close) a.closeSheet = null;
+      if (sheet.parentNode) sheet.parentNode.removeChild(sheet);
+      if (scrim.parentNode) scrim.parentNode.removeChild(scrim);
+      document.removeEventListener("keydown", onKey);
+      if (!leaving && previous && previous.focus) previous.focus();
+    }
+    function onKey(e) { if (e.key === "Escape") close(); }
+    document.addEventListener("keydown", onKey);
+    frame.appendChild(scrim);
+    frame.appendChild(sheet);
+    a.closeSheet = close;
+    stay.focus();
+    var m = window.AbanteMinds && window.AbanteMinds.moments;
+    if (m && !m.reduced()) {
+      sheet.animate([{ transform: "translateY(100%)" }, { transform: "none" }], { duration: 320, easing: m.ease.backSoft });
+      scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220 });
+    }
+  }
+  AM.openLeave = openLeave;
 
   /* New badges, as a card on a summary. */
   function newBadgesCard(keys) {
@@ -1617,7 +1672,7 @@
       el("div.am-lvup-facts", null,
         el("span.am-lvup-fact.body-sm", null, el("b.am-lvup-right", null, String(right)), "of " + tries + " right first time"),
         best >= 3 ? el("span.am-lvup-fact.body-sm", null, flame, el("b", null, String(best)), "in a row, your best this time") : null,
-        b && !b.shiny ? el("span.am-lvup-tip.caption", null, "Every first try right earns the shiny one") : null,
+        b && !b.shiny ? el("span.am-lvup-tip.caption", null, ls.left ? "A round was left partway, so this one isn't shiny" : "Every first try right earns the shiny one") : null,
         b && b.shiny ? el("span.am-lvup-tip.caption", null, "Every first try right: this one is shiny") : null));
 
     var pathNode = null, token = null, headCount = null;
@@ -1663,6 +1718,7 @@
       nav: null, onGold: true, chrome: false,
       body: body,
       footer: footer,
+      onBack: function () { keep.click(); },
       after: function () {
         AM.announce("Level " + (here + 1) + " cleared. You earned " + (b ? b.name : "a badge") + (b && b.shiny ? ", shiny" : "") + ".");
         var m = window.AbanteMinds && window.AbanteMinds.moments;
@@ -1801,7 +1857,7 @@
     var footer = el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center", background: "var(--surface-200)" } },
       el("div", { style: { width: "100%", maxWidth: 520 } }, AM.Button({ label: "Continue", fullWidth: true, cta: true, onClick: go })));
     return {
-      nav: null, chrome: false, body: body, footer: footer,
+      nav: null, chrome: false, body: body, footer: footer, onBack: go,
       after: function () {
         AM.announce(days + (days === 1 ? " day of practice." : " day streak."));
         var m = window.AbanteMinds && window.AbanteMinds.moments;
@@ -2039,6 +2095,7 @@
     var desktop = AM.device() === "desktop";
     var last = ses.index + 1 >= ses.questions.length;
     var header = AM.PracticeHeader({
+      onClose: openLeave, closeLabel: "Leave the practice exam",
       tier: app.examClock(ses) + " left", clock: true,
       questionIndex: ses.index, questionTotal: ses.questions.length
     });
@@ -2075,13 +2132,13 @@
       var row = el("div", { style: { display: "flex", gap: 32, alignItems: "flex-start" } }, left,
         keypad ? el("div", { style: { flex: "none", width: 280 } }, keypad) : null);
       return {
-        nav: "practice", bottomNav: false, header: header,
+        nav: "practice", bottomNav: false, header: header, onBack: openLeave,
         body: el("div", { style: { flex: 1, display: "flex", justifyContent: "center", padding: gutter() + "px", minHeight: 0, overflowY: "auto" } },
           el("div", { style: { width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: 32 } }, prompt, chart, row))
       };
     }
     return {
-      nav: "practice", bottomNav: false, header: header,
+      nav: "practice", bottomNav: false, header: header, onBack: openLeave,
       body: column([prompt, chart, answer]),
       belowFold: keypad ? el("div", { style: { padding: "0 " + gutter() + "px" } }, keypad) : null,
       footer: el("div", { style: { flex: "none", padding: "16px " + gutter() + "px 20px" } }, buttons)

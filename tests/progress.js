@@ -218,6 +218,61 @@ test("a missed fact on the way means the facts badge is not shiny", () => {
   ["k1", "k2", "k3"].forEach((k) => S.recordFact(k, true, true));
   assert.deepStrictEqual(S.get().badges["lv:b/f1"], { at: "2026-10-11", seen: false });
 });
+test("a round left partway keeps its answers, but the level can no longer be shiny", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  times(3, () => S.recordAnswer("a", "a1", true, true));
+  assert.strictEqual(S.canStillShine("a", "a1"), true);
+  S.leaveLevel("a", "a1");
+  assert.deepStrictEqual(S.levelState("a", "a1"), { correct: 3, attempts: 3, cleared: false, lessonSeen: false, left: true });
+  assert.strictEqual(JSON.parse(storage[KEY]).levels["a/a1"].left, true, "saved at once");
+  assert.strictEqual(S.canStillShine("a", "a1"), false);
+  assert.strictEqual(S.catalog().topics[0].levels[0].left, true, "the badge card can say why");
+  const last = times(5, () => S.recordAnswer("a", "a1", true, true)).pop();
+  assert.deepStrictEqual([last.badge, last.shiny], ["lv:a/a1", false], "eight of eight, but a round was left");
+  assert.ok(!("shiny" in S.get().badges["lv:a/a1"]));
+  assert.strictEqual(S.levelState("a", "a1").left, true, "kept through clearing");
+  assert.strictEqual(S.catalog().topics[0].levels[0].left, false, "an earned badge has nothing to explain");
+  S.markLessonSeen("a", "a1");
+  assert.strictEqual(S.levelState("a", "a1").left, true, "kept through other changes to the level");
+});
+test("leaving once the badge is earned changes nothing", () => {
+  const S = launch();
+  times(8, () => S.recordAnswer("a", "a1", true, true));
+  S.leaveLevel("a", "a1");
+  assert.ok(!("left" in S.levelState("a", "a1")));
+  assert.strictEqual(S.get().badges["lv:a/a1"].shiny, true);
+  assert.strictEqual(S.canStillShine("a", "a1"), false, "already earned");
+});
+test("a level with a first try wrong cannot shine, one not started can", () => {
+  const S = launch();
+  S.recordAnswer("a", "a1", false, true);
+  assert.strictEqual(S.canStillShine("a", "a1"), false);
+  assert.strictEqual(S.canStillShine("a", "a2"), true);
+  assert.ok(!("left" in S.levelState("a", "a2")), "asking leaves no mark");
+});
+test("a facts level left partway is not shiny either", () => {
+  const S = launch();
+  onDay("2026-10-10");
+  ["k1", "k2", "k3"].forEach((k) => S.recordFact(k, true, true));
+  assert.strictEqual(S.canStillShine("b", "f1"), true);
+  S.leaveLevel("b", "f1");
+  assert.strictEqual(S.canStillShine("b", "f1"), false);
+  onDay("2026-10-11");
+  ["k1", "k2", "k3"].forEach((k) => S.recordFact(k, true, true));
+  assert.deepStrictEqual(S.get().badges["lv:b/f1"], { at: "2026-10-11", seen: false });
+});
+test("a fact missed once means its facts level cannot shine", () => {
+  const S = launch();
+  S.recordFact("k2", false, false);
+  assert.strictEqual(S.canStillShine("b", "f1"), false);
+});
+test("a level left before badges began is counted without shine", () => {
+  const S = launch({ version: 2, levels: { "a/a1": { correct: 8, attempts: 8, cleared: true, left: true } } });
+  S.syncBadges();
+  assert.ok(S.get().badges["lv:a/a1"]);
+  assert.ok(!("shiny" in S.get().badges["lv:a/a1"]));
+});
 test("every level but a review level is a badge, named on one ladder", () => {
   const S = launch();
   const cat = S.catalog();

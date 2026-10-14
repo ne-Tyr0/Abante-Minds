@@ -165,6 +165,8 @@
         flex: "none"
       }
     },
+      /* Leaving: the round's own way out, which asks first (screens.js). */
+      o.onClose ? el("button.am-reset.am-close", { type: "button", "aria-label": o.closeLabel || "Leave this round", onClick: o.onClose }, icon("x", 22)) : null,
       el("span.caption" + (o.clock ? ".am-exam-clock" : ""), {
         role: o.clock ? "timer" : null,
         style: {

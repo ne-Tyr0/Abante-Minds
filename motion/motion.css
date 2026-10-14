@@ -43,8 +43,25 @@
 /* ---------- Press ----------
    Reverted to the design system's own box-shadow shelf. The pseudo-element
    rewrite was measurably cheaper but never matched the silhouette the system
-   is built on, so press.css keeps the mechanic and only its duration is
-   retokenised (--press-duration above). */
+   is built on, so press.css keeps the mechanic. On top of it: a deeper
+   shelf, a quick press down, and a release that springs a pixel past rest
+   and settles. motion.js adds am-pressed at the touch, because a phone does
+   not always show :active, and springs back a button a re-render replaced. */
+:root { --press-depth: 5px; }
+.am-pressable {
+  transition: transform 240ms cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 240ms cubic-bezier(0.34, 1.56, 0.64, 1), background-color 120ms ease-out;
+}
+.am-pressable:active:not(:disabled),
+.am-pressable.am-pressed:not(:disabled) {
+  transform: translateY(var(--am-depth));
+  box-shadow: 0 0 0 var(--am-edge);
+  transition: transform 50ms ease-out, box-shadow 50ms ease-out, background-color 120ms ease-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .am-pressable, .am-pressable.am-pressed { transition: none; }
+}
+:root[data-calm="true"] .am-pressable,
+:root[data-calm="true"] .am-pressable.am-pressed { transition: none; }
 
 /* ---------- FIX 2: fills scale, they do not resize ----------
    Both fills are textless bare spans, so there is no child to counter-squash.
