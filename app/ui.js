@@ -490,31 +490,6 @@
     return wrap;
   }
 
-  /* The phone chrome. Purely decorative, so it is hidden from the reader. */
-  function StatusBar(o) {
-    o = o || {};
-    var ink = o.onGold ? "var(--ink-900)" : "var(--line-200)";
-    var pip = function (w, hollow) {
-      return el("span", {
-        style: hollow
-          ? { width: w, height: 8, borderRadius: 2, border: "1px solid " + ink }
-          : { width: w, height: 8, borderRadius: 2, background: ink }
-      });
-    };
-    /* A desktop window keeps the clock and drops the phone pips. */
-    return el("div.am-statusbar", { "aria-hidden": "true",
-      style: {
-        height: o.minimal ? 32 : 28, flex: "none", display: "flex", alignItems: "center",
-        justifyContent: o.minimal ? "flex-end" : "space-between",
-        padding: o.minimal ? "0 var(--space-12)" : "0 var(--space-4)"
-      }
-    },
-      el("span.caption", { style: { color: o.onGold ? "var(--ink-900)" : "var(--ink-600)" } }, o.time || "9:41"),
-      o.minimal ? null : el("span", { style: { display: "flex", gap: "var(--space-1)", alignItems: "center" } },
-        pip(14), pip(8, !!o.offline), pip(18))
-    );
-  }
-
   var NAV_ITEMS = [
     { key: "home", icon: "home", label: "Home" },
     { key: "practice", icon: "lesson", label: "Practice" },
@@ -1066,7 +1041,6 @@
   AM.StreakWeek = StreakWeek;
   AM.BadgeShelf = BadgeShelf;
   AM.TopicBars = TopicBars;
-  AM.StatusBar = StatusBar;
   AM.BottomNav = BottomNav;
   AM.SideRail = SideRail;
   AM.Card = Card;

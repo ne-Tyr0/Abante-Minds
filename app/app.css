@@ -35,6 +35,9 @@ html, body {
   flex-direction: column;
   height: 100dvh;
   background: var(--surface-100);
+  /* Clear of the notch and the phone's own status bar when the app runs from
+     the home screen. In a browser tab this is 0. */
+  padding-top: env(safe-area-inset-top, 0px);
 }
 
 .am-slot-body {
@@ -54,7 +57,6 @@ html, body {
   display: flex;
   flex-direction: column;
 }
-.am-slot-status,
 .am-slot-banner,
 .am-slot-header,
 .am-slot-belowfold,
