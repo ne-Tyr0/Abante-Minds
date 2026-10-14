@@ -1,6 +1,6 @@
 /* Abante Minds — shell, router, and the practice loop.
-   One render pass rebuilds the current screen; the shell slots (status bar,
-   banner, header, body, below-fold, footer, nav) stay put so the keypad and the
+   One render pass rebuilds the current screen; the shell slots (banner,
+   header, body, below-fold, footer, nav) stay put so the keypad and the
    bottom action never move under a thumb mid-session. */
 (function () {
   "use strict";
@@ -42,7 +42,6 @@
 
     slots = {
       rail: el("div.am-rail-slot"),
-      statusBar: el("div.am-slot-status"),
       banner: el("div.am-slot-banner"),
       header: el("div.am-slot-header"),
       body: el("div.am-slot-body"),
@@ -52,7 +51,7 @@
     };
 
     var frame = el("div.am-frame", null,
-      slots.statusBar, slots.banner, slots.header,
+      slots.banner, slots.header,
       slots.body, slots.belowFold, slots.footer, slots.nav);
 
     root.appendChild(slots.rail);
@@ -74,11 +73,9 @@
 
     root.dataset.gold = view.onGold ? "true" : "false";
 
-    /* The celebration is a takeover: no header, no nav, one action. */
-    var showChrome = view.chrome !== false;
-    fill(slots.statusBar, showChrome || view.onGold
-      ? AM.StatusBar({ onGold: !!view.onGold, offline: !store.isOnline(), minimal: dev === "desktop" })
-      : null);
+    /* The celebration is a takeover: no header, no nav, one action. There is
+       no painted status bar: the phone draws its own, and a second clock
+       frozen at 9:41 under the real one was only a mockup's. */
     fill(slots.banner, view.banner || null);
     fill(slots.header, view.header || (view.back ? backRow(view.back) : null));
 
