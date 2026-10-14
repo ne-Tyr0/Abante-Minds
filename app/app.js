@@ -714,6 +714,9 @@
       navigator.serviceWorker.register("sw.js").catch(function () { /* offline still works from cache-less reloads */ });
     }
     app.ready = Promise.resolve().then(function () { return C.load(); }).then(function () {
+      /* Badges are counted from the levels, so only once the pack is in:
+         the first time, progress made before badges is awarded quietly. */
+      store.syncBadges();
       var s = store.get();
       if (!s.installed && !s.signedIn) app.route = "splash";
       else if (!s.signedIn) app.route = "signin";

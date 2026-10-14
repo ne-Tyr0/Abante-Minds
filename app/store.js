@@ -66,7 +66,12 @@
       recoveryRequested: false,
       lastSession: null,
       participant: null,           /* the pseudonymous code on every logged answer, made when first needed */
-      settings: null               /* {sound, vibration, calm}; null until changed, read through settings() */
+      settings: null,              /* {sound, vibration, calm}; null until changed, read through settings() */
+      badges: {},                  /* badge key: {at, shiny, before, seen}; see "badges" below */
+      badgesSince: null,           /* the day badges were first counted */
+      showcase: null,              /* up to three badge keys pinned on Profile; null shows the newest */
+      reviewsFixed: 0,             /* missed questions put right in review, for Improver */
+      welcomeDue: false            /* back after a few days away: Welcome back on the next answer */
     };
   }
 
@@ -144,6 +149,7 @@
       state.streakDays = 0;
       state.resetToday = true;
     }
+    if (state.lastActiveDay && gap !== null && gap >= WELCOME_GAP) state.welcomeDue = true;
 
     /* Roll the week strip when we cross into a new Monday-based week. */
     var idx = weekdayIndex(t);
@@ -166,6 +172,8 @@
     state.lastActiveDay = t;
     state.week[weekdayIndex(t)] = true;
     if (gap === 1 || gap === null) state.resetToday = false;
+    awardStreak();
+    if (state.welcomeDue) { state.welcomeDue = false; award("welcome"); }
   }
 
   /* ---------- levels ---------- */
@@ -187,7 +195,7 @@
   function recordAnswer(topic, level, right, firstTry) {
     rollDay();
     markPractice();
-    var s = levelState(topic, level), clearedNow = false;
+    var s = levelState(topic, level), clearedNow = false, badge = null;
     if (firstTry) {
       s.attempts += 1;
       if (right) {
@@ -198,8 +206,12 @@
     }
     saveLevel(topic, level, s);
     state.lastLevel = { topic: topic, level: level };
+    if (clearedNow) {
+      badge = levelBadgeKey(topic, level);
+      award(badge, { shiny: s.attempts === s.correct });
+    }
     commit();
-    return { cleared: clearedNow };
+    return { cleared: clearedNow, badge: badge, shiny: !!(badge && state.badges[badge].shiny) };
   }
 
   /* Practice that does not move a level (redoing missed questions) still
@@ -256,9 +268,10 @@
       f.days = [];
     }
     state.facts[key] = f;
-    commit();
     var now = f.days.length >= MASTERY_DAYS;
-    return { mastered: now && !was, lost: was && !now };
+    var badges = now && !was ? awardFactLevels() : [];
+    commit();
+    return { mastered: now && !was, lost: was && !now, badges: badges };
   }
 
   /* ---------- the path, as the screens show it ---------- */
@@ -507,6 +520,10 @@
     if (!right) { e.step = 0; e.due = addDays(today(), REVIEW_DAYS[0]); }
     else if (e.step + 1 >= REVIEW_DAYS.length) { delete review[key]; done = true; }
     else { e.step += 1; e.due = addDays(today(), REVIEW_DAYS[e.step]); }
+    if (done) {
+      state.reviewsFixed = (state.reviewsFixed || 0) + 1;
+      if (state.reviewsFixed >= IMPROVER_FIXES) award("improver");
+    }
     commit();
     return { done: done, due: done ? null : e.due };
   }
@@ -523,6 +540,7 @@
     markPractice();
     state.exams = (state.exams || []).concat([{ day: today(), score: r.score, total: r.total, seconds: r.seconds, topics: r.topics }])
       .slice(-EXAMS_KEPT);
+    awardExam(r.score, r.total);
     commit();
   }
   /* The last and the best, by the share right, the later one on a tie. */
@@ -532,6 +550,196 @@
     var best = list.reduce(function (b, x) { return x.score / x.total >= b.score / b.total ? x : b; }, list[0]);
     return { taken: list.length, last: list[list.length - 1], best: best };
   }
+
+  /* ---------- badges ----------
+     Every level is a badge: each level on the path, and each practice or
+     facts level in Basics (a review level asks facts already counted, so it
+     has none). A level's badge is earned when the level clears, or for a
+     facts level when every one of its facts is mastered; it is shiny when it
+     got there without a single first try wrong. Special badges sit beside
+     them: streaks of 3, 7, 14 and 30 days, practice exams at 60, 75 and 90
+     per cent, Improver for five missed questions put right in review, and
+     Welcome back for practising again after a few days away.
+
+     A badge, once earned, is never taken away: a fact can be lost and a
+     streak can end, and the badge stays. Badges began after levels did, so
+     the first time they are counted (syncBadges, once the packs have loaded)
+     every one the learner had already earned is awarded and marked
+     `before`, with no "new" flag and no celebration. After that a badge is
+     awarded the moment it is earned. */
+  var STREAK_BADGES = [3, 7, 14, 30];
+  var EXAM_BADGES = [60, 75, 90];
+  var IMPROVER_FIXES = 5;
+  var WELCOME_GAP = 3;          /* days between practice that count as away */
+  var SHOWCASE_MAX = 3;
+  var TIERS = ["Starter", "Explorer", "Builder", "Expert", "Champion", "Master"];
+
+  /* The ladder is the same in every topic: the first level is always
+     Starter and the last always Master, and the ones between are spread by
+     how far through the topic they are, so Champion means nearly done
+     whether a topic has four levels or six. */
+  function tierName(number, total) {
+    if (number >= total) return TIERS[5];
+    if (number <= 1) return TIERS[0];
+    return TIERS[Math.min(4, Math.max(1, Math.round((number - 1) / (total - 1) * 5)))];
+  }
+
+  var SPECIALS = [
+    { key: "streak:3", kind: "streak", tier: 1, name: "3-day streak", how: "Practise 3 days in a row." },
+    { key: "streak:7", kind: "streak", tier: 2, name: "7-day streak", how: "Practise 7 days in a row." },
+    { key: "streak:14", kind: "streak", tier: 3, name: "14-day streak", how: "Practise 14 days in a row." },
+    { key: "streak:30", kind: "streak", tier: 4, name: "30-day streak", how: "Practise 30 days in a row." },
+    { key: "exam:60", kind: "exam", tier: 1, name: "Exam 60%", how: "Score 60% or more on a practice exam." },
+    { key: "exam:75", kind: "exam", tier: 2, name: "Exam 75%", how: "Score 75% or more on a practice exam." },
+    { key: "exam:90", kind: "exam", tier: 3, name: "Exam 90%", how: "Score 90% or more on a practice exam." },
+    { key: "improver", kind: "improver", tier: 0, name: "Improver", how: "Put right " + IMPROVER_FIXES + " questions you missed before, in review." },
+    { key: "welcome", kind: "welcome", tier: 0, name: "Welcome back", how: "Come back to practise after a few days away." }
+  ];
+
+  var syncing = false;          /* the first count of badges, for progress made before them */
+  var recent = [];              /* keys awarded since the screens last asked */
+
+  function award(key, extra) {
+    var badges = state.badges || (state.badges = {});
+    if (badges[key]) return false;
+    var b = { at: today() };
+    if (extra && extra.shiny) b.shiny = true;
+    if (syncing) { b.before = true; b.seen = true; } else recent.push(key);
+    badges[key] = b;
+    return true;
+  }
+
+  function levelBadgeKey(topic, level) { return "lv:" + levelKey(topic, level); }
+
+  function awardStreak() {
+    STREAK_BADGES.forEach(function (n) { if (state.streakDays >= n) award("streak:" + n); });
+  }
+  function awardExam(score, total) {
+    var pct = total ? (score / total) * 100 : 0;
+    EXAM_BADGES.forEach(function (n) { if (pct >= n) award("exam:" + n); });
+  }
+
+  /* A facts level is done when every one of its facts is mastered; shiny
+     when none of them was ever missed. */
+  function factLevelDone(topic, level) {
+    var keys = AM.content.facts(topic, level);
+    if (!keys.length) return null;
+    var all = keys.map(factState);
+    if (!all.every(function (f) { return f.mastered; })) return null;
+    return { shiny: all.every(function (f) { return f.miss === 0; }) };
+  }
+  function awardFactLevels() {
+    var got = [];
+    (AM.content.BASICS || []).forEach(function (t) {
+      t.levels.forEach(function (lv) {
+        if (lv.kind !== "facts") return;
+        var done = factLevelDone(t.key, lv.id);
+        if (done && award(levelBadgeKey(t.key, lv.id), done)) got.push(levelBadgeKey(t.key, lv.id));
+      });
+    });
+    return got;
+  }
+
+  /* Count every badge the learner has earned and not yet been given. The
+     first count marks them `before`; later ones only catch up. */
+  function syncBadges() {
+    var first = !state.badgesSince;
+    if (first) state.badgesSince = today();
+    syncing = first;
+    var before = Object.keys(state.badges || {}).length;
+    AM.content.TOPICS.concat(AM.content.BASICS || []).forEach(function (t) {
+      t.levels.forEach(function (lv) {
+        if (lv.kind === "facts" || lv.kind === "review") return;
+        var s = levelState(t.key, lv.id);
+        if (s.cleared) award(levelBadgeKey(t.key, lv.id), { shiny: s.attempts === s.correct });
+      });
+    });
+    awardFactLevels();
+    awardStreak();
+    (state.exams || []).forEach(function (e) { awardExam(e.score, e.total); });
+    if ((state.reviewsFixed || 0) >= IMPROVER_FIXES) award("improver");
+    syncing = false;
+    if (first || Object.keys(state.badges || {}).length !== before) commit();
+  }
+
+  /* Every badge there is, in path order then Basics then the specials, with
+     what the learner has: for the shelf, the badge card and the counts. */
+  function badgeOf(key) { return (state.badges || {})[key] || null; }
+  function catalog() {
+    var topics = [], earned = 0, total = 0;
+    AM.content.TOPICS.concat(AM.content.BASICS || []).forEach(function (t) {
+      if (t.ready === false) return;
+      var own = t.levels.filter(function (lv) { return lv.kind !== "review"; });
+      var levels = own.map(function (lv, i) {
+        var key = levelBadgeKey(t.key, lv.id), b = badgeOf(key);
+        total += 1;
+        if (b) earned += 1;
+        return {
+          key: key, topic: t.key, level: lv.id, title: lv.title, kind: lv.kind || "practice",
+          number: i + 1, total: own.length, tier: tierName(i + 1, own.length),
+          name: t.label + " " + tierName(i + 1, own.length),
+          earned: !!b, at: b ? b.at : null, shiny: !!(b && b.shiny), before: !!(b && b.before), seen: !b || b.seen !== false
+        };
+      });
+      topics.push({
+        key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey, track: t.track === "basics" ? "basics" : "path",
+        levels: levels, earned: levels.filter(function (x) { return x.earned; }).length,
+        complete: levels.length > 0 && levels.every(function (x) { return x.earned; })
+      });
+    });
+    var specials = SPECIALS.map(function (sp) {
+      var b = badgeOf(sp.key);
+      return {
+        key: sp.key, kind: sp.kind, tier: sp.tier, name: sp.name, how: sp.how,
+        earned: !!b, at: b ? b.at : null, before: !!(b && b.before), seen: !b || b.seen !== false
+      };
+    });
+    return { topics: topics, specials: specials, earned: earned, total: total };
+  }
+
+  function findBadge(key, cat) {
+    cat = cat || catalog();
+    for (var i = 0; i < cat.topics.length; i++) {
+      var t = cat.topics[i];
+      for (var j = 0; j < t.levels.length; j++) if (t.levels[j].key === key) return { topic: t, badge: t.levels[j] };
+    }
+    var sp = cat.specials.filter(function (x) { return x.key === key; })[0];
+    return sp ? { topic: null, badge: sp } : null;
+  }
+
+  function markBadgeSeen(key) {
+    var b = badgeOf(key);
+    if (b && b.seen === false) { b.seen = true; commit(); }
+  }
+
+  /* The three on show: the learner's own picks while they are earned,
+     otherwise the most recent, newest first. Badges are kept in the order
+     they were earned, so on the same day the later one is the newer. */
+  function showcase() {
+    var badges = state.badges || {};
+    var picked = (state.showcase || []).filter(function (k) { return badges[k]; });
+    if (picked.length) return picked.slice(0, SHOWCASE_MAX);
+    var order = Object.keys(badges);
+    return order.slice().sort(function (a, b) {
+      return badges[a].at < badges[b].at ? 1 : badges[a].at > badges[b].at ? -1 : order.indexOf(b) - order.indexOf(a);
+    }).slice(0, SHOWCASE_MAX);
+  }
+  function isPinned(key) { return (state.showcase || []).indexOf(key) > -1; }
+  /* Pin or unpin a badge. Pinning a fourth unpins the oldest pick. */
+  function togglePin(key) {
+    if (!badgeOf(key)) return false;
+    var list = (state.showcase || []).filter(function (k) { return badgeOf(k); });
+    var at = list.indexOf(key);
+    if (at > -1) list.splice(at, 1);
+    else { list.push(key); if (list.length > SHOWCASE_MAX) list.shift(); }
+    state.showcase = list;
+    commit();
+    return at < 0;
+  }
+
+  /* Badges awarded since the screens last asked: for the summary, the exam
+     result, the streak screen. Asking empties the list. */
+  function takeRecent() { var out = recent; recent = []; return out; }
 
   function hasProgress() {
     return state.totalCorrect > 0 || Object.keys(state.levels).length > 0 || Object.keys(state.facts).length > 0;
@@ -583,6 +791,17 @@
       return t ? basicsTopic(t) : null;
     },
     badges: badges,
+    syncBadges: syncBadges,
+    catalog: catalog,
+    findBadge: findBadge,
+    tierName: tierName,
+    markBadgeSeen: markBadgeSeen,
+    showcase: showcase,
+    isPinned: isPinned,
+    togglePin: togglePin,
+    takeRecent: takeRecent,
+    SHOWCASE_MAX: SHOWCASE_MAX,
+    IMPROVER_FIXES: IMPROVER_FIXES,
     hasProgress: hasProgress,
     recordExam: recordExam,
     scheduleReview: scheduleReview,
