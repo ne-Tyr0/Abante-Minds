@@ -4,7 +4,7 @@
    lives in localStorage and never leaves the phone. */
 "use strict";
 
-var CACHE = "abante-minds-v53";
+var CACHE = "abante-minds-v54";
 
 var SHELL = [
   "./",
@@ -55,6 +55,7 @@ var SHELL = [
   "motion/moments.js",
   "assets/abante-minds-mark.png",
   "assets/abante-minds-maskable.png",
+  "assets/abante-minds-apple-touch.png",
   /* styles.css and tokens/fonts.css are deliberately absent: index.html lists the
      token files individually and loads app/fonts.css instead, so the CDN import in
      tokens/fonts.css is never reached. */

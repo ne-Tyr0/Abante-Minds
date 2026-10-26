@@ -40,8 +40,10 @@ rendered. The full file was taken from the source kit already on disk at
 `abante-minds-claude-design/abante-minds-claude-design/logo/abante-minds-mark.png` and downscaled to 512x512 (93 KB
 rather than 693 KB, and still 3x for the 104px box the splash gives it).
 `assets/abante-minds-maskable.png` is derived from it: Android crops a maskable icon to a
-circle, so the art sits inside a 60% safe zone on `--surface-100` instead of bleeding to a
-transparent edge.
+circle, so the art sits inside a 60% safe zone on white instead of bleeding to a transparent
+edge. `assets/abante-minds-apple-touch.png` (180x180) is the iPhone home-screen icon: iOS
+draws a transparent icon on black, so it is the mark at 72% on white. A phone keeps the icon
+it was installed with; to see a new one, remove the app from the home screen and add it again.
 
 The design document is kept as the specification. It needs the canvas host to render its
 live React components, so it is a reference to read rather than a page to open; the
