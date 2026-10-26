@@ -438,9 +438,14 @@
       if (right) s.correct += 1;
     }
     if (s.facts) checkFact(s, q, right);
-    else if (s.review) { if (firstTry) store.recordReview(q.reviewKey, right); else store.notePractice(); }
+    else if (s.review) {
+      if (firstTry) { var rr = store.recordReview(q.reviewKey, right); if (rr && AM.tally) AM.tally.review(rr.interval, right); }
+      else store.notePractice();
+    }
     else if (s.redo) store.notePractice();
     else if (store.recordAnswer(s.topicKey, s.levelId, right, firstTry).cleared) s.pendingLevelUp = true;
+    /* This week's totals, if the learner shares them (tally.js). */
+    if (AM.tally && firstTry && !s.facts && !s.review && !s.redo) AM.tally.answer(s.topicKey, s.levelId, right, s.showHints ? s.hintsRevealed : 0);
     /* A first try moves the round's difficulty; a retry does not. */
     if (s.adapt && firstTry && !s.redo && !s.review) s.adapt = store.adaptStep(s.adapt, right);
     /* A miss on the path comes back in a day, then three, then seven. */
@@ -502,6 +507,7 @@
     s.lastMs = ms;
     s.lastQuick = quick;
     s.lastMastered = store.recordFact(q.factKey, right, quick).mastered;
+    if (AM.tally) AM.tally.fact(s.topicKey, s.levelId, right, quick);
     s.lastRequeued = false;
     if (quick) s.quick += 1;
     if (s.lastMastered && s.mastered.indexOf(q.factKey) < 0) s.mastered.push(q.factKey);
@@ -582,6 +588,7 @@
     var s = app.session;
     if (s.exam) { finishExam(s, false); return; }
     if (s.review) { finishReview(s); return; }
+    if (AM.tally && !s.redo) AM.tally.roundFinished(s.topicKey, s.levelId);
     var minutes = Math.max(1, Math.round((Date.now() - s.startedAt) / 60000));
     var result = {
       topicKey: s.topicKey,
@@ -620,6 +627,7 @@
       store.set({ streakShownDay: t });
       app.scratch.afterStreak = route;
       app.scratch.streak = null;
+      if (AM.tally) AM.tally.feature("streak-screen");
       app.go("streak");
     } else app.go(route);
   }
@@ -642,7 +650,10 @@
       return;
     }
     if (s.phase !== "ask" && s.index + 1 >= s.questions.length) { app.next(); return; }
-    if (!s.redo && !s.review && (s.kind === "practice" || s.kind === "facts")) store.leaveLevel(s.topicKey, s.levelId);
+    if (!s.redo && !s.review && (s.kind === "practice" || s.kind === "facts")) {
+      store.leaveLevel(s.topicKey, s.levelId);
+      if (AM.tally) AM.tally.roundLeft(s.topicKey, s.levelId);
+    }
     s.leaving = true;
     /* A level cleared by the question just answered still gets its moment. */
     if (s.pendingLevelUp) { app.next(); return; }
@@ -772,6 +783,7 @@
     var topics = {};
     byTopic.forEach(function (t) { topics[t.key] = [t.right, t.asked]; });
     var seconds = Math.min(EXAM_MINUTES * 60, Math.round((Date.now() - s.startedAt) / 1000));
+    if (AM.tally) AM.tally.exam(byTopic);
     store.recordExam({ score: s.correct, total: s.questions.length, seconds: seconds, topics: topics });
     app.scratch.exam = {
       score: s.correct, total: s.questions.length, seconds: seconds, timedOut: !!timedOut,
@@ -847,6 +859,8 @@
       /* Badges are counted from the levels, so only once the pack is in:
          the first time, progress made before badges is awarded quietly. */
       store.syncBadges();
+      /* Finished weeks of shared totals go out when there is a signal. */
+      if (AM.tally) { AM.tally.flush(); window.addEventListener("online", function () { AM.tally.flush(); }); }
       var s = store.get();
       if (!s.installed && !s.signedIn) app.route = "splash";
       else if (!s.signedIn) app.route = "signin";
@@ -855,6 +869,7 @@
       render();
     }, function (err) {
       app.loadError = err; /* for anyone debugging from the console */
+      if (AM.tally) AM.tally.error("load-failed");
       app.route = "loadFailed";
       render();
     });

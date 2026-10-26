@@ -1,0 +1,13 @@
+# Copy to wrangler.toml and fill in database_id after creating the database
+# (server/README.md). Logs stay off: the Worker keeps nothing about a request.
+name = "abante-minds-totals"
+main = "worker.js"
+compatibility_date = "2026-10-01"
+
+[observability]
+enabled = false
+
+[[d1_databases]]
+binding = "DB"
+database_name = "abante-minds-totals"
+database_id = "FILL-IN-AFTER-wrangler-d1-create"

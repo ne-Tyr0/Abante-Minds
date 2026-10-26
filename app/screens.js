@@ -648,7 +648,10 @@
       }, icon("streak", 22), el("span.label", { style: { color: "var(--ink-900)" } },
         s.streakDays + " day" + (s.streakDays === 1 ? "" : "s") + " in a row")),
       body: column([headline, el("div", { style: { height: 20 } }), cards], { gap: 0, paddingBottom: 24 }),
-      footer: footer
+      footer: footer,
+      /* The one question about sharing weekly totals, on Home after a round
+         has been finished: a calm moment, never inside a lesson. */
+      after: function () { if (!s.sharingAsked && s.lastSession) openShareAsk(); }
     };
   };
 
@@ -1407,6 +1410,7 @@
     if (!frame || !found) return;
     var b = found.badge;
     store.markBadgeSeen(key);
+    if (AM.tally) AM.tally.feature("badge-card");
     var sound = window.AbanteMinds && window.AbanteMinds.sound;
     if (sound) sound.play("pop");
     clearSheets(frame);
@@ -1519,6 +1523,87 @@
     }
   }
   AM.openLeave = openLeave;
+
+  /* ---------- sharing weekly totals ----------
+     Counts only (tally.js): totals per level, never anything that points to
+     a learner. Asked once; both answers weigh the same, and Not now is a no. */
+  var SHARE_LINE = "Totals like questions right in each level, to help improve the app. Never your name or anything that shows it is you.";
+  function openShareAsk() {
+    var a = app(), frame = document.querySelector(".am-frame");
+    if (!frame) return;
+    store.markSharingAsked();
+    clearSheets(frame);
+    var previous = document.activeElement;
+    var scrim = el("div.am-sheet-scrim", { onClick: function () { close(); } });
+    function answer(yes) { return function () { if (yes) store.setSetting("sharing", true); close(); }; }
+    var yes = AM.Button({ label: "Yes, share totals", variant: "ghost", fullWidth: true, onClick: answer(true) });
+    var no = AM.Button({ label: "Not now", variant: "ghost", fullWidth: true, onClick: answer(false) });
+    var sheet = el("div.am-sheet", { role: "dialog", "aria-modal": "true", "aria-labelledby": "am-share-title" },
+      el("div.heading-md", { id: "am-share-title" }, "Help make Abante Minds better?"),
+      el("div.body", { style: { color: "var(--ink-900)", textWrap: "pretty", maxWidth: 380 } },
+        "Once a week, the app can send totals, like how many questions were answered right in each level. It never sends your name, your school or anything that shows it is you."),
+      el("div.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty", maxWidth: 380 } },
+        "Ask a grown-up if you are not sure. You can change this any time in Profile."),
+      el("div", { style: { width: "100%", maxWidth: 420, display: "flex", gap: 10, marginTop: 12 } }, yes, no),
+      el("button.am-reset", {
+        type: "button", onClick: function () { close(); a.go("privacy"); },
+        style: { minHeight: 44, background: "none", border: 0, cursor: "pointer", color: "var(--brand-blue-600)" }
+      }, el("span.label", null, "What is shared")));
+    function close() {
+      if (a.closeSheet === close) a.closeSheet = null;
+      if (sheet.parentNode) sheet.parentNode.removeChild(sheet);
+      if (scrim.parentNode) scrim.parentNode.removeChild(scrim);
+      document.removeEventListener("keydown", onKey);
+      if (previous && previous.focus) previous.focus();
+    }
+    function onKey(e) { if (e.key === "Escape") close(); }
+    document.addEventListener("keydown", onKey);
+    frame.appendChild(scrim);
+    frame.appendChild(sheet);
+    a.closeSheet = close;
+    var m = window.AbanteMinds && window.AbanteMinds.moments;
+    if (m && !m.reduced()) {
+      sheet.animate([{ transform: "translateY(100%)" }, { transform: "none" }], { duration: 320, easing: m.ease.backSoft });
+      scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 220 });
+    }
+  }
+
+  /* What is shared, in plain words, and what is not. */
+  screens.privacy = function (app) {
+    var set = store.settings(), live = !!(AM.tally && AM.tally.endpoint());
+    var status = !live ? "This version of the app sends nothing yet. Totals stay on this phone."
+      : set.sharing ? "Sharing is on." : "Sharing is off. Nothing is counted or sent.";
+    function part(title, lines) {
+      return el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 8 } },
+        el("div.label", null, title),
+        AM.Card({ style: { gap: 6 } }, lines.map(function (l) { return el("div.body", { style: { textWrap: "pretty" } }, l); })));
+    }
+    return {
+      nav: null,
+      back: function () { app.go("profile", "back"); },
+      body: column([
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
+          el("div.heading-md", null, "What is shared"),
+          el("div.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, status)),
+        part("Sent once a week, only if Share weekly totals is on", [
+          "For each level practised: questions answered, right first time, hints used, and rounds finished or left early.",
+          "Reviews: how many were right and wrong. Basics facts: answered, right and quick. Practice exams: right and asked in each topic.",
+          "How often the streak screen and badge cards are opened, and which settings are switched.",
+          "Error codes, if something goes wrong. The app's version and the week."
+        ]),
+        part("Never sent", [
+          "Your name, your school, any code or ID for you or this phone, where you are, the time of day, or anything you type."
+        ]),
+        part("Where it goes", [
+          "To a small server on Cloudflare, mostly in the Asia-Pacific region. It adds your totals to everyone else's and throws the report away, so nothing there belongs to you or this phone. Totals from fewer than five reports are hidden when they are read."
+        ]),
+        part("Stopping", [
+          "Turn off Share weekly totals in Profile. Totals not yet sent are deleted from this phone. Totals already sent cannot be picked out again, because nothing links them to you."
+        ]),
+        part("Questions", ["Write to ron.baraneta@gmail.com."])
+      ], { gap: 0, paddingBottom: 24 })
+    };
+  };
 
   /* New badges, as a card on a summary. */
   function newBadgesCard(keys) {
@@ -2293,7 +2378,14 @@
         /* Sound, vibration, calm and the theme, for this phone. */
         (function () {
           var set = store.settings();
-          function change(name) { return function (v) { store.setSetting(name, v); app.keepScroll = true; app.render(); }; }
+          function change(name) {
+            return function (v) {
+              store.setSetting(name, v);
+              if (name === "sharing" && !v && AM.tally) AM.tally.clear();  /* off: nothing kept */
+              if (AM.tally && name !== "sharing") AM.tally.feature(name + "-" + (v === true ? "on" : v === false ? "off" : v));
+              app.keepScroll = true; app.render();
+            };
+          }
           return el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
             sectionLabel("Settings"),
             AM.Card({ style: { gap: 0, paddingTop: 4, paddingBottom: 4 } },
@@ -2303,7 +2395,12 @@
               AM.Segmented({
                 label: "Theme", sub: "Auto follows your phone's light or dark setting.", value: set.theme, onChange: change("theme"),
                 options: [{ value: "auto", label: "Auto" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }]
-              })));
+              }),
+              AM.Toggle({ label: "Share weekly totals", sub: SHARE_LINE, on: set.sharing, onChange: change("sharing") }),
+              el("button.am-reset.am-backlink", {
+                type: "button", onClick: function () { app.go("privacy"); },
+                style: { alignSelf: "flex-start", minHeight: 44, padding: "0 0 4px", background: "none", border: 0, cursor: "pointer", color: "var(--brand-blue-600)" }
+              }, el("span.label", null, "What is shared"))));
         })(),
 
         /* One button, no card: it fits the space Profile had spare on a

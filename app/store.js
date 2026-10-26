@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 55;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 56;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -72,7 +72,8 @@
       showcase: null,              /* up to three badge keys pinned on Profile; null shows the newest */
       reviewsFixed: 0,             /* missed questions put right in review, for Improver */
       welcomeDue: false,           /* back after a few days away: Welcome back on the next answer */
-      streakShownDay: null         /* the day the streak screen last showed */
+      streakShownDay: null,        /* the day the streak screen last showed */
+      sharingAsked: false          /* the one question about sharing weekly totals has been asked */
     };
   }
 
@@ -80,7 +81,7 @@
      silent stays silent whatever this says. Calm turns the celebrations
      into a still frame, and is on by itself when the phone asks for reduced
      motion. */
-  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false, theme: "auto" };
+  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false, theme: "auto", sharing: false };
   /* A setting with named choices; every other setting is on or off. Auto
      follows the phone's own light or dark setting. */
   var SETTING_CHOICES = { theme: ["auto", "light", "dark"] };
@@ -93,6 +94,12 @@
       out[k] = validSetting(k, saved[k]) ? saved[k] : DEFAULT_SETTINGS[k];
     });
     return out;
+  }
+  /* The one question about sharing weekly totals: asked once, whatever the answer. */
+  function markSharingAsked() {
+    if (state.sharingAsked) return;
+    state.sharingAsked = true;
+    commit();
   }
   function setSetting(name, value) {
     if (!(name in DEFAULT_SETTINGS)) return;
@@ -536,7 +543,7 @@
     if (!e) return null;
     rollDay();
     markPractice();
-    var done = false;
+    var done = false, interval = REVIEW_DAYS[e.step];
     if (!right) { e.step = 0; e.due = addDays(today(), REVIEW_DAYS[0]); }
     else if (e.step + 1 >= REVIEW_DAYS.length) { delete review[key]; done = true; }
     else { e.step += 1; e.due = addDays(today(), REVIEW_DAYS[e.step]); }
@@ -545,7 +552,7 @@
       if (state.reviewsFixed >= IMPROVER_FIXES) award("improver");
     }
     commit();
-    return { done: done, due: done ? null : e.due };
+    return { done: done, due: done ? null : e.due, interval: interval };
   }
   function dropReview(key) {
     if (state.review && state.review[key]) { delete state.review[key]; commit(); }
@@ -799,6 +806,7 @@
     state = blank();
     attemptLog = [];
     try { window.localStorage.removeItem(KEY); window.localStorage.removeItem(LOG_KEY); } catch (e) { /* nothing to clear */ }
+    if (AM.tally) AM.tally.clear();
     window.location.reload();
   }
 
@@ -812,6 +820,7 @@
 
     get: function () { return state; },
     settings: settings,
+    markSharingAsked: markSharingAsked,
     setSetting: setSetting,
     set: function (patch) {
       Object.keys(patch).forEach(function (k) { state[k] = patch[k]; });

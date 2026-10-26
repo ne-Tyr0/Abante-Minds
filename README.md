@@ -62,6 +62,8 @@ components it imports are reimplemented natively in `app/ui.js`.
 | `app/facts.js` | Which facts a Basics round asks, and when a missed one comes back |
 | `content/packs/` | The questions, as JSON |
 | `app/store.js` | Learner state: progress level by level, Basics facts mastered, the streak |
+| `app/tally.js` | This week's totals, kept and sent only if the learner shares them (counts only; sends nothing until a server is approved) |
+| `server/` | The weekly totals server, a Cloudflare Worker and D1 database: not deployed; its README has the steps |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |
 | `app/app.css` | Shell layout, the three width rules, the seven topic colours, and how the celebrations look at rest |
@@ -177,6 +179,20 @@ Writing a pack: `content/packs/README.md`.
 - **Every press** goes down at the touch, stays down long enough to be seen even on a quick
   tap, and springs back a pixel past rest, with a soft tap sound. A tap that redraws its own
   screen (a key, a choice) springs back the button that replaced the one pressed.
+
+### Weekly totals (opt-in, counts only, not live yet)
+
+- **Off by default.** Asked once, on Home after a round has been finished, with both answers
+  weighing the same; Not now is a no. The switch is in Profile, beside "What is shared", a page
+  that says in plain words what is sent and what never is.
+- **Counts only**: per level, questions answered, right first time, hints, rounds finished and
+  left early; review results by how long a question waited; facts answered and quick; practice
+  exams per topic; a few feature counts; error codes. No ID, no device detail, no time of day.
+- Kept on the phone during the week, sent once after it ends. The server adds a report into
+  running totals and throws it away, and hides any total from fewer than five reports
+  (`LEGAL-RESEARCH.md`, "Update, 26 October 2026").
+- Turning sharing off, or starting over, deletes the totals not yet sent. `ENDPOINT` in
+  `app/tally.js` is `null`, so this version sends nothing.
 
 ### Basics
 
@@ -353,6 +369,14 @@ badges (when each is earned, shiny, never taken away, and how progress from befo
 counted once); leaving a round (its answers kept, its level no longer shiny, and what the
 learner is told before leaving); the settings; and the participant code on every logged answer, whose check
 character catches any one character copied wrong.
+
+`tests/tally.js` pins the weekly totals on the phone: nothing counted while sharing is off,
+how the totals add up and stop at the cap, a finished week waiting until the server takes it,
+clearing on turn-off and on starting over, nothing sent without an address, and that every
+report the phone builds passes the server's own check with nothing in it that points to a
+learner. `tests/worker.js` pins the server: one strict report shape, the last eight finished
+weeks only, whole counts within the cap, the app's own address only, totals that only ever add,
+and never reading the caller's address. `tests/mutation/totals.js` breaks both 35 ways.
 
 `tests/validate-packs.js` checks every pack against its schema and the blueprint, then
 generates every template at every tier and checks what a learner would be shown. Every
