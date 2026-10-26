@@ -27,7 +27,56 @@
   --skill-5-bright: #2f95e0; --skill-5-deep: #1d6fb0; --skill-5-tint: #e3f2fd; --skill-5-600: #17609c; --skill-5-100: #d6e9fa;
   --skill-6-bright: #b14fd8; --skill-6-deep: #8a34ad; --skill-6-tint: #f6e8fc; --skill-6-600: #7a2d99; --skill-6-100: #f0dcf8;
   --skill-7-bright: #679f14; --skill-7-deep: #4a7510; --skill-7-tint: #eef6dc; --skill-7-600: #426a0e; --skill-7-100: #e3f0cc;
+  /* A set completed in the badge collection, and a badge not yet earned. */
+  --gold-tint: #fff1c2;
+  --badge-locked: #cfd8e6; --badge-locked-deep: #aebbd0;
+  /* A switch's knob, and the chosen part of a segmented choice: raised above their track. */
+  --knob: #ffffff; --segment-on: #ffffff;
 }
+/* ---------- dark mode: navy (the owner's choice, October 2026) ----------
+   app.js puts data-theme="night" on <html> when the learner picks Dark, or
+   picks Auto on a phone set to dark; a script in index.html does the same
+   before the first paint, so a dark phone never flashes white. Only colours
+   change. The surfaces keep the app's blue, the topic colours keep their
+   bright fills, and their deep and tint shades turn light-on-dark. */
+:root[data-theme="night"] {
+  --badge-locked: #3a465e; --badge-locked-deep: #2b3448; --brand-blue-100: #1f3156;
+  --brand-blue-600: #86aefc; --celebration-coral-600: #ff7a6e; --celebration-teal-600: #3fc9b8;
+  --danger-100: #40221a; --danger-700: #ff9468; --focus-ring: #7fb0ff; --gold-tint: #3b3114;
+  --ink-600: #a3b3cc; --ink-900: #e9eff9; --ink-inverse: #ffffff; --line-200: #41567c;
+  --skill-1-100: #262449; --skill-1-600: #b3a9ff; --skill-1-deep: #b3a9ff; --skill-1-tint: #2a2858;
+  --skill-2-100: #11353c; --skill-2-600: #5fd5e2; --skill-2-deep: #5fd5e2; --skill-2-tint: #123f47;
+  --skill-3-100: #3d1c36; --skill-3-600: #ff92c9; --skill-3-deep: #ff92c9; --skill-3-tint: #4a2140;
+  --skill-4-100: #143524; --skill-4-600: #67d895; --skill-4-deep: #67d895; --skill-4-tint: #163f2a;
+  --skill-5-100: #132f4c; --skill-5-600: #86c5ff; --skill-5-deep: #86c5ff; --skill-5-tint: #16385a;
+  --skill-6-100: #331e46; --skill-6-600: #dc97f7; --skill-6-deep: #dc97f7; --skill-6-tint: #3d2353;
+  --skill-7-100: #253411; --skill-7-600: #acd860; --skill-7-deep: #acd860; --skill-7-tint: #2c3e14;
+  --success-100: #10372f; --success-700: #4fd4a8; --surface-100: #0e1626; --surface-200: #18233a;
+  --surface-300: #25344f;
+  --knob: #e9eff9; --segment-on: #3b4f74;
+  color-scheme: dark;
+}
+/* The gold celebration looks the same in both themes: back to the day
+   colours on the gold screen, text included, because text that takes its
+   colour from the page would otherwise stay light on gold. */
+:root[data-theme="night"] .am-root[data-gold="true"] {
+  --badge-locked: #cfd8e6; --badge-locked-deep: #aebbd0; --brand-blue-100: #dbe8ff;
+  --brand-blue-600: #2458c9; --celebration-coral-600: #c93830; --celebration-teal-600: #0b756b;
+  --danger-100: #fde3d2; --danger-700: #c1440e; --focus-ring: #0f62d6; --gold-tint: #fff1c2;
+  --ink-600: #51617a; --ink-900: #16202c; --ink-inverse: #ffffff; --line-200: #6a87bd;
+  --skill-1-100: #e3e2fa; --skill-1-600: #4c46b0; --skill-1-deep: #5546d6; --skill-1-tint: #efedff;
+  --skill-2-100: #d1eef2; --skill-2-600: #0b7a89; --skill-2-deep: #0d7b88; --skill-2-tint: #e1f6f8;
+  --skill-3-100: #f5dcef; --skill-3-600: #8c3379; --skill-3-deep: #b8387c; --skill-3-tint: #ffeaf4;
+  --skill-4-100: #f5ecc8; --skill-4-600: #8a670a; --skill-4-deep: #1c7f43; --skill-4-tint: #e3f6ea;
+  --skill-5-100: #d6e9fa; --skill-5-600: #17609c; --skill-5-deep: #1d6fb0; --skill-5-tint: #e3f2fd;
+  --skill-6-100: #f0dcf8; --skill-6-600: #7a2d99; --skill-6-deep: #8a34ad; --skill-6-tint: #f6e8fc;
+  --skill-7-100: #e3f0cc; --skill-7-600: #426a0e; --skill-7-deep: #4a7510; --skill-7-tint: #eef6dc;
+  --success-100: #d3f3ea; --success-700: #0b7a63; --surface-100: #eef3fb; --surface-200: #ffffff;
+  --surface-300: #dbe7f8;
+  color: var(--ink-900);
+  color-scheme: light;
+}
+
 
 html, body {
   margin: 0;

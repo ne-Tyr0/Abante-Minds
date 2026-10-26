@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 54;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 55;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -80,18 +80,26 @@
      silent stays silent whatever this says. Calm turns the celebrations
      into a still frame, and is on by itself when the phone asks for reduced
      motion. */
-  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false };
+  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false, theme: "auto" };
+  /* A setting with named choices; every other setting is on or off. Auto
+     follows the phone's own light or dark setting. */
+  var SETTING_CHOICES = { theme: ["auto", "light", "dark"] };
+  function validSetting(name, value) {
+    return SETTING_CHOICES[name] ? SETTING_CHOICES[name].indexOf(value) > -1 : typeof value === "boolean";
+  }
   function settings() {
     var saved = state.settings || {}, out = {};
     Object.keys(DEFAULT_SETTINGS).forEach(function (k) {
-      out[k] = typeof saved[k] === "boolean" ? saved[k] : DEFAULT_SETTINGS[k];
+      out[k] = validSetting(k, saved[k]) ? saved[k] : DEFAULT_SETTINGS[k];
     });
     return out;
   }
   function setSetting(name, value) {
     if (!(name in DEFAULT_SETTINGS)) return;
+    var v = SETTING_CHOICES[name] ? value : !!value;
+    if (!validSetting(name, v)) return;
     var next = settings();
-    next[name] = !!value;
+    next[name] = v;
     state.settings = next;
     commit();
   }

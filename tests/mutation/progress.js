@@ -80,10 +80,14 @@ const M = [
   ["seen never kept", "    if (b && b.seen === false) { b.seen = true; commit(); }", ""],
   ["recent never emptied", "  function takeRecent() { var out = recent; recent = []; return out; }", "  function takeRecent() { return recent.slice(); }"],
   // settings
-  ["sound starts off", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false };", "  var DEFAULT_SETTINGS = { sound: false, vibration: true, calm: false };"],
-  ["calm starts on", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false };", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: true };"],
-  ["a saved setting ignored", "      out[k] = typeof saved[k] === \"boolean\" ? saved[k] : DEFAULT_SETTINGS[k];", "      out[k] = DEFAULT_SETTINGS[k];"],
-  ["any value taken as a setting", "      out[k] = typeof saved[k] === \"boolean\" ? saved[k] : DEFAULT_SETTINGS[k];", "      out[k] = k in saved ? saved[k] : DEFAULT_SETTINGS[k];"],
+  ["sound starts off", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false, theme: \"auto\" };", "  var DEFAULT_SETTINGS = { sound: false, vibration: true, calm: false, theme: \"auto\" };"],
+  ["calm starts on", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false, theme: \"auto\" };", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: true, theme: \"auto\" };"],
+  ["theme starts dark", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false, theme: \"auto\" };", "  var DEFAULT_SETTINGS = { sound: true, vibration: true, calm: false, theme: \"dark\" };"],
+  ["a saved setting ignored", "      out[k] = validSetting(k, saved[k]) ? saved[k] : DEFAULT_SETTINGS[k];", "      out[k] = DEFAULT_SETTINGS[k];"],
+  ["any theme accepted", "    return SETTING_CHOICES[name] ? SETTING_CHOICES[name].indexOf(value) > -1 : typeof value === \"boolean\";", "    return SETTING_CHOICES[name] ? true : typeof value === \"boolean\";"],
+  ["a choice read as on or off", "    var v = SETTING_CHOICES[name] ? value : !!value;", "    var v = !!value;"],
+  ["a bad choice saved anyway", "    if (!validSetting(name, v)) return;\n", ""],
+  ["any value taken as a setting", "      out[k] = validSetting(k, saved[k]) ? saved[k] : DEFAULT_SETTINGS[k];", "      out[k] = k in saved ? saved[k] : DEFAULT_SETTINGS[k];"],
   ["an unknown setting kept", "    if (!(name in DEFAULT_SETTINGS)) return;\n", ""],
   ["a setting not saved", "    state.settings = next;\n    commit();", "    state.settings = next;"],
   // Basics facts

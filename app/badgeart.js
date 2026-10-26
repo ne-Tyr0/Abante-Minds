@@ -23,7 +23,8 @@
 
   function fill(v) { return 'style="fill:' + v + '"'; }
   function hue(k, part) { return "var(--skill-" + k + "-" + part + ")"; }
-  var GREY = { b: "#cfd8e6", d: "#aebbd0", t: "#ffffff" };
+  /* A badge not yet earned: the greys are tokens, so a dark page dims them. */
+  var GREY = { b: "var(--badge-locked, #cfd8e6)", d: "var(--badge-locked-deep, #aebbd0)", t: "#ffffff" };
   function palette(o) {
     if (o.locked) return GREY;
     return { b: hue(o.colorKey, "bright"), d: hue(o.colorKey, "deep"), t: "#ffffff" };

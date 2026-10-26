@@ -993,12 +993,40 @@
      A setting that is on or off: the label and a line on what it does, and a
      switch drawn as a track and a knob. The whole row is the target, and a
      screen reader hears a switch and its state. */
+  /* ---------- Segmented ----------
+     One choice among a few, all in view: the theme. A radio group drawn as
+     one pill with the chosen part raised; each part is 44px tall inside a
+     4px rim, so the target stays at 48. */
+  function Segmented(o) {
+    var group = el("div", {
+      role: "radiogroup", "aria-label": o.label,
+      style: { display: "flex", gap: 4, padding: 4, borderRadius: "var(--radius-pill)", background: "var(--surface-300)" }
+    }, o.options.map(function (opt) {
+      var on = opt.value === o.value;
+      return el("button.am-reset", {
+        type: "button", role: "radio", "aria-checked": on ? "true" : "false",
+        onClick: function () { if (!on) o.onChange(opt.value); },
+        style: {
+          flex: 1, minHeight: 44, borderRadius: "var(--radius-pill)", border: 0, cursor: "pointer", font: "inherit",
+          fontWeight: on ? 600 : 500, color: on ? "var(--ink-900)" : "var(--ink-600)",
+          background: on ? "var(--segment-on)" : "transparent",
+          boxShadow: on ? "0 1px 2px rgba(22, 32, 44, 0.3)" : "none"
+        }
+      }, opt.label);
+    }));
+    return el("div", { style: { display: "flex", flexDirection: "column", gap: 8, padding: "10px 0" } },
+      el("span", { style: { display: "flex", flexDirection: "column", gap: 2 } },
+        el("span.label", null, o.label),
+        o.sub ? el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, o.sub) : null),
+      group);
+  }
+
   function Toggle(o) {
     var on = !!o.on;
     var knob = el("span", {
       style: {
         position: "absolute", top: 3, left: on ? 23 : 3, width: 22, height: 22, borderRadius: "50%",
-        background: "var(--surface-200)", boxShadow: "0 1px 2px rgba(22, 32, 44, 0.3)",
+        background: "var(--knob)", boxShadow: "0 1px 2px rgba(22, 32, 44, 0.3)",
         transition: "left var(--dur-fast) var(--ease-out)"
       }
     });
@@ -1041,6 +1069,7 @@
 
   AM.el = el;
   AM.Toggle = Toggle;
+  AM.Segmented = Segmented;
   AM.append = append;
   AM.clear = clear;
   AM.Button = Button;
