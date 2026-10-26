@@ -122,7 +122,12 @@ Writing a pack: `content/packs/README.md`.
   lesson the first time and clears at 8 answers right first time; a retry, or redoing a
   missed question after seeing its solution, does not count. Clearing a level opens the
   next, and the level-cleared takeover is the only gold screen in the product.
-- The numbers get harder as a level fills, and hardest when reviewing a cleared level.
+- The numbers get harder as a level fills, and hardest when reviewing a cleared level. Within a
+  round they also follow the learner: three first tries right in a row step one tier harder, and
+  a first try wrong steps one back, never below the level's own floor and at most two above it.
+  It rises one tier at a time, even when the floor rises on the same answer.
+  The next question is drawn again at the new tier from the same recipe, so the attempt log
+  still rebuilds exactly what was asked.
 - Each topic has its own colour, one of seven, so no two topics side by side on the path or
   in Basics match; its tile, bars, path and badges all wear it, and its icon is drawn in two
   tones of it. None of the seven is a colour the app keeps for something else (amber for the

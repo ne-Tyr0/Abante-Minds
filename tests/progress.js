@@ -177,6 +177,44 @@ test("an unknown setting is ignored and a missing one takes its default", () => 
   assert.ok(!("banana" in S.get().settings));
 });
 
+/* ---------- adaptive difficulty ---------- */
+
+test("a round steps up after three first tries right in a row, and back after a miss", () => {
+  const S = launch();
+  const steps = (answers) => answers.reduce((a, r) => S.adaptStep(a, r), { boost: 0, run: 0 });
+  assert.deepStrictEqual(steps([true, true]), { boost: 0, run: 2 });
+  assert.deepStrictEqual(steps([true, true, true]), { boost: 1, run: 0 });
+  assert.deepStrictEqual(steps([true, true, true, true, true, true]), { boost: 2, run: 0 });
+  assert.deepStrictEqual(steps([true, true, true, true, true, true, true, true, true]), { boost: 2, run: 0 }, "two steps above the floor at most");
+  assert.deepStrictEqual(steps([true, true, true, false]), { boost: 0, run: 0 });
+  assert.deepStrictEqual(steps([true, true, false]), { boost: 0, run: 0 }, "a miss also restarts the run");
+  assert.deepStrictEqual(steps([false, false]), { boost: 0, run: 0 }, "never below the floor");
+  assert.deepStrictEqual(S.adaptStep(undefined, true), { boost: 0, run: 1 });
+});
+test("the round's tier is the level's floor plus its steps, at most tier 3, and 4 once cleared", () => {
+  const S = launch();
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 0 }), 1);
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 1 }), 2);
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 2 }), 3);
+  times(3, () => S.recordAnswer("a", "a1", true, true));
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 0 }), 2, "the floor rises as the level fills");
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 2 }), 3, "tier 3 is the most a level draws from");
+  times(5, () => S.recordAnswer("a", "a1", true, true));
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 0 }), 4, "a cleared level asks at 4");
+  assert.strictEqual(S.adaptiveTier("a", "a2", undefined), 1);
+});
+test("the round rises one tier at a time, even when the floor rises on the same answer", () => {
+  const S = launch();
+  times(3, () => S.recordAnswer("a", "a1", true, true));
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 1 }), 3, "floor 2 plus a step");
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 1 }, 1), 2, "but only one above the question just asked");
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 1 }, 2), 3);
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 0 }, 3), 2, "a step back goes straight to where it should be");
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 0 }, 1), 2, "never below the floor");
+  times(3, () => S.recordAnswer("a", "a1", true, true));
+  assert.strictEqual(S.adaptiveTier("a", "a1", { boost: 0 }, 1), 3, "not even when the last question sat far below it");
+});
+
 /* ---------- badges ---------- */
 
 const keys = (S) => Object.keys(S.get().badges).sort();

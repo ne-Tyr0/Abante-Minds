@@ -239,7 +239,8 @@ function markdown() {
     "",
     "Each entry is a **template**, one kind of question. The app draws its numbers afresh every time, so one template stands " +
       "for many items. A level starts at tier 1, moves to tier 2 after 3 answers right first time and to tier 3 after 6, and " +
-      "reviews a cleared level at tier 4; the practice exam asks at tier 3. **Draws** lists the ranges each tier uses. " +
+      "reviews a cleared level at tier 4; the practice exam asks at tier 3. Within a round, three first tries right in a row " +
+      "step one tier harder and a first try wrong steps one back, never below that floor. **Draws** lists the ranges each tier uses. " +
       "**Named mistakes** are the wrong answers the template recognises, each with its own feedback. The **example** is the " +
       `question drawn at tier ${EXAMPLE_TIER} from seed ${EXAMPLE_SEED}, exactly as the app would show it.`,
     "",

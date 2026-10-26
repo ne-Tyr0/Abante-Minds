@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 52;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 53;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -238,6 +238,29 @@
     var s = levelState(topic, level);
     if (s.cleared) return 4;
     return s.correct >= 6 ? 3 : s.correct >= 3 ? 2 : 1;
+  }
+
+  /* Within a round the numbers also follow the learner (decided 2026-10-26):
+     ADAPT_RUN first tries right in a row step one tier harder, and a first
+     try wrong steps one back, never below the level's own floor (tierFor) and
+     never more than ADAPT_MAX above it. Tier 3 is the hardest a level draws
+     from, and a cleared level always asks at 4. `a` is the round's state,
+     {boost, run}; a new round starts again at the floor. `prev`, the tier of
+     the question just asked, keeps a rise to one tier at a time: the floor
+     can rise on the same answer that earns a step. */
+  var ADAPT_RUN = 3, ADAPT_MAX = 2;
+  function adaptStep(a, right) {
+    var boost = (a && a.boost) || 0, run = (a && a.run) || 0;
+    if (!right) return { boost: Math.max(0, boost - 1), run: 0 };
+    run += 1;
+    if (run >= ADAPT_RUN) return { boost: Math.min(ADAPT_MAX, boost + 1), run: 0 };
+    return { boost: boost, run: run };
+  }
+  function adaptiveTier(topic, level, a, prev) {
+    var floor = tierFor(topic, level);
+    if (floor >= 4) return 4;
+    var tier = Math.min(3, floor + ((a && a.boost) || 0));
+    return prev ? Math.max(floor, Math.min(tier, prev + 1)) : tier;
   }
 
   /* ---------- Basics facts ----------
@@ -796,6 +819,9 @@
     markLessonSeen: markLessonSeen,
     levelState: levelState,
     tierFor: tierFor,
+    adaptStep: adaptStep,
+    adaptiveTier: adaptiveTier,
+    ADAPT_RUN: ADAPT_RUN,
     topicPath: function (key) {
       var t = AM.content.TOPICS.filter(function (x) { return x.key === key; })[0];
       return t ? topicPath(t) : null;

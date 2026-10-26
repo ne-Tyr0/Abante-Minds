@@ -1011,6 +1011,19 @@
     return out;
   }
 
+  /* The same question at another tier: its template and seed, drawn again
+     with that tier's ranges, in the same place in the round. A pinned item
+     has no seed, so it keeps its fixed values, and a question already at that
+     tier is returned as it is. Adaptive difficulty uses it on the question about to be shown,
+     so the log's template, tier and seed still rebuild what was asked. */
+  function retier(q, tier, index) {
+    if (!q || q.seed === null || q.seed === undefined || q.tier === tier) return q;
+    var t = TEMPLATE_BY_ID[q.templateId];
+    if (!t) return q;
+    var found = levelOf(q.topicKey, q.levelId);
+    return decorate(generateFrom(t, PACK, tier, q.seed), found.topic, found.level, index);
+  }
+
   /* A question again, exactly as it was asked: from its template, tier and
      seed, or for a pinned item, from its place in the topic's pinned list.
      Null when a later pack no longer has it, so a stale recipe is dropped
@@ -1297,6 +1310,7 @@
     buildSession: buildSession,
     buildExam: buildExam,
     rebuild: rebuild,
+    retier: retier,
     examPlan: examPlan,
     EXAM_TIER: EXAM_TIER,
     lesson: lesson,
