@@ -344,8 +344,8 @@ p5 = f"""
         than page-by-page decisions.</p>
         <table>
           <tr><td class="k">Colour</td><td>One amber, used for the main action and nothing else.
-            Each topic wears one of four hues, in a brighter shade for fills. Gold is kept for
-            rewards.</td></tr>
+            Each topic wears its own colour, one of seven, and its icon is drawn in two tones
+            of it. Gold is kept for rewards.</td></tr>
           <tr><td class="k">Feedback</td><td>Teal and coral rather than green and red, always
             with a symbol beside them.</td></tr>
           <tr><td class="k">Touch</td><td>Every control sits on a visible shelf and presses down
