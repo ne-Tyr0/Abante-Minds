@@ -159,22 +159,37 @@ test("next is the level last practised while it is still open", () => {
 });
 /* ---------- settings ---------- */
 
-test("sound and vibration start on and calm starts off", () => {
+test("sound and vibration start on, calm starts off, and the theme follows the phone", () => {
   const S = launch();
-  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: false });
+  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: false, theme: "auto" });
 });
 test("a setting is kept with the learner's record", () => {
   const S = launch();
   S.setSetting("sound", false);
   S.setSetting("calm", true);
   const T = launch(JSON.parse(storage[KEY]));
-  assert.deepStrictEqual(T.settings(), { sound: false, vibration: true, calm: true });
+  assert.deepStrictEqual(T.settings(), { sound: false, vibration: true, calm: true, theme: "auto" });
 });
 test("an unknown setting is ignored and a missing one takes its default", () => {
   const S = launch({ version: 2, settings: { calm: true, sound: "loud" } });
-  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: true });
+  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: true, theme: "auto" });
   S.setSetting("banana", true);
   assert.ok(!("banana" in S.get().settings));
+});
+test("the theme is one of auto, light and dark, and is kept", () => {
+  const S = launch();
+  S.setSetting("theme", "dark");
+  assert.strictEqual(S.settings().theme, "dark");
+  S.setSetting("theme", "purple");
+  assert.strictEqual(S.settings().theme, "dark", "an unknown choice changes nothing");
+  S.setSetting("theme", true);
+  assert.strictEqual(S.settings().theme, "dark", "a choice is never read as on or off");
+  S.setSetting("calm", "yes");
+  assert.strictEqual(S.settings().calm, true, "an on-off setting still takes any truthy value as on");
+  const T = launch(JSON.parse(storage[KEY]));
+  assert.strictEqual(T.settings().theme, "dark");
+  const U = launch({ version: 2, settings: { theme: "neon", calm: "light" } });
+  assert.deepStrictEqual([U.settings().theme, U.settings().calm], ["auto", false], "a saved value of the wrong kind takes the default");
 });
 
 /* ---------- adaptive difficulty ---------- */

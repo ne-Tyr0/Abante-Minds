@@ -2290,7 +2290,7 @@
             el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, kindsNote(kinds)));
         })(),
 
-        /* Sound, vibration and calm, for this phone. */
+        /* Sound, vibration, calm and the theme, for this phone. */
         (function () {
           var set = store.settings();
           function change(name) { return function (v) { store.setSetting(name, v); app.keepScroll = true; app.render(); }; }
@@ -2299,7 +2299,11 @@
             AM.Card({ style: { gap: 0, paddingTop: 4, paddingBottom: 4 } },
               AM.Toggle({ label: "Sound", sub: "Gong-chimes for answers, streaks and levels. A phone on silent stays silent.", on: set.sound, onChange: change("sound") }),
               AM.Toggle({ label: "Vibration", sub: "A short buzz with answers and level-ups, on phones that can.", on: set.vibration, onChange: change("vibration") }),
-              AM.Toggle({ label: "Calm animations", sub: "Celebrations show their end straight away, with no confetti or movement.", on: set.calm, onChange: change("calm") })));
+              AM.Toggle({ label: "Calm animations", sub: "Celebrations show their end straight away, with no confetti or movement.", on: set.calm, onChange: change("calm") }),
+              AM.Segmented({
+                label: "Theme", sub: "Auto follows your phone's light or dark setting.", value: set.theme, onChange: change("theme"),
+                options: [{ value: "auto", label: "Auto" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }]
+              })));
         })(),
 
         /* One button, no card: it fits the space Profile had spare on a

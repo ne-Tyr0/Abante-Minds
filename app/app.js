@@ -12,10 +12,28 @@
   var sound = (window.AbanteMinds && window.AbanteMinds.sound) || null;
 
   /* The Calm animations setting, where the CSS and motion.js can read it. */
+  /* Calm, and the theme: Dark, Light, or Auto, which follows the phone and
+     changes with it. The night colours are in app.css; the phone's own bar
+     takes the page colour. index.html sets the theme once before the first
+     paint; this keeps it current. */
+  var darkQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
   function applySettings() {
-    document.documentElement.dataset.calm = store.settings().calm ? "true" : "false";
+    var doc = document.documentElement, set = store.settings();
+    doc.dataset.calm = set.calm ? "true" : "false";
+    var theme = set.theme === "dark" || (set.theme === "auto" && darkQuery && darkQuery.matches) ? "night" : "day";
+    if (doc.dataset.theme !== theme) {
+      doc.dataset.theme = theme;
+      var bar = document.querySelector('meta[name="theme-color"]');
+      if (bar) bar.setAttribute("content", getComputedStyle(doc).getPropertyValue("--surface-100").trim() || "#eef3fb");
+    }
   }
   applySettings();
+  /* The phone says when its mode changes (older iPhones only through
+     addListener); returning to the app checks again, which covers the usual
+     way people switch: leave, change the phone's setting, come back. */
+  if (darkQuery && darkQuery.addEventListener) darkQuery.addEventListener("change", applySettings);
+  else if (darkQuery && darkQuery.addListener) darkQuery.addListener(applySettings);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) applySettings(); });
 
   /* ---------- device ----------
      The gutter steps 24 → 32 → 48 and the reading column caps at 720. The

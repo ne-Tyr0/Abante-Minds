@@ -165,8 +165,13 @@ Writing a pack: `content/packs/README.md`.
   a ring; the learner's marker walks to the level that opens.
 - **The daily streak**: after the first session finished each day, the flame lights and the
   count rolls on.
-- **Settings** on Profile: Sound, Vibration and Calm animations. Calm, or a phone set to reduce
-  motion, shows every celebration's end straight away, with no confetti or movement.
+- **Settings** on Profile: Sound, Vibration, Calm animations and Theme. Calm, or a phone set to
+  reduce motion, shows every celebration's end straight away, with no confetti or movement.
+- **Dark mode**: Theme is Auto (follows the phone), Light or Dark. The night palette is navy, in
+  `app/app.css` under `:root[data-theme="night"]`; a small script in `index.html` applies it
+  before the first paint, so a dark phone never flashes white, and the app checks again when it
+  comes back to the foreground. The gold level-up looks the same in both themes, and badges not
+  yet earned dim to dark greys.
 - Sounds are made on the phone with Web Audio in the voice of the kulintang, so there is
   nothing to download. Practice exams have no celebration until their result.
 - **Every press** goes down at the touch, stays down long enough to be seen even on a quick
