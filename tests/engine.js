@@ -674,6 +674,20 @@ test("a degree sign sits against its number; other units take a space", () => {
   C.use(PACK.manifest, PACK.files);
 });
 
+test("retier: the same question at another tier, in its place in the round", () => {
+  const ses = C.buildSession({ topic: "t", level: "one", count: 10, tier: 1, seed: 42, pinned: true });
+  const i = ses.findIndex((x) => !x.pinned && x.templateId === "t.tiers");
+  const q = ses[i];
+  assert.ok(q.answer <= 3, "tier 1 draws small numbers");
+  const up = C.retier(q, 2, i);
+  assert.deepStrictEqual([up.templateId, up.seed, up.tier, up.id, up.levelId], [q.templateId, q.seed, 2, q.id, q.levelId]);
+  assert.ok(up.answer >= 50, "tier 2 draws from its own range");
+  const again = C.rebuild({ topic: up.topicKey, template: up.templateId, tier: up.tier, seed: up.seed, pinnedAt: null });
+  assert.deepStrictEqual([again.prompt, again.answer], [up.prompt, up.answer], "the attempt log rebuilds what was asked");
+  assert.strictEqual(C.retier(q, 1, i), q, "already at that tier: the same question");
+  assert.strictEqual(C.retier(ses[0], 3, 0), ses[0], "a pinned item keeps its fixed values");
+});
+
 /* ---------- spaced review ---------- */
 
 test("rebuild: a missed question comes back exactly as it was asked", () => {

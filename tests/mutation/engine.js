@@ -136,7 +136,11 @@ const M = [
   ["60 minutes read", "if (!m || +m[1] > 23 || +m[2] > 59) return null;", "if (!m || +m[1] > 23 || +m[2] > 60) return null;"],
   ["time typed read as a number", "value = q.entry === \"time\" ? readTime(given) : readTyped(given);", "value = readTyped(given);"],
   ["time answer written as a number", "    if (kind === \"time\") return clockText(x);\n", ""],
-  ["time answers past midnight", "    if (spec.type === \"integer\") return isInt(x);\n    if (kind === \"time\") return isInt(x) && x.n < DAY;", "    if (spec.type === \"integer\") return isInt(x);\n    if (kind === \"time\") return isInt(x);"]
+  ["time answers past midnight", "    if (spec.type === \"integer\") return isInt(x);\n    if (kind === \"time\") return isInt(x) && x.n < DAY;", "    if (spec.type === \"integer\") return isInt(x);\n    if (kind === \"time\") return isInt(x);"],
+  // adaptive difficulty: one question drawn again at another tier
+  ["retier keeps the old tier", "return decorate(generateFrom(t, PACK, tier, q.seed), found.topic, found.level, index);", "return decorate(generateFrom(t, PACK, q.tier, q.seed), found.topic, found.level, index);"],
+  ["retier draws a new question", "return decorate(generateFrom(t, PACK, tier, q.seed), found.topic, found.level, index);", "return decorate(generateFrom(t, PACK, tier, q.seed + 1), found.topic, found.level, index);"],
+  ["retier loses the place in the round", "return decorate(generateFrom(t, PACK, tier, q.seed), found.topic, found.level, index);", "return decorate(generateFrom(t, PACK, tier, q.seed), found.topic, found.level, 0);"]
 ];
 
 let caught = 0;

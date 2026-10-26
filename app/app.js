@@ -330,6 +330,7 @@
       tier: store.tierFor(topicKey, levelId), seed: Date.now(), pinned: lv.attempts === 0
     });
     app.session = newSession(meta, questions, false);
+    app.session.adapt = { boost: 0, run: 0 };  /* the round's own steps: store.adaptStep */
     app.session.entry = freshEntry(app.session);
     app.go("practice");
   }
@@ -422,6 +423,8 @@
     else if (s.review) { if (firstTry) store.recordReview(q.reviewKey, right); else store.notePractice(); }
     else if (s.redo) store.notePractice();
     else if (store.recordAnswer(s.topicKey, s.levelId, right, firstTry).cleared) s.pendingLevelUp = true;
+    /* A first try moves the round's difficulty; a retry does not. */
+    if (s.adapt && firstTry && !s.redo && !s.review) s.adapt = store.adaptStep(s.adapt, right);
     /* A miss on the path comes back in a day, then three, then seven. */
     if (!right && firstTry && !s.facts && !s.redo && !s.review) store.scheduleReview(q);
 
@@ -544,6 +547,8 @@
     if (s.leaving) { endLeft(s); return; }
     if (s.index + 1 >= s.questions.length) { finish(); return; }
     s.index += 1;
+    /* The next question, drawn again at the step the round has reached. */
+    if (s.adapt) s.questions[s.index] = C.retier(s.questions[s.index], store.adaptiveTier(s.topicKey, s.levelId, s.adapt, s.questions[s.index - 1].tier), s.index);
     s.phase = "ask";
     s.entry = freshEntry(s);
     s.picked = null;
