@@ -25,7 +25,7 @@ jobs:
 
       - name: JavaScript parses
         run: |
-          for f in app/*.js sw.js motion/*.js tests/*.js tests/mutation/*.js poc/*.js tools/*.js; do
+          for f in app/*.js sw.js motion/*.js server/*.js tests/*.js tests/mutation/*.js poc/*.js tools/*.js; do
             node --check "$f" || exit 1
           done
 
@@ -46,6 +46,12 @@ jobs:
 
       - name: Progress on the path and in Basics
         run: node tests/progress.js
+
+      - name: Weekly totals on the phone (counts only, off by default)
+        run: node tests/tally.js
+
+      - name: Weekly totals server (not deployed)
+        run: node tests/worker.js
 
       - name: Question packs are valid
         run: node tests/validate-packs.js

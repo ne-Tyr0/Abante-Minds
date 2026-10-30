@@ -159,22 +159,30 @@ test("next is the level last practised while it is still open", () => {
 });
 /* ---------- settings ---------- */
 
-test("sound and vibration start on, calm starts off, and the theme follows the phone", () => {
+test("sound and vibration start on, calm and sharing start off, and the theme follows the phone", () => {
   const S = launch();
-  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: false, theme: "auto" });
+  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: false, theme: "auto", sharing: false });
 });
 test("a setting is kept with the learner's record", () => {
   const S = launch();
   S.setSetting("sound", false);
   S.setSetting("calm", true);
   const T = launch(JSON.parse(storage[KEY]));
-  assert.deepStrictEqual(T.settings(), { sound: false, vibration: true, calm: true, theme: "auto" });
+  assert.deepStrictEqual(T.settings(), { sound: false, vibration: true, calm: true, theme: "auto", sharing: false });
 });
 test("an unknown setting is ignored and a missing one takes its default", () => {
   const S = launch({ version: 2, settings: { calm: true, sound: "loud" } });
-  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: true, theme: "auto" });
+  assert.deepStrictEqual(S.settings(), { sound: true, vibration: true, calm: true, theme: "auto", sharing: false });
   S.setSetting("banana", true);
   assert.ok(!("banana" in S.get().settings));
+});
+test("the sharing question is asked once, and kept", () => {
+  const S = launch();
+  assert.strictEqual(S.get().sharingAsked, false);
+  S.markSharingAsked();
+  assert.strictEqual(S.get().sharingAsked, true);
+  const T = launch(JSON.parse(storage[KEY]));
+  assert.strictEqual(T.get().sharingAsked, true);
 });
 test("the theme is one of auto, light and dark, and is kept", () => {
   const S = launch();
@@ -523,11 +531,11 @@ test("a miss comes back the next day, then in 3 days, then in 7, then is done", 
   const due = s.reviewDue();
   assert.deepStrictEqual([due.length, due[0].key, due[0].template, due[0].tier, due[0].seed, due[0].pinnedAt, due[0].step],
     [1, key, "a.t", 2, 11, null, 0]);
-  assert.deepStrictEqual(s.recordReview(key, true), { done: false, due: "2026-10-24" });
+  assert.deepStrictEqual(s.recordReview(key, true), { done: false, due: "2026-10-24", interval: 1 });
   onDay("2026-10-24");
-  assert.deepStrictEqual(s.recordReview(key, true), { done: false, due: "2026-10-31" });
+  assert.deepStrictEqual(s.recordReview(key, true), { done: false, due: "2026-10-31", interval: 3 });
   onDay("2026-10-31");
-  assert.deepStrictEqual(s.recordReview(key, true), { done: true, due: null });
+  assert.deepStrictEqual(s.recordReview(key, true), { done: true, due: null, interval: 7 }, "the interval is how long it waited");
   assert.deepStrictEqual([s.reviewDue(), s.reviewNext()], [[], null]);
 });
 test("a miss in review starts it again from the next day", () => {
@@ -537,7 +545,7 @@ test("a miss in review starts it again from the next day", () => {
   onDay("2026-10-21");
   s.recordReview(key, true);
   onDay("2026-10-24");
-  assert.deepStrictEqual(s.recordReview(key, false), { done: false, due: "2026-10-25" });
+  assert.deepStrictEqual(s.recordReview(key, false), { done: false, due: "2026-10-25", interval: 3 });
   onDay("2026-10-25");
   assert.strictEqual(s.reviewDue()[0].step, 0);
 });
