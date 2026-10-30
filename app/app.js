@@ -125,9 +125,10 @@
     fill(slots.belowFold, view.belowFold || null);
     fill(slots.footer, view.footer || null);
 
-    /* The bottom bar is for the screens a learner moves between; picking,
-       practising and the summary are focused modes and the design draws no nav
-       on any of them. The rail is different — it is the desktop window frame,
+    /* The bottom bar is for the screens a learner moves between, and that
+       includes browsing the path, Basics and the pages before a timed round
+       (decided 2026-10-30). Lessons, answering and results are focused modes,
+       and draw no nav. The rail is different — it is the desktop window frame,
        so it stays. */
     var wantsNav = !!view.nav && view.bottomNav !== false && dev !== "desktop";
     fill(slots.nav, wantsNav ? AM.BottomNav(view.nav, navigate) : null);
