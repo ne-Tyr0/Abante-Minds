@@ -54,8 +54,16 @@
     return store.isOnline() ? null : offlineBanner();
   }
 
-  /* ---------- 1 · Splash with install hint ---------- */
+  /* ---------- 1 · Welcome: a name, then straight to the first lesson ---------- */
   screens.splash = function (app) {
+    var draft = app.scratch.welcome || (app.scratch.welcome = { name: "" });
+    function begin() {
+      store.set({ profile: { name: draft.name.trim(), school: "", colorKey: 1, iconKey: "triangle" } });
+      app.scratch.welcome = null;
+      var next = store.path().next;
+      if (next) app.startLevel(next.topic.key, next.level.id);
+      else app.go("home");
+    }
     return {
       nav: null,
       body: el("div", {
@@ -67,26 +75,29 @@
       ),
       footer: el("div", {
         style: {
-          flex: "none", margin: "0 " + gutter() + "px 28px", background: "var(--surface-200)",
+          flex: "none", margin: "0 auto 28px", width: "calc(100% - " + 2 * gutter() + "px)", maxWidth: 520,
+          boxSizing: "border-box", background: "var(--surface-200)",
           borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-card)", padding: "var(--space-4)",
           display: "flex", flexDirection: "column", gap: "var(--space-3)"
         }
       },
-        app.canOfferInstall()
-          ? [
-              el("div.body", { style: { textWrap: "pretty" } }, INSTALL_PITCH),
-              AM.Button({ label: "Add to home screen", fullWidth: true, onClick: function () { app.offerInstall("signin"); } }),
-              AM.Button({ label: "Not now", variant: "ghost", fullWidth: true, onClick: function () { app.go("signin"); } })
-            ]
-          : AM.Button({ label: "Get started", fullWidth: true, onClick: function () { app.go("signin"); } })
+        el("label", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
+          el("span.label", null, "What should we call you?"),
+          el("input.body-lg.am-input", {
+            type: "text", value: draft.name, maxlength: 40, autocomplete: "off",
+            oninput: function (e) { draft.name = e.target.value; },
+            onkeydown: function (e) { if (e.key === "Enter") begin(); }
+          }),
+          el("span.caption", { style: { color: "var(--ink-600)" } }, "Your first name is enough. It stays on this phone.")),
+        AM.Button({ label: "Start my first lesson", fullWidth: true, onClick: begin })
       )
     };
   };
 
   /* ---------- Add to home screen, anytime ----------
-     The splash makes the offer first. After sign-in it lives on Profile for
-     good, and on Home until the learner says "Not now" there. Both disappear
-     once the app is installed. */
+     Not before the first right answer: a new learner's first taps go on
+     learning. After that it is on Home until they say "Not now" there,
+     and on Profile for good. Both disappear once the app is installed. */
   var INSTALL_PITCH = "Add Abante Minds to your home screen. It keeps working when there is no signal.";
 
   /* Ghost, not amber: the practice action keeps the one primary on Home.
@@ -143,8 +154,7 @@
   screens.installSteps = function (app) {
     var t = app.scratch.install || {};
     function done() {
-      if (t.next) app.go(t.next);
-      else app.go(t.from || "home", "back");
+      app.go(t.from || "home", "back");
     }
     var steps = INSTALL_STEPS[installPlatform()];
     return {
@@ -175,167 +185,6 @@
     };
   };
 
-  /* ---------- 2 · PIN login ---------- */
-  screens.signin = function (app) {
-    var s = store.get();
-    var pin = app.scratch.pin || "";
-    var username = (s.profile && s.profile.username) || "ligaya.m";
-
-    function setPin(next) { app.scratch.pin = next; app.render(); }
-
-    var dots = el("div", { style: { display: "flex", gap: 10 } });
-    for (var i = 0; i < 4; i++) {
-      var filled = i < pin.length;
-      var active = i === pin.length;
-      dots.appendChild(el("div", {
-        style: {
-          flex: 1, height: 56,
-          border: "2px solid " + (active ? "var(--brand-blue-600)" : "var(--line-200)"),
-          borderRadius: "var(--radius-sm)", background: "var(--surface-200)",
-          display: "flex", alignItems: "center", justifyContent: "center"
-        }
-      }, filled
-        ? el("span", { style: { width: 12, height: 12, borderRadius: "50%", background: "var(--ink-900)" } })
-        : (active ? el("span.am-caret", { style: { width: 2, height: 24, background: "var(--brand-blue-600)" } }) : null)));
-    }
-
-    /* The sign-in keypad has no decimal point, so the 0 row leaves a gap where
-       the dot would sit on the practice keypad. */
-    var keys = el("div", { style: { display: "grid", gridTemplateColumns: "repeat(3,1fr)", gap: "var(--space-2)" } });
-    ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "Delete"].forEach(function (k) {
-      if (k === "") { keys.appendChild(el("div", { style: { height: 54 } })); return; }
-      var isDelete = k === "Delete";
-      keys.appendChild(el("button.am-reset.am-pressable" + (isDelete ? ".label" : ".heading-md"), {
-        type: "button",
-        "aria-label": isDelete ? "Delete last digit" : k,
-        onClick: function () {
-          if (isDelete) setPin(pin.slice(0, -1));
-          else if (pin.length < 4) setPin(pin + k);
-        },
-        style: {
-          "--am-edge": "var(--line-200)", background: "var(--surface-200)",
-          color: isDelete ? "var(--ink-600)" : "var(--ink-900)",
-          borderRadius: "var(--radius-sm)", height: 54,
-          display: "flex", alignItems: "center", justifyContent: "center"
-        }
-      }, k));
-    });
-
-    return {
-      nav: null,
-      body: el("div", { style: { flex: "none", padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
-        el("div.heading-md", null, "Sign in"),
-        el("div.caption", { style: { color: "var(--ink-600)", marginTop: 6 } }, "Username"),
-        el("div", { style: { height: 52, border: "2px solid var(--line-200)", borderRadius: "var(--radius-sm)", background: "var(--surface-200)", display: "flex", alignItems: "center", padding: "0 14px" } },
-          el("span.body-lg", null, username)),
-        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-2)" } }, "Enter your PIN"),
-        dots,
-        el("div", { style: { paddingTop: 10 } },
-          el("a.body-sm", { href: "#", onClick: function (e) { e.preventDefault(); app.go("recover"); } }, "Forgot your PIN?"))
-      ),
-      footer: el("div", { style: { flex: "none", display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px 24px" } },
-        keys,
-        AM.Button({
-          label: "Sign in", fullWidth: true, disabled: pin.length < 4,
-          onClick: function () {
-            app.scratch.pin = "";
-            store.set({ signedIn: true });
-            app.go(store.get().profile ? "home" : "setup");
-          }
-        })
-      )
-    };
-  };
-
-  /* ---------- 3 · PIN recovery, learner side ---------- */
-  screens.recover = function (app) {
-    function step(n, text) {
-      return el("span", {
-        style: {
-          display: "flex", gap: "var(--space-3)", alignItems: "center",
-          background: "var(--surface-200)", borderRadius: "var(--radius-md)",
-          boxShadow: "var(--shadow-card)", padding: 14
-        }
-      },
-        el("span.label", {
-          style: {
-            width: 28, height: 28, flex: "none", borderRadius: "50%",
-            background: "var(--brand-blue-100)", color: "var(--brand-blue-600)",
-            display: "flex", alignItems: "center", justifyContent: "center"
-          }
-        }, String(n)),
-        el("span.body", { style: { flex: 1 } }, text)
-      );
-    }
-
-    return {
-      nav: null,
-      back: function () { app.go("signin", "back"); },
-      body: el("div", { style: { display: "flex", flexDirection: "column" } },
-        el("div", { style: { flex: "none", padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
-          el("div.heading-md", null, "Forgot your PIN"),
-          el("div.body", { style: { textWrap: "pretty" } },
-            "Ask your adviser to reset it. This phone will send them a request — you do not need signal right now."),
-          el("div", {
-            style: {
-              background: "var(--surface-200)", borderRadius: "var(--radius-md)",
-              boxShadow: "var(--shadow-card)", padding: "var(--space-4)",
-              display: "flex", alignItems: "center", gap: 14
-            }
-          },
-            el("span", {
-              style: {
-                width: 48, height: 48, flex: "none", borderRadius: "var(--radius-md)",
-                background: "var(--skill-2-bright)", color: "var(--ink-inverse)",
-                display: "flex", alignItems: "center", justifyContent: "center"
-              }
-            }, icon("profile", 24)),
-            el("span", null,
-              el("span.heading-sm", { style: { display: "block" } }, "Mr. Dela Cruz"),
-              el("span.body-sm", { style: { color: "var(--ink-600)" } }, "Adviser · Poblacion NHS"))
-          ),
-          el("div", { style: { display: "flex", flexDirection: "column", gap: 10, marginTop: "var(--space-2)" } },
-            sectionLabel("What happens next"),
-            step(1, "The request leaves this phone the next time it has signal."),
-            step(2, "Mr. Dela Cruz gives you a new four-digit PIN."),
-            step(3, "You sign in with it. Your progress and streak are untouched.")
-          )
-        )
-      ),
-      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", flexDirection: "column", gap: 10 } },
-        AM.Button({
-          label: "Ask adviser to reset it", fullWidth: true,
-          onClick: function () { store.set({ recoveryRequested: true }); app.go("recoverSent"); }
-        }),
-        AM.Button({ label: "Back to sign in", variant: "ghost", fullWidth: true, onClick: function () { app.go("signin", "back"); } })
-      )
-    };
-  };
-
-  /* ---------- 3b · Request sent ----------
-     The confirmation is a screen, not a toast: nothing is queued invisibly. */
-  screens.recoverSent = function (app) {
-    return {
-      nav: null,
-      body: el("div", {
-        style: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "var(--space-4)", padding: "32px 28px" }
-      },
-        el("span", {
-          dataset: { amBadge: "" },
-          style: {
-            width: 72, height: 72, borderRadius: "50%", background: "var(--success-100)",
-            color: "var(--success-700)", display: "flex", alignItems: "center", justifyContent: "center"
-          }
-        }, icon("check", 36, { glyph: true })),
-        el("div.heading-md", null, "Request sent"),
-        el("div.body", { style: { color: "var(--ink-600)", textAlign: "center", textWrap: "pretty" } },
-          "Mr. Dela Cruz has your request. Ask him for the new PIN, then sign in with it.")
-      ),
-      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 28px" } },
-        AM.Button({ label: "Back to sign in", fullWidth: true, onClick: function () { app.go("signin", "back"); } }))
-    };
-  };
-
   /* ---------- Questions did not load ----------
      The question pack is precached with the app, so this shows when the very
      first visit lost signal before it finished, when the phone cleared the
@@ -357,13 +206,15 @@
     };
   };
 
-  /* ---------- 4 · First-run profile setup ----------
+  /* ---------- Editing the learner's card, from Profile ----------
      Skill hues do the colour-picking work; the chosen swatch takes an ink-900
      edge rather than a tick. */
   screens.setup = function (app) {
+    var p = store.get().profile || {};
     var draft = app.scratch.setup || (app.scratch.setup = {
-      name: "Ligaya Mendoza", school: "Poblacion, Pilar", colorKey: 1, iconKey: "triangle"
+      name: p.name || "", school: p.school || "", colorKey: p.colorKey || 1, iconKey: p.iconKey || "triangle"
     });
+    function leave() { app.scratch.setup = null; app.go("profile", "back"); }
 
     function field(labelText, key) {
       return [
@@ -411,11 +262,12 @@
 
     return {
       nav: null,
-      body: el("div", { style: { flex: "none", padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
-        el("div.heading-md", null, "Set up your profile"),
-        el("div.body-sm", { style: { color: "var(--ink-600)" } }, "This stays on the phone. You can change it later."),
+      back: leave,
+      body: el("div", { style: { flex: "none", width: "100%", maxWidth: 560, margin: "0 auto", boxSizing: "border-box", padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
+        el("div.heading-md", null, "Edit your card"),
+        el("div.body-sm", { style: { color: "var(--ink-600)" } }, "This stays on the phone."),
         field("Your name", "name"),
-        field("School or barangay", "school"),
+        field("School or barangay (optional)", "school"),
         el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Pick a colour"),
         swatches,
         el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Pick an icon"),
@@ -426,21 +278,14 @@
           iconKey: draft.iconKey, style: { maxWidth: "none", width: "100%" }
         })
       ),
-      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px" } },
+      footer: el("div", { style: { flex: "none", width: "100%", maxWidth: 560, margin: "0 auto", boxSizing: "border-box", padding: "0 " + gutter() + "px 24px" } },
         AM.Button({
-          label: "Create profile", fullWidth: true,
+          label: "Save", fullWidth: true,
           onClick: function () {
             store.set({
-              profile: {
-                name: draft.name || "Ligaya Mendoza",
-                school: draft.school || "Poblacion, Pilar",
-                colorKey: draft.colorKey, iconKey: draft.iconKey,
-                username: (draft.name || "ligaya").toLowerCase().split(" ")[0] + ".m"
-              },
-              signedIn: true
+              profile: { name: draft.name.trim(), school: draft.school.trim(), colorKey: draft.colorKey, iconKey: draft.iconKey }
             });
-            app.scratch.setup = null;
-            app.go("home");
+            leave();
           }
         }))
     };
@@ -490,9 +335,9 @@
       AM.Flame ? AM.Flame(24, days > 0) : icon("streak", 20),
       el("span.am-combo-num", { "aria-hidden": "true", style: { fontSize: 22 } }, String(days)));
   }
-  function startLabel(next) {
-    return (next.level.attempts || next.level.lessonSeen ? "Continue: " : "Start: ") + next.level.title;
-  }
+  /* What the button does. A round always starts afresh, so it never says
+     "Continue": nothing is resumed. */
+  function levelVerb(level) { return level.attempts ? "Practise" : "Start"; }
 
   screens.home = function (app) {
     var s = store.get();
@@ -508,7 +353,7 @@
       : el("div", {
           style: { padding: "24px " + gutter() + "px 0", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-3)" }
         },
-          greetingBlock(s, "Back for day " + s.streakDays),
+          greetingBlock(s, s.streakDays > 1 ? "Back for day " + s.streakDays : "Good to see you"),
           desktop ? null : streakBadge(s.streakDays)
         );
 
@@ -518,7 +363,8 @@
         el("span.caption", { style: { color: "var(--ink-600)" } }, "30 January")),
       AM.ProgressBar({ ratio: p.coverage, height: 10, label: "Blueprint cleared" }),
       el("span.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-        p.levelsCleared + " level" + (p.levelsCleared === 1 ? "" : "s") + " cleared · " + pct(p.coverage) + "% of the exam blueprint"));
+        !p.levelsCleared ? "Clear your first level to start filling this."
+          : p.levelsCleared + " level" + (p.levelsCleared === 1 ? "" : "s") + " cleared · " + pct(p.coverage) + "% of the exam blueprint"));
 
     var upNext = next
       ? AM.Card({ style: { gap: 12 } },
@@ -537,10 +383,8 @@
             !next.level.lessonSeen && next.level.hasLesson
               ? "Starts with a short lesson. " + next.level.target + " right first time clears it."
               : next.level.correct + " of " + next.level.target + " right first time to clear it"),
-          desktop ? el("span", { style: { display: "flex", gap: "var(--space-3)", marginTop: "var(--space-2)", flexWrap: "wrap" } },
-            AM.Button({ label: startLabel(next), onClick: function () { app.startLevel(next.topic.key, next.level.id); } }),
-            AM.Button({ label: "See the whole path", variant: "ghost", onClick: function () { app.go("topics"); } })
-          ) : null)
+          el("span", { style: { display: "flex", marginTop: "var(--space-2)" } },
+            AM.Button({ label: levelVerb(next.level) + " level " + next.level.number, fullWidth: !desktop, onClick: function () { app.startLevel(next.topic.key, next.level.id); } })))
       : AM.Card({ style: { gap: 10 } },
           sectionLabel("Up next"),
           el("span.body", { style: { textWrap: "pretty" } }, "Every level on the path is cleared. Review any level from the path, or try a practice exam."));
@@ -641,28 +485,21 @@
               : "Quick rounds from levels you have cleared"))),
       challengeOpen ? AM.Button({ label: "Play a challenge", variant: "ghost", fullWidth: true, onClick: function () { app.go("challengeIntro"); } }) : null);
 
-    var offer = app.canOfferInstall() && !s.installCardDismissed ? installCard(app) : null;
+    var offer = s.totalCorrect > 0 && app.canOfferInstall() && !s.installCardDismissed ? installCard(app) : null;
 
     /* Tablet and desktop spend the extra width on a second card rather than on
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          offer, upNext, reviewCard, countdown, examCard, challengeCard, basicsCard, streakBlock)
+          upNext, offer, reviewCard, countdown, examCard, challengeCard, basicsCard, streakBlock)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
+          el("div.am-pair", null, upNext,
+            el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, minWidth: 0 } }, countdown, badgeCard)),
           offer,
-          el("div.am-pair", null, upNext, countdown),
           reviewCard,
           el("div.am-pair", null, examCard, challengeCard),
-          basicsCard,
-          streakBlock,
-          el("div.am-pair", null, pathCard, badgeCard));
-
-    var footer = (desktop) ? null : el("div", {
-      style: { flex: "none", padding: "0 " + gutter() + "px 20px", display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }
-    }, el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
-        next ? AM.Button({ label: startLabel(next), fullWidth: true, onClick: function () { app.startLevel(next.topic.key, next.level.id); } }) : null,
-        AM.Button({ label: "See the whole path", variant: next ? "ghost" : "primary", fullWidth: true, onClick: function () { app.go("topics"); } })
-      ));
+          el("div.am-pair", null, pathCard, basicsCard),
+          streakBlock);
 
     return {
       nav: "home",
@@ -671,8 +508,7 @@
         style: { background: "var(--brand-blue-100)", color: "var(--brand-blue-600)" }
       }, icon("streak", 22), el("span.label", { style: { color: "var(--ink-900)" } },
         s.streakDays + " day" + (s.streakDays === 1 ? "" : "s") + " in a row")),
-      body: column([headline, el("div", { style: { height: 20 } }), cards], { gap: 0, paddingBottom: 24 }),
-      footer: footer
+      body: column([headline, el("div", { style: { height: 20 } }), cards], { gap: 0, paddingBottom: 24 })
     };
   };
 
@@ -743,7 +579,7 @@
       ], { paddingBottom: 24 }),
       footer: p.next ? el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520 } },
-          AM.Button({ label: startLabel(p.next), fullWidth: true, onClick: function () { app.startLevel(p.next.topic.key, p.next.level.id); } }))) : null
+          AM.Button({ label: levelVerb(p.next.level) + " " + p.next.topic.label + " level " + p.next.level.number, fullWidth: true, onClick: function () { app.startLevel(p.next.topic.key, p.next.level.id); } }))) : null
     };
   };
 
@@ -790,7 +626,7 @@
 
     var actions = [];
     if (current) actions.push(AM.Button({
-      label: (current.attempts || current.lessonSeen ? "Continue level " : "Start level ") + current.number,
+      label: levelVerb(current) + " level " + current.number,
       fullWidth: true, onClick: function () { app.startLevel(t.key, current.id); }
     }));
     if (current && current.lessonSeen && current.hasLesson) actions.push(AM.Button({
@@ -2413,10 +2249,10 @@
   }
 
   /* ---------- 20 · Profile ----------
-     The ID card from login, reused. Sign out is a ghost, not the primary. */
+     The learner's card. Editing it is a ghost, not the primary. */
   screens.profile = function (app) {
     var s = store.get();
-    var p = s.profile || { name: "Ligaya Mendoza", school: "Poblacion, Pilar", colorKey: 2 };
+    var p = s.profile || { name: "", school: "", colorKey: 2 };
     var path = store.path();
     var written = path.topics.filter(function (t) { return t.ready; });
 
@@ -2436,7 +2272,7 @@
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.ProfileCard({
             name: p.name, greeting: "",
-            school: p.school + " · Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
+            school: (p.school ? p.school + " · " : "") + "Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
             colorKey: p.colorKey, iconKey: p.iconKey,
             style: { maxWidth: "none", width: "100%" }
           })),
@@ -2504,10 +2340,7 @@
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 20px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
           AM.Button({ label: "Back to practice", fullWidth: true, onClick: function () { app.go("topics"); } }),
-          AM.Button({
-            label: "Sign out", variant: "ghost", fullWidth: true,
-            onClick: function () { store.set({ signedIn: false }); app.go("signin", "back"); }
-          })))
+          AM.Button({ label: "Edit my card", variant: "ghost", fullWidth: true, onClick: function () { app.go("setup"); } })))
     };
   };
 

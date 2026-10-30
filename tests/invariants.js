@@ -126,5 +126,11 @@ for (const pack of fs.readdirSync(path.join(ROOT, "content/packs"), { withFileTy
 check("every question pack file is precached",
   packFiles.filter((f) => !precached.has(f)).map((f) => "not precached: " + f));
 
+/* The app once filled its forms with a made-up learner, and asked for a PIN
+   that nothing checked. Neither should come back. */
+const appFiles = fs.readdirSync(path.join(ROOT, "app")).filter((f) => f.endsWith(".js")).map((f) => "app/" + f);
+check("the app has no made-up learner and no PIN",
+  appFiles.filter((f) => (/ligaya|poblacion/i.test(read(f)) || /\bPIN\b/.test(read(f)))).map((f) => "found in " + f));
+
 console.log(failed ? `\n${failed} invariant(s) violated` : "\nall invariants hold");
 process.exit(failed ? 1 : 0);
