@@ -85,6 +85,9 @@ function run() {
   });
   LEARNER.levels["times/2-5-10"] = { correct: 0, attempts: 0, cleared: false, lessonSeen: true };
 
+  /* A learner with a name and nothing else, as Home first looks. */
+  if (SCREEN === "home-new") LEARNER = { version: LEARNER.version, installed: false, profile: { name: "Maya", school: "", colorKey: 1, iconKey: "triangle" } };
+
   var frame = document.createElement("iframe");
   frame.id = "frame";
   /* 390x844 unless asked otherwise (&w=360&h=640), to check a smaller phone.
@@ -205,7 +208,11 @@ function run() {
         AM.app.go("splash");
         break;
       case "home":
+      case "home-new":
         AM.app.go("home");
+        break;
+      case "edit-card":
+        AM.app.go("setup");
         break;
       case "topics":
         AM.app.go("topics");

@@ -104,9 +104,10 @@ Settled with the project owner. Build on them; don't reopen them.
   consent **directly to the researcher**, who holds the name-to-code key under their own
   institution's ethics clearance. We hold only aggregate anonymous counts. We never hold a
   file linking a child's name to her scores.
-- **PIN login is to be removed**, replaced by local profiles: a name and a colour, no
-  password. Siblings share phones, so profiles stay; authentication goes. Now also
-  research-critical — a participant's data must not contain a sibling's attempts.
+- **There is no sign-in** (PIN removed 2026-10-31). A new learner gives a first name, or
+  nothing, and goes straight to the first lesson. Colour, icon and school are on Profile.
+  Still to come: local profiles, one per learner on a phone. Siblings share phones, and a
+  participant's data must not contain a sibling's attempts.
 - **Progress moves as a 20-character code or a QR.** No server, no password. The code
   doubles as a backup. Codec proven in `poc/progress-code.js`.
 - **Teachers see progress by scanning a learner's QR** into a class list stored on the
@@ -117,15 +118,18 @@ Settled with the project owner. Build on them; don't reopen them.
   one-question override that never changes the tier. Maths vocabulary is never translated.
   Tagalog and Cebuano first. Structure in `poc/language-ladder.js`.
 - **Hosting is GitHub Pages.**
+- **Home has one main action** (decided 2026-10-31): a button inside the "Up next" card,
+  with nothing pinned below the cards, since the Practice tab already opens the path. A
+  round always starts afresh, so its button says Start or Practise, never Continue.
 - **The challenge round is a 60-second sprint and a 90-second speed ladder** (chosen
   2026-10-27 from three prototypes; beat-the-clock was dropped). It asks only what a
   learner has cleared, and only short questions with no graph or picture unless a level
   has nothing else. No lives, no penalty. It never moves the path, Basics or review. Today's
   challenge is one play a mode a day, with no ranking: learners with different levels
   cleared get different questions, so it is not the same paper for everyone.
-- **Adding to the home screen is on offer at any time until installed**: on the splash,
-  as a Home card whose "Not now" removes it for good, and as a button on Profile that
-  stays. Where the browser cannot install in one tap, the offer shows the steps instead.
+- **Adding to the home screen is on offer at any time until installed, but not before the
+  first right answer** (changed 2026-10-31): a Home card from then on, whose
+  "Not now" removes it for good, and a button on Profile that stays. Where the browser cannot install in one tap, the offer shows the steps instead.
 - **Progression is a path of levels** (decided 2026-10-10). The topics run in a set order;
   each topic splits into levels that follow its competencies, and clearing a level unlocks
   the next. Home shows the days left to 30 January and how much of the blueprint is

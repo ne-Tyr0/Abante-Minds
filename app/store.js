@@ -49,8 +49,8 @@
       version: VERSION,
       installed: false,            /* set only on evidence: the browser reporting an install, or running from the home screen */
       installCardDismissed: false, /* "Not now" on the Home card; Profile keeps offering it */
-      signedIn: false,
-      profile: null,               /* {name, school, colorKey, iconKey, username} */
+      signedIn: false,             /* from the old sign-in; kept in old records, no longer read */
+      profile: null,               /* {name, school, colorKey, iconKey}; the name may be blank */
       levels: {},                  /* "topic/level": {correct, attempts, cleared, lessonSeen} */
       facts: {},                   /* fact key: {seen, right, miss, days, last}; days are the days it was right and quick */
       review: {},                  /* missed questions coming back: key: {topic, template, tier, seed, pinnedAt, step, due, added} */

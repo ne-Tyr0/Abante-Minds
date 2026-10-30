@@ -157,7 +157,7 @@
      up again. A sheet that is open closes first, and in a round Back asks
      before leaving, as the X does. On Home the guard is taken down, so Back
      leaves the app there, as a phone user expects. */
-  var UNGUARDED = { home: true, splash: true, signin: true, setup: true, recover: true, recoverSent: true, loadFailed: true };
+  var UNGUARDED = { home: true, splash: true, loadFailed: true };
   var currentView = null, guarded = false, unguarding = false;
   function guardBack() {
     var wants = !UNGUARDED[app.route];
@@ -236,12 +236,11 @@
     return !!window.isSecureContext && !standalone() && !store.get().installed;
   };
 
-  /* One tap where the browser allows it, otherwise the steps. `next` is where
-     to go afterwards: the splash moves on to sign-in, other screens stay put. */
-  app.offerInstall = function (next) {
+  /* One tap where the browser allows it, otherwise the steps. */
+  app.offerInstall = function () {
     var e = app.deferredInstall;
     if (!e) {
-      app.scratch.install = { from: app.route, next: next || null };
+      app.scratch.install = { from: app.route };
       app.go("installSteps");
       return;
     }
@@ -249,8 +248,8 @@
     e.prompt();
     function after(choice) {
       if (choice && choice.outcome === "accepted") store.set({ installed: true });
-      if (next) app.go(next);
-      else { app.keepScroll = true; render(); }
+      app.keepScroll = true;
+      render();
     }
     var outcome = e.userChoice;
     if (outcome && outcome.then) outcome.then(after, function () { after(null); });
@@ -966,10 +965,9 @@
          the first time, progress made before badges is awarded quietly. */
       store.syncBadges();
       var s = store.get();
-      if (!s.installed && !s.signedIn) app.route = "splash";
-      else if (!s.signedIn) app.route = "signin";
-      else if (!s.profile) app.route = "setup";
-      else app.route = "home";
+      /* No sign-in (decided 2026-10-31): a name is all a learner gives, and a
+         phone that has one goes straight home. */
+      app.route = s.profile ? "home" : "splash";
       render();
     }, function (err) {
       app.loadError = err; /* for anyone debugging from the console */
