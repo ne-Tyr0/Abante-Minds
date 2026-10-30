@@ -618,18 +618,42 @@
               : "Every topic, as the exam weighs them"))),
       AM.Button({ label: exam ? "Take another" : "Try a practice exam", variant: "ghost", fullWidth: true, onClick: function () { app.go("examIntro"); } }));
 
+    /* The challenge round: quick timed rounds, once a level is cleared. */
+    var challengeOpen = store.challengePool().length > 0;
+    var challengeBest = Math.max.apply(null, Object.keys(AM.challenge.MODES).map(function (m) {
+      var b = store.challengeStats(m).best;
+      return b ? b.score : 0;
+    }));
+    var challengeCard = first ? null : AM.Card({ style: { gap: 12 } },
+      sectionLabel("Challenge"),
+      el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
+        el("span", {
+          style: {
+            width: 40, height: 40, flex: "none", borderRadius: "var(--radius-sm)", background: "var(--brand-blue-100)",
+            color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
+          }
+        }, icon("level-up", 22)),
+        el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
+          el("span.label", null, "60-second sprint · speed ladder"),
+          el("span.caption", { style: { color: "var(--ink-600)" } },
+            !challengeOpen ? "Clear a level to open it"
+              : challengeBest ? "Your best: " + challengeBest + " points"
+              : "Quick rounds from levels you have cleared"))),
+      challengeOpen ? AM.Button({ label: "Play a challenge", variant: "ghost", fullWidth: true, onClick: function () { app.go("challengeIntro"); } }) : null);
+
     var offer = app.canOfferInstall() && !s.installCardDismissed ? installCard(app) : null;
 
     /* Tablet and desktop spend the extra width on a second card rather than on
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          offer, upNext, reviewCard, countdown, examCard, basicsCard, streakBlock)
+          offer, upNext, reviewCard, countdown, examCard, challengeCard, basicsCard, streakBlock)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
           offer,
           el("div.am-pair", null, upNext, countdown),
           reviewCard,
-          el("div.am-pair", null, examCard, basicsCard),
+          el("div.am-pair", null, examCard, challengeCard),
+          basicsCard,
           streakBlock,
           el("div.am-pair", null, pathCard, badgeCard));
 
@@ -1482,9 +1506,10 @@
     var frame = document.querySelector(".am-frame");
     if (!s || !frame) return;
     clearSheets(frame);
-    var exam = !!s.exam;
+    var exam = !!s.exam, challenge = !!s.challenge;
     var badged = !exam && !s.redo && !s.review && (s.kind === "practice" || s.kind === "facts");
     var lines = exam ? ["It won't be scored, and the clock stops."]
+      : challenge ? [s.challenge.daily ? "It won't be scored, and today's challenge stays open." : "It won't be scored."]
       : s.redo ? ["These questions don't move the level, so nothing is lost."]
       : s.review ? ["Questions you've put right stay put right."]
       : s.facts ? ["Facts you've mastered stay mastered."]
@@ -2056,13 +2081,177 @@
     return m + " min " + (s < 10 ? "0" : "") + s + " s";
   }
 
+  /* One line of a timed round's rules, with its icon. */
+  function ruleLine(glyph, text) {
+    return el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "flex-start" } },
+      el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon(glyph, 22)),
+      el("span.body", { style: { textWrap: "pretty" } }, text));
+  }
+
+  /* ---------- the challenge round ----------
+     Pick a mode, then play. The rules are in app/challenge.js. */
+  screens.challengeIntro = function (app) {
+    if (!store.challengePool().length) { app.go("home"); return screens.home(app); }
+    var Ch = AM.challenge;
+    var mode = app.scratch.challengeMode || "sprint";
+    var m = Ch.MODES[mode], stats = store.challengeStats(mode), today = store.challengeDaily(mode);
+    var rules = mode === "sprint" ? [
+      ["clock", "Answer as many as you can in " + m.seconds + " seconds. After " + Ch.SPRINT_EASY + " right, the numbers get bigger."],
+      ["streak", "Each right answer scores " + Ch.POINTS + ". Five in a row doubles your points, and ten triples them."]
+    ] : [
+      ["clock", m.seconds + " seconds. Three right in a row steps the questions up, and a miss steps them back."],
+      ["streak", "Step 1 scores 10, step 2 scores 20 and step 3 scores 30. Five in a row doubles your points, and ten triples them."]
+    ];
+    return {
+      nav: "home", bottomNav: false,
+      back: function () { app.go("home", "back"); },
+      body: column([
+        el("div", { style: { padding: "16px " + gutter() + "px 0" } },
+          el("div.heading-lg", null, "Challenge"),
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, "Quick rounds from levels you have cleared")),
+        el("div", { style: { padding: "12px " + gutter() + "px 0" } },
+          AM.Segmented({
+            label: "Choose a round", value: mode,
+            options: Object.keys(Ch.MODES).map(function (k) { return { value: k, label: Ch.MODES[k].name }; }),
+            onChange: function (v) { app.scratch.challengeMode = v; app.keepScroll = true; app.render(); }
+          })),
+        el("div", { style: { padding: "8px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 14 } },
+            rules.map(function (r) { return ruleLine(r[0], r[1]); }),
+            ruleLine("lock", "No lives, and a miss only costs the seconds it took. It does not change your path or your Basics."))),
+        el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 6 } },
+            sectionLabel("Your best"),
+            el("span.heading-md", null, stats.best ? stats.best.score + " points" : "No record yet"),
+            stats.best ? el("span.caption", { style: { color: "var(--ink-600)" } }, stats.best.right + " right · best run " + stats.best.bestRun) : null)),
+        el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 12 } },
+            sectionLabel("Today's challenge"),
+            el("span.body", { style: { textWrap: "pretty" } }, today ? "You played today's " + m.name.toLowerCase() + ": " + today.score + " points. Come back tomorrow for a new one." : "One go a day, with its own questions for today."),
+            today ? null : AM.Button({ label: "Play today's challenge", variant: "ghost", fullWidth: true, onClick: function () { app.startChallenge(mode, true); } })))
+      ], { paddingBottom: 24 }),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520 } },
+          AM.Button({ label: "Start", fullWidth: true, onClick: function () { app.startChallenge(mode, false); } })))
+    };
+  };
+
+  screens.challenge = function (app) {
+    var ses = app.session;
+    if (!ses || !ses.challenge) { app.go("home"); return screens.home(app); }
+    var Ch = AM.challenge, g = ses.challenge, q = ses.questions[ses.index], now = Date.now();
+    var desktop = AM.device() === "desktop";
+    var asking = ses.phase === "ask", right = ses.phase === "correct";
+    var multi = Ch.multiplier(g.run);
+
+    var header = el("div.am-reset", {
+      style: {
+        display: "flex", alignItems: "center", gap: "var(--space-4)", padding: "var(--space-4) var(--space-6)",
+        background: "var(--surface-100)", borderBottom: "1px solid var(--line-200)", flex: "none"
+      }
+    },
+      el("button.am-reset.am-close", { type: "button", "aria-label": "Leave this round", onClick: openLeave }, icon("x", 22)),
+      el("span.caption", {
+        style: {
+          display: "inline-flex", padding: "var(--space-1) var(--space-3)", borderRadius: "var(--radius-pill)",
+          background: "var(--brand-blue-100)", color: "var(--brand-blue-600)", whiteSpace: "nowrap"
+        }
+      }, g.mode === "ladder" ? "Step " + g.step : Ch.MODES[g.mode].label),
+      el("div", {
+        role: "progressbar", "aria-label": "Time left",
+        style: { flex: 1, height: 10, borderRadius: "var(--radius-pill)", background: "var(--surface-300)", overflow: "hidden" }
+      }, el("span.am-chal-fill" + (Ch.isLow(g, now) ? ".am-chal-low" : ""), { style: { transform: "scaleX(" + Ch.shareLeft(g, now) + ")" } })),
+      el("span.label.am-chal-clock", { role: "timer", style: { whiteSpace: "nowrap", fontVariantNumeric: "tabular-nums", minWidth: "4ch", textAlign: "right" } }, Ch.secondsLeft(g, now) + " s"));
+
+    var hud = el("div", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", minHeight: 34 } },
+      el("span", { style: { display: "inline-flex", alignItems: "center", gap: 4, color: g.run >= 3 ? "var(--action-700)" : "var(--ink-600)" } },
+        AM.Flame ? AM.Flame(22, g.run >= 3) : icon("streak", 20),
+        el("span.label", { style: { fontVariantNumeric: "tabular-nums" } }, String(g.run))),
+      multi > 1 ? el("span.am-chal-multi" + (g.rose && right ? ".am-chal-pop" : ""), null, "×" + multi) : null,
+      el("span.label", { style: { marginLeft: "auto", fontVariantNumeric: "tabular-nums" } }, g.score + " points"));
+
+    var prompt = el("div.heading-lg", { style: { textAlign: "center", textWrap: "balance", padding: "16px 0 12px", minHeight: 84, display: "flex", alignItems: "center", justifyContent: "center" } }, q.prompt);
+    var chart = q.chart ? el("div", { style: { display: "flex", paddingBottom: 12 } }, AM.Chart(q.chart)) : null;
+
+    var answer;
+    if (q.type === "choice") {
+      answer = el("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "var(--space-3)" } },
+        q.choices.map(function (label, i) {
+          var state = asking ? "idle" : i === q.answerIndex ? "correct" : i === ses.picked ? "wrong" : "idle";
+          return AM.AnswerTile({
+            text: label, state: state, tall: true, figure: q.choiceFigures ? q.choiceFigures[i] : null, disabled: !asking,
+            /* A tap is the answer: a timed round has no time for a second press. */
+            onClick: function () { ses.picked = i; app.check(); }
+          });
+        }));
+    } else if (asking) {
+      answer = AM.AnswerField({ entry: ses.entry, prefix: q.unit, suffix: q.suffix, onFocusBox: app.focusBox });
+    } else {
+      answer = el("div.am-chal-verdict.heading-lg", { dataset: { state: ses.phase }, role: "status" },
+        icon(right ? "check" : "x", 26, { glyph: true }), el("span", null, ses.shownAnswer));
+    }
+    var note = el("div.body-lg", { style: { minHeight: 30, textAlign: "center", fontWeight: 600, paddingTop: 8 } },
+      !asking && !right ? "It was " + ses.rightAnswer : "");
+
+    var keypad = q.type === "compute" ? AM.Keypad({
+      kind: q.entry,
+      onPress: function (d) { app.type(d); }, onDelete: function () { app.backspace(); }, onNext: function () { app.nextBox(); }
+    }) : null;
+    var ready = q.type === "compute" && asking && AM.entry.complete(ses.entry);
+    var check = q.type === "compute" ? AM.Button({ label: "Check", fullWidth: true, disabled: !ready, onClick: function () { app.check(); } }) : null;
+
+    if (desktop) {
+      return {
+        nav: "practice", bottomNav: false, header: header, onBack: openLeave,
+        body: el("div", { style: { flex: 1, display: "flex", justifyContent: "center", padding: gutter() + "px", minHeight: 0, overflowY: "auto" } },
+          el("div", { style: { width: "100%", maxWidth: 480, display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
+            hud, prompt, chart, answer, note, keypad, check))
+      };
+    }
+    return {
+      nav: "practice", bottomNav: false, header: header, onBack: openLeave,
+      body: column([el("div", { style: { padding: "12px " + gutter() + "px 0" } }, hud, prompt, chart, answer, note)]),
+      belowFold: keypad ? el("div", { style: { padding: "0 " + gutter() + "px" } }, keypad) : null,
+      footer: check ? el("div", { style: { flex: "none", padding: "16px " + gutter() + "px 20px" } }, check) : null
+    };
+  };
+
+  screens.challengeResult = function (app) {
+    var r = app.scratch.challenge;
+    if (!r) { app.go("home"); return screens.home(app); }
+    var Ch = AM.challenge, m = Ch.MODES[r.mode];
+    function stat(value, label) {
+      return el("div", {
+        style: { background: "var(--surface-200)", borderRadius: "var(--radius-md)", boxShadow: "var(--shadow-card)", padding: "var(--space-3)", textAlign: "center" }
+      }, el("div.heading-lg", null, String(value)), el("div.caption", { style: { color: "var(--ink-600)" } }, label));
+    }
+    var best = r.better ? r : r.previous;
+    return {
+      nav: "practice", bottomNav: false,
+      banner: connectionBanner(),
+      body: column([
+        el("div", { style: { padding: "24px " + gutter() + "px 0" } },
+          el("div.body-sm", { style: { color: "var(--ink-600)" } }, (r.daily ? "Today's challenge · " : "") + m.name),
+          el("div", { style: { marginTop: 4, fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 44, lineHeight: 1.1 } }, r.score + " points")),
+        el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
+          stat(r.right, "right"), stat(r.bestRun, "best run"),
+          r.mode === "ladder" ? stat(r.top, "top step") : stat(r.right + r.wrong, "answered")),
+        el("div", { style: { padding: "18px " + gutter() + "px 0" } },
+          r.better
+            ? el("div.am-chal-record.label", null, el("span", null, "New personal best"), el("span", null, r.score + " points"))
+            : AM.Card({ style: { gap: 2 } }, sectionLabel("Your best"), el("span.heading-md", null, best ? best.score + " points" : "No record yet"))),
+        newBadgesCard(r.badges || (r.badges = takeBadges(anyBadge)))
+      ], { paddingBottom: 24 }),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
+          AM.Button({ label: "Play again", fullWidth: true, onClick: function () { app.startChallenge(r.mode, false); } }),
+          AM.Button({ label: "Back to challenges", variant: "ghost", fullWidth: true, onClick: function () { app.go("challengeIntro", "back"); } })))
+    };
+  };
+
   screens.examIntro = function (app) {
     var stats = store.examStats();
-    var rule = function (glyph, text) {
-      return el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "flex-start" } },
-        el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon(glyph, 22)),
-        el("span.body", { style: { textWrap: "pretty" } }, text));
-    };
+    var rule = ruleLine;
     return {
       nav: "home", bottomNav: false,
       back: function () { app.go("home", "back"); },

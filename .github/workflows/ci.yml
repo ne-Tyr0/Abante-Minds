@@ -47,6 +47,9 @@ jobs:
       - name: Progress on the path and in Basics
         run: node tests/progress.js
 
+      - name: Challenge round
+        run: node tests/challenge.js
+
       - name: Question packs are valid
         run: node tests/validate-packs.js
 

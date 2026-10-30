@@ -192,7 +192,9 @@
     if (key === "home") app.go("home");
     else if (key === "profile") app.go("profile");
     else if (key === "practice") {
-      if (app.session && app.route !== "practice" && app.route !== "exam") app.go(app.session.exam ? "exam" : "practice");
+      if (app.session && app.route !== "practice" && app.route !== "exam" && app.route !== "challenge") {
+        app.go(app.session.challenge ? "challenge" : app.session.exam ? "exam" : "practice");
+      }
       else app.go("topics");
     }
   }
@@ -412,6 +414,7 @@
     if (q.type === "choice" ? s.picked === null : !AM.entry.complete(s.entry)) return;
     var given = q.type === "choice" ? s.picked : AM.entry.text(s.entry);
     if (s.exam) { examAnswer(s, q, given); return; }
+    if (s.challenge) { challengeAnswer(s, q, given); return; }
 
     /* A wrong answer that matches a mistake the template expects gets that
        mistake's explanation; any other gets the honest fallback. */
@@ -641,6 +644,14 @@
       app.go("home", "back");
       return;
     }
+    if (s.challenge) {
+      s.challenge.done = true;
+      window.clearInterval(challengeTimer);
+      challengeTimer = null;
+      app.session = null;
+      app.go("challengeIntro", "back");
+      return;
+    }
     if (s.phase !== "ask" && s.index + 1 >= s.questions.length) { app.next(); return; }
     if (!s.redo && !s.review && (s.kind === "practice" || s.kind === "facts")) store.leaveLevel(s.topicKey, s.levelId);
     s.leaving = true;
@@ -781,14 +792,120 @@
     app.go("examResult");
   }
 
+  /* ---------- the challenge round ----------
+     The rules are in app/challenge.js and the questions come one at a time
+     from content.js, because a round has no set length. An answer shows for a
+     moment and the next question comes by itself: a right one quickly, and a
+     wrong one long enough to read what it should have been. Nothing here moves
+     the path, Basics or review; the answers are logged like any others. A
+     round left early is not scored, and leaves today's challenge open. */
+  var RIGHT_MS = 280, WRONG_MS = 950, challengeTimer = null;
+
+  app.startChallenge = function (mode, daily) {
+    var pool = store.challengePool(), Ch = AM.challenge;
+    if (!pool.length) { app.go("home"); return; }
+    if (daily && store.challengeDaily(mode)) { app.go("challengeIntro"); return; }
+    store.rollDay();
+    var seed = daily ? Ch.dailySeed(store.today(), mode) : Date.now() >>> 0;
+    var meta = { topic: { key: "challenge", label: "Challenge", colorKey: 1 }, id: mode, title: Ch.MODES[mode].name, number: 0, track: "challenge", kind: "challenge" };
+    var s = newSession(meta, [], false);
+    s.challenge = Ch.start(mode, seed, daily, Date.now());
+    s.challenge.pool = pool;
+    s.questions.push(drawChallenge(s, null));
+    s.entry = freshEntry(s);
+    app.session = s;
+    if (challengeTimer) window.clearInterval(challengeTimer);
+    challengeTimer = window.setInterval(tickChallenge, 100);
+    app.go("challenge");
+  };
+
+  function drawChallenge(s, avoid) {
+    var g = s.challenge;
+    return C.challengeQuestion({ pool: g.pool, tier: AM.challenge.tier(g), seed: g.seed, index: s.questions.length, avoid: avoid });
+  }
+
+  /* The clock updates in place, so typing is never interrupted by a redraw. */
+  function tickChallenge() {
+    var s = app.session, Ch = AM.challenge, now = Date.now();
+    if (!s || !s.challenge || s.challenge.done) { window.clearInterval(challengeTimer); challengeTimer = null; return; }
+    if (now >= s.challenge.endsAt) { finishChallenge(s); return; }
+    var clock = document.querySelector(".am-chal-clock"), fill = document.querySelector(".am-chal-fill");
+    if (clock) clock.textContent = Ch.secondsLeft(s.challenge, now) + " s";
+    if (fill) {
+      fill.style.transform = "scaleX(" + Ch.shareLeft(s.challenge, now) + ")";
+      fill.classList.toggle("am-chal-low", Ch.isLow(s.challenge, now));
+    }
+  }
+
+  function challengeAnswer(s, q, given) {
+    var g = s.challenge, d = C.diagnose(q, given), right = d.correct;
+    s.phase = right ? "correct" : "wrong";
+    s.diagnosis = d;
+    s.attempted += 1;
+    if (right) s.correct += 1;
+    s.shownAnswer = q.type === "choice" ? C.choiceText(q, given) : (q.unit || "") + given + q.suffix;
+    s.rightAnswer = q.type === "choice" ? C.choiceText(q, q.answerIndex) : (q.unit || "") + q.answerText + q.suffix;
+    store.logAttempt({
+      session: s.id, topic: q.topicKey, level: q.levelId, kind: "challenge",
+      template: q.templateId, tier: q.tier, seed: q.seed, pinned: null,
+      format: q.format, fact: q.factKey || null, pack: q.packVersion,
+      ordinal: s.index, attempt: 1, given: given, correct: right, error: d.error,
+      ms: Date.now() - s.shownAt, hints: 0, steps: 0
+    });
+    AM.challenge.answer(g, right);
+    var milestone = right && (g.run === 5 || g.run === 10);
+    if (motion) motion.haptic(!right ? "wrong" : milestone ? "combo" : "correct");
+    if (sound) {
+      if (!right) sound.play("wrong");
+      else if (milestone) sound.play("combo", g.run);
+      else sound.play("correct");
+    }
+    render();
+    var at = s.index;
+    window.setTimeout(function () { nextChallenge(s, at); }, right ? RIGHT_MS : WRONG_MS);
+  }
+
+  function nextChallenge(s, at) {
+    if (app.session !== s || s.index !== at || s.challenge.done) return;
+    s.questions.push(drawChallenge(s, s.questions[at].templateId));
+    s.index += 1;
+    s.phase = "ask";
+    s.entry = freshEntry(s);
+    s.picked = null;
+    s.diagnosis = null;
+    s.shownAt = Date.now();
+    app.keepScroll = true;
+    app.go("challenge");
+  }
+
+  function finishChallenge(s) {
+    var g = s.challenge;
+    if (g.done) return;
+    g.done = true;
+    if (app.closeSheet) app.closeSheet();  /* time ran out while leaving was being asked */
+    window.clearInterval(challengeTimer);
+    challengeTimer = null;
+    var r = { mode: g.mode, daily: g.daily, score: g.score, right: g.right, wrong: g.wrong, bestRun: g.bestRun, top: g.top };
+    var kept = store.recordChallenge(g.mode, r, g.daily);
+    r.better = kept.better;
+    r.previous = kept.previous;
+    app.scratch.challenge = r;
+    app.session = null;
+    if (motion) motion.haptic(r.better ? "levelUp" : "correct");
+    if (sound) sound.play(r.better ? "fanfare" : "check");
+    afterSession("challengeResult");
+  }
+
   /* ---------- keyboard ----------
      A shared school desktop has a keyboard; a phone in a jeepney does not.
      Both routes into the field are live wherever they exist. */
   document.addEventListener("keydown", function (e) {
-    if ((app.route !== "practice" && app.route !== "exam") || !app.session || app.closeSheet) return;
+    if ((app.route !== "practice" && app.route !== "exam" && app.route !== "challenge") || !app.session || app.closeSheet) return;
     var s = app.session;
     var q = s.questions[s.index];
     if (e.metaKey || e.ctrlKey || e.altKey) return;
+    /* An answer in a challenge round moves on by itself. */
+    if (s.challenge && s.phase !== "ask") return;
 
     if (e.key === "Enter") {
       /* If the learner has tabbed onto a control, Enter belongs to that

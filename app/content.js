@@ -1087,6 +1087,42 @@
     return out;
   }
 
+  /* ---------- the challenge round ----------
+     One question at a time, from the levels a learner has cleared
+     (store.challengePool), since a round has no set length. A timed round
+     needs questions read and answered in seconds, so it keeps to short ones
+     with no graph or picture, and only falls back to a longer one when a
+     level has nothing else. Mastered facts come up at the lowest tier only:
+     they have no harder numbers to climb to. The seed, the place in the round
+     and the tier fix the question, and the log's template, tier and seed
+     rebuild it as usual. */
+  var QUICK_PROMPT = 50, CHALLENGE_TRIES = 40;
+  function isQuick(q) { return !q.chart && !q.choiceFigures && q.prompt.length <= QUICK_PROMPT; }
+
+  function challengeQuestion(o) {
+    if (!PACK) throw ContentError("no content pack installed yet");
+    var r = rng((o.seed + o.index * 2654435761) >>> 0);
+    var pick = function (list) { return list[Math.floor(r() * list.length)]; };
+    var plain = o.tier === 1 ? o.pool : o.pool.filter(function (e) { return !e.facts; });
+    var entries = plain.length ? plain : o.pool;
+    var chosen = null, quick = null, noFigure = null, last = null;
+    for (var i = 0; i < CHALLENGE_TRIES; i++) {
+      var e = pick(entries), found = levelOf(e.topic, e.level);
+      var qseed = Math.floor(r() * 4294967296) >>> 0;
+      var q = e.facts ? factQuestion(e.topic, e.level, pick(e.facts), qseed, o.index)
+        : decorate(generateFrom(pick(found.level.templates), PACK, o.tier, qseed), found.topic, found.level, o.index);
+      last = q;
+      if (!noFigure && !q.chart && !q.choiceFigures) noFigure = q;
+      if (isQuick(q)) {
+        if (q.templateId !== o.avoid) { chosen = q; break; }
+        if (!quick) quick = q;
+      }
+    }
+    var out = chosen || quick || noFigure || last;
+    out.id = "challenge-" + o.index;
+    return out;
+  }
+
   /* A level's lesson, ready to show: text cards as written, and worked
      examples rendered from their template with the numbers the lesson fixes,
      so the example and the practice that follows are the same kind of
@@ -1309,6 +1345,9 @@
     },
     buildSession: buildSession,
     buildExam: buildExam,
+    challengeQuestion: challengeQuestion,
+    isQuick: isQuick,
+    QUICK_PROMPT: QUICK_PROMPT,
     rebuild: rebuild,
     retier: retier,
     examPlan: examPlan,

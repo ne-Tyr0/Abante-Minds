@@ -253,6 +253,53 @@ function run() {
           return true;
         });
         return;
+      /* The challenge round, one fixed question part-way through a round. */
+      case "challenge-intro":
+        AM.app.go("challengeIntro");
+        break;
+      case "challenge-ladder-intro":
+        AM.app.scratch.challengeMode = "ladder";
+        AM.app.go("challengeIntro");
+        break;
+      case "challenge":
+      case "challenge-right":
+      case "challenge-wrong":
+      case "challenge-ladder":
+        AM.app.startChallenge(screen === "challenge-ladder" ? "ladder" : "sprint", false);
+        s = AM.app.session;
+        Object.assign(s.challenge, screen === "challenge-ladder"
+          ? { step: 2, top: 2, stepRun: 1, right: 7, wrong: 1, run: 4, bestRun: 4, score: 120 }
+          : { right: 6, wrong: 1, run: 4, bestRun: 4, score: 60 });
+        s.challenge.endsAt = Date.now() + 37500;
+        s.questions[0] = AM.content.instance("decimals.subtract", 1, { pb: 2, w2: 2, f2: 35, a: 7 }, "difference");
+        s.entry = AM.entry.create(s.questions[0].entry);
+        AM.app.keepScroll = true;
+        AM.app.render();
+        typeIn(screen === "challenge-wrong" ? "5.35" : "4.65");
+        if (screen === "challenge-right" || screen === "challenge-wrong") AM.app.check();
+        /* Hold the moment: done stops both the clock and the next question. */
+        s.challenge.done = true;
+        break;
+      case "challenge-result":
+      case "challenge-result-plain":
+        AM.app.startChallenge("sprint", false);
+        s = AM.app.session;
+        if (screen === "challenge-result-plain") {
+          AM.store.recordChallenge("sprint", { score: 300, right: 21, wrong: 2, bestRun: 11, top: 1 }, false);
+          AM.store.takeRecent();
+        }
+        Object.assign(s.challenge, { score: 190, right: 14, wrong: 3, run: 0, bestRun: 7 });
+        s.challenge.endsAt = Date.now() - 1;
+        AM.store.set({ streakShownDay: AM.store.today() });
+        break;
+      case "challenge-badges":
+        AM.store.recordChallenge("sprint", { score: 150, right: 12, wrong: 1, bestRun: 6, top: 1 }, false);
+        AM.store.recordChallenge("ladder", { score: 240, right: 12, wrong: 1, bestRun: 6, top: 2 }, false);
+        AM.store.takeRecent();
+        AM.app.go("badges");
+        var shelf = w.document.querySelector(".am-slot-body");
+        shelf.scrollTop = shelf.scrollHeight;
+        break;
       case "streak":
         AM.app.scratch.afterStreak = "home";
         AM.app.go("streak");
