@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 55;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 56;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -54,6 +54,7 @@
       levels: {},                  /* "topic/level": {correct, attempts, cleared, lessonSeen} */
       facts: {},                   /* fact key: {seen, right, miss, days, last}; days are the days it was right and quick */
       review: {},                  /* missed questions coming back: key: {topic, template, tier, seed, pinnedAt, step, due, added} */
+      challenge: null,             /* the challenge round: {best: {mode: result}, played: {mode: n}, daily: {day, mode: result}} */
       exams: [],                   /* practice exams, the last EXAMS_KEPT: {day, score, total, seconds, topics: {key: [right, asked]}} */
       lastLevel: null,             /* {topic, level}: where the learner last practised */
       streakDays: 0,
@@ -571,6 +572,64 @@
     return { taken: list.length, last: list[list.length - 1], best: best };
   }
 
+  /* ---------- the challenge round ----------
+     What a round may ask: every level cleared, on the path and in Basics, and
+     from a facts level only the facts already mastered. A review level asks
+     nothing new and is never cleared, so it does not come up. A round keeps its best score for each
+     mode, one play a day of today's challenge for each mode, and its badges.
+     It counts as practice for the streak if anything was answered, and it
+     never moves the path, Basics or review. */
+  function challengePool() {
+    var out = [];
+    AM.content.TOPICS.concat(AM.content.BASICS || []).forEach(function (t) {
+      if (t.ready === false) return;
+      t.levels.forEach(function (lv) {
+        if (lv.kind === "facts") {
+          var keys = AM.content.facts(t.key, lv.id).filter(function (k) { return factState(k).mastered; });
+          if (keys.length) out.push({ topic: t.key, level: lv.id, facts: keys });
+        } else if (levelState(t.key, lv.id).cleared) out.push({ topic: t.key, level: lv.id });
+      });
+    });
+    return out;
+  }
+  function challengeState() {
+    return state.challenge || { best: {}, played: {}, daily: null };
+  }
+  function challengeStats(mode) {
+    var c = challengeState();
+    return { best: c.best[mode] || null, played: c.played[mode] || 0 };
+  }
+  /* Today's play of this mode, if it has been played. */
+  function challengeDaily(mode) {
+    var d = challengeState().daily;
+    return d && d.day === today() ? d[mode] || null : null;
+  }
+  function recordChallenge(mode, r, daily) {
+    rollDay();
+    if (r.right + r.wrong > 0) markPractice();
+    var c = challengeState();
+    var entry = { score: r.score, right: r.right, wrong: r.wrong, bestRun: r.bestRun, top: r.top, day: today() };
+    var previous = c.best[mode] || null;
+    var better = r.score > 0 && (!previous || r.score > previous.score);
+    if (better) c.best[mode] = entry;
+    c.played[mode] = (c.played[mode] || 0) + 1;
+    /* A round with nothing answered, such as a phone locked until time ran
+       out, does not use up today's play. */
+    if (daily && r.right + r.wrong > 0) {
+      if (!c.daily || c.daily.day !== today()) c.daily = { day: today() };
+      c.daily[mode] = entry;
+    }
+    state.challenge = c;
+    if (mode === "sprint") {
+      SPRINT_BADGES.forEach(function (n) { if (r.right >= n) award("challenge:sprint:" + n); });
+    } else {
+      LADDER_STEP_BADGES.forEach(function (n) { if (r.top >= n) award("challenge:ladder:" + n); });
+      if (r.score >= LADDER_SCORE_BADGE) award("challenge:ladder:" + LADDER_SCORE_BADGE);
+    }
+    commit();
+    return { better: better, previous: previous };
+  }
+
   /* ---------- badges ----------
      Every level is a badge: each level on the path, and each practice or
      facts level in Basics (a review level asks facts already counted, so it
@@ -578,7 +637,7 @@
      facts level when every one of its facts is mastered; it is shiny when it
      got there without a single first try wrong. Special badges sit beside
      them: streaks of 3, 7, 14 and 30 days, practice exams at 60, 75 and 90
-     per cent, Improver for five missed questions put right in review, and
+     per cent, six for the challenge round, Improver for five missed questions put right in review, and
      Welcome back for practising again after a few days away.
 
      A badge, once earned, is never taken away: a fact can be lost and a
@@ -604,6 +663,7 @@
     return TIERS[Math.min(4, Math.max(1, Math.round((number - 1) / (total - 1) * 5)))];
   }
 
+  var SPRINT_BADGES = [8, 15, 25], LADDER_STEP_BADGES = [2, 3], LADDER_SCORE_BADGE = 600;
   var SPECIALS = [
     { key: "streak:3", kind: "streak", tier: 1, name: "3-day streak", how: "Practise 3 days in a row." },
     { key: "streak:7", kind: "streak", tier: 2, name: "7-day streak", how: "Practise 7 days in a row." },
@@ -612,6 +672,12 @@
     { key: "exam:60", kind: "exam", tier: 1, name: "Exam 60%", how: "Score 60% or more on a practice exam." },
     { key: "exam:75", kind: "exam", tier: 2, name: "Exam 75%", how: "Score 75% or more on a practice exam." },
     { key: "exam:90", kind: "exam", tier: 3, name: "Exam 90%", how: "Score 90% or more on a practice exam." },
+    { key: "challenge:sprint:8", kind: "challenge", tier: 1, name: "Sprint 8", how: "Get 8 right in a 60-second sprint." },
+    { key: "challenge:sprint:15", kind: "challenge", tier: 2, name: "Sprint 15", how: "Get 15 right in a 60-second sprint." },
+    { key: "challenge:sprint:25", kind: "challenge", tier: 3, name: "Sprint 25", how: "Get 25 right in a 60-second sprint." },
+    { key: "challenge:ladder:2", kind: "challenge", tier: 1, name: "Ladder step 2", how: "Reach step 2 of the speed ladder." },
+    { key: "challenge:ladder:3", kind: "challenge", tier: 2, name: "Ladder step 3", how: "Reach step 3 of the speed ladder." },
+    { key: "challenge:ladder:600", kind: "challenge", tier: 3, name: "Ladder 600", how: "Score 600 in a speed ladder." },
     { key: "improver", kind: "improver", tier: 0, name: "Improver", how: "Put right " + IMPROVER_FIXES + " questions you missed before, in review." },
     { key: "welcome", kind: "welcome", tier: 0, name: "Welcome back", how: "Come back to practise after a few days away." }
   ];
@@ -849,6 +915,10 @@
     findBadge: findBadge,
     tierName: tierName,
     markBadgeSeen: markBadgeSeen,
+    challengePool: challengePool,
+    challengeStats: challengeStats,
+    challengeDaily: challengeDaily,
+    recordChallenge: recordChallenge,
     showcase: showcase,
     isPinned: isPinned,
     togglePin: togglePin,

@@ -335,7 +335,7 @@ test("every level but a review level is a badge, named on one ladder", () => {
   assert.deepStrictEqual(cat.topics[0].levels.map((l) => l.name), ["A Starter", "A Master"]);
   assert.strictEqual(cat.topics[2].track, "basics");
   assert.deepStrictEqual(cat.specials.map((s) => s.key),
-    ["streak:3", "streak:7", "streak:14", "streak:30", "exam:60", "exam:75", "exam:90", "improver", "welcome"]);
+    ["streak:3", "streak:7", "streak:14", "streak:30", "exam:60", "exam:75", "exam:90", "challenge:sprint:8", "challenge:sprint:15", "challenge:sprint:25", "challenge:ladder:2", "challenge:ladder:3", "challenge:ladder:600", "improver", "welcome"]);
 });
 test("the ladder spreads across a topic, Starter first and Master last", () => {
   const S = launch();

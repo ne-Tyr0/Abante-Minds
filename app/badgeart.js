@@ -6,8 +6,8 @@
    what is added as the topic goes on: laurels from halfway, a star, a gem,
    and at the last level a crown and a gold edge. Basics earn round tokens
    with the same rim. Special badges have their own shapes: a flame for a
-   streak, a rosette for an exam, an arrow for Improver, a heart for Welcome
-   back. A badge not yet earned is its grey shape with a question mark.
+   streak, a rosette for an exam, a bolt for the challenge round, an arrow
+   for Improver, a heart for Welcome back. A badge not yet earned is its grey shape with a question mark.
 
    Colours come from the tokens in app.css through style="fill: var(...)",
    so there is one place to change them. Every drawing is decorative: the
@@ -114,11 +114,12 @@
         '<path d="M72 96l18 18 38-40" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>';
       return frame(o.size || 64, s);
     }
-    var body = { streak: ["var(--action-500)", "var(--action-700)"], improver: [hue(4, "bright"), hue(4, "deep")], welcome: [hue(2, "bright"), hue(2, "deep")] }[o.kind];
+    var body = { streak: ["var(--action-500)", "var(--action-700)"], challenge: [hue(3, "bright"), hue(3, "deep")], improver: [hue(4, "bright"), hue(4, "deep")], welcome: [hue(2, "bright"), hue(2, "deep")] }[o.kind];
     if (g) body = [GREY.b, GREY.d];
     s += '<circle cx="100" cy="111" r="82" ' + fill(body[1]) + '/><circle cx="100" cy="100" r="82" ' + fill(body[0]) + "/>";
-    if (o.kind === "streak" && !g) s += '<circle cx="100" cy="100" r="76" fill="none" stroke="' + TIER[o.tier] + '" stroke-width="10"/>';
+    if ((o.kind === "streak" || o.kind === "challenge") && !g) s += '<circle cx="100" cy="100" r="76" fill="none" stroke="' + TIER[o.tier] + '" stroke-width="10"/>';
     if (o.kind === "streak") s += '<path d="' + FLAME + '" transform="translate(57 54) scale(.34)" style="fill:#fff"/>';
+    if (o.kind === "challenge") s += '<path d="M112 42L62 112H95L85 158L138 86H104Z" stroke="#fff" stroke-width="6" stroke-linejoin="round" style="fill:#fff"/>';
     if (o.kind === "improver") s += '<path d="M100 150V62M64 96L100 60L136 96" fill="none" stroke="#fff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>';
     if (o.kind === "welcome") s += '<path d="M100 148C62 122 48 102 48 82A25 25 0 0 1 100 70A25 25 0 0 1 152 82C152 102 138 122 100 148Z" style="fill:#fff"/>';
     return frame(o.size || 64, s);

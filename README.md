@@ -61,6 +61,7 @@ components it imports are reimplemented natively in `app/ui.js`.
 | `app/entry.js` | What each keypad key does to the answer boxes |
 | `app/facts.js` | Which facts a Basics round asks, and when a missed one comes back |
 | `content/packs/` | The questions, as JSON |
+| `app/challenge.js` | The rules of the challenge round: the two modes, the scoring and the ladder |
 | `app/store.js` | Learner state: progress level by level, Basics facts mastered, the streak |
 | `app/screens.js` | One builder per route |
 | `app/app.js` | Shell slots, router, practice loop, keyboard |

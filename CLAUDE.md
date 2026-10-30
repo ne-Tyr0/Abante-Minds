@@ -30,6 +30,7 @@ node tests/entry.js            # what each keypad key does to the answer boxes
 node tests/facts.js            # the Basics drill: which facts a round asks, and when a miss comes back
 node tests/insights.js         # strengths and gaps by kind of problem, from the attempt log
 node tests/progress.js         # the path's rules, Basics mastery, exams and the attempt log
+node tests/challenge.js        # the challenge round: scoring, the ladder, its questions, what it keeps
 node tests/validate-packs.js   # every question pack against the schema and the blueprint
 node tests/fuzz.js             # about two million generated questions; exits 1 on any violation
 node tests/item-spec.js        # the item specification generator: what it says about a template
@@ -55,7 +56,7 @@ third before it shipped: a pinned item on a template with more than one format c
 
 `tests/mutation/` breaks the engine, the entry rules, the facts drill, the strengths and
 gaps, the progress rules and the packs one way at a time and requires the tests to fail:
-`node tests/mutation/engine.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
+`node tests/mutation/engine.js`, `challenge.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -66,6 +67,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
 | `app/insights.js` | Strengths and gaps by kind of problem, from the attempt log, for Profile. Pure, like `facts.js` |
 | `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
+| `app/challenge.js` | The rules of the challenge round: the two modes, the scoring and the ladder. Pure, like `facts.js`; the questions are the engine's and the records the store's |
 | `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
 | `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak, missed questions due for review, practice exams, and the attempt log under its own key |
@@ -76,7 +78,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `poc/` | Proofs for features not yet built. Not shipped, not loaded by the app |
 | `tools/item-spec.js` | Writes `ITEM-SPECIFICATIONS.md` from the packs: per template its competency, construct, schema, answer, ranges by tier, named mistakes and an example drawn by the engine. `--csv` gives the same as a spreadsheet, for expert raters. CI checks the file is current |
 | `tools/replay.js` | Reprints the questions in an attempt log exactly as they were asked, rebuilt from each row's recipe, with the answer given and the mistake it matched. Flags a row asked with another pack version, in another format, or marked differently now. `--csv` gives one row per attempt |
-| `tools/overview-pdf/` | Builds the teacher overview PDF from real screenshots, its numbers read from the packs. The copy is a draft until the owner approves it: every page says so while `DRAFT` is `True` in `build.py` |
+| `tools/overview-pdf/` | Builds the teacher overview PDF from real screenshots, its numbers read from the packs. Every page is labelled for internal testing only. The owner's name and email come from a gitignored `contact.json`, because this repo is public |
 | `abante-minds-claude-design/` | Original design kit; source of the brand mark |
 | `RESEARCH-PLAN.md` | The ordered build plan: content rebuild, research instrumentation, citability. Read it before starting anything below |
 
@@ -115,6 +117,12 @@ Settled with the project owner. Build on them; don't reopen them.
   one-question override that never changes the tier. Maths vocabulary is never translated.
   Tagalog and Cebuano first. Structure in `poc/language-ladder.js`.
 - **Hosting is GitHub Pages.**
+- **The challenge round is a 60-second sprint and a 90-second speed ladder** (chosen
+  2026-10-27 from three prototypes; beat-the-clock was dropped). It asks only what a
+  learner has cleared, and only short questions with no graph or picture unless a level
+  has nothing else. No lives, no penalty. It never moves the path, Basics or review. Today's
+  challenge is one play a mode a day, with no ranking: learners with different levels
+  cleared get different questions, so it is not the same paper for everyone.
 - **Adding to the home screen is on offer at any time until installed**: on the splash,
   as a Home card whose "Not now" removes it for good, and as a button on Profile that
   stays. Where the browser cannot install in one tap, the offer shows the steps instead.

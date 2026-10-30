@@ -411,3 +411,31 @@ html, body {
 }
 :root[data-calm="true"] .am-rays,
 :root[data-calm="true"] .am-lvup-float { animation: none; }
+
+/* The challenge round: the time left, the multiplier, and an answer's moment. */
+.am-chal-fill {
+  display: block; height: 100%; border-radius: var(--radius-pill); background: var(--brand-blue-600);
+  transform-origin: left; transition: transform 100ms linear;
+}
+.am-chal-fill.am-chal-low { background: var(--danger-700); }
+.am-chal-multi {
+  font-family: var(--font-display); font-weight: 800; font-size: 18px; line-height: 1.4; padding: 0 10px;
+  border-radius: var(--radius-pill); background: var(--celebration-gold-500); color: #16202c;
+}
+.am-chal-pop { animation: am-chal-pop 320ms cubic-bezier(.34, 1.56, .64, 1) both; }
+@keyframes am-chal-pop { from { transform: scale(.6); opacity: 0; } to { transform: none; opacity: 1; } }
+.am-chal-verdict {
+  height: 64px; border: 2px solid; border-radius: var(--radius-sm); padding: 0 var(--space-4);
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.am-chal-verdict[data-state="correct"] { background: var(--success-100); border-color: var(--success-700); color: var(--success-700); }
+.am-chal-verdict[data-state="wrong"] { background: var(--danger-100); border-color: var(--danger-700); color: var(--danger-700); }
+.am-chal-record {
+  display: flex; justify-content: space-between; gap: var(--space-2); padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md); background: var(--celebration-gold-500); color: #16202c;
+}
+@media (prefers-reduced-motion: reduce) {
+  .am-chal-pop { animation: none; }
+  .am-chal-fill { transition: none; }
+}
+:root[data-calm="true"] .am-chal-pop { animation: none; }
