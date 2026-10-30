@@ -731,9 +731,8 @@
         el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("next", 20)))) : null;
 
     return {
-      nav: "practice", bottomNav: false,
+      nav: "practice",
       banner: connectionBanner(),
-      back: function () { app.go("home", "back"); },
       body: column([
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           el("div.heading-md", null, "Your path"),
@@ -801,7 +800,7 @@
     if (!current) actions.push(AM.Button({ label: "Back to the path", fullWidth: true, onClick: function () { app.go("topics", "back"); } }));
 
     return {
-      nav: "practice", bottomNav: false,
+      nav: "practice",
       banner: connectionBanner(),
       back: function () { app.go("topics", "back"); },
       body: column([
@@ -846,7 +845,7 @@
       list.appendChild(basicsRowButton(t, function () { app.openBasicsTopic(t.key); }, basicsCaption(t), basicsRatio(t)));
     });
     return {
-      nav: "practice", bottomNav: false,
+      nav: "practice",
       banner: connectionBanner(),
       back: function () { app.go("home", "back"); },
       body: column([
@@ -916,7 +915,7 @@
     }));
 
     return {
-      nav: "practice", bottomNav: false,
+      nav: "practice",
       banner: connectionBanner(),
       back: function () { app.go("basics", "back"); },
       body: column([
@@ -2103,7 +2102,7 @@
       ["streak", "Step 1 scores 10, step 2 scores 20 and step 3 scores 30. Five in a row doubles your points, and ten triples them."]
     ];
     return {
-      nav: "home", bottomNav: false,
+      nav: "home",
       back: function () { app.go("home", "back"); },
       body: column([
         el("div", { style: { padding: "16px " + gutter() + "px 0" } },
@@ -2253,7 +2252,7 @@
     var stats = store.examStats();
     var rule = ruleLine;
     return {
-      nav: "home", bottomNav: false,
+      nav: "home",
       back: function () { app.go("home", "back"); },
       body: column([
         el("div", { style: { padding: "16px " + gutter() + "px 0" } },
