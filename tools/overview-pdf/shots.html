@@ -15,6 +15,9 @@
 <style>
   html, body { margin: 0; padding: 0; background: #ffffff; font-family: system-ui, sans-serif; }
   #frame { width: 390px; height: 844px; border: 0; display: block; }
+  /* Covers the app until it has settled, so a picture taken too early comes
+     out blank (capture.py tries again) rather than caught mid-moment. */
+  #cover { position: fixed; inset: 0; background: #ffffff; z-index: 1; }
   #refuse { padding: 24px; max-width: 32em; line-height: 1.5; }
 </style>
 </head>
@@ -91,6 +94,9 @@ function run() {
   if (params.get("h")) frame.style.height = Number(params.get("h")) + "px";
   frame.src = "../../index.html";
   document.body.appendChild(frame);
+  var cover = document.createElement("div");
+  cover.id = "cover";
+  document.body.appendChild(cover);
 
   /* Seed before the app reads its state, then reload so it boots with the
      demo learner. */
@@ -237,8 +243,16 @@ function run() {
         break;
       /* Not in the PDF yet: the celebrations and the badges, for review. */
       case "combo":
-        s = canonicalAt(3); s.run = 4; s.bestRun = 4; AM.app.go("practice"); typeIn("4.65"); AM.app.check();
-        break;
+        s = canonicalAt(5); s.run = 4; s.bestRun = 4; AM.app.go("practice"); typeIn("4.65"); AM.app.check();
+        /* The word floats up and fades away again: hold it while it is up. */
+        settle(w, screen, function (a) {
+          var t = a.effect && a.effect.target;
+          if (!(t && t.classList && t.classList.contains("am-combo-word"))) return false;
+          a.pause();
+          a.currentTime = 300;
+          return true;
+        });
+        return;
       case "streak":
         AM.app.scratch.afterStreak = "home";
         AM.app.go("streak");
@@ -263,6 +277,12 @@ function run() {
         break;
       case "profile":
         AM.app.go("profile");
+        break;
+      /* Profile scrolled to its settings: sound, vibration, calm and theme. */
+      case "profile-settings":
+        AM.app.go("profile");
+        var body = w.document.querySelector(".am-slot-body");
+        body.scrollTop = body.scrollHeight;
         break;
       case "offline":
         AM.store.setOffline(true);
@@ -478,7 +498,22 @@ function run() {
         document.title = "UNKNOWN-SCREEN";
         return;
     }
-    document.title = "READY-" + screen;
+    settle(w, screen);
+  }
+
+  /* Moments run on their own clock, and Chrome takes its picture when its
+     time budget runs out, wherever a moment has got to. So give the screen a
+     moment, finish every animation that has an end (`hold` may keep one where
+     it is instead), and only then uncover the app and say READY. Looping ones,
+     such as the rays behind a level-up, are left to run. */
+  function settle(w, screen, hold) {
+    w.setTimeout(function () {
+      w.document.getAnimations().forEach(function (a) {
+        try { if (!(hold && hold(a))) a.finish(); } catch (e) { /* a looping animation has no end */ }
+      });
+      cover.remove();
+      document.title = "READY-" + screen;
+    }, 1200);
   }
 }
 </script>

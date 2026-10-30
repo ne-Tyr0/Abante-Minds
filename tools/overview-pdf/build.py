@@ -10,12 +10,11 @@ is built, so they cannot go stale.
 
 See README.md in this folder for the full sequence.
 """
-import base64, io, json, os, re, subprocess, sys
+import base64, datetime, io, json, os, re, subprocess, sys
 
-# The copy below was rewritten for the Grade 6 / PSHS NCE app in October 2026
-# (RESEARCH-PLAN.md Phase 0 item 4), but the owner has not yet read it. Until
-# then every page is marked as a draft. Set this to False once it is approved.
-DRAFT = True
+# Abante Minds is still being built. This edition is for testing inside the
+# project, with teachers the owner knows, and every page says so.
+EDITION = "For internal testing only &middot; not for outside distribution"
 ARGS = [a for a in sys.argv[1:] if not a.startswith("--")]
 
 HERE = os.path.dirname(os.path.abspath(__file__))
@@ -34,9 +33,25 @@ def data_uri(path):
 
 
 SHOT = {n: data_uri(os.path.join(SHOTS, n + ".png"))
-        for n in ["home", "topic", "practice", "wrong", "levelup", "offline", "exam-result",
-                  "transform-pick-flip", "detail_hint", "detail_correct", "detail_levelup"]}
+        for n in ["home", "home-dark", "topic", "practice", "wrong", "levelup", "exam-result",
+                  "transform-pick-flip", "combo", "streak", "detail_hint", "detail_correct",
+                  "detail_badges", "detail_settings", "detail_basics", "detail_offline"]}
 MARK = data_uri(os.path.join(REPO, "assets", "abante-minds-mark.png"))
+# The QR opens the live app. Made once with segno (version 3-M) and kept as a
+# file, so building needs no QR library.
+with open(os.path.join(HERE, "app-qr.svg"), "rb") as f:
+    QR = "data:image/svg+xml;base64," + base64.b64encode(f.read()).decode()
+
+# The owner's name and email go on the cover and the last page. They are kept
+# out of the public repository: put them in contact.json beside this file
+# (gitignored) as {"name": "...", "email": "..."}. Without it the PDF is built
+# with no contact lines.
+try:
+    with io.open(os.path.join(HERE, "contact.json"), encoding="utf-8") as f:
+        _c = json.load(f)
+    OWNER, CONTACT = _c["name"], _c["email"]
+except FileNotFoundError:
+    OWNER = CONTACT = None
 
 
 # ---------------------------------------------------------------- facts
@@ -82,6 +97,8 @@ MONTHS = ["January", "February", "March", "April", "May", "June", "July", "Augus
           "October", "November", "December"]
 y, mo, d = (int(x) for x in EXAM_DATE.split("-"))
 EXAM_DAY = f"{d} {MONTHS[mo - 1]} {y}"
+TODAY = datetime.date.today()
+UPDATED = f"{TODAY.day} {MONTHS[TODAY.month - 1]} {TODAY.year}"
 
 
 def phone(name, caption):
@@ -131,7 +148,7 @@ small { font-size: 8.5pt; }
 .foot { position:absolute; left:15mm; right:15mm; bottom:7mm;
         display:flex; justify-content:space-between; font-size:7.5pt; color:#6a87bd;
         border-top:1px solid #dbe7f8; padding-top:2mm; }
-.draft { color:#c1440e; font-weight:600; }
+.edition { color:#c1440e; font-weight:600; }
 
 /* screenshots */
 .shots { display:flex; gap:5mm; justify-content:center; align-items:flex-start; }
@@ -160,7 +177,7 @@ th { text-align:left; font-weight:600; color:#51617a; font-size:8pt;
 td { padding:2mm 0; border-top:1px solid #dbe7f8; vertical-align:top; }
 td.k { width:22mm; font-weight:600; color:#2458c9; white-space:nowrap; }
 td.n { text-align:right; color:#51617a; white-space:nowrap; padding-left:2mm; }
-table.topics td { padding:1.3mm 0; }
+table.topics td { padding:1.75mm 0; }
 
 .chips { display:flex; gap:2mm; flex-wrap:wrap; margin-top:2mm; }
 .chip { font-size:7.5pt; padding:1mm 2.5mm; border-radius:99px;
@@ -172,37 +189,48 @@ table.topics td { padding:1.3mm 0; }
 """
 
 
-def page(inner, n, total=6):
-    mark = '<span class="draft">Draft for review: not to be sent</span>' if DRAFT else "<span>Abante Minds &middot; project overview</span>"
+PAGES = 8
+
+
+def page(inner, n):
     return f"""<section class="page">{inner}
-  <div class="foot">{mark}
-  <span>{n} / {total}</span></div></section>"""
+  <div class="foot"><span><span class="edition">{EDITION}</span> &middot; updated {UPDATED}</span>
+  <span>{n} / {PAGES}</span></div></section>"""
 
 
 # ---------------------------------------------------------------- page 1
 p1 = f"""
   <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;text-align:center">
-    <img src="{MARK}" style="width:32mm;height:32mm;object-fit:contain;margin-bottom:6mm">
+    <img src="{MARK}" style="width:30mm;height:30mm;object-fit:contain;margin-bottom:5mm">
     <h1 style="font-size:40pt">Abante Minds</h1>
-    <p class="lede" style="max-width:125mm;font-size:13pt;margin-bottom:8mm">
+    <p class="lede" style="max-width:125mm;font-size:13pt;margin-bottom:7mm">
       Practice for the mathematics of the PSHS National Competitive Examination,
       on the phone a learner already has.
     </p>
-    <div style="width:22mm;height:2px;background:#ff8a15;border-radius:2px;margin-bottom:8mm"></div>
+    <div style="width:22mm;height:2px;background:#ff8a15;border-radius:2px;margin-bottom:7mm"></div>
     <p class="muted" style="max-width:135mm">
       A free practice app for Grade&nbsp;6 learners preparing for the mathematics part of the
       Philippine Science High School System National Competitive Examination. It opens from a
       link, installs to the home screen, works with no signal, and keeps each learner's
       progress on their own phone.
     </p>
-    <div class="chips" style="justify-content:center;margin-top:6mm">
+    <div class="chips" style="justify-content:center;margin-top:5mm">
       <span class="chip">Works offline</span>
       <span class="chip">No account needed</span>
       <span class="chip">Free to run</span>
       <span class="chip">MATATAG Grades 5 and 6</span>
+      <span class="chip">Light and dark</span>
+    </div>
+    <div style="display:flex;gap:5mm;align-items:center;margin-top:9mm;text-align:left;padding:4mm 5mm;border:1.5px solid #dbe7f8;border-radius:4mm">
+      <img src="{QR}" style="width:27mm;height:27mm" alt="QR code to open Abante Minds">
+      <div>
+        <b style="font-size:11pt">Open it on a phone</b><br>
+        <span style="color:#2458c9">ne-tyr0.github.io/Abante-Minds</span><br>
+        <small class="muted">Scan with the phone's camera, then add it to the home screen.</small>
+      </div>
     </div>
   </div>
-  <div style="text-align:center"><small class="muted">Project overview &middot; October 2026{' &middot; <span class="draft">draft for review</span>' if DRAFT else ''}</small></div>
+  <div style="text-align:center"><small class="muted">Project overview &middot; internal testing edition{'<br>' + OWNER + ' &middot; ' + CONTACT if OWNER else ''}</small></div>
 """
 
 # ---------------------------------------------------------------- page 2
@@ -218,8 +246,8 @@ p2 = f"""
       a worked example.</p>
 
       <p>A practice round is ten questions. Eight right on the first try clears the level, earns
-      its badge and opens the next. The numbers change every time, so there are no answers to
-      memorise.</p>
+      its badge and opens the next. The numbers change every time, and grow harder as the
+      learner does well, so there are no answers to memorise.</p>
 
       <h3>Basics, beside the path</h3>
       <p>The facts and methods every topic leans on, in {len(BASICS)} topics of their own:
@@ -262,9 +290,10 @@ p3 = f"""
   <p style="margin-bottom:4mm">There is no calculator. Answers are typed on the app's own keypad:
   whole numbers, decimals, fractions and mixed numbers, and times on the 24-hour clock. Some
   questions are read off a graph, a table or a picture, and some ask the learner to pick the
-  right picture.</p>
+  right picture. The X at the top leaves a round at any question, and the answers already
+  right are kept.</p>
 
-  <div class="shots" style="margin-bottom:5mm">
+  <div class="shots" style="margin-bottom:4mm">
     <div style="width:52mm;flex:none">{phone("practice", "<b>Answering.</b> The question keeps the most room, and the keypad is the only way in.")}</div>
     <div style="width:52mm;flex:none">{phone("wrong", "<b>Not yet.</b> The app names the mistake, then shows the first worked step and holds the others back.")}</div>
     <div style="width:52mm;flex:none">{phone("transform-pick-flip", "<b>Pictures.</b> Which picture shows the shape flipped over the mirror line?")}</div>
@@ -292,7 +321,7 @@ p4 = f"""
   <h2>{len(TOPICS)} topics, weighted as the exam is expected to weigh them</h2>
   <div class="rule"></div>
   <div style="display:flex;gap:7mm;flex:1">
-    <div style="flex:1">
+    <div style="flex:1;display:flex;flex-direction:column">
       <table class="topics" style="margin-bottom:4mm">
         <tr><th>Topic</th><th style="text-align:right">Weight</th><th style="text-align:right">Path</th>
           <th style="text-align:right">Question kinds</th></tr>{topic_rows}
@@ -309,58 +338,82 @@ p4 = f"""
         beyond Grade 6.
       </div>
 
-      <div class="card" style="margin-top:4mm">
-        <h3>Badges for progress, never for rank</h3>
-        <p style="margin:0;font-size:9pt">Every level is a badge, {BADGES} in all. A topic's badge
-        grows level by level, and is shiny when every first try was right. Others mark a streak
-        of days, a practice exam score, five missed questions put right, and a return after time
-        away. There is no leaderboard, and a badge is never taken away.</p>
+      <div class="card" style="margin-top:auto">
+        <h3>The numbers follow the learner</h3>
+        <p style="margin:0;font-size:9pt">A level starts with small numbers and draws bigger ones
+        as it fills. Within a round, three first tries right in a row step the numbers up, and a
+        miss steps them back, never below where the level stands.</p>
       </div>
     </div>
     <div style="width:56mm;flex:none">
-      {phone("topic", "A topic's path: each level opens with a lesson.")}
+      {phone("topic", "A topic's path: each level opens with a lesson, and each topic has its own colour.")}
       <div style="height:5mm"></div>
-      {detail("detail_levelup", "<b>Level cleared.</b> Each level is a badge, and the ring shows the share right first time.")}
+      {detail("detail_basics", "<b>Basics.</b> The times tables, one square a fact: mastered, being learnt, or not yet practised.")}
     </div>
   </div>
 """
 
 # ---------------------------------------------------------------- page 5
 p5 = f"""
-  <div class="eyebrow">Offline, privacy and design</div>
-  <h2>Built for a cheap phone with no data left</h2>
+  <div class="eyebrow">Badges and celebrations</div>
+  <h2>Every level is a badge, and good work gets its moment</h2>
   <div class="rule"></div>
-  <div style="display:flex;gap:7mm;margin-bottom:5mm">
-    <div style="flex:1.3">
-      <p>The whole app is stored on the phone the first time it is opened. After that there is
-      nothing to download and nothing to wait for: a learner can practise on a jeepney, at home
-      with the data gone, or anywhere the signal drops.</p>
-      <p style="margin-bottom:4mm">When there is no signal the app says so once, plainly, and
-      gets out of the way. Levels, Basics, exams and reviews all work the same, because none of
-      them depends on a server.</p>
-      <div class="card">
-        <h3>The design system</h3>
-        <p style="margin:0 0 2.5mm">The interface is built on a small set of fixed rules rather
-        than page-by-page decisions.</p>
-        <table>
-          <tr><td class="k">Colour</td><td>One amber, used for the main action and nothing else.
-            Each topic wears its own colour, one of seven, and its icon is drawn in two tones
-            of it. Gold is kept for rewards.</td></tr>
-          <tr><td class="k">Feedback</td><td>Teal and coral rather than green and red, always
-            with a symbol beside them.</td></tr>
-          <tr><td class="k">Touch</td><td>Every control sits on a visible shelf and presses down
-            when tapped. Nothing is smaller than 48&nbsp;pixels.</td></tr>
-          <tr><td class="k">Type</td><td>Lexend for reading, chosen for legibility. A rounded
-            display face appears only in a celebration.</td></tr>
-          <tr><td class="k">Motion</td><td>Celebrations are short, and a tap skips to the end.
-            Sound, vibration and calm animations each have a switch in Profile.</td></tr>
-        </table>
-      </div>
-    </div>
-    <div style="flex:1">{phone("offline", "Offline. The banner states the fact and never blocks the next action.")}</div>
+  <p style="margin-bottom:4mm">Celebrations are short and calm: a tap skips to the end, and a
+  setting turns them into a still picture. The sounds are gentle gong-chimes in the voice of
+  the kulintang, and a phone on silent stays silent. Phones that can also give a short buzz.</p>
+
+  <div class="shots" style="margin-bottom:5mm">
+    <div style="width:52mm;flex:none">{phone("combo", "<b>A run.</b> Three right in a row lights the flame, and every fifth turns it gold.")}</div>
+    <div style="width:52mm;flex:none">{phone("levelup", "<b>Level cleared.</b> The badge is earned, with the share right first time and the best run.")}</div>
+    <div style="width:52mm;flex:none">{phone("streak", "<b>A daily streak.</b> Practising lights the day, and the flame counts the days in a row.")}</div>
   </div>
 
-  <div class="grid3">
+  <div style="display:flex;gap:6mm;align-items:flex-start">
+    <div class="card" style="flex:1">
+      <h3>Badges</h3>
+      <ul style="font-size:9pt;margin:0">
+        <li>{BADGES} level badges: one for every level on the path and in Basics.</li>
+        <li>A topic's badge grows level by level: its rim fills, then laurels, a star, a gem
+          and, at the last level, a crown.</li>
+        <li>A badge is shiny when every first try in its level was right.</li>
+        <li>Special badges mark streaks of 3, 7, 14 and 30 days, practice exam scores of 60, 75
+          and 90 per cent, five missed questions put right, and coming back after time away.</li>
+      </ul>
+    </div>
+    <div style="width:62mm;flex:none">{detail("detail_badges", "The collection. Up to three badges are pinned to the learner's profile.")}</div>
+  </div>
+
+  <div class="good" style="margin-top:auto">
+    <b>No leaderboards, no loot boxes.</b> Badges reward a learner's own progress, never a rank
+    against classmates, and a badge once earned is never taken away.
+  </div>
+"""
+
+# ---------------------------------------------------------------- page 6
+p6 = f"""
+  <div class="eyebrow">Offline, comfort and design</div>
+  <h2>Built for a cheap phone with no data left</h2>
+  <div class="rule"></div>
+  <p>The whole app is stored on the phone the first time it is opened. After that there is
+  nothing to download and nothing to wait for: a learner can practise on a jeepney, at home with
+  the data gone, or anywhere the signal drops. When there is no signal the app says so once,
+  plainly, and gets out of the way: levels, Basics, exams and reviews all work the same, because
+  none of them depends on a server.</p>
+  <div style="display:flex;gap:6mm;align-items:center;margin-bottom:5mm">
+    <div style="width:84mm;flex:none">{detail("detail_offline", "Offline: one line at the top, and nothing blocked.")}</div>
+    <p style="flex:1;margin:0">Every control presses down when tapped, and nothing is smaller than
+    48&nbsp;pixels. Right and wrong are shown in teal and coral rather than green and red, always
+    with a symbol beside them.</p>
+  </div>
+
+  <h3 style="margin-bottom:2.5mm">Comfortable to use, day or night</h3>
+  <div style="display:flex;gap:5mm;align-items:flex-start;justify-content:center;margin-bottom:4mm">
+    <div style="width:40mm;flex:none">{phone("home", "Light")}</div>
+    <div style="width:40mm;flex:none">{phone("home-dark", "Dark: it follows the phone, or the learner picks it")}</div>
+    <div style="width:80mm;flex:none">{detail("detail_settings", "Settings on Profile: sound, vibration, calm animations, and the theme.")}</div>
+  </div>
+
+  <div class="grid3" style="margin-top:auto">
     <div class="card"><h3>Costs nothing to run</h3><p style="margin:0;font-size:9pt">No servers,
       no database, no monthly bill. It can stay online indefinitely.</p></div>
     <div class="card"><h3>Small enough to matter</h3><p style="margin:0;font-size:9pt">The whole
@@ -370,35 +423,62 @@ p5 = f"""
   </div>
 """
 
-# ---------------------------------------------------------------- page 6
-p6 = f"""
-  <div class="eyebrow">For teachers and researchers</div>
-  <h2>Every question can be shown again, exactly</h2>
+# ---------------------------------------------------------------- page 7
+def step(n, title, text):
+    return f"""<div class="card" style="display:flex;gap:3.5mm;align-items:flex-start;padding:3mm 4mm">
+        <span style="flex:none;width:7mm;height:7mm;border-radius:50%;background:#dbe8ff;color:#2458c9;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:9pt">{n}</span>
+        <div><b style="font-size:9.5pt">{title}</b><p style="margin:0.5mm 0 0;font-size:9pt">{text}</p></div>
+      </div>"""
+
+p7 = f"""
+  <div class="eyebrow">For teachers</div>
+  <h2>Using it with a class</h2>
   <div class="rule"></div>
-
   <div style="display:flex;gap:7mm;margin-bottom:5mm">
-    <div style="flex:1.4">
-      <p>Each question is drawn from a recipe: its kind, how hard, and a number that fixes its
-      values. So any question a learner met can be rebuilt exactly as they saw it. The app
-      keeps a record of each answer on the phone, under a pseudonymous code such as
-      <i style="white-space:nowrap">AM-7K2Q-9XD4</i> rather than a name.</p>
-
-      <p>That record stays on the phone. Sharing it with a researcher will be the learner's
-      choice, behind a consent screen that is still to be built; the researcher, not the app,
-      will hold the list that matches codes to names.</p>
-
-      <h3>Published with the source code</h3>
-      <ul>
-        <li>The table of specifications: the {ALL} competencies, the {len(TOPICS)} topics and
-          their weights, and how they were derived.</li>
-        <li>The item specifications: every kind of question, its competency, the numbers it
-          draws and the mistakes it recognises, with an example of each.</li>
+    <div style="flex:1;display:flex;flex-direction:column;gap:3mm">
+      {step(1, "Free and optional", "Learners open the link or scan the code on the cover. There is nothing to buy, so no learner should ever be asked to pay or contribute.")}
+      {step(2, "Nothing for you to enter", "Teachers do not enter names, learner reference numbers or grades. Each learner's progress stays on their own phone.")}
+      {step(3, "Phones in class", "Follow your school's rules on phones during lessons. The app works offline, so it suits homework and review at home just as well.")}
+      {step(4, "What each learner needs", "A phone with an up-to-date browser, a few megabytes free, and a signal once, to open it the first time. On iPhone, add it to the home screen.")}
+      {step(5, "An independent project", "Abante Minds is not a DepEd or PSHS product. Please do not present it as approved or endorsed by either.")}
+      <h3 style="margin:2mm 0 0">Ways to use it</h3>
+      <ul style="font-size:9pt;margin:0">
+        <li>A level a day as homework: ten questions.</li>
+        <li>The practice exam as a timed rehearsal: 20 questions in 30 minutes, with results by topic.</li>
+        <li>Basics facts as a warm-up before a lesson.</li>
+        <li>Missed questions come back on their own after one, three and seven days.</li>
       </ul>
     </div>
-    <div style="width:56mm;flex:none">{phone("exam-result", "After a practice exam: the score, each topic, and the working for every question missed.")}</div>
+    <div style="width:54mm;flex:none">{phone("exam-result", "After a practice exam: the score, each topic, and the working for every question missed.")}</div>
   </div>
 
-  <div class="note">
+  <div class="note" style="margin-top:auto">
+    <b>For researchers.</b> Each question is drawn from a recipe (its kind, how hard, and a number
+    that fixes its values), so any question a learner met can be rebuilt exactly. The app keeps
+    a record of each answer on the phone under a code such as
+    <i style="white-space:nowrap">AM-7K2Q-9XD4</i> rather than a name. Sharing it with a
+    researcher will be the learner's choice, behind a consent screen not yet built. The table of
+    specifications ({ALL} competencies) and the item specifications for every kind of question
+    are published with the source code.
+  </div>
+"""
+
+# ---------------------------------------------------------------- page 8
+def soon(title, text):
+    return f"""<div class="card"><h3>{title}</h3><p style="margin:0;font-size:9pt">{text}</p></div>"""
+
+p8 = f"""
+  <div class="eyebrow">What's next</div>
+  <h2>Coming next, and what to know now</h2>
+  <div class="rule"></div>
+  <div class="grid2" style="margin-bottom:5mm">
+    {soon("A challenge round", "Two quick modes: a 60-second sprint, and a 90-second speed ladder that climbs as the learner gets questions right. Only levels already cleared, no lives, a personal best, challenge badges and a daily challenge.")}
+    {soon("More questions", "New kinds of question and new wordings in every level, checked the same way as the ones there now.")}
+    {soon("The other NCE subtests", "Science, verbal ability and abstract reasoning, each starting with a curriculum plan before any question is written.")}
+    {soon("Moving progress to a new phone", "A way to carry a learner's progress to another phone, still with no account and no password.")}
+  </div>
+
+  <div class="note" style="margin-bottom:5mm">
     <b>Known limits, stated plainly.</b> Progress lives only on the phone: a phone that is wiped
     or replaced loses it, and there is no password to reset. On iPhone the app must be added to
     the home screen, or Safari may clear it after a week. The topics and weights are built from
@@ -406,30 +486,45 @@ p6 = f"""
     also tests science, verbal ability and abstract reasoning.
   </div>
 
+  <h3 style="margin-bottom:2mm">Testing it: what helps most</h3>
+  <ul style="font-size:9.5pt">
+    <li>Use the phone a learner would. Older and cheaper phones show problems that newer ones hide.</li>
+    <li>Try it with no signal: open it once, then turn on airplane mode and practise a level.</li>
+    <li>On iPhone, add it to the home screen first: Share, then Add to Home Screen.</li>
+    <li>Note anything wrong or unclear, such as a question, an answer or a hint. A screenshot that
+      shows the topic and level is ideal.</li>
+    <li>Say how long a level takes, and whether the questions feel too easy or too hard.</li>
+  </ul>
+
   <div style="margin-top:auto;padding-top:4mm">
-    <div class="rule" style="margin-bottom:3mm"></div>
-    <div style="display:flex;justify-content:space-between;align-items:flex-end">
-      <div><small class="muted">Status, October 2026: all {len(TOPICS)} topics, Basics, the
-      practice exam, review of missed questions and the badges are built and work offline. Moving progress
-      to a new phone, sharing answers with a researcher, and the other three subtests are not
-      yet built.</small></div>
-      <img src="{MARK}" style="width:13mm;height:13mm;object-fit:contain;opacity:.9">
+    <div class="rule" style="margin-bottom:4mm"></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;gap:8mm">
+      <div>
+        <small class="muted">Status, {UPDATED}: all {len(TOPICS)} topics, Basics, the practice exam,
+        review of missed questions, badges, difficulty that follows the learner, and dark mode are
+        built and work offline. The challenge round, moving progress to a new phone, sharing
+        answers with a researcher, and the other three subtests are not yet built.</small>
+        {f'<p style="margin:3mm 0 0;font-size:9.5pt"><b>Questions or feedback:</b> {OWNER}, {CONTACT}</p>' if OWNER else ''}
+      </div>
+      <img src="{QR}" style="width:24mm;height:24mm;flex:none" alt="QR code to open Abante Minds">
     </div>
   </div>
 """
 
 html = f"""<!DOCTYPE html><html lang="en"><head><meta charset="utf-8">
-<title>Abante Minds — project overview</title>
+<title>Abante Minds — project overview, internal testing edition</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@400;500;600;700&family=Baloo+2:wght@600;700&display=swap" rel="stylesheet">
 <style>{CSS}</style></head><body>
-{page(p1,1)}{page(p2,2)}{page(p3,3)}{page(p4,4)}{page(p5,5)}{page(p6,6)}
+{"".join(page(p, i + 1) for i, p in enumerate([p1, p2, p3, p4, p5, p6, p7, p8]))}
 </body></html>"""
 
 src = os.path.join(HERE, "overview.html")
 io.open(src, "w", encoding="utf-8").write(html)
 print(f"html: {len(html)/1024:.0f} KB -> {src}")
+if not OWNER:
+    print("note: no contact.json, so the PDF has no contact lines")
 print(f"facts: {len(TOPICS)} topics, {TYPES} kinds of question, {MISTAKES} named mistakes, {BADGES} level badges, "
       f"{REACHED} of {REACHABLE} reachable competencies, {SIZE:.2f} MB")
 
