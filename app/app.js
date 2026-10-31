@@ -70,6 +70,7 @@
       banner: el("div.am-slot-banner"),
       header: el("div.am-slot-header"),
       body: el("div.am-slot-body"),
+      edge: el("div.am-scroll-edge", { "aria-hidden": "true" }),
       belowFold: el("div.am-slot-belowfold"),
       footer: el("div.am-slot-footer"),
       nav: el("div.am-slot-nav")
@@ -77,7 +78,12 @@
 
     var frame = el("div.am-frame", null,
       slots.banner, slots.header,
-      slots.body, slots.belowFold, slots.footer, slots.nav);
+      slots.body, slots.edge, slots.belowFold, slots.footer, slots.nav);
+
+    slots.body.addEventListener("scroll", updateScrollEdge, { passive: true });
+    window.addEventListener("resize", updateScrollEdge);
+    /* The app's fonts arrive after the first render and can change the fit. */
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateScrollEdge);
 
     root.appendChild(slots.rail);
     root.appendChild(frame);
@@ -90,6 +96,14 @@
       live.textContent = "";
       window.setTimeout(function () { live.textContent = text; }, 60);
     };
+  }
+
+  /* Content scrolling up to a pinned button or the nav fades away rather than
+     being cut off, and the fade lifts at the end, so the last thing on a
+     screen is never left dimmed. */
+  function updateScrollEdge() {
+    var b = slots.body;
+    slots.edge.dataset.on = b.scrollHeight - b.scrollTop - b.clientHeight > 8 ? "true" : "false";
   }
 
   function fill(slot, node) {
@@ -142,6 +156,7 @@
     app.keepScroll = false;
     app.direction = "forward";
     if (carried) carried();
+    updateScrollEdge();
     currentView = view;
     guardBack();
 

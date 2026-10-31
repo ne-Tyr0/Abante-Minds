@@ -121,6 +121,9 @@ Settled with the project owner. Build on them; don't reopen them.
 - **A level-up is the round's finish** (decided 2026-10-31): a level cleared at question 8
   gets a small cue, and its moment after the last question. A round that does not clear
   shows what it added on the level's bar, with no points or currency.
+- **Content scrolling up to a pinned button, the keypad or the nav fades away** (decided
+  2026-10-31), with a soft fade rather than a blur, which costs a budget phone on every
+  scroll. It lifts at the end of the scroll, and the top edge stays as it is.
 - **Home has one main action** (decided 2026-10-31): a button inside the "Up next" card,
   with nothing pinned below the cards, since the Practice tab already opens the path. A
   round always starts afresh, so its button says Start or Practise, never Continue.
