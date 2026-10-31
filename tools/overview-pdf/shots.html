@@ -583,8 +583,17 @@ function run() {
       w.document.getAnimations().forEach(function (a) {
         try { if (!(hold && hold(a))) a.finish(); } catch (e) { /* a looping animation has no end */ }
       });
+      /* &safe=top,bottom draws the phone's notch and home bar, which Chrome
+         cannot emulate from the command line. */
+      if (params.get("safe")) {
+        var safe = params.get("safe").split(","), st = w.document.createElement("style");
+        st.textContent = ":root { --safe-top: " + safe[0] + "px; --safe-bottom: " + safe[1] + "px; }";
+        w.document.head.appendChild(st);
+      }
       /* &scroll= scrolls the screen, to see what meets a pinned button. */
       if (params.get("scroll")) w.document.querySelector(".am-slot-body").scrollTop = Number(params.get("scroll"));
+      /* A scroll fires its event a moment later, so give the fades their state now. */
+      if (params.get("scroll")) w.document.querySelector(".am-slot-body").dispatchEvent(new w.Event("scroll"));
       cover.remove();
       document.title = "READY-" + screen;
     }, 1200);

@@ -109,10 +109,12 @@ html, body {
   height: 100vh;
   height: 100dvh;
   background: var(--surface-100);
-  /* Clear of the notch and the phone's own status bar when the app runs from
-     the home screen. In a browser tab this is 0. */
-  padding-top: env(safe-area-inset-top, 0px);
+  /* Clear of the notch and the home bar when the app runs from the home
+     screen. In a browser tab these are 0. */
+  padding-top: var(--safe-top);
+  padding-bottom: var(--safe-bottom);
 }
+:root { --safe-top: env(safe-area-inset-top, 0px); --safe-bottom: env(safe-area-inset-bottom, 0px); }
 
 .am-slot-body {
   flex: 1;
@@ -138,6 +140,8 @@ html, body {
 .am-slot-nav { flex: none; }
 
 .am-slot-nav > .am-bottomnav { height: 64px; }
+/* The nav's colour runs on under the home bar, with its tabs above it. */
+.am-slot-nav { margin-bottom: calc(-1 * var(--safe-bottom)); padding-bottom: var(--safe-bottom); background: var(--surface-200); }
 
 /* The body column stretches so a screen with a `flex:1` spacer can push its
    content apart exactly as the design document draws it. The reading column
@@ -451,13 +455,14 @@ html, body {
 @media (prefers-reduced-motion: reduce) { .am-gain { animation: none; } }
 :root[data-calm="true"] .am-gain { animation: none; }
 
-/* The foot of the scrolling area: see updateScrollEdge in app.js. */
+/* The two ends of the scrolling area: see updateScrollEdges in app.js. */
 .am-scroll-edge { flex: none; height: 0; position: relative; z-index: 1; pointer-events: none; }
 .am-scroll-edge::before {
   content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 56px;
   background: linear-gradient(to top, var(--surface-100) 8%, transparent);
   opacity: 0; transition: opacity 160ms ease-out;
 }
+.am-scroll-edge-top::before { bottom: auto; top: 0; height: 40px; background: linear-gradient(to bottom, var(--surface-100) 8%, transparent); }
 .am-scroll-edge[data-on="true"]::before { opacity: 1; }
 .am-root[data-gold="true"] .am-scroll-edge { display: none; }
 
