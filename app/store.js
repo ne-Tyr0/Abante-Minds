@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 59;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 60;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -374,7 +374,8 @@
     return {
       topics: topics, levelsCleared: levelsCleared, levelsTotal: levelsTotal,
       coverage: reachable ? Object.keys(covered).length / reachable : 0,
-      daysToExam: AM.content.examDate ? Math.max(0, daysBetween(today(), AM.content.examDate)) : null,
+      /* Null once the exam has passed: there is nothing left to count down to. */
+      daysToExam: AM.content.examDate && daysBetween(today(), AM.content.examDate) >= 0 ? daysBetween(today(), AM.content.examDate) : null,
       next: next
     };
   }
@@ -441,7 +442,17 @@
     if (!Array.isArray(attemptLog)) attemptLog = [];
     return attemptLog;
   }
+  /* Written a moment later, not on every answer: once the log is long, writing
+     all of it inside the tap makes a budget phone stutter on each Check. It is
+     also written as soon as the app goes to the background. */
+  var LOG_SAVE_MS = 2000, logTimer = null;
   function saveLog() {
+    if (!logTimer) logTimer = window.setTimeout(flushLog, LOG_SAVE_MS);
+  }
+  function flushLog() {
+    if (logTimer) window.clearTimeout(logTimer);
+    logTimer = null;
+    if (!attemptLog) return;
     /* A full phone gives up the oldest fifth and tries once more; after that
        the log runs in memory, like the rest of the store in private mode. */
     for (var tries = 0; tries < 2; tries++) {
@@ -449,6 +460,11 @@
       catch (e) { attemptLog.splice(0, Math.max(1, Math.floor(attemptLog.length / 5))); }
     }
   }
+  window.addEventListener("pagehide", flushLog);
+  if (typeof document !== "undefined") {
+    document.addEventListener("visibilitychange", function () { if (document.hidden) flushLog(); });
+  }
+
   /* ---------- the participant code ----------
      A pseudonymous code, AM-XXXX-XXXX, made on the phone the first time it
      is needed and kept with the learner's record: seven random Crockford
@@ -892,7 +908,7 @@
   /* Forget the learner entirely and start again at the splash screen. */
   function reset() {
     state = blank();
-    attemptLog = [];
+    attemptLog = null;
     try { window.localStorage.removeItem(KEY); window.localStorage.removeItem(LOG_KEY); } catch (e) { /* nothing to clear */ }
     window.location.reload();
   }
@@ -952,6 +968,7 @@
     isPinned: isPinned,
     togglePin: togglePin,
     takeRecent: takeRecent,
+    flushLog: flushLog,
     nextStreakBadge: nextStreakBadge,
     forgivenYesterday: forgivenYesterday,
     SHOWCASE_MAX: SHOWCASE_MAX,

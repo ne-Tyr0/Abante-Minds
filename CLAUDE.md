@@ -118,6 +118,7 @@ Settled with the project owner. Build on them; don't reopen them.
   one-question override that never changes the tier. Maths vocabulary is never translated.
   Tagalog and Cebuano first. Structure in `poc/language-ladder.js`.
 - **Hosting is GitHub Pages.**
+- **The app answers from the phone first** (decided 2026-10-31): opening it uses no data and never waits on the network, on no signal or a bad one. New files arrive only through a `CACHE` bump, all together, so bump it with every change to a precached file. On localhost the files on disk win.
 - **A level-up is the round's finish** (decided 2026-10-31): a level cleared at question 8
   gets a small cue, and its moment after the last question. A round that does not clear
   shows what it added on the level's bar, with no points or currency.
@@ -180,7 +181,7 @@ Settled with the project owner. Build on them; don't reopen them.
 2. ~~Delete the fake sync.~~ **Done.** `startSync`, `isSyncing`, `syncRatio` and
    `pendingAnswers` are gone, along with the sync banner and the "answers held on this
    phone" note. `isOnline()` stays: offline is real and the app says so honestly.
-3. ~~Self-host the fonts.~~ **Done.** Four variable woff2 files in `assets/fonts/` (132 KB),
+3. ~~Self-host the fonts.~~ **Done.** Three variable woff2 files in `assets/fonts/` (104 KB; Baloo 2 draws only rewards, in plain Latin, so its latin-ext is gone),
    `@font-face` rules in `app/fonts.css`, and `index.html` now lists the `_ds` token files
    individually, skipping `tokens/fonts.css`. `_ds/` is untouched. **The app now makes no
    third-party request at all.**

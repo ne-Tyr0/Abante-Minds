@@ -135,7 +135,7 @@
           background: SKILL_INK[o.colorKey] || SKILL_INK[2], flexShrink: 0
         }
       }, o.iconKey ? icon(o.iconKey, 24) : (o.initial || String(name).slice(0, 1).toUpperCase())),
-      el("div", { style: { minWidth: 0 } },
+      el("div.am-name", null,
         el("div.heading-sm", { style: { color: "var(--ink-900)" } }, greeting + name),
         o.school ? el("div.body-sm", { style: { color: "var(--ink-600)" } }, o.school) : null
       )

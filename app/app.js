@@ -33,7 +33,17 @@
      way people switch: leave, change the phone's setting, come back. */
   if (darkQuery && darkQuery.addEventListener) darkQuery.addEventListener("change", applySettings);
   else if (darkQuery && darkQuery.addListener) darkQuery.addListener(applySettings);
-  document.addEventListener("visibilitychange", function () { if (!document.hidden) applySettings(); });
+  /* Left open overnight, the app wakes up on a new day: Home's countdown and
+     streak are worked out afresh. */
+  var openDay = store.today();
+  document.addEventListener("visibilitychange", function () {
+    if (document.hidden) return;
+    applySettings();
+    if (store.today() === openDay) return;
+    openDay = store.today();
+    store.rollDay();
+    if (app.route === "home") { app.keepScroll = true; render(); }
+  });
 
   /* ---------- device ----------
      The gutter steps 24 → 32 → 48 and the reading column caps at 720. The
@@ -197,9 +207,12 @@
     return el("div", { style: { flex: "none", padding: "12px 24px 0" } },
       el("button.am-reset.am-backlink", {
         type: "button", onClick: handler,
+        /* A full 48px to tap, drawn as before: the top and foot of it sit over
+           the row's own padding and the blank top of the screen below. */
         style: {
-          display: "flex", alignItems: "center", gap: "var(--space-2)",
-          color: "var(--ink-600)", background: "none", border: 0, cursor: "pointer", padding: 0
+          display: "flex", alignItems: "center", gap: "var(--space-2)", position: "relative", zIndex: 1,
+          minHeight: "var(--tap-button)", margin: "-14px 0 -14px -8px", padding: "0 16px 0 8px",
+          color: "var(--ink-600)", background: "none", border: 0, cursor: "pointer"
         }
       }, icon("back", 20), el("span.label", null, "Back")));
   }
@@ -472,6 +485,7 @@
     /* A miss on the path comes back in a day, then three, then seven. */
     if (!right && firstTry && !s.facts && !s.redo && !s.review) store.scheduleReview(q);
 
+    if (right) keepProgress();
     s.lostRun = 0;
     if (right) {
       s.run += 1;
@@ -518,6 +532,16 @@
   };
 
   var AUTO_NEXT_MS = 1200;
+
+  /* Progress lives only on this phone, so ask the browser not to clear it when
+     space runs low. Asked once a run, after a right answer: an app the learner
+     actually uses is what browsers grant it to. */
+  var askedToKeep = false;
+  function keepProgress() {
+    if (askedToKeep) return;
+    askedToKeep = true;
+    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
+  }
 
   /* A fact counts towards mastery when it is right and quick; a miss sends it
      back, and it comes back later in this round too, after its answer has
