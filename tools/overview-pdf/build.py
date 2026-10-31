@@ -261,6 +261,11 @@ p2 = f"""
       down to the exam, {EXAM_DAY}. A question missed comes back a day, three days and a week
       later, so it sticks.</p>
 
+      <h3>Reasons to come back</h3>
+      <p>Home sets one small goal a day, finishing a round. It shows an estimate of how ready the
+      learner is, by topic and overall, always labelled as an estimate, and looks back at each
+      finished week.</p>
+
       <h3>Quick rounds, for speed</h3>
       <p>The exam is timed, so a challenge round builds speed on what is already cleared: a
       60-second sprint, or a 90-second speed ladder that climbs as the learner gets questions
@@ -272,19 +277,7 @@ p2 = f"""
         server. A learner's name and progress are kept on their own device and nowhere else.
       </div>
     </div>
-    <div style="width:66mm;flex:none">{phone("home", "Home: the next level, the countdown to the exam, and the practice exam")}</div>
-  </div>
-
-  <div style="margin-top:auto">
-    <div class="rule" style="margin-bottom:4mm"></div>
-    <h3 style="margin-bottom:3mm">A round, start to finish</h3>
-    <div style="display:flex;gap:3mm">
-      <div class="fact" style="flex:1"><b>1</b><span>Read the lesson</span></div>
-      <div class="fact" style="flex:1"><b>2</b><span>Answer on the keypad</span></div>
-      <div class="fact" style="flex:1"><b>3</b><span>Check, and see why</span></div>
-      <div class="fact" style="flex:1"><b>4</b><span>Ten questions</span></div>
-      <div class="fact" style="flex:1"><b>5</b><span>Eight right clears it</span></div>
-    </div>
+    <div style="width:66mm;flex:none">{phone("home", "Home: today's goal, the next level, and how ready the learner is for the exam")}</div>
   </div>
 """
 
@@ -508,8 +501,8 @@ p8 = f"""
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8mm">
       <div>
         <small class="muted">Status, {UPDATED}: all {len(TOPICS)} topics, Basics, the practice exam,
-        review of missed questions, badges, difficulty that follows the learner, the challenge round
-        and dark mode are built and work offline. Moving progress to a new phone, sharing
+        review of missed questions, badges, difficulty that follows the learner, the challenge round,
+        a daily goal, a readiness estimate and dark mode are built and work offline. Moving progress to a new phone, sharing
         answers with a researcher, and the other three subtests are not yet built.</small>
         {f'<p style="margin:3mm 0 0;font-size:9.5pt"><b>Questions or feedback:</b> {OWNER}, {CONTACT}</p>' if OWNER else ''}
       </div>
