@@ -33,7 +33,7 @@
 
   function greetingBlock(s, sub) {
     var name = (s.profile && s.profile.name) ? s.profile.name.split(" ")[0] : "there";
-    return el("span", null,
+    return el("span.am-name", null,
       el("span.heading-lg", { style: { display: "block" } }, "Hello, " + name),
       el("span.body-sm", { style: { color: "var(--ink-600)" } }, sub)
     );
@@ -375,7 +375,7 @@
 
     var headline = first
       ? el("div", { style: { padding: "24px " + gutter() + "px 0" } },
-          el("div.heading-lg", null, "Hello, " + ((s.profile && s.profile.name.split(" ")[0]) || "there")),
+          el("div.heading-lg.am-name", null, "Hello, " + ((s.profile && s.profile.name.split(" ")[0]) || "there")),
           el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4, textWrap: "pretty" } }, streakGoal(s)))
       : el("div", {
           style: { padding: "24px " + gutter() + "px 0", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-3)" }
@@ -386,7 +386,7 @@
 
     var countdown = AM.Card({ style: { gap: 10 } },
       el("span", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "var(--space-2)" } },
-        el("span.heading-sm", null, p.daysToExam === null ? "Your path" : "Exam in " + p.daysToExam + " day" + (p.daysToExam === 1 ? "" : "s")),
+        el("span.heading-sm", null, p.daysToExam === null ? "Your path" : p.daysToExam === 0 ? "Exam day" : "Exam in " + p.daysToExam + " day" + (p.daysToExam === 1 ? "" : "s")),
         el("span.caption", { style: { color: "var(--ink-600)" } }, "30 January")),
       AM.ProgressBar({ ratio: p.coverage, height: 10, label: "Blueprint cleared" }),
       el("span.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
@@ -1865,7 +1865,8 @@
        still by itself; a tap isn't needed to move on. */
     var added = !r.redo && r.levelStart !== null && r.levelStart !== undefined ? Math.min(lv.correct, lv.target) - r.levelStart : 0;
     var moment = !r.redo && !lv.cleared;
-    var title = r.attempted && r.correct === r.attempted ? "Perfect round!"
+    var title = r.redo ? (r.attempted && r.correct === r.attempted ? "All put right!" : "Round done")
+      : r.attempted && r.correct === r.attempted ? "Perfect round!"
       : r.correct >= 7 ? "Great round!" : r.correct >= 4 ? "Good practice!" : "Round done";
 
     var primary = (lv.cleared && nextLevel && nextLevel.unlocked && !nextLevel.cleared)

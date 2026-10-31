@@ -254,9 +254,12 @@ least 20 points apart. The same sums in different stories, told apart.
 
 ### Offline
 
-The service worker precaches the shell and serves it stale-while-revalidate, so a cold
-start with no signal still opens the app. Answers given offline count immediately, so levels
-clear whether or not there is signal. Nothing is sent anywhere, so there is nothing to sync.
+The service worker precaches the shell and answers everything from the phone first, so
+the app opens at once with no signal or a bad one, and opening it uses no data. A release
+changes `CACHE`, and that new install is how new files arrive, all together, so a phone
+never runs a mix of two releases. On localhost the files on disk win, so a change shows
+without a release. Answers given offline count immediately, so levels clear whether or not
+there is signal. Nothing is sent anywhere, so there is nothing to sync.
 
 Learner state lives in `localStorage` and never leaves the device.
 

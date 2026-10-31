@@ -432,6 +432,15 @@ test("two days missed in a row ends the streak", () => {
   S.recordAnswer("a", "a1", true, true);
   assert.strictEqual(S.get().streakDays, 1);
 });
+test("the countdown stops once the exam has passed", () => {
+  const S = launch();
+  onDay("2027-01-29");
+  assert.strictEqual(S.path().daysToExam, 1);
+  onDay("2027-01-30");
+  assert.strictEqual(S.path().daysToExam, 0, "exam day");
+  onDay("2027-01-31");
+  assert.strictEqual(S.path().daysToExam, null);
+});
 test("the next streak badge is the first not yet earned", () => {
   const S = launch();
   assert.deepStrictEqual(S.nextStreakBadge(), { days: 3, left: 3 });
@@ -672,6 +681,8 @@ test("every answer is logged, with the build and the time", () => {
   const row = s.logAttempt({ topic: "a", template: "a.t", seed: 7, given: "12", correct: false, error: "added" });
   assert.deepStrictEqual(row, { at: 1700000000000, app: s.APP_BUILD, participant: s.participantCode(), topic: "a", template: "a.t", seed: 7, given: "12", correct: false, error: "added" });
   assert.strictEqual(s.attempts().length, 1);
+  assert.ok(!(LOG_KEY in storage), "not written inside the tap: a long log would stutter");
+  s.flushLog();
   assert.deepStrictEqual(JSON.parse(storage[LOG_KEY]), [row], "kept under its own key");
   assert.ok(!(LOG_KEY in JSON.parse(storage[KEY] || "{}")), "not inside the main record");
 });
@@ -679,11 +690,27 @@ test("the log survives a relaunch and keeps its order", () => {
   let s = launch();
   s.logAttempt({ n: 1 });
   s.logAttempt({ n: 2 });
+  s.flushLog();
   const kept = storage[LOG_KEY];
   s = launch();
   storage[LOG_KEY] = kept;
   new Function(SRC).call(global);
   assert.deepStrictEqual(global.AM.store.attempts().map((r) => r.n), [1, 2]);
+});
+test("the log is written a moment after an answer, once for several", () => {
+  const s = launch();
+  const realSet = global.setTimeout, realClear = global.clearTimeout;
+  const waiting = [];
+  global.setTimeout = (fn) => { waiting.push(fn); return waiting.length; };
+  global.clearTimeout = () => {};
+  s.logAttempt({ n: 1 });
+  s.logAttempt({ n: 2 });
+  assert.strictEqual(waiting.length, 1, "one write is waiting, however many answers");
+  waiting[0]();
+  assert.deepStrictEqual(JSON.parse(storage[LOG_KEY]).map((r) => r.n), [1, 2]);
+  s.logAttempt({ n: 3 });
+  assert.strictEqual(waiting.length, 2, "and the next answer waits for another");
+  global.setTimeout = realSet; global.clearTimeout = realClear;
 });
 test("past LOG_MAX the oldest attempts go", () => {
   const s = launch();
@@ -699,6 +726,7 @@ test("a full phone gives up the oldest fifth rather than the new answer", () => 
   let refused = false;
   global.localStorage.setItem = (k, v) => { if (k === LOG_KEY && !refused) { refused = true; throw new Error("QuotaExceededError"); } real(k, v); };
   s.logAttempt({ n: 10 });
+  s.flushLog();
   global.localStorage.setItem = real;
   assert.deepStrictEqual(s.attempts().map((r) => r.n), [2, 3, 4, 5, 6, 7, 8, 9, 10]);
   assert.strictEqual(JSON.parse(storage[LOG_KEY]).length, 9);

@@ -130,6 +130,11 @@ const M = [
   ["every exam kept", "      .slice(-EXAMS_KEPT);", "      ;"],
   ["best tie goes to the earlier", "x.score / x.total >= b.score / b.total ? x : b", "x.score / x.total > b.score / b.total ? x : b"],
   // the attempt log
+  ["log written on every answer", "    if (!logTimer) logTimer = window.setTimeout(flushLog, LOG_SAVE_MS);", "    flushLog();"],
+  ["a write for every answer", "    if (!logTimer) logTimer = window.setTimeout(flushLog, LOG_SAVE_MS);", "    logTimer = window.setTimeout(flushLog, LOG_SAVE_MS);"],
+  ["the waiting write never clears", "    logTimer = null;\n    if (!attemptLog) return;", "    if (!attemptLog) return;"],
+  ["countdown goes on past the exam", "daysBetween(today(), AM.content.examDate) >= 0 ? daysBetween", "true ? daysBetween"],
+  ["no countdown on exam day", "daysBetween(today(), AM.content.examDate) >= 0 ? daysBetween", "daysBetween(today(), AM.content.examDate) > 0 ? daysBetween"],
   ["log kept without its cap", "    if (log.length > LOG_MAX) log.splice(0, log.length - LOG_MAX);\n", ""],
   ["log not saved", "    saveLog();\n    return row;", "    return row;"],
   ["log rows unstamped", "    var row = { at: Date.now(), app: APP_BUILD, participant: participantCode() };", "    var row = { participant: participantCode() };"],

@@ -4,7 +4,7 @@
    lives in localStorage and never leaves the phone. */
 "use strict";
 
-var CACHE = "abante-minds-v59";
+var CACHE = "abante-minds-v60";
 
 var SHELL = [
   "./",
@@ -15,7 +15,6 @@ var SHELL = [
   "assets/fonts/lexend-latin.woff2",
   "assets/fonts/lexend-latin-ext.woff2",
   "assets/fonts/baloo2-latin.woff2",
-  "assets/fonts/baloo2-latin-ext.woff2",
   "app/icons.js",
   "app/ui.js",
   "app/badgeart.js",
@@ -73,7 +72,9 @@ self.addEventListener("install", function (event) {
       /* One missing file must not fail the whole install — a shell that is 90%
          cached still opens without signal. */
       return Promise.all(SHELL.map(function (url) {
-        return cache.add(url).catch(function () { return null; });
+        /* no-cache: past the browser's own cache, or this release could keep a
+           file from the last one, with nothing to replace it until the next. */
+        return cache.add(new Request(url, { cache: "no-cache" })).catch(function () { return null; });
       }));
     }).then(function () { return self.skipWaiting(); })
   );
@@ -89,43 +90,48 @@ self.addEventListener("activate", function (event) {
   );
 });
 
+/* Everything is answered from the phone first, so the app opens at once on no
+   signal, on bad signal and on a budget Android, and opening it uses no data.
+   A release changes CACHE, and that new install is how new files arrive, all
+   together, so a phone never runs a mix of two releases. The browser checks
+   sw.js for itself each time the app is opened. */
+var DEV = /^(localhost|127\.0\.0\.1)$/.test(self.location.hostname);
+
 self.addEventListener("fetch", function (event) {
   var req = event.request;
   if (req.method !== "GET") return;
 
   var url = new URL(req.url);
-  var sameOrigin = url.origin === self.location.origin;
+  /* Same-origin only: the faces are self-hosted, so nothing third-party is left. */
+  if (url.origin !== self.location.origin) return;
 
-  /* Navigations fall back to the cached shell, so a cold start with no signal
-     still lands on the app rather than the browser's offline page. */
-  if (req.mode === "navigate") {
-    event.respondWith(
-      fetch(req).catch(function () {
-        return caches.match("index.html").then(function (r) { return r || caches.match("./"); });
-      })
-    );
+  /* On a dev server the files on disk win, and the cache still answers offline. */
+  if (DEV) {
+    event.respondWith(fetch(req).catch(function () {
+      return caches.match(req).then(function (hit) { return hit || (req.mode === "navigate" ? caches.match("index.html") : Response.error()); });
+    }));
     return;
   }
 
-  /* Same-origin only. The font CDN used to be allowed through here; the faces are
-     self-hosted now, so there is nothing third-party left to cache and no reason to
-     let a cross-origin request past. */
-  if (!sameOrigin) return;
+  /* Opening the app, by the home-screen icon or the link, is the shell. Any
+     other page on the site, such as the screenshot harness, is its own. */
+  var scope = new URL(self.registration.scope).pathname;
+  var isApp = url.pathname === scope || url.pathname === scope + "index.html";
+  var lookup = req.mode === "navigate" && isApp ? "index.html" : req;
 
-  /* Stale-while-revalidate: the cached copy answers straight away, which is
-     what a 2019 budget Android on no signal needs, and the network copy
-     replaces it in the background so the next launch is current. */
   event.respondWith(
-    caches.match(req).then(function (hit) {
-      var network = fetch(req).then(function (res) {
+    caches.match(lookup).then(function (hit) {
+      if (hit) return hit;
+      /* Not stored, such as a file a failed install missed: fetch it and keep it. */
+      return fetch(req).then(function (res) {
         if (res && res.ok) {
           var copy = res.clone();
           caches.open(CACHE).then(function (cache) { cache.put(req, copy).catch(function () {}); });
         }
         return res;
-      }).catch(function () { return hit || caches.match("index.html"); });
-
-      return hit || network;
+      }).catch(function () {
+        return req.mode === "navigate" ? caches.match("index.html") : Response.error();
+      });
     })
   );
 });

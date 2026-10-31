@@ -90,6 +90,7 @@ html, body {
 /* ---------- shell ---------- */
 .am-root {
   display: flex;
+  min-height: 100vh;
   min-height: 100dvh;
   background: var(--surface-100);
 }
@@ -105,6 +106,7 @@ html, body {
   min-width: 0;
   display: flex;
   flex-direction: column;
+  height: 100vh;
   height: 100dvh;
   background: var(--surface-100);
   /* Clear of the notch and the phone's own status bar when the app runs from
@@ -240,6 +242,7 @@ html, body {
 
 .am-rail {
   width: 260px;
+  height: 100vh;
   height: 100dvh;
   position: sticky;
   top: 0;
@@ -457,3 +460,6 @@ html, body {
 }
 .am-scroll-edge[data-on="true"]::before { opacity: 1; }
 .am-root[data-gold="true"] .am-scroll-edge { display: none; }
+
+/* A learner's name can be one long word: it wraps rather than leaving the screen. */
+.am-name { min-width: 0; overflow-wrap: anywhere; }
