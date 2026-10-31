@@ -439,3 +439,11 @@ html, body {
   .am-chal-fill { transition: none; }
 }
 :root[data-calm="true"] .am-chal-pop { animation: none; }
+
+/* The end of a round: the level's bar, with what this round added. */
+.am-gain-row { display: flex; height: 10px; border-radius: var(--radius-pill); background: var(--surface-300); overflow: hidden; }
+.am-gain-row > span { display: block; height: 100%; }
+.am-gain { background: var(--celebration-gold-500); transform-origin: left; animation: am-gain-in 700ms 200ms cubic-bezier(.2, .8, .2, 1) both; }
+@keyframes am-gain-in { from { transform: scaleX(0); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .am-gain { animation: none; } }
+:root[data-calm="true"] .am-gain { animation: none; }

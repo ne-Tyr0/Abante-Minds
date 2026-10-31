@@ -385,6 +385,64 @@ test("a practice exam earns its score's badges", () => {
   S.recordExam({ score: 18, total: 20, seconds: 900, topics: {} });
   assert.deepStrictEqual(keys(S), ["exam:60", "exam:75", "exam:90"]);
 });
+test("one missed day a week is forgiven, and the streak carries on", () => {
+  const S = launch();
+  const practise = (d) => { onDay(d); S.recordAnswer("a", "a1", true, true); };
+  ["2026-10-19", "2026-10-20", "2026-10-21"].forEach(practise);     /* Mon, Tue, Wed */
+  assert.strictEqual(S.get().streakDays, 3);
+  onDay("2026-10-23");                                              /* Fri: Thu was missed */
+  S.rollDay();
+  assert.strictEqual(S.get().streakDays, 3, "opening the app on the way back keeps it");
+  assert.strictEqual(S.get().resetToday, false);
+  assert.strictEqual(S.forgivenYesterday(), true);
+  S.recordAnswer("a", "a1", true, true);
+  assert.strictEqual(S.get().streakDays, 4, "the missed day itself does not count");
+  practise("2026-10-24");
+  assert.strictEqual(S.forgivenYesterday(), false, "only the day after");
+  assert.strictEqual(S.get().streakDays, 5);
+});
+test("a second missed day in the same week ends the streak", () => {
+  const S = launch();
+  const practise = (d) => { onDay(d); S.recordAnswer("a", "a1", true, true); };
+  ["2026-10-19", "2026-10-21", "2026-10-23"].forEach(practise);     /* misses Tue, then Thu */
+  assert.strictEqual(S.get().streakDays, 1);
+  assert.strictEqual(S.get().resetToday, true, "and it reads as a reset, not as carrying on");
+});
+test("the next week brings a new one", () => {
+  const S = launch();
+  const practise = (d) => { onDay(d); S.recordAnswer("a", "a1", true, true); };
+  ["2026-10-19", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25", "2026-10-26", "2026-10-28"].forEach(practise);
+  assert.strictEqual(S.get().streakDays, 8, "Tue the 20th, and Tue the 27th in the next week");
+});
+test("the missed day counts in the week it fell in, not the week of coming back", () => {
+  const S = launch();
+  const practise = (d) => { onDay(d); S.recordAnswer("a", "a1", true, true); };
+  ["2026-10-21", "2026-10-23", "2026-10-24", "2026-10-26"].forEach(practise);  /* misses Thu the 22nd, and Sun the 25th, the same week */
+  assert.strictEqual(S.get().streakDays, 1);
+});
+test("two days missed in a row ends the streak", () => {
+  const S = launch();
+  const practise = (d) => { onDay(d); S.recordAnswer("a", "a1", true, true); };
+  ["2026-10-19", "2026-10-20"].forEach(practise);
+  onDay("2026-10-23");
+  S.rollDay();
+  assert.strictEqual(S.get().streakDays, 0);
+  assert.strictEqual(S.get().resetToday, true);
+  assert.strictEqual(S.forgivenYesterday(), false);
+  S.recordAnswer("a", "a1", true, true);
+  assert.strictEqual(S.get().streakDays, 1);
+});
+test("the next streak badge is the first not yet earned", () => {
+  const S = launch();
+  assert.deepStrictEqual(S.nextStreakBadge(), { days: 3, left: 3 });
+  const d = ["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22"];
+  d.forEach((x) => { onDay(x); S.recordAnswer("a", "a1", true, true); });
+  assert.deepStrictEqual(S.nextStreakBadge(), { days: 7, left: 3 });
+  onDay("2026-10-28");
+  S.rollDay();
+  assert.strictEqual(S.get().streakDays, 0);
+  assert.deepStrictEqual(S.nextStreakBadge(), { days: 7, left: 7 }, "a badge once earned stays earned");
+});
 test("Improver comes with the fifth missed question put right", () => {
   const S = launch({ version: 2, reviewsFixed: 3, review: {
     r1: { topic: "a", template: "t", tier: 1, seed: 1, pinnedAt: null, step: 2, due: "2026-10-10", added: 1 },

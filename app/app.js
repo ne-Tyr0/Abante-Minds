@@ -443,7 +443,15 @@
     if (s.facts) checkFact(s, q, right);
     else if (s.review) { if (firstTry) store.recordReview(q.reviewKey, right); else store.notePractice(); }
     else if (s.redo) store.notePractice();
-    else if (store.recordAnswer(s.topicKey, s.levelId, right, firstTry).cleared) s.pendingLevelUp = true;
+    else {
+      /* Where the level stood, for the end of the round to show what it added. */
+      if (s.levelStart === undefined) s.levelStart = Math.min(store.levelState(s.topicKey, s.levelId).correct, store.CLEAR_TARGET);
+      if (store.recordAnswer(s.topicKey, s.levelId, right, firstTry).cleared) {
+        var cleared = store.levelState(s.topicKey, s.levelId);
+        s.pendingLevelUp = true;
+        s.clearedAt = { index: s.index, correct: cleared.correct, attempts: cleared.attempts };
+      }
+    }
     /* A first try moves the round's difficulty; a retry does not. */
     if (s.adapt && firstTry && !s.redo && !s.review) s.adapt = store.adaptStep(s.adapt, right);
     /* A miss on the path comes back in a day, then three, then seven. */
@@ -533,7 +541,10 @@
   app.next = function () {
     var s = app.session;
     if (!s) return;
-    if (s.pendingLevelUp) {
+    /* The level-up is the round's big finish, not an interruption of it
+       (decided 2026-10-31): a level cleared at question 8 is celebrated after
+       the last question, or as the learner leaves. */
+    if (s.pendingLevelUp && (s.leaving || s.index + 1 >= s.questions.length)) {
       s.pendingLevelUp = false;
       if (motion) motion.haptic("levelUp");
       app.go("levelup");
@@ -601,6 +612,8 @@
       redo: s.redo,
       attempted: s.attempted,
       correct: s.correct,
+      levelStart: s.levelStart === undefined ? null : s.levelStart,
+      bestRun: s.bestRun || 0,
       missed: s.missed.map(function (q) {
         var copy = {};
         Object.keys(q).forEach(function (k) { if (k.indexOf("__") !== 0) copy[k] = q[k]; });

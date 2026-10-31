@@ -90,6 +90,13 @@ function run() {
   var todayIndex = (now.getDay() + 6) % 7;
   LEARNER.week = LEARNER.week.map(function (_, i) { return i <= todayIndex && i > todayIndex - 4; });
 
+  /* Back after one missed day: the day before yesterday was the last practised. */
+  if (SCREEN === "home-forgiven") {
+    var twoAgo = new Date(now.getTime() - 2 * 86400000);
+    LEARNER.lastActiveDay = twoAgo.getFullYear() + "-" + String(twoAgo.getMonth() + 1).padStart(2, "0") + "-" + String(twoAgo.getDate()).padStart(2, "0");
+    LEARNER.lastRolledDay = null;
+  }
+
   /* A learner with a name and nothing else, as Home first looks. */
   if (SCREEN === "home-new") LEARNER = { version: LEARNER.version, installed: false, profile: { name: "Maya", school: "", colorKey: 1, iconKey: "triangle" } };
 
@@ -214,6 +221,7 @@ function run() {
         break;
       case "home":
       case "home-new":
+      case "home-forgiven":
         AM.app.go("home");
         break;
       case "edit-card":
@@ -250,6 +258,7 @@ function run() {
         AM.store.set({ levels: AM.store.get().levels });
         AM.store.syncBadges();  /* the level's badge, as clearing it would give */
         AM.app.session.bestRun = 5;
+        AM.app.session.index = AM.app.session.questions.length - 1;  /* it comes at the end of the round */
         AM.app.go("levelup");
         AM.app.scratch.levelup.tl.skip();  /* the end of the moment, not a frame of it */
         break;
@@ -312,6 +321,10 @@ function run() {
         var shelf = w.document.querySelector(".am-slot-body");
         shelf.scrollTop = shelf.scrollHeight;
         break;
+      case "cleared-cue":
+        for (var c = 0; c < 3; c++) AM.store.recordAnswer("decimals", "add-and-subtract", true, true);
+        s = canonicalAt(7); s.run = 4; s.bestRun = 4; AM.app.go("practice"); typeIn("4.65"); AM.app.check();
+        break;
       case "streak":
         AM.app.scratch.afterStreak = "home";
         AM.app.go("streak");
@@ -329,7 +342,7 @@ function run() {
         AM.app.scratch.result = {
           topicKey: "decimals", topicLabel: "Decimals", colorKey: 1,
           levelId: "add-and-subtract", levelTitle: "Add and subtract", levelNumber: 3, redo: false,
-          attempted: 10, correct: 7, missed: AM.app.session.questions.slice(0, 3), minutes: 9
+          attempted: 10, correct: 4, levelStart: 0, bestRun: 3, missed: AM.app.session.questions.slice(0, 3), minutes: 9
         };
         AM.app.session = null;
         AM.app.go("summary");
