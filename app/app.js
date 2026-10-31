@@ -79,6 +79,7 @@
       rail: el("div.am-rail-slot"),
       banner: el("div.am-slot-banner"),
       header: el("div.am-slot-header"),
+      edgeTop: el("div.am-scroll-edge.am-scroll-edge-top", { "aria-hidden": "true" }),
       body: el("div.am-slot-body"),
       edge: el("div.am-scroll-edge", { "aria-hidden": "true" }),
       belowFold: el("div.am-slot-belowfold"),
@@ -88,12 +89,12 @@
 
     var frame = el("div.am-frame", null,
       slots.banner, slots.header,
-      slots.body, slots.edge, slots.belowFold, slots.footer, slots.nav);
+      slots.edgeTop, slots.body, slots.edge, slots.belowFold, slots.footer, slots.nav);
 
-    slots.body.addEventListener("scroll", updateScrollEdge, { passive: true });
-    window.addEventListener("resize", updateScrollEdge);
+    slots.body.addEventListener("scroll", updateScrollEdges, { passive: true });
+    window.addEventListener("resize", updateScrollEdges);
     /* The app's fonts arrive after the first render and can change the fit. */
-    if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateScrollEdge);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(updateScrollEdges);
 
     root.appendChild(slots.rail);
     root.appendChild(frame);
@@ -108,11 +109,13 @@
     };
   }
 
-  /* Content scrolling up to a pinned button or the nav fades away rather than
-     being cut off, and the fade lifts at the end, so the last thing on a
-     screen is never left dimmed. */
-  function updateScrollEdge() {
+  /* Content meeting either end of the scrolling area, whether a pinned button,
+     the nav, the header or the top of the screen, fades away rather than being
+     cut off by a hard line. Each fade shows only while there is more to scroll
+     that way, so nothing is left dimmed at rest. */
+  function updateScrollEdges() {
     var b = slots.body;
+    slots.edgeTop.dataset.on = b.scrollTop > 4 ? "true" : "false";
     slots.edge.dataset.on = b.scrollHeight - b.scrollTop - b.clientHeight > 8 ? "true" : "false";
   }
 
@@ -166,7 +169,7 @@
     app.keepScroll = false;
     app.direction = "forward";
     if (carried) carried();
-    updateScrollEdge();
+    updateScrollEdges();
     currentView = view;
     guardBack();
 
