@@ -97,6 +97,18 @@ function run() {
     LEARNER.lastRolledDay = null;
   }
 
+  /* Today's goal met, and last week to look back on. */
+  if (SCREEN === "home-done") LEARNER.rounds = { day: today, n: 2 };
+  var HISTORY = null;
+  if (SCREEN === "home-done" || SCREEN === "home" || SCREEN === "profile" || SCREEN === "home-recap") {
+    HISTORY = [];
+    /* Home for the PDF, and Profile, have history but no look back to show. */
+    var lastWeek = now.getTime() - (SCREEN === "home" || SCREEN === "profile" ? 14 : 7) * 86400000;
+    for (var ri = 0; ri < 40; ri++) {
+      HISTORY.push({ at: lastWeek + (ri % 4) * 86400000 * 0.2, kind: "practice", attempt: 1, topic: "decimals", correct: ri % 5 !== 0, template: "decimals.add" });
+    }
+  }
+
   /* A learner with a name and nothing else, as Home first looks. */
   if (SCREEN === "home-new") LEARNER = { version: LEARNER.version, installed: false, profile: { name: "Maya", school: "", colorKey: 1, iconKey: "triangle" } };
 
@@ -119,6 +131,8 @@ function run() {
     frame.removeEventListener("load", once);
     try {
       frame.contentWindow.localStorage.setItem("abante-minds/v1", JSON.stringify(LEARNER));
+      if (HISTORY) frame.contentWindow.localStorage.setItem("abante-minds/attempts", JSON.stringify(HISTORY));
+      else frame.contentWindow.localStorage.removeItem("abante-minds/attempts");
     } catch (e) {
       document.title = "SEED-FAILED";
       return;
@@ -220,6 +234,8 @@ function run() {
         AM.app.go("splash");
         break;
       case "home":
+      case "home-done":
+      case "home-recap":
       case "home-new":
       case "home-forgiven":
         AM.app.go("home");

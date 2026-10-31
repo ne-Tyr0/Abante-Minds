@@ -339,6 +339,13 @@
      "Continue": nothing is resumed. */
   function levelVerb(level) { return level.attempts ? "Practise" : "Start"; }
 
+  /* The end of the round that met today's goal says so, once. */
+  function goalMet(app) {
+    if (!app.scratch.goalMet) return null;
+    return el("div", { style: { padding: "14px " + gutter() + "px 0", display: "flex" } },
+      AM.Chip({ icon: "check", label: "Today's goal done!", large: true, background: "var(--success-100)", color: "var(--success-700)" }));
+  }
+
   /* The next streak badge in a line, under the learner's name. */
   function streakGoal(s) {
     var goal = store.nextStreakBadge(), back = s.streakDays > 1 ? "Back for day " + s.streakDays : null;
@@ -384,14 +391,16 @@
           desktop ? null : streakBadge(s.streakDays)
         );
 
+    var ready = store.readiness();
     var countdown = AM.Card({ style: { gap: 10 } },
       el("span", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "var(--space-2)" } },
         el("span.heading-sm", null, p.daysToExam === null ? "Your path" : p.daysToExam === 0 ? "Exam day" : "Exam in " + p.daysToExam + " day" + (p.daysToExam === 1 ? "" : "s")),
         el("span.caption", { style: { color: "var(--ink-600)" } }, "30 January")),
-      AM.ProgressBar({ ratio: p.coverage, height: 10, label: "Blueprint cleared" }),
+      AM.ProgressBar({ ratio: ready.share, height: 10, label: "Readiness estimate" }),
       el("span.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-        !p.levelsCleared ? "Clear your first level to start filling this."
-          : p.levelsCleared + " level" + (p.levelsCleared === 1 ? "" : "s") + " cleared · " + pct(p.coverage) + "% of the exam blueprint"));
+        !ready.started ? "Clear your first level to start filling this."
+          : (ready.percent ? "About " + ready.percent + "% ready" : "Just getting started") + (ready.focus ? " · most to gain in " + ready.focus.label.toLowerCase() : "")),
+      ready.started ? el("span.caption", { style: { color: "var(--ink-600)" } }, "An estimate from your answers, not the real exam.") : null);
 
     var upNext = next
       ? AM.Card({ style: { gap: 12 } },
@@ -491,6 +500,43 @@
               : "Every topic, as the exam weighs them"))),
       AM.Button({ label: exam ? "Take another" : "Try a practice exam", variant: "ghost", fullWidth: true, onClick: function () { app.go("examIntro"); } }));
 
+    /* Today's goal, in one line above everything else. */
+    var goal = store.dailyGoal();
+    var goalCard = AM.Card({ style: { flexDirection: "row", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-3) var(--space-4)" } },
+      el("span", {
+        style: {
+          width: 32, height: 32, flex: "none", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+          background: goal.met ? "var(--success-100)" : "var(--surface-300)", color: goal.met ? "var(--success-700)" : "var(--ink-600)"
+        }
+      }, icon(goal.met ? "check" : "clock", 18, goal.met ? { glyph: true } : undefined)),
+      el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
+        el("span.label", null, goal.met ? "Today's goal done" : "Today's goal: finish 1 round"),
+        el("span.caption", { style: { color: "var(--ink-600)" } },
+          goal.met ? (goal.done > 1 ? goal.done + " rounds today. Well done." : "Anything more is a bonus.") : "A round is ten questions, or one quick challenge.")));
+
+    /* Last week, from the week after, until it is put away. */
+    var last = store.recap();
+    var recapCard = last ? AM.Card({ style: { gap: 8 } },
+      el("span", { style: { display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-2)" } },
+        el("span.label", null, "Your last week"),
+        el("button.am-reset.am-dismiss", {
+          type: "button", "aria-label": "Put away", title: "Put away",
+          onClick: function () { store.dismissRecap(); },
+          style: {
+            flex: "none", width: "var(--tap-button)", height: "var(--tap-button)", margin: "-12px -12px -12px 0",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "var(--ink-600)", background: "none", border: 0, cursor: "pointer", padding: 0
+          }
+        }, icon("x", 20))),
+      el("div", { style: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "var(--space-2)", textAlign: "center" } },
+        [[last.days, last.days === 1 ? "day" : "days"], [last.asked, last.asked === 1 ? "question" : "questions"], [last.levels, last.levels === 1 ? "level cleared" : "levels cleared"]].map(function (x) {
+          return el("span", { style: { display: "flex", flexDirection: "column" } },
+            el("span.heading-md", null, String(x[0])), el("span.caption", { style: { color: "var(--ink-600)" } }, x[1]));
+        })),
+      el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+        (last.asked ? Math.round(100 * last.right / last.asked) + "% right first time" : "") +
+        (last.best && C.byKey(last.best) ? ". Strongest: " + C.byKey(last.best).label.toLowerCase() + "." : "."))) : null;
+
     var forgiven = store.forgivenYesterday() && s.lastActiveDay !== store.today() ? AM.Card({ style: { gap: 4 } },
       el("span.label", null, "Your streak is safe"),
       el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "You missed yesterday, and one missed day a week is forgiven. Practise today to keep it going.")) : null;
@@ -524,9 +570,11 @@
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          forgiven, upNext, offer, reviewCard, countdown, badgeCard, examCard, challengeCard, basicsCard, streakBlock)
+          goalCard, forgiven, recapCard, upNext, offer, reviewCard, countdown, badgeCard, examCard, challengeCard, basicsCard, streakBlock)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
+          goalCard,
           forgiven,
+          recapCard,
           el("div.am-pair", null, upNext,
             el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, minWidth: 0 } }, countdown, badgeCard)),
           offer,
@@ -1888,6 +1936,7 @@
           el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } },
             r.topicLabel + " · Level " + r.levelNumber + " · " + r.minutes + " minute" + (r.minutes === 1 ? "" : "s"))),
 
+        goalMet(app),
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
           stat(r.attempted, "attempted"), stat(r.correct, "right first time"), stat(lv.correct + "/" + lv.target, "level")),
 
@@ -2132,6 +2181,7 @@
         el("div", { style: { padding: "24px " + gutter() + "px 0" } },
           el("div.body-sm", { style: { color: "var(--ink-600)" } }, (r.daily ? "Today's challenge · " : "") + m.name),
           el("div", { style: { marginTop: 4, fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 44, lineHeight: 1.1 } }, r.score + " points")),
+        goalMet(app),
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
           stat(r.right, "right"), stat(r.bestRun, "best run"),
           r.mode === "ladder" ? stat(r.top, "top step") : stat(r.right + r.wrong, "answered")),
@@ -2275,6 +2325,7 @@
         el("div", { style: { padding: "24px " + gutter() + "px 0" } },
           el("div.heading-lg", null, r.timedOut ? "Time is up" : "Exam done"),
           el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, "Practice exam · " + minutesSeconds(r.seconds))),
+        goalMet(app),
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
           stat(r.score + "/" + r.total, "right"), stat(Math.round(100 * r.score / r.total) + "%", "score"),
           stat(r.answers.filter(function (a) { return a && a.given === null; }).length + (r.total - r.answers.length), "not answered")),
@@ -2319,6 +2370,7 @@
     var p = s.profile || { name: "", school: "", colorKey: 2 };
     var path = store.path();
     var written = path.topics.filter(function (t) { return t.ready; });
+    var readiness = store.readiness();
 
     function stat(value, label) {
       return el("div", {
@@ -2359,8 +2411,11 @@
 
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
           sectionLabel("Progress by topic"),
+          readiness.started ? el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+            (readiness.percent ? "About " + readiness.percent + "% ready for the exam." : "Just getting started.") + " This is an estimate from your answers and the levels you have cleared, not the real exam.") : null,
           AM.TopicBars(written.map(function (t) {
-            return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels", color: "var(--skill-" + t.colorKey + "-bright)" };
+            var band = readiness.topics.filter(function (x) { return x.key === t.key; })[0];
+            return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels" + (band && band.started ? " · " + band.band : ""), color: "var(--skill-" + t.colorKey + "-bright)" };
           })),
           path.topics.length > written.length
             ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (path.topics.length - written.length) + " more topic" + (path.topics.length - written.length === 1 ? "" : "s") + " coming")

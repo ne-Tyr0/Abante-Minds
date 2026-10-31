@@ -201,7 +201,7 @@ test("use() installs topics, version and subtest", () => {
   assert.strictEqual(C.examDate, "2027-01-30");
   assert.strictEqual(C.blueprintCompetencies, 94);
   assert.deepStrictEqual(C.byKey("u"), {
-    key: "u", label: "Other", icon: "star", colorKey: 2, ready: true, track: "path", grid: false,
+    key: "u", weight: 0, label: "Other", icon: "star", colorKey: 2, ready: true, track: "path", grid: false,
     levels: [{ id: "only", title: "Only", kind: "practice", competencies: ["G5.Q2.10"], hasLesson: false, factCount: 0 }]
   });
   assert.deepStrictEqual(C.BASICS, []);
