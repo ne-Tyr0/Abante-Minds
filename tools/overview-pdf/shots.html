@@ -85,6 +85,11 @@ function run() {
   });
   LEARNER.levels["times/2-5-10"] = { correct: 0, attempts: 0, cleared: false, lessonSeen: true };
 
+  /* The four days of the streak, counted back from today, so the week agrees
+     with it whatever day this runs. Monday is the first day of the week. */
+  var todayIndex = (now.getDay() + 6) % 7;
+  LEARNER.week = LEARNER.week.map(function (_, i) { return i <= todayIndex && i > todayIndex - 4; });
+
   /* A learner with a name and nothing else, as Home first looks. */
   if (SCREEN === "home-new") LEARNER = { version: LEARNER.version, installed: false, profile: { name: "Maya", school: "", colorKey: 1, iconKey: "triangle" } };
 
