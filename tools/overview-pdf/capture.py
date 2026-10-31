@@ -36,9 +36,9 @@ DETAILS = {
     "detail_hint": ("hint", (0, 236, 780, 664)),        # the three hints
     "detail_correct": ("correct", (0, 204, 780, 540)),  # verdict and working
     "detail_badges": ("badges", (0, 80, 780, 500)),     # the count and the showcase
-    "detail_settings": ("profile-settings", (0, 470, 780, 1250)),  # the settings card
+    "detail_settings": ("profile-settings", (0, 590, 780, 1380)),  # the settings card
     "detail_basics": ("basics-topic", (40, 236, 740, 1230)),        # the times-table grid
-    "detail_offline": ("offline", (0, 0, 780, 250)),                # the offline line
+    "detail_offline": ("offline", (0, 0, 780, 300)),                # the offline line
 }
 
 CHROME_ARGS = ["--headless=new", "--disable-gpu", "--hide-scrollbars",
