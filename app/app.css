@@ -447,3 +447,13 @@ html, body {
 @keyframes am-gain-in { from { transform: scaleX(0); } to { transform: none; } }
 @media (prefers-reduced-motion: reduce) { .am-gain { animation: none; } }
 :root[data-calm="true"] .am-gain { animation: none; }
+
+/* The foot of the scrolling area: see updateScrollEdge in app.js. */
+.am-scroll-edge { flex: none; height: 0; position: relative; z-index: 1; pointer-events: none; }
+.am-scroll-edge::before {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 56px;
+  background: linear-gradient(to top, var(--surface-100) 8%, transparent);
+  opacity: 0; transition: opacity 160ms ease-out;
+}
+.am-scroll-edge[data-on="true"]::before { opacity: 1; }
+.am-root[data-gold="true"] .am-scroll-edge { display: none; }

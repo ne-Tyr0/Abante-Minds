@@ -583,6 +583,8 @@ function run() {
       w.document.getAnimations().forEach(function (a) {
         try { if (!(hold && hold(a))) a.finish(); } catch (e) { /* a looping animation has no end */ }
       });
+      /* &scroll= scrolls the screen, to see what meets a pinned button. */
+      if (params.get("scroll")) w.document.querySelector(".am-slot-body").scrollTop = Number(params.get("scroll"));
       cover.remove();
       document.title = "READY-" + screen;
     }, 1200);
