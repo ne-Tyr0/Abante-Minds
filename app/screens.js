@@ -339,6 +339,33 @@
      "Continue": nothing is resumed. */
   function levelVerb(level) { return level.attempts ? "Practise" : "Start"; }
 
+  /* The next streak badge in a line, under the learner's name. */
+  function streakGoal(s) {
+    var goal = store.nextStreakBadge(), back = s.streakDays > 1 ? "Back for day " + s.streakDays : null;
+    if (!goal) return back || "Good to see you";
+    if (!back) return goal.days + " days in a row earns a streak badge";
+    return back + " · " + goal.left + " more day" + (goal.left === 1 ? "" : "s") + " earns a badge";
+  }
+
+  function nextBadgeName(next) {
+    var found = store.findBadge("lv:" + next.topic.key + "/" + next.level.id);
+    return found ? found.badge.name : "this level's badge";
+  }
+
+  /* The topic at a glance: a segment for each level, the cleared ones full and
+     the current one filled as far as it has got. */
+  function levelSegments(next) {
+    var levels = store.topicPath(next.topic.key).levels, colour = "var(--skill-" + next.topic.colorKey + "-bright)";
+    return el("div", {
+      role: "img", "aria-label": "Level " + next.level.number + " of " + levels.length + ". " + next.level.correct + " of " + next.level.target + " right first time.",
+      style: { display: "flex", gap: 4 }
+    }, levels.map(function (lv) {
+      var ratio = lv.cleared ? 1 : lv.id === next.level.id ? next.level.correct / next.level.target : 0;
+      return el("span", { style: { flex: 1, height: 8, borderRadius: "var(--radius-pill)", background: "var(--surface-300)", overflow: "hidden" } },
+        el("span", { style: { display: "block", height: "100%", width: Math.round(ratio * 100) + "%", background: colour } }));
+    }));
+  }
+
   screens.home = function (app) {
     var s = store.get();
     var p = store.path();
@@ -349,11 +376,11 @@
     var headline = first
       ? el("div", { style: { padding: "24px " + gutter() + "px 0" } },
           el("div.heading-lg", null, "Hello, " + ((s.profile && s.profile.name.split(" ")[0]) || "there")),
-          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, "Grade 6 · NCE math practice"))
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4, textWrap: "pretty" } }, streakGoal(s)))
       : el("div", {
           style: { padding: "24px " + gutter() + "px 0", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-3)" }
         },
-          greetingBlock(s, s.streakDays > 1 ? "Back for day " + s.streakDays : "Good to see you"),
+          greetingBlock(s, streakGoal(s)),
           desktop ? null : streakBadge(s.streakDays)
         );
 
@@ -378,11 +405,11 @@
               var nb = store.findBadge("lv:" + next.topic.key + "/" + next.level.id);
               return nb ? badgeButton(nb, 44) : null;
             })()),
-          AM.ProgressBar({ ratio: next.level.correct / next.level.target, height: 8, color: "var(--skill-" + next.topic.colorKey + "-bright)", label: "Level progress" }),
-          el("span.caption", { style: { color: "var(--ink-600)" } },
+          levelSegments(next),
+          el("span.caption", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
             !next.level.lessonSeen && next.level.hasLesson
-              ? "Starts with a short lesson. " + next.level.target + " right first time clears it."
-              : next.level.correct + " of " + next.level.target + " right first time to clear it"),
+              ? "Starts with a short lesson. " + next.level.target + " right first time earns " + nextBadgeName(next) + "."
+              : next.level.correct + " of " + next.level.target + " right first time to earn " + nextBadgeName(next)),
           el("span", { style: { display: "flex", marginTop: "var(--space-2)" } },
             AM.Button({ label: levelVerb(next.level) + " level " + next.level.number, fullWidth: !desktop, onClick: function () { app.startLevel(next.topic.key, next.level.id); } })))
       : AM.Card({ style: { gap: 10 } },
@@ -404,13 +431,15 @@
         ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (p.topics.length - written.length) + " more topic" + (p.topics.length - written.length === 1 ? "" : "s") + " coming")
         : null);
 
-    var badgeCard = (first || AM.device() === "phone") ? null : (function () {
+    var badgeCard = first ? null : (function () {
       var cat = store.catalog(), shown = store.showcase();
-      return AM.Card({ style: { padding: "var(--space-6)", gap: "var(--space-3)" } },
+      /* On a phone it waits for a first badge to show. */
+      if (AM.device() === "phone" && !shown.length) return null;
+      return AM.Card({ style: AM.device() === "phone" ? { gap: "var(--space-3)" } : { padding: "var(--space-6)", gap: "var(--space-3)" } },
         sectionLabel("Badges · " + cat.earned + " of " + cat.total),
         shown.length ? el("div", { style: { display: "flex", gap: "var(--space-4)", alignItems: "flex-end" } },
           shown.map(function (k) { return badgeButton(store.findBadge(k, cat), 64); })) : null,
-        AM.Button({ label: "See all badges", variant: "ghost", onClick: function () { app.scratch.badgesBack = null; app.go("badges"); } }));
+        AM.Button({ label: "See all badges", variant: "ghost", fullWidth: AM.device() === "phone", onClick: function () { app.scratch.badgesBack = null; app.go("badges"); } }));
     })();
 
     /* Basics sit beside the path: open any time, and never counted on it. */
@@ -462,6 +491,10 @@
               : "Every topic, as the exam weighs them"))),
       AM.Button({ label: exam ? "Take another" : "Try a practice exam", variant: "ghost", fullWidth: true, onClick: function () { app.go("examIntro"); } }));
 
+    var forgiven = store.forgivenYesterday() && s.lastActiveDay !== store.today() ? AM.Card({ style: { gap: 4 } },
+      el("span.label", null, "Your streak is safe"),
+      el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "You missed yesterday, and one missed day a week is forgiven. Practise today to keep it going.")) : null;
+
     /* The challenge round: quick timed rounds, once a level is cleared. */
     var challengeOpen = store.challengePool().length > 0;
     var challengeBest = Math.max.apply(null, Object.keys(AM.challenge.MODES).map(function (m) {
@@ -491,8 +524,9 @@
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          upNext, offer, reviewCard, countdown, examCard, challengeCard, basicsCard, streakBlock)
+          forgiven, upNext, offer, reviewCard, countdown, badgeCard, examCard, challengeCard, basicsCard, streakBlock)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
+          forgiven,
           el("div.am-pair", null, upNext,
             el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, minWidth: 0 } }, countdown, badgeCard)),
           offer,
@@ -1021,6 +1055,13 @@
           gold ? el("span.am-combo-word", { "aria-hidden": "true" }, n >= 10 ? "Unstoppable!" : "On fire!") : null));
     }
 
+    /* The answer that clears the level says so; the moment waits for the end. */
+    function clearedChip() {
+      if (ses.phase !== "correct" || !ses.clearedAt || ses.clearedAt.index !== ses.index) return null;
+      return el("div", { style: { padding: "12px " + gutter() + "px 0", display: "flex" } },
+        AM.Chip({ icon: "check", label: "Level cleared! Finish the round", large: true, background: "var(--success-100)", color: "var(--success-700)" }));
+    }
+
     /* A facts round shows the level's facts mastered instead. */
     function factStrip() {
       var keys = C.facts(ses.topicKey, ses.levelId);
@@ -1063,7 +1104,7 @@
       var lv = store.levelState(ses.topicKey, ses.levelId);
       var shown = Math.min(lv.correct, store.CLEAR_TARGET);
       var note = ses.redo ? "Redo · does not count towards the level"
-        : lv.cleared ? "Level " + ses.levelNumber + " cleared · reviewing"
+        : lv.cleared ? "Level " + ses.levelNumber + " cleared" + (ses.pendingLevelUp ? " · finish the round" : " · reviewing")
         : "Level " + ses.levelNumber + ": " + (store.CLEAR_TARGET - shown) + " more to clear" + (offline ? " · counts offline" : "");
       return el("div", {
         style: {
@@ -1177,7 +1218,7 @@
           q.chart ? AM.Chart(q.chart) : null,
           q.type === "choice" ? answerArea() : null,
           row,
-          verdict(), explanation(), streakChip(),
+          verdict(), clearedChip(), explanation(), streakChip(),
           hintPanel(),
           levelStrip()
         ));
@@ -1209,6 +1250,7 @@
         (ses.phase === "ask" && ses.showHints) ? answerArea() : null,
         verdict(),
         explanation(),
+        clearedChip(),
         streakChip()
       ]),
       belowFold: el("div", null,
@@ -1514,7 +1556,8 @@
     var here = levels.findIndex(function (lv) { return lv.id === ses.levelId; });
     var next = basics ? null : (levels[here + 1] || null);
     var ls = store.levelState(ses.topicKey, ses.levelId);
-    var right = Math.min(ls.correct, store.CLEAR_TARGET), tries = Math.max(ls.attempts, right);
+    var at = ses.clearedAt || ls;
+    var right = Math.min(at.correct, store.CLEAR_TARGET), tries = Math.max(at.attempts, right);
     var share = tries ? Math.round(100 * right / tries) : 0;
     var first = (s.profile && s.profile.name.split(" ")[0]) || "there";
     var b = found ? found.badge : null;
@@ -1560,7 +1603,7 @@
     var nextLine = next ? "Next up: level " + (here + 2) + ", " + next.title
       : basics ? "Every Basics level stays open to practise."
       : "That was the last level in " + t.label + ". The whole set is yours.";
-    var keep = AM.Button({ label: "Keep going", variant: "inverse", fullWidth: true, cta: true, onClick: function () { view.played = true; if (view.tl) view.tl.skip(); app.afterLevelUp(); } });
+    var keep = AM.Button({ label: ses.leaving || ses.index + 1 >= ses.questions.length ? "Continue" : "Keep going", variant: "inverse", fullWidth: true, cta: true, onClick: function () { view.played = true; if (view.tl) view.tl.skip(); app.afterLevelUp(); } });
     var see = el("button.am-reset.am-linkbtn.label", { type: "button", onClick: function () { view.played = true; if (view.tl) view.tl.skip(); app.levelUpToBadges(); } }, "See my badges");
     var footer = el("div.am-lvup-foot", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
       el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 4 } }, see, keep));
@@ -1700,6 +1743,7 @@
           (on || i === todayIndex) ? el("span.am-dot-tick", { style: { position: "relative", color: "var(--ink-inverse)", lineHeight: 0, opacity: on ? 1 : 0 } }, AM.icon("check", 16)) : null));
     }));
     var copy = days > 1 ? "Come back tomorrow to make it " + (days + 1) + "." : "Practise again tomorrow to start a streak.";
+    if (store.forgivenYesterday()) copy = "Yesterday was forgiven: one missed day a week doesn't break your streak. " + copy;
     var fresh = newBadgesCard(view.badges);
     var go = function () {
       if (view.tl) view.tl.skip();
@@ -1817,16 +1861,29 @@
       : lv.cleared ? (nextLevel ? "Cleared. Level " + nextLevel.number + ", " + nextLevel.title.toLowerCase() + ", is open." : "Cleared. That was the last level in " + t.label.toLowerCase() + ".")
       : (lv.target - lv.correct) + " more right first time to clear it.";
 
+    /* The round's moment: what it added, on the level's own bar. Short and
+       still by itself; a tap isn't needed to move on. */
+    var added = !r.redo && r.levelStart !== null && r.levelStart !== undefined ? Math.min(lv.correct, lv.target) - r.levelStart : 0;
+    var moment = !r.redo && !lv.cleared;
+    var title = r.attempted && r.correct === r.attempted ? "Perfect round!"
+      : r.correct >= 7 ? "Great round!" : r.correct >= 4 ? "Good practice!" : "Round done";
+
     var primary = (lv.cleared && nextLevel && nextLevel.unlocked && !nextLevel.cleared)
       ? AM.Button({ label: "Start level " + nextLevel.number, fullWidth: true, onClick: function () { app.startLevel(r.topicKey, nextLevel.id); } })
-      : AM.Button({ label: lv.cleared ? "Review this level" : "Practice again", fullWidth: true, onClick: function () { app.startLevel(r.topicKey, r.levelId); } });
+      : AM.Button({ label: lv.cleared ? "Review this level" : "Practise again", fullWidth: true, onClick: function () { app.startLevel(r.topicKey, r.levelId); } });
 
     return {
       nav: "practice", bottomNav: false,
       banner: connectionBanner(),
+      after: function () {
+        if (r.sounded || !moment || added <= 0) return;
+        r.sounded = true;
+        var sound = window.AbanteMinds && window.AbanteMinds.sound;
+        if (sound) sound.play("sparkle");
+      },
       body: column([
         el("div", { style: { padding: "24px " + gutter() + "px 0" } },
-          el("div.heading-lg", null, "Session done"),
+          el("div.heading-lg", null, title),
           el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } },
             r.topicLabel + " · Level " + r.levelNumber + " · " + r.minutes + " minute" + (r.minutes === 1 ? "" : "s"))),
 
@@ -1836,7 +1893,13 @@
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 10 } },
             sectionLabel("Level " + lv.number + " · " + lv.title),
-            AM.ProgressBar({ ratio: lv.correct / lv.target, height: 10, color: "var(--skill-" + t.colorKey + "-bright)", label: "Level progress" }),
+            moment ? el("div.am-gain-row", { role: "img", "aria-label": lv.correct + " of " + lv.target + " right first time" },
+              el("span", { style: { width: (r.levelStart || 0) / lv.target * 100 + "%", background: "var(--skill-" + t.colorKey + "-bright)" } }),
+              added > 0 ? el("span.am-gain", { style: { width: added / lv.target * 100 + "%" } }) : null) : null,
+            moment && added > 0 ? el("span.label", { style: { color: "var(--action-700)" } }, "+" + added + " towards the level") : null,
+            moment && r.bestRun >= 3 ? el("span", { style: { display: "inline-flex", alignItems: "center", gap: 4 } },
+              AM.Flame ? AM.Flame(20, true) : null, el("span.body-sm", null, r.bestRun + " in a row, your best this round")) : null,
+            moment ? null : AM.ProgressBar({ ratio: lv.correct / lv.target, height: 10, color: "var(--skill-" + t.colorKey + "-bright)", label: "Level progress" }),
             el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, levelNote))),
 
         newBadgesCard(r.badges || (r.badges = takeBadges(anyBadge))),
@@ -2339,7 +2402,6 @@
       ], { paddingBottom: 24 }),
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 20px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
-          AM.Button({ label: "Back to practice", fullWidth: true, onClick: function () { app.go("topics"); } }),
           AM.Button({ label: "Edit my card", variant: "ghost", fullWidth: true, onClick: function () { app.go("setup"); } })))
     };
   };

@@ -26,13 +26,23 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 57;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 58;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
     return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
   }
   function pad(n) { return (n < 10 ? "0" : "") + n; }
+  function dayBefore(iso) {
+    var d = new Date(iso + "T00:00:00");
+    d.setDate(d.getDate() - 1);
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
+  function weekOf(iso) {
+    var d = new Date(iso + "T00:00:00");
+    d.setDate(d.getDate() - weekdayIndex(iso));
+    return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+  }
   function daysBetween(a, b) {
     if (!a || !b) return null;
     var ms = new Date(b + "T00:00:00").getTime() - new Date(a + "T00:00:00").getTime();
@@ -73,7 +83,9 @@
       showcase: null,              /* up to three badge keys pinned on Profile; null shows the newest */
       reviewsFixed: 0,             /* missed questions put right in review, for Improver */
       welcomeDue: false,           /* back after a few days away: Welcome back on the next answer */
-      streakShownDay: null         /* the day the streak screen last showed */
+      streakShownDay: null,        /* the day the streak screen last showed */
+      forgivenDay: null,           /* the last missed day forgiven, so a streak carried on */
+      forgivenWeek: null           /* the week (its Monday) that day fell in: one a week */
     };
   }
 
@@ -155,17 +167,23 @@
     state.lastRolledDay = t;
 
     var gap = daysBetween(state.lastActiveDay, t);
+    /* One missed day a week is forgiven (decided 2026-10-31): a phone with no
+       data or a shared handset should not cost a learner their streak. Two
+       days in a row, or a second in the same week, still end it. */
     if (state.lastActiveDay && gap !== null && gap > 1) {
-      state.streakDays = 0;
-      state.resetToday = true;
+      var missed = dayBefore(t);
+      if (gap === 2 && state.forgivenWeek !== weekOf(missed)) {
+        state.forgivenDay = missed;
+        state.forgivenWeek = weekOf(missed);
+      } else {
+        state.streakDays = 0;
+        state.resetToday = true;
+      }
     }
     if (state.lastActiveDay && gap !== null && gap >= WELCOME_GAP) state.welcomeDue = true;
 
     /* Roll the week strip when we cross into a new Monday-based week. */
-    var idx = weekdayIndex(t);
-    var startOfWeek = new Date(t + "T00:00:00");
-    startOfWeek.setDate(startOfWeek.getDate() - idx);
-    var iso = startOfWeek.getFullYear() + "-" + pad(startOfWeek.getMonth() + 1) + "-" + pad(startOfWeek.getDate());
+    var iso = weekOf(t);
     if (state.weekStart !== iso) {
       state.weekStart = iso;
       state.week = [false, false, false, false, false, false, false];
@@ -178,10 +196,11 @@
     var t = today();
     if (state.lastActiveDay === t) return;
     var gap = daysBetween(state.lastActiveDay, t);
-    state.streakDays = gap === 1 ? state.streakDays + 1 : 1;
+    var carried = gap === 1 || (gap === 2 && state.forgivenDay === dayBefore(t));
+    state.streakDays = carried ? state.streakDays + 1 : 1;
     state.lastActiveDay = t;
     state.week[weekdayIndex(t)] = true;
-    if (gap === 1 || gap === null) state.resetToday = false;
+    if (carried || gap === null) state.resetToday = false;
     awardStreak();
     if (state.welcomeDue) { state.welcomeDue = false; award("welcome"); }
   }
@@ -725,6 +744,16 @@
     return s.attempts === s.correct;
   }
 
+  /* The next streak badge not yet earned, and how many days are left to it. */
+  function nextStreakBadge() {
+    var next = STREAK_BADGES.filter(function (n) { return !badgeOf("streak:" + n); })[0];
+    return next ? { days: next, left: Math.max(1, next - state.streakDays) } : null;
+  }
+  /* Yesterday was missed and forgiven: what Home and the streak screen say. */
+  function forgivenYesterday() {
+    return !!state.forgivenDay && state.forgivenDay === dayBefore(today());
+  }
+
   function awardStreak() {
     STREAK_BADGES.forEach(function (n) { if (state.streakDays >= n) award("streak:" + n); });
   }
@@ -923,6 +952,8 @@
     isPinned: isPinned,
     togglePin: togglePin,
     takeRecent: takeRecent,
+    nextStreakBadge: nextStreakBadge,
+    forgivenYesterday: forgivenYesterday,
     SHOWCASE_MAX: SHOWCASE_MAX,
     IMPROVER_FIXES: IMPROVER_FIXES,
     hasProgress: hasProgress,

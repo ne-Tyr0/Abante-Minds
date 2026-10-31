@@ -118,6 +118,9 @@ Settled with the project owner. Build on them; don't reopen them.
   one-question override that never changes the tier. Maths vocabulary is never translated.
   Tagalog and Cebuano first. Structure in `poc/language-ladder.js`.
 - **Hosting is GitHub Pages.**
+- **A level-up is the round's finish** (decided 2026-10-31): a level cleared at question 8
+  gets a small cue, and its moment after the last question. A round that does not clear
+  shows what it added on the level's bar, with no points or currency.
 - **Home has one main action** (decided 2026-10-31): a button inside the "Up next" card,
   with nothing pinned below the cards, since the Practice tab already opens the path. A
   round always starts afresh, so its button says Start or Practise, never Continue.
@@ -142,7 +145,9 @@ Settled with the project owner. Build on them; don't reopen them.
   soon. Progress from the tier model was reset; name, install state and streak were kept.
 - **A level clears at 8 answers right first time.** Retries and redoing missed questions
   never count. Every written topic is open; levels unlock in order within a topic. The
-  missed-day demotion went with tiers: a missed day now resets only the streak.
+  missed-day demotion went with tiers: a missed day now touches only the streak, and one
+  missed day a week is forgiven (decided 2026-10-31). Two in a row, or a second in the same
+  week, end it.
 - **Fractions are typed into boxes, and their form counts.** The right amount not in
   lowest terms, or not as a mixed number where one is asked for, is named as its own
   mistake rather than marked right: NCE options are written in lowest terms.
