@@ -261,6 +261,12 @@ p2 = f"""
       down to the exam, {EXAM_DAY}. A question missed comes back a day, three days and a week
       later, so it sticks.</p>
 
+      <h3>Quick rounds, for speed</h3>
+      <p>The exam is timed, so a challenge round builds speed on what is already cleared: a
+      60-second sprint, or a 90-second speed ladder that climbs as the learner gets questions
+      right. There are no lives, a miss costs only the seconds it took, and a round never changes
+      the path. Each mode keeps a personal best, with one go a day at today's challenge.</p>
+
       <div class="good">
         <b>Nothing leaves the phone.</b> There is no sign-up, no email, no analytics and no
         server. A learner's name and progress are kept on their own device and nowhere else.
@@ -377,7 +383,8 @@ p5 = f"""
           and, at the last level, a crown.</li>
         <li>A badge is shiny when every first try in its level was right.</li>
         <li>Special badges mark streaks of 3, 7, 14 and 30 days, practice exam scores of 60, 75
-          and 90 per cent, five missed questions put right, and coming back after time away.</li>
+          and 90 per cent, challenge rounds, five missed questions put right, and coming back
+          after time away.</li>
       </ul>
     </div>
     <div style="width:62mm;flex:none">{detail("detail_badges", "The collection. Up to three badges are pinned to the learner's profile.")}</div>
@@ -445,7 +452,7 @@ p7 = f"""
       <ul style="font-size:9pt;margin:0">
         <li>A level a day as homework: ten questions.</li>
         <li>The practice exam as a timed rehearsal: 20 questions in 30 minutes, with results by topic.</li>
-        <li>Basics facts as a warm-up before a lesson.</li>
+        <li>Basics facts or a 60-second sprint as a warm-up before a lesson.</li>
         <li>Missed questions come back on their own after one, three and seven days.</li>
       </ul>
     </div>
@@ -472,9 +479,9 @@ p8 = f"""
   <h2>Coming next, and what to know now</h2>
   <div class="rule"></div>
   <div class="grid2" style="margin-bottom:5mm">
-    {soon("A challenge round", "Two quick modes: a 60-second sprint, and a 90-second speed ladder that climbs as the learner gets questions right. Only levels already cleared, no lives, a personal best, challenge badges and a daily challenge.")}
     {soon("More questions", "New kinds of question and new wordings in every level, checked the same way as the ones there now.")}
     {soon("The other NCE subtests", "Science, verbal ability and abstract reasoning, each starting with a curriculum plan before any question is written.")}
+    {soon("A profile for each learner", "Brothers and sisters often share a phone, so each learner will have their own name and their own progress on it, still with no password.")}
     {soon("Moving progress to a new phone", "A way to carry a learner's progress to another phone, still with no account and no password.")}
   </div>
 
@@ -501,8 +508,8 @@ p8 = f"""
     <div style="display:flex;justify-content:space-between;align-items:center;gap:8mm">
       <div>
         <small class="muted">Status, {UPDATED}: all {len(TOPICS)} topics, Basics, the practice exam,
-        review of missed questions, badges, difficulty that follows the learner, and dark mode are
-        built and work offline. The challenge round, moving progress to a new phone, sharing
+        review of missed questions, badges, difficulty that follows the learner, the challenge round
+        and dark mode are built and work offline. Moving progress to a new phone, sharing
         answers with a researcher, and the other three subtests are not yet built.</small>
         {f'<p style="margin:3mm 0 0;font-size:9.5pt"><b>Questions or feedback:</b> {OWNER}, {CONTACT}</p>' if OWNER else ''}
       </div>
