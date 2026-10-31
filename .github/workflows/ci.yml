@@ -47,6 +47,9 @@ jobs:
       - name: Progress on the path and in Basics
         run: node tests/progress.js
 
+      - name: Readiness and the weekly look back
+        run: node tests/readiness.js
+
       - name: Challenge round
         run: node tests/challenge.js
 

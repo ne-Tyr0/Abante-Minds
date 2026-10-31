@@ -33,6 +33,7 @@ global.localStorage = {
 global.AM = {};
 new Function(read("app/content.js")).call(global);
 new Function(read("app/challenge.js")).call(global);
+new Function(read("app/readiness.js")).call(global);
 const manifest = pack("manifest.json");
 global.AM.content.use(manifest, manifest.topics.map((t) => pack(t.file)), manifest.basics.map((t) => pack(t.file)));
 const C = global.AM.content;
@@ -380,6 +381,19 @@ test("a round never moves the path, Basics or review", () => {
   const before = snap();
   S.recordChallenge("sprint", result({ score: 500, right: 40 }), false);
   assert.strictEqual(snap(), before);
+});
+test("readiness reaches the real path: its weights, and a cleared level moves it", () => {
+  const S = launch();
+  assert.ok(C.TOPICS.every((t) => t.weight > 0), "every topic carries its weight");
+  const before = S.readiness();
+  assert.strictEqual(before.percent, 0);
+  assert.strictEqual(before.started, false);
+  assert.strictEqual(before.topics.length, C.TOPICS.length);
+  clear(S, "decimals", "add-and-subtract");
+  const after = S.readiness();
+  assert.strictEqual(after.started, true);
+  assert.strictEqual(after.topics.find((t) => t.key === "decimals").band, "Getting started");
+  assert.ok(after.focus, "and it names where there is most to gain");
 });
 test("a saved record survives a reload", () => {
   const S = launch();

@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 61;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 62;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -85,7 +85,9 @@
       welcomeDue: false,           /* back after a few days away: Welcome back on the next answer */
       streakShownDay: null,        /* the day the streak screen last showed */
       forgivenDay: null,           /* the last missed day forgiven, so a streak carried on */
-      forgivenWeek: null           /* the week (its Monday) that day fell in: one a week */
+      forgivenWeek: null,          /* the week (its Monday) that day fell in: one a week */
+      rounds: null,                /* {day, n}: rounds finished today, for the daily goal */
+      recapSeen: null              /* the week (its Monday) whose look back was put away */
     };
   }
 
@@ -760,6 +762,54 @@
     return s.attempts === s.correct;
   }
 
+  /* ---------- today's goal ----------
+     One round finished a day. Small on purpose: it is a reason to open the app,
+     and a learner who does more is not told it was required. */
+  var DAILY_GOAL = 1;
+  function dailyGoal() {
+    var r = state.rounds && state.rounds.day === today() ? state.rounds.n : 0;
+    return { target: DAILY_GOAL, done: r, met: r >= DAILY_GOAL };
+  }
+  /* A round finished. Says whether this is the one that met today's goal. */
+  function recordRound() {
+    var before = dailyGoal().met;
+    state.rounds = { day: today(), n: dailyGoal().done + 1 };
+    commit();
+    return !before && dailyGoal().met;
+  }
+
+  /* ---------- a look back at last week ----------
+     Offered from the week after, until it is put away. Null if there was
+     nothing to look back on. */
+  function recap() {
+    var now = weekOf(today());
+    if (state.recapSeen === now) return null;
+    var d = new Date(now + "T00:00:00");
+    var to = d.getTime();
+    d.setDate(d.getDate() - 7);
+    var from = d.getTime();
+    var fromDay = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+    var w = AM.readiness.week(loadLog(), from, to);
+    if (!w) return null;
+    w.levels = Object.keys(state.badges || {}).filter(function (k) {
+      var b = state.badges[k];
+      return k.indexOf("lv:") === 0 && !b.before && b.at >= fromDay && b.at < now;
+    }).length;
+    return w;
+  }
+  function dismissRecap() {
+    state.recapSeen = weekOf(today());
+    commit();
+  }
+
+  /* How ready the learner is, across the path's topics and their weights. */
+  function readiness() {
+    return AM.readiness.overall(loadLog(), AM.content.TOPICS.filter(function (t) { return t.ready !== false; }).map(function (t) {
+      var p = topicPath(t);
+      return { key: t.key, label: t.label, cleared: p.cleared, total: p.total, weight: t.weight };
+    }));
+  }
+
   /* The next streak badge not yet earned, and how many days are left to it. */
   function nextStreakBadge() {
     var next = STREAK_BADGES.filter(function (n) { return !badgeOf("streak:" + n); })[0];
@@ -970,6 +1020,11 @@
     takeRecent: takeRecent,
     flushLog: flushLog,
     nextStreakBadge: nextStreakBadge,
+    readiness: readiness,
+    dailyGoal: dailyGoal,
+    recordRound: recordRound,
+    recap: recap,
+    dismissRecap: dismissRecap,
     forgivenYesterday: forgivenYesterday,
     SHOWCASE_MAX: SHOWCASE_MAX,
     IMPROVER_FIXES: IMPROVER_FIXES,

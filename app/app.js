@@ -666,8 +666,16 @@
     };
     app.scratch.result = result;
     store.set({ lastSession: { topicLabel: s.topicLabel, levelTitle: s.levelTitle, correct: s.correct, attempted: s.attempted } });
+    /* Redoing a few missed questions is not a round of its own. */
+    if (!s.redo) roundFinished();
     app.session = null;
     afterSession("summary");
+  }
+
+  /* Today's goal: the end of the round that meets it says so (screens.goalMet). */
+  function roundFinished() {
+    app.scratch.goalMet = store.recordRound();
+    if (app.scratch.goalMet && sound) sound.play("check");
   }
 
   /* The first session finished on a day goes by the streak screen on its
@@ -748,6 +756,7 @@
 
   function finishReview(s) {
     app.scratch.review = { attempted: s.attempted, correct: s.correct, due: store.reviewDue().length, next: store.reviewNext() };
+    roundFinished();
     app.session = null;
     afterSession("reviewDone");
   }
@@ -839,6 +848,7 @@
     byTopic.forEach(function (t) { topics[t.key] = [t.right, t.asked]; });
     var seconds = Math.min(EXAM_MINUTES * 60, Math.round((Date.now() - s.startedAt) / 1000));
     store.recordExam({ score: s.correct, total: s.questions.length, seconds: seconds, topics: topics });
+    roundFinished();
     app.scratch.exam = {
       score: s.correct, total: s.questions.length, seconds: seconds, timedOut: !!timedOut,
       byTopic: byTopic, questions: s.questions, answers: s.exam.answers
@@ -942,6 +952,7 @@
     challengeTimer = null;
     var r = { mode: g.mode, daily: g.daily, score: g.score, right: g.right, wrong: g.wrong, bestRun: g.bestRun, top: g.top };
     var kept = store.recordChallenge(g.mode, r, g.daily);
+    if (r.right + r.wrong > 0) roundFinished();
     r.better = kept.better;
     r.previous = kept.previous;
     app.scratch.challenge = r;

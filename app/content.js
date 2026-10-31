@@ -927,7 +927,7 @@
      in Basics, and its levels, never the templates themselves. */
   function publicTopic(t) {
     return {
-      key: t.key, label: t.label, icon: t.icon, colorKey: t.colorKey, ready: t.ready, track: t.track,
+      key: t.key, weight: t.weight, label: t.label, icon: t.icon, colorKey: t.colorKey, ready: t.ready, track: t.track,
       grid: !!t.grid,
       levels: t.levels.map(function (lv) {
         return {

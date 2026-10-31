@@ -31,6 +31,7 @@ node tests/facts.js            # the Basics drill: which facts a round asks, and
 node tests/insights.js         # strengths and gaps by kind of problem, from the attempt log
 node tests/progress.js         # the path's rules, Basics mastery, exams and the attempt log
 node tests/challenge.js        # the challenge round: scoring, the ladder, its questions, what it keeps
+node tests/readiness.js        # the readiness estimate and the weekly look back, from the attempt log
 node tests/validate-packs.js   # every question pack against the schema and the blueprint
 node tests/fuzz.js             # about two million generated questions; exits 1 on any violation
 node tests/item-spec.js        # the item specification generator: what it says about a template
@@ -56,7 +57,7 @@ third before it shipped: a pinned item on a template with more than one format c
 
 `tests/mutation/` breaks the engine, the entry rules, the facts drill, the strengths and
 gaps, the progress rules and the packs one way at a time and requires the tests to fail:
-`node tests/mutation/engine.js`, `challenge.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
+`node tests/mutation/engine.js`, `challenge.js`, `readiness.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -67,6 +68,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/entry.js` | What each keypad key does to the answer: one box for a number, numerator over denominator for a fraction, a whole number beside them for a mixed number |
 | `app/insights.js` | Strengths and gaps by kind of problem, from the attempt log, for Profile. Pure, like `facts.js` |
 | `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
+| `app/readiness.js` | The readiness estimate by topic and overall, and the weekly look back. Pure, from the attempt log, and takes its topics and weights as input |
 | `app/challenge.js` | The rules of the challenge round: the two modes, the scoring and the ladder. Pure, like `facts.js`; the questions are the engine's and the records the store's |
 | `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
@@ -126,6 +128,11 @@ Settled with the project owner. Build on them; don't reopen them.
   added after the owner saw it cut on a phone), with a soft fade rather than a blur, which
   costs a budget phone on every scroll. Each fade shows only while there is more to scroll
   that way.
+- **Reasons to come back, with no server** (decided 2026-10-31): a daily goal of one finished
+  round, a readiness estimate by topic, always labelled an estimate, and a look back at last
+  week. No reminders for now: reaching a closed app needs a server.
+- **A section covering only the NCE's own mathematics may come** (owner, 2026-10-31), rather
+  than all of MATATAG. `app/readiness.js` takes its topics and weights as input for that.
 - **Home has one main action** (decided 2026-10-31): a button inside the "Up next" card,
   with nothing pinned below the cards, since the Practice tab already opens the path. A
   round always starts afresh, so its button says Start or Practise, never Continue.
