@@ -462,9 +462,17 @@ html, body {
   background: linear-gradient(to top, var(--surface-100) 8%, transparent);
   opacity: 0; transition: opacity 160ms ease-out;
 }
-.am-scroll-edge-top::before { bottom: auto; top: 0; height: 40px; background: linear-gradient(to bottom, var(--surface-100) 8%, transparent); }
 .am-scroll-edge[data-on="true"]::before { opacity: 1; }
-.am-root[data-gold="true"] .am-scroll-edge { display: none; }
+/* The top one stays at the top of the scrolling area as it scrolls, taking no room. */
+.am-scroll-top { position: sticky; top: 0; flex: none; height: 0; z-index: 2; pointer-events: none; }
+.am-scroll-top::before {
+  content: ""; position: absolute; left: 0; right: 0; top: 0; height: 40px;
+  background: linear-gradient(to bottom, var(--surface-100) 8%, transparent);
+  opacity: 0; transition: opacity 160ms ease-out;
+}
+.am-scroll-top[data-on="true"]::before { opacity: 1; }
+.am-root[data-gold="true"] .am-scroll-edge,
+.am-root[data-gold="true"] .am-scroll-top { display: none; }
 
 /* A learner's name can be one long word: it wraps rather than leaving the screen. */
 .am-name { min-width: 0; overflow-wrap: anywhere; }

@@ -79,8 +79,11 @@
       rail: el("div.am-rail-slot"),
       banner: el("div.am-slot-banner"),
       header: el("div.am-slot-header"),
-      edgeTop: el("div.am-scroll-edge.am-scroll-edge-top", { "aria-hidden": "true" }),
       body: el("div.am-slot-body"),
+      /* Inside the scrolling area, not before it: on an iPhone the scrolling
+         area is drawn on its own layer, over anything placed before it, so a
+         fade there never showed (seen on the owner's phone, 2026-11-03). */
+      edgeTop: el("div.am-scroll-top", { "aria-hidden": "true" }),
       edge: el("div.am-scroll-edge", { "aria-hidden": "true" }),
       belowFold: el("div.am-slot-belowfold"),
       footer: el("div.am-slot-footer"),
@@ -89,7 +92,7 @@
 
     var frame = el("div.am-frame", null,
       slots.banner, slots.header,
-      slots.edgeTop, slots.body, slots.edge, slots.belowFold, slots.footer, slots.nav);
+      slots.body, slots.edge, slots.belowFold, slots.footer, slots.nav);
 
     slots.body.addEventListener("scroll", updateScrollEdges, { passive: true });
     window.addEventListener("resize", updateScrollEdges);
@@ -149,6 +152,7 @@
       animatedRoute = app.route;
     }
     fill(slots.body, body);
+    slots.body.insertBefore(slots.edgeTop, slots.body.firstChild);
     fill(slots.belowFold, view.belowFold || null);
     fill(slots.footer, view.footer || null);
 
