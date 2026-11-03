@@ -1776,6 +1776,12 @@
      rolls on by one, today's day fills in on the week, and any streak or
      Welcome back badge earned with it is shown. Then back to the summary. */
   var DAY_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
+  var MILESTONE_LINES = {
+    3: "Three days in a row. A habit is starting.",
+    7: "A whole week of practice. This is how it sticks.",
+    14: "Two weeks in a row. That's real work.",
+    30: "Thirty days in a row. It's part of your day now."
+  };
   screens.streak = function (app) {
     var s = store.get();
     var view = app.scratch.streak || (app.scratch.streak = { played: false, badges: takeBadges(function (k) { return k.indexOf("streak:") === 0 || k === "welcome"; }) });
@@ -1792,6 +1798,20 @@
     }));
     var copy = days > 1 ? "Come back tomorrow to make it " + (days + 1) + "." : "Practise again tomorrow to start a streak.";
     if (store.forgivenYesterday()) copy = "Yesterday was forgiven: one missed day a week doesn't break your streak. " + copy;
+    /* A streak badge earned today makes this a milestone: its own line, and
+       a picture of the streak to share (app/share.js). */
+    var mile = AM.share ? AM.share.milestone(view.badges) : null;
+    if (mile) copy = MILESTONE_LINES[mile] + " " + copy;
+    var draw = function () {
+      return view.drawn || (view.drawn = AM.share.picture(days, s.profile && s.profile.name).then(function (b) { view.blob = b; return b; }));
+    };
+    var share = mile ? AM.Button({ label: "Share", variant: "ghost", iconLeft: "share", fullWidth: true, onClick: function () {
+      /* Straight from the tap when the picture is ready, as phones require. */
+      (view.blob ? AM.share.send(view.blob, days) : draw().then(function (b) { return AM.share.send(b, days); })).then(function (how) {
+        if (how === "saved") AM.announce("Picture saved.");
+        if (how === "failed") AM.announce("This phone could not share the picture.");
+      });
+    } }) : null;
     var fresh = newBadgesCard(view.badges);
     var go = function () {
       if (view.tl) view.tl.skip();
@@ -1799,8 +1819,9 @@
       app.scratch.streak = null;
       app.go(next);
     };
-    var body = el("div.am-streak", { style: { "--gutter": gutter() + "px", position: "relative" } },
+    var body = el("div.am-streak" + (mile ? ".am-streak-mile" : ""), { style: { "--gutter": gutter() + "px", position: "relative" } },
       el("div.am-streak-glow", { "aria-hidden": "true" }),
+      mile ? el("span.am-mile-chip.caption", null, "Milestone") : null,
       el("div", { style: { position: "relative", lineHeight: 0 } }, fl),
       num,
       el("div.am-streak-label", null, days === 1 ? "day of practice!" : "day streak!"),
@@ -1808,11 +1829,12 @@
       fresh ? el("div", { style: { width: "100%", maxWidth: 420, textAlign: "left" } }, fresh) : null,
       el("p.body", { style: { color: "var(--ink-600)", margin: "14px 0 0", maxWidth: 300, textWrap: "balance" } }, copy));
     var footer = el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center", background: "var(--surface-200)" } },
-      el("div", { style: { width: "100%", maxWidth: 520 } }, AM.Button({ label: "Continue", fullWidth: true, cta: true, onClick: go })));
+      el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } }, share, AM.Button({ label: "Continue", fullWidth: true, cta: true, onClick: go })));
     return {
       nav: null, chrome: false, body: body, footer: footer, onBack: go,
       after: function () {
-        AM.announce(days + (days === 1 ? " day of practice." : " day streak."));
+        AM.announce(days + (days === 1 ? " day of practice." : " day streak.") + (mile ? " " + MILESTONE_LINES[mile] : ""));
+        if (mile) draw();
         var m = window.AbanteMinds && window.AbanteMinds.moments;
         if (!m) return;
         var tl = view.tl = new m.Timeline(), E = m.ease, sound = window.AbanteMinds.sound;
@@ -1823,6 +1845,11 @@
         tl.call(play("ignite"), 0.15)
           .to(num, [{ opacity: 0, transform: "translateY(16px)" }, { opacity: 1, transform: "none" }], 450, 0.6);
         if (days > 1) tl.to(num.firstChild, [{ transform: "translateY(0)" }, { transform: "translateY(-50%)" }], 600, 1.0, E.back).call(play("roll"), 1.0);
+        if (mile) {
+          tl.to(body.querySelector(".am-mile-chip"), [{ opacity: 0, transform: "translateY(-8px)" }, { opacity: 1, transform: "none" }], 400, 0.3)
+            .call(function () { var p = m.centre(num); m.FX.stars(p.x, p.y, 14, ["#ffd23f", "#ff8a15", "#ffb000"]); }, 1.3)
+            .call(play("fanfare"), 1.3);
+        }
         tl.to(num, [{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], 650, 1.25, E.backSoft)
           .to(body.querySelector(".am-streak-label"), [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], 450, 1.35)
           .to(week, [{ opacity: 0, transform: "translateY(20px)" }, { opacity: 1, transform: "none" }], 500, 1.75);
@@ -1837,7 +1864,7 @@
         var cards = body.querySelectorAll(".am-card");
         if (cards.length) tl.to(cards[0], [{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], 450, 2.85).call(play("sparkle"), 2.9);
         tl.to(body.querySelector("p.body"), [{ opacity: 0 }, { opacity: 1 }], 450, 3.1)
-          .to(footer, [{ transform: "translateY(110px)" }, { transform: "none" }], 500, 3.3, E.backSoft);
+          .to(footer, [{ transform: "translateY(" + (mile ? 180 : 110) + "px)" }, { transform: "none" }], 500, 3.3, E.backSoft);
         if (view.played || m.reduced()) tl.skip();
         else body.addEventListener("click", function () { tl.skip(); });
         view.played = true;
@@ -1887,6 +1914,40 @@
     };
   };
 
+  /* The round in three numbers. Each tile says what it shows in a word, and
+     the numbers count up once when the summary opens (Duolingo's end of
+     lesson, kept calm: no points, no speed praise). */
+  function accuracyWord(pct) { return pct === 100 ? "Perfect" : pct >= 80 ? "Sharp" : pct >= 50 ? "Steady" : "Building"; }
+  function resultTiles(r) {
+    var pct = r.attempted ? Math.round(100 * r.correct / r.attempted) : 0;
+    function tile(kind, word, value, suffix, caption) {
+      return el("div.am-tile.am-tile-" + kind, null,
+        el("div.am-tile-word.caption", null, word),
+        el("div.am-tile-face", null,
+          el("span.am-tile-num.heading-lg", { "data-to": value, "data-suffix": suffix }, value + suffix),
+          el("span.caption", { style: { color: "var(--ink-600)" } }, caption)));
+    }
+    return el("div.am-tiles", { style: { padding: "18px " + gutter() + "px 0" } },
+      tile("acc", accuracyWord(pct), pct, "%", "right first time"),
+      tile("run", "Best run", r.bestRun || 0, "", "in a row"),
+      tile("time", "Time", r.minutes, "", r.minutes === 1 ? "minute" : "minutes"));
+  }
+  function countTiles(tiles, r) {
+    var m = window.AbanteMinds && window.AbanteMinds.moments;
+    if (!tiles || r.counted || !m || m.reduced()) { r.counted = true; return; }
+    r.counted = true;
+    var tl = new m.Timeline(), sound = window.AbanteMinds.sound;
+    Array.prototype.forEach.call(tiles.querySelectorAll(".am-tile"), function (t, i) {
+      var num = t.querySelector(".am-tile-num"), at = 0.15 + i * 0.28;
+      num.textContent = "0" + num.dataset.suffix;
+      delete num.dataset.done;
+      tl.to(t, [{ opacity: 0, transform: "translateY(14px) scale(0.96)" }, { opacity: 1, transform: "none" }], 380, at, m.ease.backSoft)
+        .call(function () { m.count(num, Number(num.dataset.to), num.dataset.suffix, 650); if (sound) sound.play("pop"); }, at + 0.1)
+        .call(function () { num.dataset.done = "1"; num.textContent = num.dataset.to + num.dataset.suffix; }, at + 0.8, true);
+    });
+    tiles.addEventListener("click", function () { tl.skip(); });
+  }
+
   screens.summary = function (app) {
     var r = app.scratch.result;
     if (!r) { app.go("home"); return screens.home(app); }
@@ -1894,15 +1955,6 @@
     var lv = t.levels.filter(function (x) { return x.id === r.levelId; })[0];
     if (r.facts) return factsSummary(app, r, t, lv);
     var nextLevel = t.levels[lv.number] || null;
-
-    function stat(value, label) {
-      return el("div", {
-        style: {
-          background: "var(--surface-200)", borderRadius: "var(--radius-md)",
-          boxShadow: "var(--shadow-card)", padding: "var(--space-3)", textAlign: "center"
-        }
-      }, el("div.heading-lg", null, String(value)), el("div.caption", { style: { color: "var(--ink-600)" } }, label));
-    }
 
     var missed = r.missed.length;
     var levelNote = r.redo ? "Redoing missed questions keeps your streak but does not count towards the level."
@@ -1917,6 +1969,7 @@
       : r.attempted && r.correct === r.attempted ? "Perfect round!"
       : r.correct >= 7 ? "Great round!" : r.correct >= 4 ? "Good practice!" : "Round done";
 
+    var tiles = resultTiles(r);
     var primary = (lv.cleared && nextLevel && nextLevel.unlocked && !nextLevel.cleared)
       ? AM.Button({ label: "Start level " + nextLevel.number, fullWidth: true, onClick: function () { app.startLevel(r.topicKey, nextLevel.id); } })
       : AM.Button({ label: lv.cleared ? "Review this level" : "Practise again", fullWidth: true, onClick: function () { app.startLevel(r.topicKey, r.levelId); } });
@@ -1925,6 +1978,7 @@
       nav: "practice", bottomNav: false,
       banner: connectionBanner(),
       after: function () {
+        countTiles(tiles, r);
         if (r.sounded || !moment || added <= 0) return;
         r.sounded = true;
         var sound = window.AbanteMinds && window.AbanteMinds.sound;
@@ -1937,8 +1991,7 @@
             r.topicLabel + " · Level " + r.levelNumber + " · " + r.minutes + " minute" + (r.minutes === 1 ? "" : "s"))),
 
         goalMet(app),
-        el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 10 } },
-          stat(r.attempted, "attempted"), stat(r.correct, "right first time"), stat(lv.correct + "/" + lv.target, "level")),
+        tiles,
 
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 10 } },
@@ -1947,8 +2000,6 @@
               el("span", { style: { width: (r.levelStart || 0) / lv.target * 100 + "%", background: "var(--skill-" + t.colorKey + "-bright)" } }),
               added > 0 ? el("span.am-gain", { style: { width: added / lv.target * 100 + "%" } }) : null) : null,
             moment && added > 0 ? el("span.label", { style: { color: "var(--action-700)" } }, "+" + added + " towards the level") : null,
-            moment && r.bestRun >= 3 ? el("span", { style: { display: "inline-flex", alignItems: "center", gap: 4 } },
-              AM.Flame ? AM.Flame(20, true) : null, el("span.body-sm", null, r.bestRun + " in a row, your best this round")) : null,
             moment ? null : AM.ProgressBar({ ratio: lv.correct / lv.target, height: 10, color: "var(--skill-" + t.colorKey + "-bright)", label: "Level progress" }),
             el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, levelNote))),
 

@@ -143,11 +143,15 @@
   })();
 
   /* A number counting up to `to`, easing out, ending exactly on it with its
-     suffix. */
+     suffix. Its clock starts on its first frame: a frame's time can be a
+     little earlier than the call, which made the first value negative. A
+     number marked done (data-done) is left as it was set. */
   function count(el, to, suffix, ms) {
     if (!el) return;
-    var start = performance.now();
+    var start = null;
     function frame(now) {
+      if (el.dataset && el.dataset.done) return;
+      if (start === null) start = now;
       var t = Math.min(1, (now - start) / ms);
       el.textContent = Math.round(to * (1 - Math.pow(1 - t, 2))) + (suffix || "");
       if (t < 1 && el.isConnected) requestAnimationFrame(frame);
