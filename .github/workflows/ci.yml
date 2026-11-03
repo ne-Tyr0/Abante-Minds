@@ -53,6 +53,9 @@ jobs:
       - name: Challenge round
         run: node tests/challenge.js
 
+      - name: Streak milestone picture and counting numbers
+        run: node tests/share.js
+
       - name: Question packs are valid
         run: node tests/validate-packs.js
 

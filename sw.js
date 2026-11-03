@@ -4,7 +4,7 @@
    lives in localStorage and never leaves the phone. */
 "use strict";
 
-var CACHE = "abante-minds-v63";
+var CACHE = "abante-minds-v64";
 
 var SHELL = [
   "./",
@@ -26,6 +26,7 @@ var SHELL = [
   "app/readiness.js",
   "app/store.js",
   "app/screens.js",
+  "app/share.js",
   "app/app.js",
   /* The question pack. content.js fetches it on every launch, so it must be
      here for the first launch with no signal. */

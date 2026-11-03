@@ -57,7 +57,7 @@ third before it shipped: a pinned item on a template with more than one format c
 
 `tests/mutation/` breaks the engine, the entry rules, the facts drill, the strengths and
 gaps, the progress rules and the packs one way at a time and requires the tests to fail:
-`node tests/mutation/engine.js`, `challenge.js`, `readiness.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
+`node tests/mutation/engine.js`, `challenge.js`, `readiness.js`, `share.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -70,6 +70,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
 | `app/readiness.js` | The readiness estimate by topic and overall, and the weekly look back. Pure, from the attempt log, and takes its topics and weights as input |
 | `app/challenge.js` | The rules of the challenge round: the two modes, the scoring and the ladder. Pure, like `facts.js`; the questions are the engine's and the records the store's |
+| `app/share.js` | The streak milestone picture: when a streak is a milestone, what the picture may say, drawing it on a canvas and handing it to the phone's share menu |
 | `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
 | `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak, missed questions due for review, practice exams, and the attempt log under its own key |
@@ -124,6 +125,14 @@ Settled with the project owner. Build on them; don't reopen them.
 - **A level-up is the round's finish** (decided 2026-10-31): a level cleared at question 8
   gets a small cue, and its moment after the last question. A round that does not clear
   shows what it added on the level's bar, with no points or currency.
+- **A round ends on three named tiles that count up** (decided 2026-11-03): right first
+  time with a word (Perfect, Sharp, Steady, Building), best run, and minutes. No points,
+  no speed praise. They play once and Calm animations skips them.
+- **A streak milestone can be shared as a picture, and nothing is uploaded** (decided
+  2026-11-03). At a streak badge (3, 7, 14, 30 days) the streak screen becomes a milestone
+  and offers Share. The picture is drawn on the phone and goes only where the learner
+  sends it. It carries the streak and the first word of the name, never a surname,
+  school, code or score.
 - **Content fades away at both ends of the scrolling area** (decided 2026-10-31; the top
   added after the owner saw it cut on a phone), with a soft fade rather than a blur, which
   costs a budget phone on every scroll. Each fade shows only while there is more to scroll

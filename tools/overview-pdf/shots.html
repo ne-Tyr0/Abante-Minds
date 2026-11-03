@@ -353,6 +353,37 @@ function run() {
         AM.app.go("badges");
         AM.openBadge("lv:decimals/compare-and-round");
         break;
+      /* Not in the PDF: a stronger round, for reviewing the result tiles. */
+      case "summary-sharp":
+        AM.app.startLevel("decimals", "add-and-subtract");
+        AM.app.scratch.result = {
+          topicKey: "decimals", topicLabel: "Decimals", colorKey: 1,
+          levelId: "add-and-subtract", levelTitle: "Add and subtract", levelNumber: 3, redo: false,
+          attempted: 10, correct: 8, levelStart: 0, bestRun: 6, missed: AM.app.session.questions.slice(0, 2), minutes: 7
+        };
+        AM.app.session = null;
+        AM.app.go("summary");
+        break;
+      /* Not in the PDF: the first round of the seventh day in a row, which
+         earns the 7-day badge and makes the streak screen a milestone. */
+      case "streak-milestone":
+        AM.store.set({ streakDays: 6, lastActiveDay: before, profile: { name: "Maya Santos", school: "", colorKey: 1, iconKey: "triangle" } });
+        AM.store.takeRecent();
+        AM.store.recordAnswer("decimals", "add-and-subtract", true, true);
+        AM.app.scratch.afterStreak = "home";
+        AM.app.go("streak");
+        AM.app.scratch.streak.tl.skip();
+        break;
+      /* Not in the PDF: the picture a milestone shares, drawn by the app. */
+      case "share-picture":
+        AM.share.picture(7, "Maya Santos").then(function (blob) {
+          var img = document.createElement("img");
+          img.style.cssText = "position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#f6f8fc;z-index:9";
+          img.onload = function () { settle(w, screen); };
+          img.src = URL.createObjectURL(blob);
+          document.body.appendChild(img);
+        });
+        return;
       case "summary":
         AM.app.startLevel("decimals", "add-and-subtract");
         AM.app.scratch.result = {
