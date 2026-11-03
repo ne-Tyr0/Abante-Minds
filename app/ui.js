@@ -113,29 +113,60 @@
 
   /* ---------- ProfileCard ----------
      The personalised ID-card moment at login, reused on the profile tab. */
-  var SKILL_INK = { 1: "var(--skill-1-bright)", 2: "var(--skill-2-bright)", 3: "var(--skill-3-bright)", 4: "var(--skill-4-bright)" };
+  var SKILL_INK = { 1: "var(--skill-1-bright)", 2: "var(--skill-2-bright)", 3: "var(--skill-3-bright)", 4: "var(--skill-4-bright)",
+    5: "var(--skill-5-bright)", 6: "var(--skill-6-bright)" };
+
+  /* From the reward road: frames are rings round the card, patterns a faint
+     tile behind it in the card's own colour. Binakol is drawn after the
+     Ilocano weave's whirl of squares, not copied from any cloth. */
+  var CARD_FRAMES = {
+    silver: "0 0 0 3px #c3cdd9, 0 0 0 4px rgba(22, 32, 44, 0.08)",
+    gold: "0 0 0 3px #f5b400, 0 0 0 7px rgba(245, 180, 0, 0.22)",
+    year: "0 0 0 3px #8b5cf6, 0 0 0 6px #f5b400"
+  };
+  var CARD_PATTERNS = {
+    binakol: { w: 24, h: 24, d: '<rect x="2" y="2" width="20" height="20" fill="none" stroke="C" stroke-width="2"/><rect x="6.5" y="6.5" width="11" height="11" transform="rotate(18 12 12)" fill="none" stroke="C" stroke-width="2"/><rect x="9.8" y="9.8" width="4.4" height="4.4" transform="rotate(36 12 12)" fill="C"/>' },
+    triangles: { w: 24, h: 21, d: '<path d="M0 21L12 0L24 21Z" fill="C"/>' },
+    hexagons: { w: 24, h: 41.6, d: '<path d="M12 0L24 6.9V20.8L12 27.7L0 20.8V6.9ZM12 27.7V41.6" fill="none" stroke="C" stroke-width="1.6"/>' },
+    stars: { w: 28, h: 28, d: '<path d="M7 1Q7 7 13 7Q7 7 7 13Q7 7 1 7Q7 7 7 1ZM21 15Q21 21 27 21Q21 21 21 27Q21 21 15 21Q21 21 21 15Z" fill="C"/>' }
+  };
+  var patternIds = 0;
+  /* A pattern tile filling its parent, in a colour (any CSS colour). */
+  function CardPattern(key, colour, opacity) {
+    var p = CARD_PATTERNS[key];
+    if (!p) return null;
+    var id = "am-pat-" + (++patternIds), wrap = el("span", { "aria-hidden": "true", style: { position: "absolute", inset: 0, pointerEvents: "none", opacity: opacity === undefined ? 0.14 : opacity } });
+    wrap.innerHTML = '<svg width="100%" height="100%" style="display:block"><defs><pattern id="' + id + '" width="' + p.w + '" height="' + p.h +
+      '" patternUnits="userSpaceOnUse">' + p.d.split('"C"').join('"' + colour + '"') + '</pattern></defs><rect width="100%" height="100%" fill="url(#' + id + ')"/></svg>';
+    return wrap;
+  }
 
   function ProfileCard(o) {
     o = o || {};
     var name = o.name || "there";
     var greeting = o.greeting === undefined ? "Hello, " : o.greeting;
     var style = {
+      position: "relative", overflow: "hidden",
       display: "flex", alignItems: "center", gap: "var(--space-4)",
       padding: "var(--space-4)", borderRadius: "var(--radius-md)",
-      background: "var(--surface-200)", boxShadow: "var(--shadow-card)", maxWidth: 320
+      background: "var(--surface-200)", boxShadow: (CARD_FRAMES[o.frame] ? CARD_FRAMES[o.frame] + ", " : "") + "var(--shadow-card)", maxWidth: 320
     };
     if (o.style) Object.keys(o.style).forEach(function (k) { style[k] = o.style[k]; });
+    /* A frame's outer ring is drawn outside the card, so it must not be cut. */
+    if (CARD_FRAMES[o.frame]) style.overflow = "visible";
 
     return el("div.am-reset", { style: style },
+      o.pattern ? el("span", { "aria-hidden": "true", style: { position: "absolute", inset: 0, borderRadius: "inherit", overflow: "hidden", pointerEvents: "none" } },
+        CardPattern(o.pattern, SKILL_INK[o.colorKey] || SKILL_INK[2])) : null,
       el("div.heading-sm", {
         style: {
           width: 52, height: 52, borderRadius: "var(--radius-md)",
           display: "flex", alignItems: "center", justifyContent: "center",
           fontWeight: 700, color: "var(--ink-inverse)",
-          background: SKILL_INK[o.colorKey] || SKILL_INK[2], flexShrink: 0
+          background: SKILL_INK[o.colorKey] || SKILL_INK[2], flexShrink: 0, position: "relative"
         }
       }, o.iconKey ? icon(o.iconKey, 24) : (o.initial || String(name).slice(0, 1).toUpperCase())),
-      el("div.am-name", null,
+      el("div.am-name", { style: { position: "relative" } },
         el("div.heading-sm", { style: { color: "var(--ink-900)" } }, greeting + name),
         o.school ? el("div.body-sm", { style: { color: "var(--ink-600)" } }, o.school) : null
       )
@@ -1074,6 +1105,8 @@
   AM.clear = clear;
   AM.Button = Button;
   AM.ProfileCard = ProfileCard;
+  AM.CardPattern = CardPattern;
+  AM.CARD_FRAMES = CARD_FRAMES;
   AM.PracticeHeader = PracticeHeader;
   AM.SkillCard = SkillCard;
   AM.CelebrationBanner = CelebrationBanner;

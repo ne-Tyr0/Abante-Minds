@@ -57,7 +57,7 @@ third before it shipped: a pinned item on a template with more than one format c
 
 `tests/mutation/` breaks the engine, the entry rules, the facts drill, the strengths and
 gaps, the progress rules and the packs one way at a time and requires the tests to fail:
-`node tests/mutation/engine.js`, `challenge.js`, `readiness.js`, `share.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
+`node tests/mutation/engine.js`, `challenge.js`, `readiness.js`, `share.js`, `road.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -70,7 +70,8 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/facts.js` | The Basics drill: which facts a round asks, and where a missed one comes back. Pure, like `entry.js`; mastery itself is the store's |
 | `app/readiness.js` | The readiness estimate by topic and overall, and the weekly look back. Pure, from the attempt log, and takes its topics and weights as input |
 | `app/challenge.js` | The rules of the challenge round: the two modes, the scoring and the ladder. Pure, like `facts.js`; the questions are the engine's and the records the store's |
-| `app/share.js` | The streak milestone picture: when a streak is a milestone, what the picture may say, drawing it on a canvas and handing it to the phone's share menu |
+| `app/share.js` | Pictures made on the phone: the streak milestone picture and the reward road's certificate, drawn on a canvas and handed to the phone's share menu |
+| `app/road.js` | The reward road: its steps, which streaks are milestones, how a step opens, what the steps give, the shield cap. Pure; the store keeps what the learner has from it |
 | `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
 | `app/store.js` | All learner state, in `localStorage`: progress level by level, each Basics fact, the streak, missed questions due for review, practice exams, and the attempt log under its own key |
@@ -129,10 +130,28 @@ Settled with the project owner. Build on them; don't reopen them.
   time with a word (Perfect, Sharp, Steady, Building), best run, and minutes. No points,
   no speed praise. They play once and Calm animations skips them.
 - **A streak milestone can be shared as a picture, and nothing is uploaded** (decided
-  2026-11-03). At a streak badge (3, 7, 14, 30 days) the streak screen becomes a milestone
-  and offers Share. The picture is drawn on the phone and goes only where the learner
+  2026-11-03). At a milestone of the reward road (3, 7, 14, 30, 50, 100, 150, 200, 250,
+  300, 365, 400, 500 and every 100 after) the streak screen becomes a milestone and
+  offers Share. The picture is drawn on the phone and goes only where the learner
   sends it. It carries the streak and the first word of the name, never a surname,
   school, code or score.
+- **The reward road: one permanent ladder of rewards, no seasons, nothing to buy**
+  (decided 2026-11-03, after the owner asked about a battle pass). Each step opens with a
+  streak (the best ever) or with levels cleared, path and Basics together, whichever comes
+  first, so a child on a shared phone still moves along. A step reached stays reached.
+  Rewards are card colours, frames and patterns, flame colours, streak shields and
+  certificates; never learning locked away, never random. Rewards not reached show
+  locked in the card editor; Home does not show the road.
+- **Streak shields are used by themselves** (decided 2026-11-03). The free day a week
+  still covers only one missed day of an absence; a shield covers each other missed day.
+  Two are held at most. If the days cannot all be covered, the streak ends and no shield
+  is spent.
+- **Card patterns are binakol-inspired and mathematical, never an indigenous community's
+  designs** (decided 2026-11-03). T'nalak is T'boli and dream-given; under IPRA its use
+  needs the community's free, prior and informed consent. Binakol (Ilocano inabel) is
+  credited as the inspiration where it is used.
+- **A certificate carries the name as typed**, what it was earned by and the date; no
+  school, no score. The share picture keeps to the first name.
 - **Content fades away at both ends of the scrolling area** (decided 2026-10-31; the top
   added after the owner saw it cut on a phone), with a soft fade rather than a blur, which
   costs a budget phone on every scroll. Each fade shows only while there is more to scroll

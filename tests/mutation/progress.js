@@ -65,12 +65,30 @@ const M = [
   ["catalog explains an earned badge", "          left: !b && !!levelState(t.key, lv.id).left", "          left: !!levelState(t.key, lv.id).left"],
   ["ladder ends on Champion", "    if (number >= total) return TIERS[5];", "    if (number >= total) return TIERS[4];"],
   ["ladder not spread", "    return TIERS[Math.min(4, Math.max(1, Math.round((number - 1) / (total - 1) * 5)))];", "    return TIERS[Math.min(4, number - 1)];"],
-  ["no missed day is forgiven", "if (gap === 2 && state.forgivenWeek !== weekOf(missed)) {", "if (false) {"],
-  ["two missed days are forgiven", "if (gap === 2 && state.forgivenWeek !== weekOf(missed)) {", "if (state.forgivenWeek !== weekOf(missed)) {"],
-  ["any number of missed days a week", "if (gap === 2 && state.forgivenWeek !== weekOf(missed)) {", "if (gap === 2) {"],
-  ["the week not kept", "        state.forgivenWeek = weekOf(missed);\n", ""],
-  ["the week of coming back counts", "state.forgivenWeek !== weekOf(missed)", "state.forgivenWeek !== weekOf(t)"],
-  ["a forgiven day does not carry the streak", "(gap === 2 && state.forgivenDay === dayBefore(t))", "false"],
+  ["no missed day is forgiven", "if (!forgiven && missed[i].week !== usedWeek) forgiven = missed[i].day;", "if (false) forgiven = missed[i].day;"],
+  ["two missed days are forgiven", "if (!forgiven && missed[i].week !== usedWeek) forgiven = missed[i].day;", "if (missed[i].week !== usedWeek) forgiven = missed[i].day;"],
+  ["any number of missed days a week", "if (!forgiven && missed[i].week !== usedWeek) forgiven = missed[i].day;", "if (!forgiven) forgiven = missed[i].day;"],
+  ["the week not kept", "state.forgivenDay = got.forgiven; state.forgivenWeek = weekOf(got.forgiven);", "state.forgivenDay = got.forgiven;"],
+  ["the week of coming back counts", "missed.unshift({ day: d, week: weekOf(d) });", "missed.unshift({ day: d, week: weekOf(t) });"],
+  ["a forgiven day does not carry the streak", "(gap > 1 && state.bridgedTo === dayBefore(t)) || (gap === 2 && state.forgivenDay === dayBefore(t))", "false"],
+  // streak shields and the reward road
+  ["shields never used", "else if (used < shields) used++;", "else if (false) used++;"],
+  ["shields without limit", "else if (used < shields) used++;", "else if (true) used++;"],
+  ["a shield not spent", "          road.shields -= got.shields;\n", ""],
+  ["shields spent when the streak ends anyway", "      } else {\n        state.streakDays = 0;\n        state.resetToday = true;\n      }\n    }", "      } else {\n        road.shields = 0;\n        state.streakDays = 0;\n        state.resetToday = true;\n      }\n    }"],
+  ["no record of a save", "          state.shieldSave = { day: t, used: got.shields, streak: state.streakDays };\n", ""],
+  ["a save told on later days", "return state.shieldSave && state.shieldSave.day === today() ? state.shieldSave : null;", "return state.shieldSave || null;"],
+  ["an absence bridged is not carried", "(gap > 1 && state.bridgedTo === dayBefore(t)) || ", ""],
+  ["an old forgiven day not carried", " || (gap === 2 && state.forgivenDay === dayBefore(t))", ""],
+  ["the longest streak not kept", "    if (state.streakDays > (state.bestStreak || 0)) state.bestStreak = state.streakDays;\n", ""],
+  ["streak badges not counted as the longest", "    STREAK_BADGES.forEach(function (n) { if (badgeOf(\"streak:\" + n)) best = Math.max(best, n); });\n", ""],
+  ["levels cleared not counted", "return Object.keys(state.badges || {}).filter(function (k) { return k.indexOf(\"lv:\") === 0; }).length;", "return 0;"],
+  ["how a step was reached not kept", "r.log[s.n] = { by: AM.road.reachedBy(s, best, levels), day: today() };", "r.log[s.n] = { day: today() };"],
+  ["shields not given", "      r.shields = AM.road.credit(r.shields, s.rewards.filter(function (x) { return x.kind === \"shield\"; }).length);\n", ""],
+  ["shields not capped", "      r.shields = AM.road.credit(r.shields, s.rewards.filter(function (x) { return x.kind === \"shield\"; }).length);", "      r.shields += s.rewards.filter(function (x) { return x.kind === \"shield\"; }).length;"],
+  ["new steps given again", "if (out.length) { r.seen = r.reached; commit(); }", "if (out.length) { commit(); }"],
+  ["a step can be lost", "    if (n > r.reached) r.reached = n;", "    r.reached = n;"],
+  ["a badge gone from the collection shown", "return !!(badges[k] && findBadge(k, cat));", "return !!badges[k];"],
   ["any two-day gap carries the streak", "(gap === 2 && state.forgivenDay === dayBefore(t))", "gap === 2"],
   ["the missed day counts as a day", "carried ? state.streakDays + 1 : 1", "carried ? state.streakDays + gap : 1"],
   ["forgiven for days after", "return !!state.forgivenDay && state.forgivenDay === dayBefore(today());", "return !!state.forgivenDay;"],
@@ -151,6 +169,7 @@ const M = [
 fs.mkdirSync(path.join(WORK, "app"), { recursive: true });
 fs.mkdirSync(path.join(WORK, "tests"), { recursive: true });
 fs.copyFileSync(path.join(REPO, "tests/progress.js"), path.join(WORK, "tests/progress.js"));
+fs.copyFileSync(path.join(REPO, "app/road.js"), path.join(WORK, "app/road.js"));
 let caught = 0;
 for (const [name, from, to] of M) {
   if (SRC.split(from).length !== 2) { console.log(`BAD   ${name}: pattern not found once`); continue; }
