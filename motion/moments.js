@@ -179,10 +179,10 @@
   function Flame(size, lit) {
     var w = AM.el("span.am-flame", { "aria-hidden": "true", style: { display: "inline-flex", width: size, height: Math.round(size * 1.05), flex: "none" } });
     w.innerHTML = '<svg viewBox="0 -12 256 268" width="100%" height="100%" style="overflow:visible;display:block">' +
-      '<path class="am-f-shelf" transform="translate(0 10)" style="fill:var(--action-700)" d="' + REST + '"/>' +
-      '<path class="am-f-body" style="fill:var(--action-500)" d="' + REST + '"/>' +
-      '<g transform="translate(128 236) scale(0.6) translate(-128 -236)"><path class="am-f-mid" style="fill:#ffb000" d="' + REST + '"/></g>' +
-      '<g transform="translate(128 236) scale(0.3) translate(-128 -236)"><path class="am-f-core" style="fill:#fff1b8" d="' + REST + '"/></g></svg>';
+      '<path class="am-f-shelf" transform="translate(0 10)" style="fill:var(--flame-shelf, var(--action-700))" d="' + REST + '"/>' +
+      '<path class="am-f-body" style="fill:var(--flame-body, var(--action-500))" d="' + REST + '"/>' +
+      '<g transform="translate(128 236) scale(0.6) translate(-128 -236)"><path class="am-f-mid" style="fill:var(--flame-mid, #ffb000)" d="' + REST + '"/></g>' +
+      '<g transform="translate(128 236) scale(0.3) translate(-128 -236)"><path class="am-f-core" style="fill:var(--flame-core, #fff1b8)" d="' + REST + '"/></g></svg>';
     if (lit === false) { w.style.filter = "grayscale(1)"; w.style.opacity = "0.45"; }
     return w;
   }

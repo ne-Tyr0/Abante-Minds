@@ -11,6 +11,7 @@ const path = require("path");
 const assert = require("assert");
 
 const SRC = fs.readFileSync(path.join(__dirname, "..", "app/store.js"), "utf8");
+const ROAD = fs.readFileSync(path.join(__dirname, "..", "app/road.js"), "utf8");
 const KEY = "abante-minds/v1";
 
 /* A browser the store can run in: storage, connectivity, a location, and a
@@ -51,10 +52,11 @@ const FACT_KEYS = ["k1", "k2", "k3"];
 const facts = (topic, level) => (topic === "b" && (level === "f1" || level === "all") ? FACT_KEYS.slice() : []);
 
 /* A fresh store over whatever is in storage, as on app launch. */
-function launch(saved) {
+function launch(saved, day) {
   storage = saved === undefined ? {} : { [KEY]: JSON.stringify(saved) };
-  NOW = null;
+  NOW = day ? new RealDate(day + "T09:00:00").getTime() : null;
   global.AM = { content: { TOPICS: TOPICS, BASICS: BASICS, facts: facts, blueprintCompetencies: 8, examDate: "2027-01-30" } };
+  new Function(ROAD).call(global);
   new Function(SRC).call(global);
   return global.AM.store;
 }
@@ -432,6 +434,103 @@ test("two days missed in a row ends the streak", () => {
   S.recordAnswer("a", "a1", true, true);
   assert.strictEqual(S.get().streakDays, 1);
 });
+/* ---------- streak shields and the reward road ---------- */
+const practiseOn = (S, days) => days.forEach((d) => { onDay(d); S.recordAnswer("a", "a1", true, true); });
+const WEEK = ["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23", "2026-10-24", "2026-10-25"];
+/* A saved learner, as the app would have written it. */
+const saved = (o) => Object.assign(launch().get(), o);
+
+test("a badge the collection no longer has is not shown", () => {
+  const S = launch(saved({ badges: { "lv:gone/old": { at: "2026-10-30" }, "lv:a/a1": { at: "2026-10-01" } }, showcase: ["lv:gone/old"] }));
+  assert.deepStrictEqual(S.showcase(), ["lv:a/a1"]);
+});
+
+test("a week in a row reaches the road's second step and its shield", () => {
+  const S = launch();
+  practiseOn(S, WEEK);
+  assert.strictEqual(S.road().reached, 2);
+  assert.strictEqual(S.road().shields, 1);
+  assert.strictEqual(S.road().log[2].by, "streak");
+});
+test("a shield keeps the streak across two missed days in a row, and is spent", () => {
+  const S = launch();
+  practiseOn(S, WEEK);
+  onDay("2026-10-28");                                   /* Mon 26 and Tue 27 missed */
+  S.rollDay();
+  assert.strictEqual(S.get().streakDays, 7, "the free day covers one, the shield the other");
+  assert.strictEqual(S.road().shields, 0);
+  assert.deepStrictEqual(S.shieldSaved(), { day: "2026-10-28", used: 1, streak: 7 });
+  S.recordAnswer("a", "a1", true, true);
+  assert.strictEqual(S.get().streakDays, 8);
+  onDay("2026-10-29");
+  assert.strictEqual(S.shieldSaved(), null, "said on the day of coming back only");
+});
+test("a shield covers a second missed day in the same week", () => {
+  const S = launch();
+  practiseOn(S, WEEK.concat(["2026-10-26", "2026-10-28"]));   /* Tue 27 forgiven */
+  practiseOn(S, ["2026-10-30"]);                               /* Thu 29: the week's free day is gone */
+  assert.strictEqual(S.get().streakDays, 10);
+  assert.strictEqual(S.road().shields, 0);
+});
+test("a shield is not spent when the streak ends anyway", () => {
+  const S = launch();
+  practiseOn(S, WEEK);
+  onDay("2026-10-29");                                   /* three days missed: one free, one shield, one left */
+  S.rollDay();
+  assert.strictEqual(S.get().streakDays, 0);
+  assert.strictEqual(S.road().shields, 1);
+  assert.strictEqual(S.shieldSaved(), null);
+});
+test("without a shield, two missed days in a row still end it", () => {
+  const S = launch();
+  practiseOn(S, ["2026-10-19", "2026-10-20", "2026-10-21"]);
+  onDay("2026-10-24");
+  S.rollDay();
+  assert.strictEqual(S.get().streakDays, 0);
+});
+test("the longest streak is kept when a streak ends", () => {
+  const S = launch();
+  practiseOn(S, ["2026-10-19", "2026-10-20", "2026-10-21", "2026-10-22", "2026-10-23"]);
+  practiseOn(S, ["2026-10-27"]);
+  assert.strictEqual(S.get().streakDays, 1);
+  assert.strictEqual(S.road().best, 5);
+});
+test("streak badges count towards the longest streak", () => {
+  const S = launch(saved({ streakDays: 2, badges: { "streak:14": { at: "2026-10-01" } } }));
+  assert.strictEqual(S.road().best, 14);
+});
+test("levels cleared reach a step too, and say so", () => {
+  const S = launch(saved({ badges: { "lv:a/a1": { at: "2026-10-01" }, "lv:a/a2": { at: "2026-10-01" }, "lv:c/c1": { at: "2026-10-01" } } }));
+  S.markLessonSeen("a", "a1");
+  assert.strictEqual(S.road().levels, 3);
+  assert.strictEqual(S.road().reached, 1);
+  assert.strictEqual(S.road().log[1].by, "levels");
+});
+test("new steps are given out once", () => {
+  const S = launch();
+  practiseOn(S, WEEK.slice(0, 3));
+  assert.deepStrictEqual(S.takeRoad(), [1]);
+  assert.deepStrictEqual(S.takeRoad(), []);
+});
+test("no more than two shields are held", () => {
+  const S = launch(saved({ streakDays: 49, bestStreak: 49, lastActiveDay: "2026-10-18", lastRolledDay: "2026-10-18",
+    road: { reached: 4, seen: 4, shields: 2, log: {} } }), "2026-10-18");
+  practiseOn(S, ["2026-10-19"]);
+  assert.strictEqual(S.road().reached, 5, "fifty days");
+  assert.strictEqual(S.road().shields, 2);
+});
+test("a step reached stays reached", () => {
+  const S = launch(saved({ road: { reached: 2, seen: 2, shields: 0, log: {} } }));
+  S.markLessonSeen("a", "a1");
+  assert.strictEqual(S.road().reached, 2);
+});
+test("a day forgiven before shields existed still carries the streak", () => {
+  const S = launch(saved({ streakDays: 3, lastActiveDay: "2026-10-21", lastRolledDay: "2026-10-23",
+    forgivenDay: "2026-10-22", forgivenWeek: "2026-10-19" }), "2026-10-23");
+  practiseOn(S, ["2026-10-23"]);
+  assert.strictEqual(S.get().streakDays, 4);
+});
+
 test("the countdown stops once the exam has passed", () => {
   const S = launch();
   onDay("2027-01-29");

@@ -374,18 +374,37 @@ html, body {
 /* The daily streak. */
 .am-streak { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 28px var(--gutter, 24px) 8px; text-align: center; background: var(--surface-200); }
 .am-streak-glow { position: absolute; left: 50%; top: -30px; width: 340px; height: 340px; margin-left: -170px; border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, rgba(255, 176, 0, 0.45) 0, rgba(255, 138, 21, 0.16) 40%, rgba(255, 138, 21, 0) 68%); }
-.am-streak-num { position: relative; display: inline-block; height: 1.12em; overflow: hidden; font-family: var(--font-display); font-weight: 800; font-size: 96px; line-height: 1.12em; color: var(--action-600); text-shadow: 0 6px 0 #ffd6ad; }
+  background: radial-gradient(circle, var(--flame-glow-1, rgba(255, 176, 0, 0.45)) 0, var(--flame-glow-2, rgba(255, 138, 21, 0.16)) 40%, transparent 68%); }
+.am-streak-num { position: relative; display: inline-block; height: 1.12em; overflow: hidden; font-family: var(--font-display); font-weight: 800; font-size: 96px; line-height: 1.12em; color: var(--flame-ink, var(--action-600)); text-shadow: 0 6px 0 var(--flame-ink-shadow, #ffd6ad); }
 .am-streak-num > span { display: flex; flex-direction: column; }
-.am-streak-label { position: relative; margin-top: -4px; font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--action-700); }
+.am-streak-label { position: relative; margin-top: -4px; font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1.1; color: var(--flame-ink-deep, var(--action-700)); }
 .am-week { position: relative; display: flex; gap: 4px; width: 100%; max-width: 320px; margin-top: 22px; padding: 12px 10px; border-radius: var(--radius-md); background: var(--surface-100); border: 2px solid var(--surface-300); }
 .am-day { flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center; gap: 6px; color: var(--ink-600); }
 .am-dot { position: relative; width: 32px; height: 32px; border-radius: 50%; background: var(--surface-300); display: grid; place-items: center; }
-.am-dot > i { position: absolute; inset: 0; border-radius: 50%; background: var(--action-500); transform: scale(0); }
+.am-dot > i { position: absolute; inset: 0; border-radius: 50%; background: var(--flame-body, var(--action-500)); transform: scale(0); }
 .am-dot.on > i { transform: scale(1); }
-.am-dot.today { box-shadow: inset 0 0 0 2px var(--action-500); }
+.am-dot.today { box-shadow: inset 0 0 0 2px var(--flame-body, var(--action-500)); }
 .am-dot > svg { position: relative; }
-.am-dot > b { position: absolute; inset: -2px; border-radius: 50%; border: 3px solid var(--action-500); opacity: 0; }
+.am-dot > b { position: absolute; inset: -2px; border-radius: 50%; border: 3px solid var(--flame-body, var(--action-500)); opacity: 0; }
+
+/* The reward road: steps down a line, reached ones filled in. */
+.am-road { margin: 0; list-style: none; display: flex; flex-direction: column; }
+.am-road-step { position: relative; display: flex; gap: 12px; padding-bottom: 14px; }
+.am-road-step::before { content: ""; position: absolute; left: 15px; top: 34px; bottom: 0; width: 2px; background: var(--surface-300); }
+.am-road-step.on::before { background: var(--brand-blue-600); }
+.am-road-step:last-child::before { display: none; }
+.am-road-node { position: relative; flex: none; width: 32px; height: 32px; margin-top: 12px; border-radius: 50%; display: grid; place-items: center;
+  font: 700 14px/1 var(--font-body, inherit); background: var(--surface-300); color: var(--ink-600); }
+.am-road-step.on .am-road-node { background: var(--brand-blue-600); color: var(--ink-inverse); }
+.am-road-step.next .am-road-node { background: var(--surface-200); color: var(--brand-blue-600); box-shadow: inset 0 0 0 2px var(--brand-blue-600); }
+/* A choice not reached yet on the road. */
+.am-locked { opacity: 0.55; }
+.am-lock-mark { position: absolute; right: 3px; bottom: 3px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-200); color: var(--ink-600); }
+/* Flame colours from the reward road; orange is the app's own. */
+:root[data-flame="blue"] { --flame-shelf: #1d4fc4; --flame-body: #3b82f6; --flame-mid: #7cc7ff; --flame-core: #e8f5ff;
+  --flame-glow-1: rgba(124, 199, 255, 0.45); --flame-glow-2: rgba(59, 130, 246, 0.16); --flame-ink: #2563eb; --flame-ink-shadow: #cfe2ff; --flame-ink-deep: #1d4fc4; }
+:root[data-flame="purple"] { --flame-shelf: #6b21a8; --flame-body: #a855f7; --flame-mid: #e2b4ff; --flame-core: #fbf0ff;
+  --flame-glow-1: rgba(226, 180, 255, 0.5); --flame-glow-2: rgba(168, 85, 247, 0.16); --flame-ink: #9333ea; --flame-ink-shadow: #ecd8ff; --flame-ink-deep: #6b21a8; }
 
 /* A milestone streak: a chip above the flame. */
 .am-mile-chip { position: relative; margin-bottom: 4px; padding: 4px 14px; border-radius: var(--radius-pill); background: rgba(255, 138, 21, 0.16); color: var(--action-700); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }

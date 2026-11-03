@@ -212,8 +212,22 @@
   screens.setup = function (app) {
     var p = store.get().profile || {};
     var draft = app.scratch.setup || (app.scratch.setup = {
-      name: p.name || "", school: p.school || "", colorKey: p.colorKey || 1, iconKey: p.iconKey || "triangle"
+      name: p.name || "", school: p.school || "", colorKey: p.colorKey || 1, iconKey: p.iconKey || "triangle",
+      frame: p.frame || null, pattern: p.pattern || null, flame: p.flame || "orange"
     });
+    /* What the reward road has given, and where the rest is on it. */
+    var got = store.road().unlocked;
+    function stepOf(kind, key) {
+      for (var i = 0; i < 12; i++) if (AM.road.step(i).rewards.some(function (r) { return r.kind === kind && r.key === key; })) return i + 1;
+      return null;
+    }
+    function locked(kind, key) {
+      var list = { colour: got.colours, frame: got.frames, pattern: got.patterns, flame: got.flames }[kind];
+      return list.indexOf(key) < 0;
+    }
+    function lockNote(kind, key) {
+      AM.announce("This opens at step " + stepOf(kind, key) + " of your reward road.");
+    }
     function leave() { app.scratch.setup = null; app.go("profile", "back"); }
 
     function field(labelText, key) {
@@ -228,20 +242,46 @@
     }
 
     var swatches = el("div", { style: { display: "flex", gap: "var(--space-3)" } });
-    [1, 2, 3, 4].forEach(function (k) {
-      var on = draft.colorKey === k;
-      swatches.appendChild(el("button.am-reset.am-pressable", {
+    swatches.style.flexWrap = "wrap";
+    [1, 2, 3, 4, 5, 6].forEach(function (k) {
+      var on = draft.colorKey === k, shut = k > 4 && locked("colour", k);
+      swatches.appendChild(el("button.am-reset.am-pressable" + (shut ? ".am-locked" : ""), {
         type: "button",
-        "aria-label": "Colour " + k, "aria-pressed": on ? "true" : "false",
-        onClick: function () { draft.colorKey = k; app.render(); },
+        "aria-label": "Colour " + k + (shut ? ", opens on the reward road" : ""), "aria-pressed": on ? "true" : "false",
+        onClick: function () { if (shut) { lockNote("colour", k); return; } draft.colorKey = k; app.render(); },
         style: {
           "--am-edge": on ? "var(--ink-900)" : "var(--skill-" + k + "-deep)",
-          width: 56, height: 56, borderRadius: "50%",
+          width: 46, height: 46, borderRadius: "50%",
           background: on ? "var(--skill-" + k + "-bright)" : "var(--skill-" + k + "-tint)",
-          display: "block", padding: 0
+          display: "flex", alignItems: "center", justifyContent: "center", padding: 0, color: "var(--skill-" + k + "-deep)"
         }
-      }));
+      }, shut ? icon("lock", 18) : null));
     });
+
+    /* A row of choices from the road; one not reached yet shows a lock and
+       says which step opens it. */
+    function choices(kind, field, options, preview) {
+      var row = el("div", { style: { display: "flex", gap: "var(--space-3)", flexWrap: "wrap" } });
+      options.forEach(function (key) {
+        var on = draft[field] === key, shut = key !== null && key !== "orange" && locked(kind, key);
+        row.appendChild(el("button.am-reset.am-pressable" + (shut ? ".am-locked" : ""), {
+          type: "button",
+          "aria-label": (key || "none") + (shut ? ", opens at step " + stepOf(kind, key) + " of the reward road" : ""), "aria-pressed": on ? "true" : "false",
+          onClick: function () { if (shut) { lockNote(kind, key); return; } draft[field] = key; app.render(); },
+          style: {
+            "--am-edge": on ? "var(--ink-900)" : "var(--line-200)",
+            position: "relative", width: 56, height: 56, borderRadius: "var(--radius-sm)", overflow: "hidden",
+            background: "var(--surface-200)", display: "flex", alignItems: "center", justifyContent: "center", padding: 0
+          }
+        }, preview(key), shut ? el("span.am-lock-mark", null, icon("lock", 16)) : null));
+      });
+      return row;
+    }
+    var frames = choices("frame", "frame", [null, "silver", "gold", "year"], function (key) { return miniCard(key, draft.colorKey); });
+    var patterns = choices("pattern", "pattern", [null, "binakol", "triangles", "hexagons", "stars"], function (key) {
+      return key ? AM.CardPattern(key, "var(--skill-" + draft.colorKey + "-bright)", 0.75) : el("span.caption", { style: { color: "var(--ink-600)" } }, "None");
+    });
+    var flames = choices("flame", "flame", ["orange", "blue", "purple"], function (key) { return flameIn(30, key); });
 
     var glyphs = el("div", { style: { display: "flex", gap: "var(--space-3)" } });
     ["star", "triangle", "scales", "coins"].forEach(function (g) {
@@ -272,10 +312,18 @@
         swatches,
         el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Pick an icon"),
         glyphs,
+        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Card frame"),
+        frames,
+        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Card pattern"),
+        patterns,
+        draft.pattern === "binakol" ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, "Inspired by Ilocano binakol weaving.") : null,
+        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Flame"),
+        flames,
+        el("span.body-sm", { style: { color: "var(--ink-600)" } }, "More open on your reward road."),
         el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "This is how your card will look"),
         AM.ProfileCard({
           name: draft.name, school: draft.school, colorKey: draft.colorKey,
-          iconKey: draft.iconKey, style: { maxWidth: "none", width: "100%" }
+          iconKey: draft.iconKey, frame: draft.frame, pattern: draft.pattern, style: { maxWidth: "none", width: "100%" }
         })
       ),
       footer: el("div", { style: { flex: "none", width: "100%", maxWidth: 560, margin: "0 auto", boxSizing: "border-box", padding: "0 " + gutter() + "px 24px" } },
@@ -283,7 +331,10 @@
           label: "Save", fullWidth: true,
           onClick: function () {
             store.set({
-              profile: { name: draft.name.trim(), school: draft.school.trim(), colorKey: draft.colorKey, iconKey: draft.iconKey }
+              profile: {
+                name: draft.name.trim(), school: draft.school.trim(), colorKey: draft.colorKey, iconKey: draft.iconKey,
+                frame: draft.frame, pattern: draft.pattern, flame: draft.flame
+              }
             });
             leave();
           }
@@ -537,7 +588,12 @@
         (last.asked ? Math.round(100 * last.right / last.asked) + "% right first time" : "") +
         (last.best && C.byKey(last.best) ? ". Strongest: " + C.byKey(last.best).label.toLowerCase() + "." : "."))) : null;
 
-    var forgiven = store.forgivenYesterday() && s.lastActiveDay !== store.today() ? AM.Card({ style: { gap: 4 } },
+    var shielded = store.shieldSaved();
+    var forgiven = shielded && s.lastActiveDay !== store.today() ? AM.Card({ style: { gap: 4 } },
+      el("span.label", { style: { display: "inline-flex", alignItems: "center", gap: 6 } }, icon("shield", 18), "A shield kept your streak"),
+      el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+        (shielded.used === 1 ? "A streak shield covered" : shielded.used + " streak shields covered") + " the days you missed. Practise today to keep your " + shielded.streak + "-day streak going."))
+      : store.forgivenYesterday() && s.lastActiveDay !== store.today() ? AM.Card({ style: { gap: 4 } },
       el("span.label", null, "Your streak is safe"),
       el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "You missed yesterday, and one missed day a week is forgiven. Practise today to keep it going.")) : null;
 
@@ -1780,7 +1836,10 @@
     3: "Three days in a row. A habit is starting.",
     7: "A whole week of practice. This is how it sticks.",
     14: "Two weeks in a row. That's real work.",
-    30: "Thirty days in a row. It's part of your day now."
+    30: "Thirty days in a row. It's part of your day now.",
+    50: "Fifty days in a row. That's real dedication.",
+    100: "One hundred days in a row!",
+    365: "A whole year of practice, every day."
   };
   screens.streak = function (app) {
     var s = store.get();
@@ -1800,14 +1859,18 @@
     if (store.forgivenYesterday()) copy = "Yesterday was forgiven: one missed day a week doesn't break your streak. " + copy;
     /* A streak badge earned today makes this a milestone: its own line, and
        a picture of the streak to share (app/share.js). */
-    var mile = AM.share ? AM.share.milestone(view.badges) : null;
-    if (mile) copy = MILESTONE_LINES[mile] + " " + copy;
+    var mile = AM.road && AM.share && AM.road.isMilestone(days) ? days : null;
+    if (mile) copy = (MILESTONE_LINES[mile] || days + " days in a row. Keep going.") + " " + copy;
+    var saved = store.shieldSaved();
+    if (saved) copy = (saved.used === 1 ? "A streak shield" : saved.used + " streak shields") + " kept your streak going. " + copy;
+    if (view.road === undefined) view.road = store.takeRoad();
     var draw = function () {
-      return view.drawn || (view.drawn = AM.share.picture(days, s.profile && s.profile.name).then(function (b) { view.blob = b; return b; }));
+      return view.drawn || (view.drawn = AM.share.picture(days, s.profile && s.profile.name, s.profile && s.profile.flame).then(function (b) { view.blob = b; return b; }));
     };
+    var file = "abante-minds-" + days + "-day-streak.png", text = days + " days of math practice in a row!";
     var share = mile ? AM.Button({ label: "Share", variant: "ghost", iconLeft: "share", fullWidth: true, onClick: function () {
       /* Straight from the tap when the picture is ready, as phones require. */
-      (view.blob ? AM.share.send(view.blob, days) : draw().then(function (b) { return AM.share.send(b, days); })).then(function (how) {
+      (view.blob ? AM.share.send(view.blob, file, text) : draw().then(function (b) { return AM.share.send(b, file, text); })).then(function (how) {
         if (how === "saved") AM.announce("Picture saved.");
         if (how === "failed") AM.announce("This phone could not share the picture.");
       });
@@ -1827,13 +1890,14 @@
       el("div.am-streak-label", null, days === 1 ? "day of practice!" : "day streak!"),
       week,
       fresh ? el("div", { style: { width: "100%", maxWidth: 420, textAlign: "left" } }, fresh) : null,
+      view.road.length ? el("div", { style: { width: "100%", maxWidth: 420 } }, roadNewCard(app, view.road)) : null,
       el("p.body", { style: { color: "var(--ink-600)", margin: "14px 0 0", maxWidth: 300, textWrap: "balance" } }, copy));
     var footer = el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center", background: "var(--surface-200)" } },
       el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } }, share, AM.Button({ label: "Continue", fullWidth: true, cta: true, onClick: go })));
     return {
       nav: null, chrome: false, body: body, footer: footer, onBack: go,
       after: function () {
-        AM.announce(days + (days === 1 ? " day of practice." : " day streak.") + (mile ? " " + MILESTONE_LINES[mile] : ""));
+        AM.announce(days + (days === 1 ? " day of practice." : " day streak.") + (mile && MILESTONE_LINES[mile] ? " " + MILESTONE_LINES[mile] : ""));
         if (mile) draw();
         var m = window.AbanteMinds && window.AbanteMinds.moments;
         if (!m) return;
@@ -2004,6 +2068,7 @@
             el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, levelNote))),
 
         newBadgesCard(r.badges || (r.badges = takeBadges(anyBadge))),
+        roadNewCard(app, r.road || (r.road = store.takeRoad())),
 
         missed ? el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
           sectionLabel("Do next"),
@@ -2416,6 +2481,157 @@
 
   /* ---------- 20 · Profile ----------
      The learner's card. Editing it is a ghost, not the primary. */
+  /* ---------- the reward road (app/road.js) ----------
+     One permanent ladder of rewards on Profile: each step opens with a
+     streak or with levels cleared, and what is earned stays. */
+  var REWARD_NAMES = {
+    frame: { silver: "Silver card frame", gold: "Gold card frame", year: "One-year card frame" },
+    pattern: { binakol: "Binakol card pattern", triangles: "Triangle card pattern", hexagons: "Hexagon card pattern", stars: "Star card pattern" },
+    flame: { blue: "Blue flame", purple: "Purple flame" }
+  };
+  /* A step's rewards as rows; its colours make one row. */
+  function rewardRows(st) {
+    var rows = [], colours = st.rewards.filter(function (r) { return r.kind === "colour"; });
+    if (colours.length) rows.push({ kind: "colour", keys: colours.map(function (r) { return r.key; }), label: colours.length === 1 ? "A new card colour" : colours.length + " new card colours" });
+    st.rewards.forEach(function (r) {
+      if (r.kind === "colour") return;
+      if (r.kind === "shield") rows.push({ kind: "shield", label: "A streak shield", note: "Keeps your streak on a missed day" });
+      else if (r.kind === "certificate") rows.push({ kind: "certificate", key: r.key, label: r.key === 365 ? "One-year certificate" : "Certificate of practice" });
+      else rows.push({ kind: r.kind, key: r.key, label: REWARD_NAMES[r.kind][r.key], note: r.key === "binakol" ? "Inspired by Ilocano binakol weaving" : null });
+    });
+    return rows;
+  }
+  /* A flame in one of the road's colours, whatever the learner has picked. */
+  function flameIn(size, key) {
+    var f = AM.Flame(size, true), c = AM.share && AM.share.FLAMES[key];
+    if (c) ["--flame-shelf", "--flame-body", "--flame-mid", "--flame-core"].forEach(function (v, i) { f.style.setProperty(v, c[i]); });
+    return f;
+  }
+  /* A tiny card wearing a frame, so a frame reads as a card's, not a box. */
+  function miniCard(frame, colorKey) {
+    return el("span", {
+      style: {
+        width: 28, height: 19, borderRadius: 4, boxSizing: "border-box", padding: "0 4px", display: "flex", alignItems: "center", gap: 3,
+        background: "var(--surface-200)", boxShadow: frame ? AM.CARD_FRAMES[frame] : "inset 0 0 0 1px var(--line-200)"
+      }
+    }, el("span", { style: { width: 7, height: 7, flex: "none", borderRadius: 2, background: "var(--skill-" + (colorKey || 1) + "-bright)" } }),
+      el("span", { style: { flex: 1, height: 2, borderRadius: 1, background: "var(--line-200)" } }));
+  }
+  function rewardIcon(row, colorKey) {
+    var box = function (extra) {
+      var st = { width: 36, height: 36, flex: "none", borderRadius: "var(--radius-sm)", display: "flex", alignItems: "center", justifyContent: "center", gap: 3, position: "relative", overflow: "hidden" };
+      Object.keys(extra || {}).forEach(function (k) { st[k] = extra[k]; });
+      return st;
+    };
+    if (row.kind === "colour") return el("span", { style: box({ background: "var(--surface-100)" }) }, row.keys.map(function (k) {
+      return el("span", { style: { width: 13, height: 13, borderRadius: "50%", background: "var(--skill-" + k + "-bright)" } });
+    }));
+    if (row.kind === "shield") return el("span", { style: box({ background: "var(--brand-blue-100)", color: "var(--brand-blue-600)" }) }, icon("shield", 22));
+    if (row.kind === "certificate") return el("span", { style: box({ background: "var(--gold-tint)", color: "var(--ink-900)" }) }, icon("certificate", 22));
+    if (row.kind === "frame") return el("span", { style: box({ background: "var(--surface-100)", overflow: "visible" }) }, miniCard(row.key, colorKey));
+    if (row.kind === "pattern") return el("span", { style: box({ background: "var(--surface-200)", boxShadow: "inset 0 0 0 1px var(--surface-300)" }) },
+      AM.CardPattern(row.key, "var(--skill-" + (colorKey || 1) + "-bright)", 0.7));
+    if (row.kind === "flame") return el("span", { style: box() }, flameIn(24, row.key));
+    return el("span", { style: box() });
+  }
+  function rewardRow(row, colorKey) {
+    return el("div", { style: { display: "flex", alignItems: "center", gap: 12 } },
+      rewardIcon(row, colorKey),
+      el("span", { style: { display: "flex", flexDirection: "column", gap: 1, minWidth: 0 } },
+        el("span.label", null, row.label),
+        row.note ? el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, row.note) : null));
+  }
+  function stepLabel(st) { return st.streak + "-day streak" + (st.levels ? " or " + st.levels + " levels" : ""); }
+  function shieldCount(rd) {
+    return AM.Chip({ icon: "shield", label: rd.shields + " of " + rd.maxShields + " shields" });
+  }
+  /* The step to come: how far each way is. */
+  function routeBars(rd, st) {
+    function bar(label, have, need) {
+      return el("div", { style: { display: "flex", flexDirection: "column", gap: 4 } },
+        el("span.body-sm", { style: { color: "var(--ink-600)" } }, label + ": " + Math.min(have, need) + " of " + need),
+        AM.ProgressBar({ ratio: Math.min(1, have / need), height: 8, color: "var(--brand-blue-600)", label: label }));
+    }
+    return el("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
+      bar("Days in a row", rd.streak, st.streak), st.levels ? bar("Levels cleared, with Basics", rd.levels, st.levels) : null);
+  }
+
+  /* A certificate is drawn when the road opens, so that the tap that shares
+     it reaches the phone's share menu at once, as phones require. */
+  function certificateFor(app, st, rd, p) {
+    var log = rd.log[st.n] || {}, keep = app.scratch.certificates || (app.scratch.certificates = {});
+    var o = { name: p.name, by: log.by || "streak", days: st.streak, levels: st.levels, day: log.day || store.today(), year: st.streak === 365 };
+    var file = "abante-minds-certificate-" + (o.by === "levels" ? o.levels + "-levels" : o.days + "-days") + ".png";
+    var job = keep[st.n] || (keep[st.n] = { drawing: AM.share.certificate(o).then(function (b) { job.blob = b; return b; }) });
+    return function () {
+      (job.blob ? AM.share.send(job.blob, file, "My certificate of practice from Abante Minds") : job.drawing.then(function (b) { return AM.share.send(b, file, "My certificate of practice from Abante Minds"); }))
+        .then(function (how) {
+          if (how === "saved") AM.announce("Certificate saved.");
+          if (how === "failed") AM.announce("This phone could not share the certificate.");
+        });
+    };
+  }
+
+  /* What a round or a streak just reached on the road, once. */
+  function roadNewCard(app, steps) {
+    if (!steps || !steps.length || !AM.road) return null;
+    var p = store.get().profile || {}, rows = [];
+    steps.forEach(function (n) { rewardRows(AM.road.step(n - 1)).forEach(function (r) { rows.push(r); }); });
+    return el("div", { style: { padding: "18px " + gutter() + "px 0", width: "100%", boxSizing: "border-box", textAlign: "left" } },
+      AM.Card({ style: { gap: 10 } },
+        sectionLabel("New on your reward road · step " + (steps.length === 1 ? steps[0] : steps[0] + " to " + steps[steps.length - 1])),
+        el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, rows.map(function (r) { return rewardRow(r, p.colorKey); })),
+        AM.Button({ label: "See the road", variant: "ghost", fullWidth: true, onClick: function () { app.go("road"); } })));
+  }
+
+  /* Profile's look at the road: the next step and how near it is. */
+  function roadSection(app) {
+    if (!AM.road) return null;
+    var rd = store.road(), next = AM.road.step(rd.reached), p = store.get().profile || {};
+    return el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
+      sectionLabel("Reward road" + (rd.reached ? " · step " + rd.reached + " reached" : "")),
+      AM.Card({ style: { gap: 12 } },
+        el("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8, flexWrap: "wrap" } },
+          el("span.label", null, "Next: " + stepLabel(next)), shieldCount(rd)),
+        el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, rewardRows(next).map(function (r) { return rewardRow(r, p.colorKey); })),
+        routeBars(rd, next),
+        AM.Button({ label: "See the road", variant: "ghost", fullWidth: true, onClick: function () { app.go("road"); } })));
+  }
+
+  screens.road = function (app) {
+    var rd = store.road(), p = store.get().profile || {};
+    var shown = Math.max(rd.reached + 3, 11), items = [];
+    for (var i = 0; i < shown; i++) {
+      var st = AM.road.step(i), reached = i < rd.reached, next = i === rd.reached, log = rd.log[st.n] || {};
+      var cert = reached && st.rewards.some(function (r) { return r.kind === "certificate"; }) ? certificateFor(app, st, rd, p) : null;
+      items.push(el("li.am-road-step" + (reached ? ".on" : next ? ".next" : ""), null,
+        el("span.am-road-node", { "aria-hidden": "true" }, reached ? icon("check", 16) : String(st.n)),
+        AM.Card({ style: { flex: 1, minWidth: 0, gap: 10, opacity: reached || next ? 1 : 0.78 } },
+          el("span", { style: { display: "flex", flexDirection: "column", gap: 2 } },
+            el("span.label", null, "Step " + st.n + " · " + stepLabel(st)),
+            reached ? el("span.body-sm", { style: { color: "var(--success-700)" } },
+              "Reached " + (log.by === "levels" ? "by clearing " + st.levels + " levels" : "with a " + st.streak + "-day streak")) : null),
+          el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, rewardRows(st).map(function (r) { return rewardRow(r, p.colorKey); })),
+          next ? routeBars(rd, st) : null,
+          cert ? AM.Button({ label: "Get your certificate", variant: "ghost", iconLeft: "certificate", fullWidth: true, onClick: cert }) : null)));
+    }
+    return {
+      nav: "profile",
+      back: function () { app.go("profile", "back"); },
+      body: column([
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 6 } },
+          el("div.heading-lg", null, "Reward road"),
+          el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+            "Each step opens with a streak or with levels cleared, whichever comes first. What you earn stays yours."),
+          el("div", { style: { display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" } },
+            AM.Chip({ label: rd.reached ? "Step " + rd.reached + " reached" : "No step yet" }), shieldCount(rd))),
+        el("ol.am-road", { style: { padding: "18px " + gutter() + "px 0" } }, items),
+        el("p.body-sm", { style: { margin: 0, padding: "4px " + gutter() + "px 0", color: "var(--ink-600)", textWrap: "pretty" } },
+          "After 365 days: a streak shield at 400 days, at 500, and every 100 days after.")
+      ], { paddingBottom: 24 })
+    };
+  };
+
   screens.profile = function (app) {
     var s = store.get();
     var p = s.profile || { name: "", school: "", colorKey: 2 };
@@ -2440,7 +2656,7 @@
           AM.ProfileCard({
             name: p.name, greeting: "",
             school: (p.school ? p.school + " · " : "") + "Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
-            colorKey: p.colorKey, iconKey: p.iconKey,
+            colorKey: p.colorKey, iconKey: p.iconKey, frame: p.frame, pattern: p.pattern,
             style: { maxWidth: "none", width: "100%" }
           })),
 
@@ -2459,6 +2675,8 @@
                 : el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "Every level you clear is a badge. Clear one to earn your first."),
               AM.Button({ label: "See all badges", variant: "ghost", fullWidth: true, onClick: function () { app.scratch.badgesBack = null; app.go("badges"); } })));
         })(),
+
+        roadSection(app),
 
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
           sectionLabel("Progress by topic"),

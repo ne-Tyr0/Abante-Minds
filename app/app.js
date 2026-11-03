@@ -18,8 +18,10 @@
      paint; this keeps it current. */
   var darkQuery = window.matchMedia ? window.matchMedia("(prefers-color-scheme: dark)") : null;
   function applySettings() {
-    var doc = document.documentElement, set = store.settings();
+    var doc = document.documentElement, set = store.settings(), p = store.get().profile;
     doc.dataset.calm = set.calm ? "true" : "false";
+    /* The flame colour the learner picked from the reward road. */
+    doc.dataset.flame = (p && p.flame) || "orange";
     var theme = set.theme === "dark" || (set.theme === "auto" && darkQuery && darkQuery.matches) ? "night" : "day";
     if (doc.dataset.theme !== theme) {
       doc.dataset.theme = theme;

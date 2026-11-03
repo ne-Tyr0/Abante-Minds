@@ -1,6 +1,6 @@
-/* Mutation test for tests/share.js: break what the milestone picture may say,
-   when a streak is a milestone, and the counting number, one way at a time,
-   and require the tests to fail.
+/* Mutation test for tests/share.js: break what the milestone picture and the
+   certificate may say, and the counting number, one way at a time, and
+   require the tests to fail.
 
    Run:  node tests/mutation/share.js        Exits 1 if any mutant survives. */
 "use strict";
@@ -21,11 +21,8 @@ const M = [
   ["share", "no cut for a long name", "[0] || \"\").slice(0, 20);", "[0] || \"\");"],
   ["share", "leading spaces kept", "String(name || \"\").trim().split", "String(name || \"\").split"],
   ["share", "a name even when none was given", "(who ? who + \" practised\" : \"Practised\")", "(who + \" practised\")"],
-  ["share", "any streak length is a milestone", "MILESTONES.indexOf(n) > -1 && ", ""],
-  ["share", "the shorter of two", "(best === null || n > best)", "(best === null || n < best)"],
-  ["share", "the first of two", "(best === null || n > best)", "(best === null)"],
-  ["share", "a key need only contain it", "/^streak:(\\d+)$/", "/streak:(\\d+)/"],
-  ["share", "milestones drift from the badges", "var MILESTONES = [3, 7, 14, 30];", "var MILESTONES = [3, 7, 14, 30, 50];"],
+  ["share", "a certificate always says the streak", "return o.by === \"levels\" ? \"for clearing \"", "return false ? \"for clearing \""],
+  ["share", "the date unwritten", "return Number(p[2]) + \" \" + MONTHS[Number(p[1]) - 1] + \" \" + p[0];", "return iso;"],
   ["moments", "the clock starts at the call", "if (start === null) start = now;", "if (start === null) start = performance.now();"],
   ["moments", "done is ignored", "if (el.dataset && el.dataset.done) return;", ""],
   ["moments", "it stops short", "if (t < 1 && el.isConnected) requestAnimationFrame(frame);", "if (t < 0.9 && el.isConnected) requestAnimationFrame(frame);"],

@@ -56,6 +56,9 @@ jobs:
       - name: Streak milestone picture and counting numbers
         run: node tests/share.js
 
+      - name: Reward road
+        run: node tests/road.js
+
       - name: Question packs are valid
         run: node tests/validate-packs.js
 

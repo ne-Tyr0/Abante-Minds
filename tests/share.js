@@ -1,7 +1,8 @@
-/* Share and count tests: what the streak milestone picture may say and when a
-   streak is a milestone (app/share.js), and the number that counts up on a
-   round's result tiles (motion/moments.js). The picture itself needs a canvas,
-   so it is checked by eye in the drafts; its words are checked here.
+/* Share and count tests: what the streak milestone picture and the certificate
+   may say (app/share.js), and the number that counts up on a round's result
+   tiles (motion/moments.js). The pictures need a canvas, so they are checked
+   by eye in the drafts; their words are checked here. Which streaks are
+   milestones is the reward road's (tests/road.js).
 
    Run:  node tests/share.js        Exits 1 on any failure. */
 "use strict";
@@ -53,28 +54,18 @@ test("the line names the learner when they gave a name, and never their surname"
   assert.ok(S.caption(14, "Juan Dela Cruz").indexOf("Cruz") === -1);
 });
 
-/* ---------- milestones ---------- */
-test("a streak badge earned today makes a milestone", () => {
-  assert.strictEqual(S.milestone(["streak:7"]), 7);
-  assert.strictEqual(S.milestone(["streak:3"]), 3);
-  assert.strictEqual(S.milestone(["welcome", "streak:30"]), 30);
+/* ---------- the certificate's words ---------- */
+test("a certificate says what the step was reached by", () => {
+  assert.strictEqual(S.certificateLine({ by: "streak", days: 30, levels: 25 }), "for practising math 30 days in a row");
+  assert.strictEqual(S.certificateLine({ by: "levels", days: 30, levels: 25 }), "for clearing 25 levels of Grade 6 math");
 });
-test("two at once (a restored streak) show the longer", () => {
-  assert.strictEqual(S.milestone(["streak:3", "streak:7"]), 7);
-  assert.strictEqual(S.milestone(["streak:14", "streak:3"]), 14);
+test("its date is written out", () => {
+  assert.strictEqual(S.longDate("2026-11-03"), "3 November 2026");
+  assert.strictEqual(S.longDate("2027-01-30"), "30 January 2027");
 });
-test("anything else is not a milestone", () => {
-  assert.strictEqual(S.milestone([]), null);
-  assert.strictEqual(S.milestone(undefined), null);
-  assert.strictEqual(S.milestone(["welcome", "lv:decimals/add"]), null);
-  assert.strictEqual(S.milestone(["streak:5"]), null, "only the milestone lengths");
-  assert.strictEqual(S.milestone(["xstreak:7"]), null, "a key that only contains one is not one");
-  assert.strictEqual(S.milestone(["streak:7x"]), null);
-});
-test("every milestone is a streak badge the store gives, and the other way round", () => {
-  const m = /var STREAK_BADGES = \[([^\]]+)\]/.exec(read("app/store.js"));
-  assert.ok(m, "the store lists its streak badges");
-  assert.deepStrictEqual(S.MILESTONES, m[1].split(",").map(Number));
+test("each flame has its four colours", () => {
+  assert.deepStrictEqual(Object.keys(S.FLAMES), ["orange", "blue", "purple"]);
+  Object.keys(S.FLAMES).forEach((k) => assert.strictEqual(S.FLAMES[k].length, 4, k));
 });
 
 /* ---------- the count ---------- */

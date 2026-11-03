@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 64;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 65;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -60,7 +60,7 @@
       installed: false,            /* set only on evidence: the browser reporting an install, or running from the home screen */
       installCardDismissed: false, /* "Not now" on the Home card; Profile keeps offering it */
       signedIn: false,             /* from the old sign-in; kept in old records, no longer read */
-      profile: null,               /* {name, school, colorKey, iconKey}; the name may be blank */
+      profile: null,               /* {name, school, colorKey, iconKey, frame, pattern, flame}; the name may be blank; the last three come from the reward road */
       levels: {},                  /* "topic/level": {correct, attempts, cleared, lessonSeen} */
       facts: {},                   /* fact key: {seen, right, miss, days, last}; days are the days it was right and quick */
       review: {},                  /* missed questions coming back: key: {topic, template, tier, seed, pinnedAt, step, due, added} */
@@ -87,6 +87,10 @@
       forgivenDay: null,           /* the last missed day forgiven, so a streak carried on */
       forgivenWeek: null,          /* the week (its Monday) that day fell in: one a week */
       rounds: null,                /* {day, n}: rounds finished today, for the daily goal */
+      bestStreak: 0,               /* the longest streak there has been, for the reward road */
+      bridgedTo: null,             /* the last missed day of an absence the streak was kept across */
+      shieldSave: null,            /* {day, used, streak}: a return on which shields kept the streak */
+      road: null,                  /* the reward road: {reached, seen, shields, log}; see "the reward road" below */
       recapSeen: null              /* the week (its Monday) whose look back was put away */
     };
   }
@@ -157,7 +161,7 @@
   var online = navigator.onLine !== false;
 
   function emit() { listeners.forEach(function (fn) { fn(state); }); }
-  function commit() { write(state); emit(); }
+  function commit() { syncRoad(); write(state); emit(); }
 
   /* ---------- day roll ----------
      Called on boot and whenever a session starts. A missed day resets the
@@ -171,12 +175,21 @@
     var gap = daysBetween(state.lastActiveDay, t);
     /* One missed day a week is forgiven (decided 2026-10-31): a phone with no
        data or a shared handset should not cost a learner their streak. Two
-       days in a row, or a second in the same week, still end it. */
+       days in a row, or a second in the same week, still end it, unless the
+       learner has streak shields from the reward road to cover them
+       (decided 2026-11-03; a shield is used by itself). */
     if (state.lastActiveDay && gap !== null && gap > 1) {
-      var missed = dayBefore(t);
-      if (gap === 2 && state.forgivenWeek !== weekOf(missed)) {
-        state.forgivenDay = missed;
-        state.forgivenWeek = weekOf(missed);
+      var missed = [];
+      for (var d = dayBefore(t), k = 1; k < gap; k++, d = dayBefore(d)) missed.unshift({ day: d, week: weekOf(d) });
+      var road = roadState();
+      var got = coverMissed(missed, state.forgivenWeek, road.shields);
+      if (got.kept) {
+        if (got.forgiven) { state.forgivenDay = got.forgiven; state.forgivenWeek = weekOf(got.forgiven); }
+        if (got.shields) {
+          road.shields -= got.shields;
+          state.shieldSave = { day: t, used: got.shields, streak: state.streakDays };
+        }
+        state.bridgedTo = dayBefore(t);
       } else {
         state.streakDays = 0;
         state.resetToday = true;
@@ -192,14 +205,29 @@
     }
   }
 
+  /* An absence, as its missed days ({day, week}, oldest first): is the streak
+     kept? The free day a week covers one of them, if its week has not used
+     it; shields cover the rest. If any day is left uncovered the streak
+     ends, and nothing is spent. */
+  function coverMissed(missed, usedWeek, shields) {
+    var forgiven = null, used = 0;
+    for (var i = 0; i < missed.length; i++) {
+      if (!forgiven && missed[i].week !== usedWeek) forgiven = missed[i].day;
+      else if (used < shields) used++;
+      else return { kept: false, forgiven: null, shields: 0 };
+    }
+    return { kept: true, forgiven: forgiven, shields: used };
+  }
+
   /* The first answer of the day is what extends a streak — opening the app is not
      practice. */
   function markPractice() {
     var t = today();
     if (state.lastActiveDay === t) return;
     var gap = daysBetween(state.lastActiveDay, t);
-    var carried = gap === 1 || (gap === 2 && state.forgivenDay === dayBefore(t));
+    var carried = gap === 1 || (gap > 1 && state.bridgedTo === dayBefore(t)) || (gap === 2 && state.forgivenDay === dayBefore(t));
     state.streakDays = carried ? state.streakDays + 1 : 1;
+    if (state.streakDays > (state.bestStreak || 0)) state.bestStreak = state.streakDays;
     state.lastActiveDay = t;
     state.week[weekdayIndex(t)] = true;
     if (carried || gap === null) state.resetToday = false;
@@ -810,6 +838,54 @@
     }));
   }
 
+  /* ---------- the reward road ----------
+     app/road.js holds the steps; this keeps what the learner has from them:
+     how many steps are reached and how each was, how many have been shown,
+     and the shields held. A step reached stays reached. It catches up on
+     every commit, so a level cleared or a streak extended moves it at once. */
+  function roadState() {
+    return state.road || (state.road = { reached: 0, seen: 0, shields: 0, log: {} });
+  }
+  function levelsCleared() {
+    return Object.keys(state.badges || {}).filter(function (k) { return k.indexOf("lv:") === 0; }).length;
+  }
+  /* The streak badges count too: they were earned before the best was kept. */
+  function bestStreak() {
+    var best = Math.max(state.bestStreak || 0, state.streakDays || 0);
+    STREAK_BADGES.forEach(function (n) { if (badgeOf("streak:" + n)) best = Math.max(best, n); });
+    return best;
+  }
+  function syncRoad() {
+    if (!AM.road) return;
+    var r = roadState(), best = bestStreak(), levels = levelsCleared();
+    var n = AM.road.reached(best, levels);
+    for (var i = r.reached; i < n; i++) {
+      var s = AM.road.step(i);
+      r.log[s.n] = { by: AM.road.reachedBy(s, best, levels), day: today() };
+      r.shields = AM.road.credit(r.shields, s.rewards.filter(function (x) { return x.kind === "shield"; }).length);
+    }
+    if (n > r.reached) r.reached = n;
+  }
+  function road() {
+    var r = roadState();
+    return {
+      reached: r.reached, shields: r.shields, maxShields: AM.road ? AM.road.MAX_SHIELDS : 0,
+      best: bestStreak(), levels: levelsCleared(), streak: state.streakDays, log: r.log,
+      unlocked: AM.road ? AM.road.unlocked(r.reached) : { colours: [], frames: [], patterns: [], flames: [], certificates: [], shields: 0 }
+    };
+  }
+  /* The steps reached and not yet shown, once. */
+  function takeRoad() {
+    var r = roadState(), out = [];
+    for (var n = r.seen + 1; n <= r.reached; n++) out.push(n);
+    if (out.length) { r.seen = r.reached; commit(); }
+    return out;
+  }
+  /* Today's return, if shields kept the streak across it. */
+  function shieldSaved() {
+    return state.shieldSave && state.shieldSave.day === today() ? state.shieldSave : null;
+  }
+
   /* The next streak badge not yet earned, and how many days are left to it. */
   function nextStreakBadge() {
     var next = STREAK_BADGES.filter(function (n) { return !badgeOf("streak:" + n); })[0];
@@ -926,10 +1002,13 @@
      otherwise the most recent, newest first. Badges are kept in the order
      they were earned, so on the same day the later one is the newer. */
   function showcase() {
-    var badges = state.badges || {};
-    var picked = (state.showcase || []).filter(function (k) { return badges[k]; });
+    var badges = state.badges || {}, cat = catalog();
+    /* Only badges the collection still has: a level renamed in a pack leaves
+       its old key behind, and there is no badge to draw for it. */
+    var known = function (k) { return !!(badges[k] && findBadge(k, cat)); };
+    var picked = (state.showcase || []).filter(known);
     if (picked.length) return picked.slice(0, SHOWCASE_MAX);
-    var order = Object.keys(badges);
+    var order = Object.keys(badges).filter(known);
     return order.slice().sort(function (a, b) {
       return badges[a].at < badges[b].at ? 1 : badges[a].at > badges[b].at ? -1 : order.indexOf(b) - order.indexOf(a);
     }).slice(0, SHOWCASE_MAX);
@@ -1026,6 +1105,9 @@
     recap: recap,
     dismissRecap: dismissRecap,
     forgivenYesterday: forgivenYesterday,
+    road: road,
+    takeRoad: takeRoad,
+    shieldSaved: shieldSaved,
     SHOWCASE_MAX: SHOWCASE_MAX,
     IMPROVER_FIXES: IMPROVER_FIXES,
     hasProgress: hasProgress,
