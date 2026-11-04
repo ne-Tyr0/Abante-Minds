@@ -14,7 +14,7 @@ global.AM = global.AM || {};
 new Function(fs.readFileSync(path.join(REPO, "app/reminder.js"), "utf8")).call(global);
 const R = global.AM.reminder;
 
-const APP_URL = "https://ne-tyr0.github.io/Abante-Minds/";
+const APP_URL = "https://abanteminds.github.io/";
 const START_DAY = "20261101";   /* a fixed first day; the event repeats daily from it */
 const two = (n) => (n < 10 ? "0" : "") + n;
 
@@ -29,7 +29,7 @@ function ics(hour) {
     "CALSCALE:GREGORIAN",
     "METHOD:PUBLISH",
     "BEGIN:VEVENT",
-    "UID:abante-minds-practice-" + two(hour) + "00@ne-tyr0.github.io",
+    "UID:abante-minds-practice-" + two(hour) + "00@abanteminds.github.io",
     "DTSTAMP:20261104T000000Z",
     "DTSTART:" + START_DAY + "T" + two(hour) + "0000",
     "DURATION:PT" + R.MINUTES + "M",

@@ -167,7 +167,7 @@ templates is an afternoon, migrating 300 is a project.
    in `session.diagnosis` and is discarded too.
 9. **Local profiles, replacing PIN auth.** Already planned. Now research-critical: siblings
    share phones, and a participant's data must not contain a sibling's attempts.
-10. **GitHub Pages from `main`** — **done**, live at https://ne-tyr0.github.io/Abante-Minds/.
+10. **GitHub Pages from `main`** — **done**, live at https://abanteminds.github.io/.
     Still to do: test on a real low-end Android via that HTTPS URL.
 11. **CI**: **done** (`.github/workflows/ci.yml`): `tests/engine.js`, the **pack validator**
     `tests/validate-packs.js`, `tests/fuzz.js`, `poc/progress-code.js`,

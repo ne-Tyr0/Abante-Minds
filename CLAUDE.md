@@ -260,7 +260,7 @@ Settled with the project owner. Build on them; don't reopen them.
    or wrong, the mistake it matched, latency, hints and steps seen, and which try it was.
    Ring-buffered at 5,000; reset clears it. It stays on the phone: exporting it is the
    consent work of Phase 3.
-7. ~~**Enable GitHub Pages**.~~ **Done** — live at https://ne-tyr0.github.io/Abante-Minds/.
+7. ~~**Enable GitHub Pages**.~~ **Done** — live at https://abanteminds.github.io/ (moved from https://ne-tyr0.github.io/Abante-Minds/ on the owner's decision, 4 Nov 2026, so the app has an address of its own).
 8. **Test on a real low-end Android** through the Pages URL. A plain-HTTP LAN address can't
    register the service worker, so install and offline only work on the HTTPS URL.
 9. ~~**CI**.~~ **Done** — `.github/workflows/ci.yml` runs the engine, entry, facts and
@@ -292,7 +292,7 @@ bump, and a new pack file must be added to `SHELL` (`tests/invariants.js` fails 
 `APP_BUILD` in `app/store.js` moves with it: it is the build number in `CACHE`, stamped on
 every row of the attempt log, and `tests/invariants.js` fails if the two differ.
 
-Hosted at **https://ne-tyr0.github.io/Abante-Minds/**, built from `main` at the repo root.
+Hosted at **https://abanteminds.github.io/**, published from `main` by the Publish workflow (the app's files only).
 
 **Never delete `.nojekyll`.** GitHub Pages runs Jekyll by default, and Jekyll silently drops
 every path beginning with an underscore — which is the whole of `_ds/`. Without that file the
@@ -331,7 +331,7 @@ keeping the vendored design system on the live site.
   started from a shell.** The page loads, but the pane never delivers the worker's script
   request to the server, so registration fails with *An unknown error occurred when fetching
   the script*. That is not an app bug: the live site registers and precaches all 29 files.
-  Check offline behaviour on https://ne-tyr0.github.io/Abante-Minds/ or in a normal browser.
+  Check offline behaviour on https://abanteminds.github.io/ or in a normal browser.
   A server started through the pane's own preview tool does register: on 2026-10-01 it
   precached all 29 files and served the pack with the server's copy removed.
 - The service worker serves from cache first. During development use `devserver.py`, or

@@ -225,7 +225,7 @@ p1 = f"""
       <img src="{QR}" style="width:27mm;height:27mm" alt="QR code to open Abante Minds">
       <div>
         <b style="font-size:11pt">Open it on a phone</b><br>
-        <span style="color:#2458c9">ne-tyr0.github.io/Abante-Minds</span><br>
+        <span style="color:#2458c9">abanteminds.github.io</span><br>
         <small class="muted">Scan with the phone's camera, then add it to the home screen.</small>
       </div>
     </div>

@@ -26,7 +26,7 @@ const M = [
   ["tool", "weekly, not daily", "\"RRULE:FREQ=DAILY\",", "\"RRULE:FREQ=WEEKLY\","],
   ["tool", "no alert", "    \"BEGIN:VALARM\",\n", ""],
   ["tool", "the alert an hour early", "\"TRIGGER:PT0M\",", "\"TRIGGER:-PT1H\","],
-  ["tool", "one event for every hour", "\"UID:abante-minds-practice-\" + two(hour) + \"00@ne-tyr0.github.io\",", "\"UID:abante-minds-practice@ne-tyr0.github.io\","],
+  ["tool", "one event for every hour", "\"UID:abante-minds-practice-\" + two(hour) + \"00@abanteminds.github.io\",", "\"UID:abante-minds-practice@abanteminds.github.io\","],
   ["tool", "lines end in LF", "].join(\"\\r\\n\");", "].join(\"\\n\");"],
   ["tool", "commas not escaped", "R.DETAILS.replace(/,/g, \"\\\\,\")", "R.DETAILS"],
   ["app", "the Google end not fifteen minutes on", "var end = hour * 60 + MINUTES;", "var end = hour * 60 + 60;"],
