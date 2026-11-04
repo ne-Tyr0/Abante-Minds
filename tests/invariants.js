@@ -66,13 +66,17 @@ check(".nojekyll exists at the repo root",
 
 /* 5. The app promises no third-party requests. Any absolute URL in a shipped
       file is treated as one, apart from XML namespace identifiers, which are
-      names rather than addresses. */
+      names rather than addresses, and one link, named here with its file:
+      Google Calendar's add-event page, which the practice reminder opens on
+      Android when the learner taps for it. The app loads nothing from it
+      (allowed by the owner, 4 November 2026). */
 const NAMESPACES = new Set(["http://www.w3.org/2000/svg", "http://www.w3.org/1999/xlink"]);
+const ALLOWED = new Set(["app/reminder.js https://calendar.google.com/calendar/render?action=TEMPLATE"]);
 const urlHits = [];
 for (const file of precached) {
   if (!/\.(?:js|css|html|webmanifest|json)$/.test(file) || !exists(file)) continue;
   for (const m of read(file).matchAll(/https?:\/\/[^\s"'`)<>]+/g)) {
-    if (!NAMESPACES.has(m[0])) urlHits.push(`${file}: ${m[0]}`);
+    if (!NAMESPACES.has(m[0]) && !ALLOWED.has(file + " " + m[0])) urlHits.push(`${file}: ${m[0]}`);
   }
 }
 check("no third-party URL in any shipped file", urlHits);

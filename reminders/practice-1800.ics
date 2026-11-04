@@ -1,0 +1,21 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//Abante Minds//Practice reminder//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+BEGIN:VEVENT
+UID:abante-minds-practice-1800@ne-tyr0.github.io
+DTSTAMP:20261104T000000Z
+DTSTART:20261101T180000
+DURATION:PT15M
+RRULE:FREQ=DAILY
+SUMMARY:Abante Minds: math practice
+DESCRIPTION:Ten questions\, or one quick challenge. Open Abante Minds from your home screen.
+URL:https://ne-tyr0.github.io/Abante-Minds/
+BEGIN:VALARM
+ACTION:DISPLAY
+DESCRIPTION:Time for math practice
+TRIGGER:PT0M
+END:VALARM
+END:VEVENT
+END:VCALENDAR

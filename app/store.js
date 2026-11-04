@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 65;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 66;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -91,6 +91,8 @@
       bridgedTo: null,             /* the last missed day of an absence the streak was kept across */
       shieldSave: null,            /* {day, used, streak}: a return on which shields kept the streak */
       road: null,                  /* the reward road: {reached, seen, shields, log}; see "the reward road" below */
+      reminder: null,              /* {hour, day}: the time a calendar reminder was added for; see "the practice reminder" */
+      reminderOffered: false,      /* the offer after a round has been made */
       recapSeen: null              /* the week (its Monday) whose look back was put away */
     };
   }
@@ -886,6 +888,24 @@
     return state.shieldSave && state.shieldSave.day === today() ? state.shieldSave : null;
   }
 
+  /* ---------- the practice reminder ----------
+     The phone's calendar does the reminding (app/reminder.js). This keeps
+     only the hour the learner added one for, for Profile to say, and that
+     the offer after a round has been made. */
+  function setReminder(hour) {
+    state.reminder = { hour: hour, day: today() };
+    commit();
+  }
+  function reminder() { return state.reminder || null; }
+  /* The offer after a round, once: after a first round, and never once a
+     reminder has been added. */
+  function takeReminderOffer() {
+    if (state.reminderOffered || state.reminder || !state.lastSession) return false;
+    state.reminderOffered = true;
+    commit();
+    return true;
+  }
+
   /* The next streak badge not yet earned, and how many days are left to it. */
   function nextStreakBadge() {
     var next = STREAK_BADGES.filter(function (n) { return !badgeOf("streak:" + n); })[0];
@@ -1108,6 +1128,9 @@
     road: road,
     takeRoad: takeRoad,
     shieldSaved: shieldSaved,
+    setReminder: setReminder,
+    reminder: reminder,
+    takeReminderOffer: takeReminderOffer,
     SHOWCASE_MAX: SHOWCASE_MAX,
     IMPROVER_FIXES: IMPROVER_FIXES,
     hasProgress: hasProgress,

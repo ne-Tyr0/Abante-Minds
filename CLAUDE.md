@@ -57,7 +57,7 @@ third before it shipped: a pinned item on a template with more than one format c
 
 `tests/mutation/` breaks the engine, the entry rules, the facts drill, the strengths and
 gaps, the progress rules and the packs one way at a time and requires the tests to fail:
-`node tests/mutation/engine.js`, `challenge.js`, `readiness.js`, `share.js`, `road.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
+`node tests/mutation/engine.js`, `challenge.js`, `readiness.js`, `share.js`, `road.js`, `reminder.js`, `entry.js`, `facts.js`, `insights.js`, `item-spec.js`, `progress.js`, `replay.js`, `validator.js` (the last takes a few minutes; `MUTANT=<name>` runs one). Not in CI. Run them when you add a rule, and add a
 mutant for it, so a test that can never fail does not pass for one.
 
 ## Layout
@@ -71,6 +71,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/readiness.js` | The readiness estimate by topic and overall, and the weekly look back. Pure, from the attempt log, and takes its topics and weights as input |
 | `app/challenge.js` | The rules of the challenge round: the two modes, the scoring and the ladder. Pure, like `facts.js`; the questions are the engine's and the records the store's |
 | `app/share.js` | Pictures made on the phone: the streak milestone picture and the reward road's certificate, drawn on a canvas and handed to the phone's share menu |
+| `app/reminder.js`, `reminders/` | The practice reminder: the times and the Google Calendar link. The calendar file for each time is written into `reminders/` by `node tools/reminders.js`, which holds the file's text (CI checks they match). The `.ics` files are CR LF and stored byte for byte (`.gitattributes`) |
 | `app/road.js` | The reward road: its steps, which streaks are milestones, how a step opens, what the steps give, the shield cap. Pure; the store keeps what the learner has from it |
 | `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
@@ -152,6 +153,16 @@ Settled with the project owner. Build on them; don't reopen them.
   credited as the inspiration where it is used.
 - **A certificate carries the name as typed**, what it was earned by and the date; no
   school, no score. The share picture keeps to the first name.
+- **The practice reminder is the phone's own calendar** (decided 2026-11-03, the route
+  2026-11-04). No server and no notification: a daily event at 3 to 9 PM on the hour.
+  An iPhone gets a ready-made calendar file from the site, because a file a home-screen
+  app makes itself is not reliably handed to Calendar. Android gets a Google Calendar
+  link, because the app there cannot import a file. Neither carries anything about the
+  learner. It is offered once after a first round, and on Profile. The Google link is the
+  app's one outside address, allowed by name in `tests/invariants.js`: the learner opens
+  it, and the app loads nothing from it. A notification server was weighed and put off
+  (children's device addresses on a server, a key that could message every phone, silent
+  failure); revisit if a server exists for another reason.
 - **Content fades away at both ends of the scrolling area** (decided 2026-10-31; the top
   added after the owner saw it cut on a phone), with a soft fade rather than a blur, which
   costs a budget phone on every scroll. Each fade shows only while there is more to scroll
