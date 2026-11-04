@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Abante Minds design catalog</title>
+<!-- The app fetches its packs and pictures relative to the page: read them from the app's root. -->
+<base href="../../">
+<!-- The design catalog: every colour, type style, icon, component, badge and
+     picture the app has, drawn by the app's own code, then its screens as the
+     screenshot harness stages them. build.py prints it to a PDF. It loads the
+     app's scripts, which touch saved progress, so like the harness it runs
+     only on a local dev server. -->
+<link rel="stylesheet" href="app/fonts.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/colors.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/typography.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/tokens/depth.css">
+<link rel="stylesheet" href="_ds/abante-minds-design-system-561b7534-fa3f-47b6-9ed0-b8f880eb666b/foundations/press.css">
+<link rel="stylesheet" href="motion/motion.css">
+<link rel="stylesheet" href="app/app.css">
+<style>
+  @page { size: A4; margin: 12mm 12mm 13mm; }
+  html, body { height: auto !important; overflow: visible !important; background: #ffffff !important; }
+  body { margin: 0; color: #16202c; font-family: "Lexend", system-ui, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  #am-root { display: none !important; }
+  #cat { width: 186mm; margin: 0 auto; }
+  #refuse { padding: 24px; max-width: 32em; line-height: 1.5; }
+  .pg { break-before: page; }
+  .cover { height: 268mm; display: flex; flex-direction: column; justify-content: space-between; padding: 6mm 2mm; box-sizing: border-box; }
+  .cover h1 { font: 800 44px/1.05 "Baloo 2", sans-serif; margin: 0; color: #16295a; }
+  .cover .sub { font-size: 16px; color: #51617a; margin-top: 10px; max-width: 120mm; line-height: 1.45; }
+  .cover .meta { font-size: 12px; color: #51617a; line-height: 1.6; }
+  .part { font: 800 28px/1.1 "Baloo 2", sans-serif; color: #16295a; margin: 0 0 2mm; }
+  .part-note { font-size: 12.5px; color: #51617a; margin: 0 0 6mm; line-height: 1.5; max-width: 160mm; }
+  h2 { font: 700 17px/1.2 "Lexend", sans-serif; margin: 7mm 0 3mm; color: #16202c; break-after: avoid; }
+  h2 small { font-weight: 400; color: #51617a; font-size: 12px; margin-left: 6px; }
+  .note { font-size: 11.5px; color: #51617a; line-height: 1.45; margin: -1mm 0 3mm; max-width: 170mm; }
+  .grid { display: grid; gap: 3mm; }
+  .g2 { grid-template-columns: repeat(2, 1fr); } .g3 { grid-template-columns: repeat(3, 1fr); } .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g5 { grid-template-columns: repeat(5, 1fr); } .g6 { grid-template-columns: repeat(6, 1fr); } .g7 { grid-template-columns: repeat(7, 1fr); }
+  .box { border: 1px solid #dbe7f8; border-radius: 10px; padding: 3mm; break-inside: avoid; background: #fff; }
+  .cap { font-size: 10.5px; color: #51617a; margin-top: 1.5mm; line-height: 1.35; }
+  .cap b { color: #16202c; font-weight: 600; }
+  .mono { font-family: ui-monospace, Consolas, monospace; font-size: 10px; color: #51617a; }
+  .sw { display: flex; height: 16mm; border-radius: 8px; overflow: hidden; border: 1px solid #e3e9f3; }
+  .sw span { flex: 1; display: flex; align-items: flex-end; padding: 1.5mm; font: 9px ui-monospace, Consolas, monospace; }
+  .row { display: flex; flex-wrap: wrap; gap: 3mm; align-items: center; }
+  .stage { background: #eef3fb; border-radius: 10px; padding: 4mm; break-inside: avoid; }
+  .stage.dark { background: #0e1626; }
+  .badgerow { display: flex; flex-wrap: wrap; gap: 2.5mm 2mm; align-items: flex-end; }
+  .bcell { width: 17mm; text-align: center; font-size: 8.5px; color: #51617a; line-height: 1.2; }
+  .shot { break-inside: avoid; }
+  .shot img { width: 100%; border-radius: 10px; box-shadow: 0 0 0 1px #d4deec; display: block; }
+  .pic img { width: 100%; border-radius: 8px; box-shadow: 0 0 0 1px #d4deec; display: block; }
+  .contents { font-size: 13px; line-height: 1.9; }
+  .contents b { display: inline-block; width: 9mm; color: #2458c9; }
+  .tile-demo .am-tiles { max-width: 120mm; }
+  .road-table { width: 100%; border-collapse: collapse; font-size: 11px; }
+  .road-table th, .road-table td { border-bottom: 1px solid #e3e9f3; padding: 2mm 1.5mm; text-align: left; vertical-align: middle; }
+  .road-table th { color: #51617a; font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: .04em; }
+</style>
+</head>
+<body>
+<div id="am-root" class="am-root am-reset" data-device="phone"></div>
+<div id="cat"></div>
+<script>
+"use strict";
+var LOCAL = /^(?:localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname);
+var ROOT = "";
+var SCRIPTS = ["app/icons.js", "app/ui.js", "app/badgeart.js", "app/content.js", "app/entry.js", "app/facts.js", "app/challenge.js",
+  "app/insights.js", "app/readiness.js", "app/store.js", "app/screens.js", "app/share.js", "app/road.js", "app/reminder.js",
+  "motion/motion.js", "motion/sound.js", "motion/moments.js", "app/app.js"];
+
+if (!LOCAL) {
+  document.title = "REFUSED";
+  document.body.innerHTML = '<p id="refuse">The design catalog only runs on a local dev server: it loads the app, which touches saved progress.</p>';
+} else {
+  (function next(i) {
+    if (i === SCRIPTS.length) { window.AM.app.ready.then(build); return; }
+    var s = document.createElement("script");
+    s.src = ROOT + SCRIPTS[i];
+    s.onload = function () { next(i + 1); };
+    document.head.appendChild(s);
+  })(0);
+}
+
+function build() {
+  var AM = window.AM, el = AM.el, cat = document.getElementById("cat");
+  var P = new URLSearchParams(location.search);
+  var SHOTS = (P.get("shots") || "").split(",").filter(Boolean);
+  var put = function (node) { cat.appendChild(node); return node; };
+  var box = function (children, cls) { return el("div.box" + (cls || ""), null, children); };
+  var cap = function (bold, rest) { return el("div.cap", null, bold ? el("b", null, bold) : null, rest ? (bold ? " · " : "") + rest : null); };
+  var section = function (title, small) { return put(el("h2", null, title, small ? el("small", null, small) : null)); };
+  var part = function (n, title, note) {
+    put(el("div.pg"));
+    put(el("div.part", null, n + "  " + title));
+    if (note) put(el("p.part-note", null, note));
+  };
+  var today = new Date().toISOString().slice(0, 10);
+
+  /* ---------- cover and contents ---------- */
+  put(el("div.cover", null,
+    el("div", null,
+      el("div", { style: { lineHeight: 0, marginBottom: "8mm" } }, el("img", { src: ROOT + "assets/abante-minds-mark.png", style: { width: "22mm", height: "22mm" } })),
+      el("h1", null, "Abante Minds"),
+      el("h1", { style: { color: "#2458c9" } }, "Design catalog"),
+      el("div.sub", null, "Every colour, type style, icon, component, badge and picture in the app, drawn by the app's own code, then every screen as a learner sees it, in light and dark.")),
+    el("div.meta", null, "Internal reference · not for outside distribution", el("br"), "App build " + (P.get("build") || "?") + " · made " + today)));
+  put(el("div.pg"));
+  put(el("div.part", null, "Contents"));
+  put(el("div.contents", null, [
+    ["1", "Foundations: colour, type, space and depth, icons"],
+    ["2", "Components: buttons, chips, cards, controls, the learner's card, flames, result tiles"],
+    ["3", "Badges: every level badge by topic, shiny and locked, and the special badges"],
+    ["4", "The reward road and the pictures the app makes"],
+    ["5", "Screens: first open and Home"],
+    ["6", "Screens: practice, from lesson to level-up"],
+    ["7", "Screens: question types and answers"],
+    ["8", "Screens: Basics and facts"],
+    ["9", "Screens: streaks, badges and rewards"],
+    ["10", "Screens: challenge, practice exam and review"],
+    ["11", "Screens: Profile and settings"],
+    ["12", "Screens: dark mode"]
+  ].map(function (r) { return el("div", null, el("b", null, r[0]), r[1]); })));
+
+  /* ---------- 1 · foundations ---------- */
+  part("1", "Foundations", "The design tokens the app paints with. Each colour shows its light value, then its dark-mode value. Topic colours keep their bright fill in both themes.");
+  var docEl = document.documentElement;
+  function tokens(names) {
+    var out = {};
+    ["day", "night"].forEach(function (theme) {
+      docEl.dataset.theme = theme;
+      var cs = getComputedStyle(docEl);
+      names.forEach(function (n) { (out[n] = out[n] || {})[theme] = cs.getPropertyValue(n).trim(); });
+    });
+    docEl.dataset.theme = "day";
+    return out;
+  }
+  function ink(hex) {
+    var m = /^#?([0-9a-f]{6})$/i.exec(hex || ""); if (!m) return "#16202c";
+    var v = parseInt(m[1], 16), l = 0.299 * (v >> 16) + 0.587 * ((v >> 8) & 255) + 0.114 * (v & 255);
+    return l > 150 ? "#16202c" : "#ffffff";
+  }
+  function swatches(groups) {
+    var all = []; groups.forEach(function (g) { all = all.concat(g[1]); });
+    var t = tokens(all);
+    groups.forEach(function (g) {
+      section(g[0]);
+      put(el("div.grid.g4", null, g[1].map(function (n) {
+        return el("div", { style: { breakInside: "avoid" } },
+          el("div.sw", null,
+            el("span", { style: { background: t[n].day, color: ink(t[n].day) } }, t[n].day),
+            el("span", { style: { background: t[n].night, color: ink(t[n].night) } }, t[n].night)),
+          el("div.mono", { style: { marginTop: "1mm" } }, n));
+      })));
+    });
+  }
+  swatches([
+    ["Brand and action", ["--brand-blue-600", "--brand-blue-100", "--action-500", "--action-600", "--action-700", "--focus-ring"]],
+    ["Feedback and celebration", ["--success-700", "--success-100", "--danger-700", "--danger-100", "--celebration-gold-500", "--gold-tint", "--celebration-coral-600", "--celebration-teal-600"]],
+    ["Ink, surfaces and lines", ["--ink-900", "--ink-600", "--ink-inverse", "--surface-100", "--surface-200", "--surface-300", "--line-200", "--badge-locked"]]
+  ]);
+  section("Topic colours", "bright, deep and tint, for each of the seven");
+  var topicTok = [];
+  for (var k = 1; k <= 7; k++) topicTok.push("--skill-" + k + "-bright", "--skill-" + k + "-deep", "--skill-" + k + "-tint");
+  var tt = tokens(topicTok);
+  put(el("div.grid.g7", null, [1, 2, 3, 4, 5, 6, 7].map(function (k) {
+    return el("div", { style: { breakInside: "avoid" } },
+      ["bright", "deep", "tint"].map(function (s) {
+        var v = tt["--skill-" + k + "-" + s].day;
+        return el("div", { style: { height: "9mm", background: v, color: ink(v), font: "9px ui-monospace, Consolas, monospace", padding: "1mm", boxSizing: "border-box", borderRadius: s === "bright" ? "6px 6px 0 0" : s === "tint" ? "0 0 6px 6px" : 0 } }, v);
+      }),
+      el("div.mono", { style: { marginTop: "1mm" } }, "skill-" + k));
+  })));
+
+  section("Type", "Lexend for reading and the interface, Baloo 2 for celebrations");
+  put(el("div.box", null, ["heading-lg", "heading-md", "heading-sm", "body-lg", "body", "body-sm", "label", "caption"].map(function (c) {
+    var probe = el("div." + c, null, c === "caption" || c === "label" ? "Right first time · 8 of 10" : "Add and subtract decimals");
+    var row = el("div", { style: { display: "flex", alignItems: "baseline", gap: "6mm", padding: "1.6mm 0", borderBottom: "1px solid #eef3fb" } },
+      el("div.mono", { style: { width: "24mm", flex: "none" } }, "." + c), probe, el("div.mono", { style: { marginLeft: "auto" } }));
+    setTimeout(function () { var cs = getComputedStyle(probe); row.lastChild.textContent = cs.fontSize + " / " + cs.fontWeight; }, 0);
+    return row;
+  }).concat([el("div", { style: { display: "flex", alignItems: "baseline", gap: "6mm", padding: "1.6mm 0" } },
+    el("div.mono", { style: { width: "24mm", flex: "none" } }, "Baloo 2"),
+    el("div", { style: { font: "800 34px/1 'Baloo 2', sans-serif", color: "var(--action-600)" } }, "7 day streak!"))])));
+
+  section("Space, corners and depth");
+  var sp = tokens(["--space-1", "--space-2", "--space-3", "--space-4", "--space-6", "--space-8", "--space-12", "--radius-sm", "--radius-md", "--radius-pill"]);
+  put(el("div.grid.g2", null,
+    box(["--space-1", "--space-2", "--space-3", "--space-4", "--space-6", "--space-8", "--space-12"].map(function (n) {
+      return el("div", { style: { display: "flex", alignItems: "center", gap: "3mm", margin: "1mm 0" } },
+        el("div.mono", { style: { width: "22mm" } }, n + " " + sp[n].day), el("div", { style: { height: "3mm", width: sp[n].day, background: "#2458c9", borderRadius: "2px" } }));
+    })),
+    box(el("div.row", null, ["--radius-sm", "--radius-md", "--radius-pill"].map(function (n) {
+      return el("div", { style: { textAlign: "center" } }, el("div", { style: { width: "22mm", height: "14mm", background: "#eef3fb", border: "2px solid #2458c9", borderRadius: "var(" + n + ")" } }), el("div.mono", null, n));
+    }).concat(["--shadow-card", "--shadow-celebration"].map(function (n) {
+      return el("div", { style: { textAlign: "center" } }, el("div", { style: { width: "22mm", height: "14mm", background: "#fff", borderRadius: "10px", boxShadow: "var(" + n + ")", margin: "0 2mm" } }), el("div.mono", { style: { marginTop: "2mm" } }, n));
+    }))))));
+
+  section("Icons", "the app's glyphs, then one drawn for each topic in its own colour");
+  var GLYPHS = ["home", "profile", "lesson", "level-up", "next", "back", "x", "check", "retry", "hint", "lock", "clock", "star", "trophy", "streak",
+    "calculator", "coins", "percent", "ruler", "scales", "triangle", "add", "share", "shield", "certificate"];
+  put(el("div.grid.g7", null, GLYPHS.map(function (g) {
+    return el("div", { style: { textAlign: "center", breakInside: "avoid" } },
+      el("div", { style: { color: "#16202c", display: "flex", justifyContent: "center", padding: "2mm 0" } }, AM.icon(g, 26)), el("div.mono", null, g));
+  })));
+  var allTopics = AM.content.TOPICS.concat(AM.content.BASICS || []);
+  put(el("div.grid.g6", { style: { marginTop: "4mm" } }, allTopics.map(function (t) {
+    return el("div", { style: { textAlign: "center", breakInside: "avoid" } },
+      el("div", { style: { display: "flex", justifyContent: "center", padding: "2mm 0", background: "var(--skill-" + t.colorKey + "-tint)", borderRadius: "10px" } }, AM.topicIcon(t.icon, 36, t.colorKey)),
+      el("div.cap", null, t.label));
+  })));
+
+  /* ---------- 2 · components ---------- */
+  part("2", "Components", "The building blocks every screen is made of, drawn by the app's own component code.");
+  section("Buttons", "one action colour, amber, means go; the shelf under each is the press");
+  put(el("div.stage", null, el("div.grid.g2", null,
+    AM.Button({ label: "Practise level 3", fullWidth: true }), AM.Button({ label: "Back to decimals", variant: "ghost", fullWidth: true }),
+    AM.Button({ label: "Add to Calendar", iconLeft: "clock", fullWidth: true }), AM.Button({ label: "Share", variant: "ghost", iconLeft: "share", fullWidth: true }),
+    AM.Button({ label: "Continue", variant: "inverse", fullWidth: true }), AM.Button({ label: "Waiting for a connection", disabled: true, fullWidth: true }))));
+  put(cap("primary, ghost, inverse (on the gold celebration) and disabled"));
+
+  section("Chips, cards and controls");
+  var ctl = el("div.grid.g2", null,
+    box([el("div.row", null, AM.Chip({ label: "Step 3 reached" }), AM.Chip({ icon: "shield", label: "1 of 2 shields" }), AM.Chip({ label: "Shiny", background: "var(--celebration-gold-500)", color: "var(--ink-900)" }), AM.Chip({ large: true, icon: "star", label: "Large chip" })), cap("Chips")]),
+    box([AM.Card({ style: { gap: 6 } }, el("span.label", null, "A card"), el("span.body-sm", { style: { color: "var(--ink-600)" } }, "Every panel on Home and Profile is one, with the card shadow.")), cap("Card")]),
+    box([AM.Toggle({ label: "Sound", sub: "Gong-chimes for answers.", on: true, onChange: function () {} }), AM.Toggle({ label: "Calm animations", sub: "Celebrations show their end.", on: false, onChange: function () {} }), cap("Toggles")]),
+    box([AM.Segmented({ label: "Theme", sub: "Auto follows the phone.", value: "auto", onChange: function () {}, options: [{ value: "auto", label: "Auto" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }] }), cap("Segmented control")]),
+    box([AM.ProgressBar({ ratio: 0.25, height: 8, color: "var(--brand-blue-600)", label: "a" }), el("div", { style: { height: "2mm" } }), AM.ProgressBar({ ratio: 0.6, height: 10, color: "var(--skill-1-bright)", label: "b" }), el("div", { style: { height: "2mm" } }), AM.ProgressBar({ ratio: 1, height: 10, color: "var(--skill-4-bright)", label: "c" }), cap("Progress bars, in a topic's colour")]),
+    box([el("div.tile-demo", null, el("div.am-tiles", null, [["acc", "Sharp", "85%", "right first time"], ["run", "Best run", "6", "in a row"], ["time", "Time", "7", "minutes"]].map(function (x) {
+      return el("div.am-tile.am-tile-" + x[0], null, el("div.am-tile-word.caption", null, x[1]), el("div.am-tile-face", null, el("span.am-tile-num.heading-lg", null, x[2]), el("span.caption", { style: { color: "var(--ink-600)" } }, x[3])));
+    }))), cap("Result tiles", "the word reads Perfect, Sharp, Steady or Building")]));
+  put(ctl);
+
+  section("The learner's card", "six colours (two from the reward road), four icons, frames and patterns");
+  put(el("div.grid.g3", null, [1, 2, 3, 4, 5, 6].map(function (k, i) {
+    return AM.ProfileCard({ name: ["Maya", "Juan", "Ana", "Paolo", "Bea", "Luis"][i], greeting: "Hello, ", colorKey: k, iconKey: ["triangle", "star", "scales", "coins", "triangle", "star"][i], style: { maxWidth: "none" } });
+  })));
+  put(el("div.grid.g4", { style: { marginTop: "4mm" } }, [null, "silver", "gold", "year"].map(function (f) {
+    return el("div", { style: { padding: "2mm" } }, AM.ProfileCard({ name: "Maya", greeting: "", colorKey: 1, iconKey: "triangle", frame: f, style: { maxWidth: "none" } }), cap(f ? f[0].toUpperCase() + f.slice(1) + " frame" : "No frame"));
+  })));
+  put(el("div.grid.g3", { style: { marginTop: "3mm" } }, ["binakol", "triangles", "hexagons", "stars", null].map(function (p, i) {
+    return el("div", null, AM.ProfileCard({ name: "Maya", greeting: "", colorKey: [1, 5, 2, 6, 3][i], iconKey: "triangle", pattern: p, frame: p === "binakol" ? "gold" : null, style: { maxWidth: "none" } }),
+      cap(p ? p[0].toUpperCase() + p.slice(1) : "No pattern", p === "binakol" ? "inspired by Ilocano binakol weaving" : null));
+  })));
+
+  section("Flames", "the streak flame, its three colours from the reward road, and unlit");
+  function flame(size, key, lit) {
+    var f = AM.Flame(size, lit !== false), c = AM.share.FLAMES[key];
+    if (c) ["--flame-shelf", "--flame-body", "--flame-mid", "--flame-core"].forEach(function (v, i) { f.style.setProperty(v, c[i]); });
+    return f;
+  }
+  put(el("div.grid.g2", null,
+    el("div.stage", null, el("div.row", { style: { justifyContent: "space-around" } }, flame(56, "orange"), flame(56, "blue"), flame(56, "purple"), flame(56, "orange", false))),
+    el("div.stage.dark", null, el("div.row", { style: { justifyContent: "space-around" } }, flame(56, "orange"), flame(56, "blue"), flame(56, "purple"), flame(56, "orange", false)))));
+  put(cap("Orange, blue (100 days), purple (365 days), and unlit, on light and dark"));
+
+  /* ---------- 3 · badges ---------- */
+  part("3", "Badges", "Every level is a badge: a hexagon in the topic's colour on the path, a round token in Basics. Its rim fills a segment per level, with laurels at halfway, then a star, a gem and a crown with a gold edge at the last. A perfect level is shiny; a level not cleared is a grey '?'.");
+  var catl = AM.store.catalog();
+  function draw(t, lv, opts) {
+    return el("span", { html: AM.badgeArt.art({ topic: t, badge: { number: lv.number, total: lv.total, earned: opts.earned, shiny: opts.shiny, name: lv.name || lv.title } }, opts.size || 56) });
+  }
+  catl.topics.forEach(function (t) {
+    var levels = t.levels;
+    var head = el("div", { style: { display: "flex", alignItems: "center", gap: "2mm", margin: "5mm 0 2mm", breakAfter: "avoid" } },
+      AM.topicIcon(t.icon, 22, t.colorKey), el("span", { style: { font: "600 13px Lexend, sans-serif" } }, t.label),
+      el("span.mono", null, (t.track === "basics" ? "Basics · " : "Path · ") + levels.length + " level" + (levels.length === 1 ? "" : "s")));
+    var row = el("div.badgerow", null, levels.map(function (lv) {
+      return el("div.bcell", null, draw(t, lv, { earned: true }), el("div", null, lv.number + " · " + lv.tier));
+    }).concat([
+      el("div.bcell", null, draw(t, levels[levels.length - 1], { earned: true, shiny: true }), el("div", null, "shiny")),
+      el("div.bcell", null, draw(t, levels[0], { earned: false }), el("div", null, "not yet"))
+    ]));
+    put(el("div", { style: { breakInside: "avoid" } }, head, row));
+  });
+  section("Special badges", "streaks, practice exams, challenge, Improver and Welcome back");
+  put(el("div.badgerow", null, catl.specials.map(function (b) {
+    return el("div.bcell", { style: { width: "21mm" } },
+      el("span", { html: AM.badgeArt.art({ topic: null, badge: { kind: b.kind, tier: b.tier, earned: true, name: b.name } }, 60) }),
+      el("div", null, b.name));
+  }).concat([el("div.bcell", { style: { width: "21mm" } }, el("span", { html: AM.badgeArt.art({ topic: null, badge: { kind: "streak", tier: 1, earned: false, name: "" } }, 60) }), el("div", null, "not yet"))])));
+
+  /* ---------- 4 · reward road and pictures ---------- */
+  part("4", "The reward road and the pictures", "Each step opens with a streak or with levels cleared, whichever comes first, and what is earned stays. The share picture carries the first name only; the certificate carries the name as typed.");
+  var NAMES = { colour: "card colour", shield: "Streak shield", frame: { silver: "Silver card frame", gold: "Gold card frame", year: "One-year card frame" },
+    pattern: { binakol: "Binakol pattern", triangles: "Triangle pattern", hexagons: "Hexagon pattern", stars: "Star pattern" },
+    flame: { blue: "Blue flame", purple: "Purple flame" } };
+  var rows = [];
+  for (var i = 0; i < 13; i++) {
+    var st = AM.road.step(i), words = [], colours = 0;
+    st.rewards.forEach(function (r) {
+      if (r.kind === "colour") colours++;
+      else if (r.kind === "shield") words.push("Streak shield");
+      else if (r.kind === "certificate") words.push(r.key === 365 ? "One-year certificate" : "Certificate of practice");
+      else words.push(NAMES[r.kind][r.key]);
+    });
+    if (colours) words.unshift(colours + " new card colours");
+    rows.push(el("tr", null, el("td", null, String(st.n)), el("td", null, st.streak + " days"), el("td", null, st.levels ? st.levels + " levels" : "n/a"), el("td", null, words.join(" · "))));
+  }
+  put(el("table.road-table", null, el("thead", null, el("tr", null, el("th", null, "Step"), el("th", null, "Streak"), el("th", null, "or levels cleared"), el("th", null, "Rewards"))), el("tbody", null, rows)));
+  put(el("div.note", { style: { marginTop: "2mm" } }, "Then a streak shield at 600 days and every 100 after. At most two shields are held."));
+
+  var pics = [];
+  section("The milestone share picture", "orange, blue and purple flames");
+  var picRow = put(el("div.grid.g3"));
+  section("The certificate of practice", "earned by a streak, by levels, and the one-year one");
+  var certRow = put(el("div.grid.g2"));
+  [["orange", 7], ["blue", 100], ["purple", 365]].forEach(function (f) {
+    pics.push(AM.share.picture(f[1], "Maya Santos", f[0]).then(function (b) {
+      picRow.appendChild(el("div.pic", null, el("img", { src: URL.createObjectURL(b) }), cap(f[1] + " days", f[0] + " flame")));
+    }));
+  });
+  [{ by: "streak", days: 30, levels: 25 }, { by: "levels", days: 30, levels: 25 }, { by: "streak", days: 365, levels: null, year: true }].forEach(function (o) {
+    o.name = "Maya Santos"; o.day = today;
+    pics.push(AM.share.certificate(o).then(function (b) {
+      certRow.appendChild(el("div.pic", null, el("img", { src: URL.createObjectURL(b) }), cap(o.year ? "One year" : o.by === "levels" ? "By levels" : "By a streak")));
+    }));
+  });
+
+  /* ---------- 5 to 12 · screens ---------- */
+  var GROUPS = [
+    ["5", "First open and Home", "home"],
+    ["6", "Practice, from lesson to level-up", "practice"],
+    ["7", "Question types and answers", "types"],
+    ["8", "Basics and facts", "basics"],
+    ["9", "Streaks, badges and rewards", "rewards"],
+    ["10", "Challenge, practice exam and review", "challenge"],
+    ["11", "Profile and settings", "profile"],
+    ["12", "Dark mode", "dark"]
+  ];
+  var byGroup = {};
+  SHOTS.forEach(function (s) { var p = s.split(":"); (byGroup[p[0]] = byGroup[p[0]] || []).push({ file: p[1], caption: decodeURIComponent(p[2] || "") }); });
+  var imgs = [];
+  GROUPS.forEach(function (g) {
+    var list = byGroup[g[2]] || [];
+    if (!list.length) return;
+    part(g[0], "Screens: " + g[1], null);
+    put(el("div.grid.g4", null, list.map(function (s) {
+      var img = el("img", { src: "tools/design-catalog/shots/" + s.file });
+      imgs.push(new Promise(function (r) { img.onload = img.onerror = r; }));
+      return el("div.shot", null, img, cap(null, s.caption));
+    })));
+  });
+
+  /* The app may have set the theme or a flame from saved progress on this
+     dev server: the catalog shows the defaults, and its own swatches. */
+  docEl.dataset.theme = "day";
+  docEl.dataset.flame = "orange";
+  Promise.all(pics.concat(imgs)).then(function () {
+    var wait = Array.prototype.map.call(document.images, function (im) { return im.complete ? null : new Promise(function (r) { im.onload = im.onerror = r; }); });
+    return Promise.all(wait);
+  }).then(function () { document.title = "READY"; });
+}
+</script>
+</body>
+</html>

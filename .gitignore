@@ -17,3 +17,7 @@ tools/overview-pdf/overview.html
 tools/overview-pdf/*.pdf
 tools/overview-pdf/contact.json
 _site/
+
+# Design catalog builder output: regenerable
+tools/design-catalog/shots/
+tools/design-catalog/*.pdf
