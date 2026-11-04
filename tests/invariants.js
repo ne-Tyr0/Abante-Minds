@@ -81,6 +81,21 @@ for (const file of precached) {
 }
 check("no third-party URL in any shipped file", urlHits);
 
+/* 5b. The app page carries a Content Security Policy (tools/csp.js): only the
+       app's own scripts run, and requests go only to the app's own site, so
+       nothing can send a learner's data elsewhere. It must be current (its
+       inline-script hash changes with the script) and name no outside host. */
+const csp = require(path.join(__dirname, "..", "tools/csp.js"));
+const cspTag = (html.match(/<meta http-equiv="Content-Security-Policy" content="([^"]*)">/) || [])[1];
+check("index.html carries a current security policy",
+  !cspTag ? ["no Content-Security-Policy meta in index.html"] : csp.expected(html).indexOf(cspTag) < 0 ? ["out of date: run node tools/csp.js"] : []);
+check("the security policy allows nothing from outside the app's own site",
+  cspTag && /https?:|\*|'unsafe-eval'/.test(cspTag.replace(/'sha256-[^']+'/g, "")) ? ["the policy names an outside source, a wildcard or eval: " + cspTag] : []);
+check("the security policy comes before any script",
+  html.indexOf("Content-Security-Policy") > -1 && html.indexOf("Content-Security-Policy") < html.indexOf("<script") ? [] : ["the policy must come before the first <script>"]);
+check("the app tells no page it opens where it came from",
+  /<meta name="referrer" content="no-referrer">/.test(html) ? [] : ["no referrer policy in index.html"]);
+
 /* 6. The vendored design system's styles.css @imports tokens/fonts.css, which
       fetches from Google. index.html loads the token files one by one so that
       import is never reached. */

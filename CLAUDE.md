@@ -72,6 +72,8 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/challenge.js` | The rules of the challenge round: the two modes, the scoring and the ladder. Pure, like `facts.js`; the questions are the engine's and the records the store's |
 | `app/share.js` | Pictures made on the phone: the streak milestone picture and the reward road's certificate, drawn on a canvas and handed to the phone's share menu |
 | `app/reminder.js`, `reminders/` | The practice reminder: the times and the Google Calendar link. The calendar file for each time is written into `reminders/` by `node tools/reminders.js`, which holds the file's text (CI checks they match). The `.ics` files are CR LF and stored byte for byte (`.gitattributes`) |
+| `tools/site.js`, `.github/workflows/publish.yml` | The published site: `sw.js`'s precache list, `sw.js` and the reminder files, and nothing else; the Publish workflow puts it on GitHub Pages (Settings -> Pages -> Source: GitHub Actions). Design pages, tools, tests and notes stay off the site |
+| `tools/csp.js` | Writes the app page's Content Security Policy into `index.html`, with the hash of its one inline script; `tests/invariants.js` fails if it is missing, stale, or names any outside source. Run it after editing that script |
 | `app/road.js` | The reward road: its steps, which streaks are milestones, how a step opens, what the steps give, the shield cap. Pure; the store keeps what the learner has from it |
 | `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |
 | `content/blueprint.json` | The table of specifications as data. The validator checks every template's competency, domain, schema and answer type against it |
@@ -122,7 +124,12 @@ Settled with the project owner. Build on them; don't reopen them.
 - **Language ladder**: mother tongue towards NCE English, driven by tier, with a
   one-question override that never changes the tier. Maths vocabulary is never translated.
   Tagalog and Cebuano first. Structure in `poc/language-ladder.js`.
-- **Hosting is GitHub Pages.**
+- **Hosting is GitHub Pages, publishing the app's files only** (decided 2026-11-04). Every
+  page on the app's address shares its saved data, so nothing else is published: the
+  design pages loaded React and Babel from unpkg. The site is built by `tools/site.js` in
+  the Publish workflow, so a file the app needs must be in `sw.js`'s precache list.
+  Commits are signed with the owner's GitHub private address (repository config), never
+  the personal email.
 - **The app answers from the phone first** (decided 2026-10-31): opening it uses no data and never waits on the network, on no signal or a bad one. New files arrive only through a `CACHE` bump, all together, so bump it with every change to a precached file. On localhost the files on disk win.
 - **A level-up is the round's finish** (decided 2026-10-31): a level cleared at question 8
   gets a small cue, and its moment after the last question. A round that does not clear
@@ -136,6 +143,11 @@ Settled with the project owner. Build on them; don't reopen them.
   offers Share. The picture is drawn on the phone and goes only where the learner
   sends it. It carries the streak and the first word of the name, never a surname,
   school, code or score.
+- **The app page carries a Content Security Policy** (decided 2026-11-04, after the owner
+  asked that nothing be leaked). Only the app's own scripts run, requests go only to the
+  app's own site, and no page it opens is told where it came from, so a bug or a tampered
+  file cannot send a learner's data anywhere. `index.html` is LF everywhere
+  (`.gitattributes`), because the policy hashes its inline script as the site serves it.
 - **The reward road: one permanent ladder of rewards, no seasons, nothing to buy**
   (decided 2026-11-03, after the owner asked about a battle pass). Each step opens with a
   streak (the best ever) or with levels cleared, path and Basics together, whichever comes

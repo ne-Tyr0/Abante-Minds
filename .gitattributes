@@ -4,3 +4,6 @@
 *.woff2 binary
 # Calendar files are CR LF by their standard (RFC 5545): store them exactly as written.
 reminders/*.ics -text
+# The security policy in index.html carries a hash of its inline script, which
+# changes with the line endings: keep the page LF, as the site serves it.
+index.html text eol=lf

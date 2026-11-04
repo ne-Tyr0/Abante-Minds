@@ -59,6 +59,9 @@ jobs:
       - name: Reward road
         run: node tests/road.js
 
+      - name: The published site is the app's files only, all present
+        run: node tools/site.js _site
+
       - name: Practice reminder, and its calendar files match the app
         run: |
           node tests/reminder.js
