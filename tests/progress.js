@@ -531,6 +531,28 @@ test("a day forgiven before shields existed still carries the streak", () => {
   assert.strictEqual(S.get().streakDays, 4);
 });
 
+/* ---------- the practice reminder ---------- */
+test("no reminder is offered before a first round", () => {
+  const S = launch();
+  assert.strictEqual(S.takeReminderOffer(), false);
+});
+test("after a round it is offered once", () => {
+  const S = launch(saved({ lastSession: { topicLabel: "A", levelTitle: "A one", correct: 6, attempted: 10 } }));
+  assert.strictEqual(S.takeReminderOffer(), true);
+  assert.strictEqual(JSON.parse(storage[KEY]).reminderOffered, true, "and that is saved");
+  assert.strictEqual(S.takeReminderOffer(), false);
+  assert.strictEqual(launch(S.get()).takeReminderOffer(), false, "and not again after the app is closed");
+});
+test("a reminder added is kept with its hour, and the offer is not made", () => {
+  const S = launch(saved({ lastSession: { topicLabel: "A", levelTitle: "A one", correct: 6, attempted: 10 } }));
+  onDay("2026-11-04");
+  S.setReminder(18);
+  assert.deepStrictEqual(S.reminder(), { hour: 18, day: "2026-11-04" });
+  assert.deepStrictEqual(JSON.parse(storage[KEY]).reminder, { hour: 18, day: "2026-11-04" }, "and it is saved");
+  assert.strictEqual(S.takeReminderOffer(), false);
+  assert.deepStrictEqual(launch(S.get()).reminder(), { hour: 18, day: "2026-11-04" });
+});
+
 test("the countdown stops once the exam has passed", () => {
   const S = launch();
   onDay("2027-01-29");

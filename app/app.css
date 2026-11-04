@@ -387,6 +387,10 @@ html, body {
 .am-dot > svg { position: relative; }
 .am-dot > b { position: absolute; inset: -2px; border-radius: 50%; border: 3px solid var(--flame-body, var(--action-500)); opacity: 0; }
 
+/* The practice reminder's times: on the hour, four to a row. */
+.am-times { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.am-time { height: 48px; border-radius: var(--radius-pill); font: 600 16px/1 var(--font-body, inherit); }
+
 /* The reward road: steps down a line, reached ones filled in. */
 .am-road { margin: 0; list-style: none; display: flex; flex-direction: column; }
 .am-road-step { position: relative; display: flex; gap: 12px; padding-bottom: 14px; }

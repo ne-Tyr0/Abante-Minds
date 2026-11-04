@@ -2069,6 +2069,7 @@
 
         newBadgesCard(r.badges || (r.badges = takeBadges(anyBadge))),
         roadNewCard(app, r.road || (r.road = store.takeRoad())),
+        reminderOffer(app, r),
 
         missed ? el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
           sectionLabel("Do next"),
@@ -2632,6 +2633,77 @@
     };
   };
 
+  /* ---------- the practice reminder (app/reminder.js) ----------
+     A daily event in the phone's own calendar, at an hour the learner
+     picks. The app sends nothing; the reminder lives in the calendar. */
+  /* A real link, opened from the tap, as phones require. */
+  function openOut(url) {
+    var a = document.createElement("a");
+    a.href = url; a.target = "_blank"; a.rel = "noopener";
+    document.body.appendChild(a); a.click(); a.remove();
+  }
+  screens.reminder = function (app) {
+    var R = AM.reminder, set = store.reminder();
+    var view = app.scratch.reminderView || (app.scratch.reminderView = { hour: set ? set.hour : R.DEFAULT_HOUR, added: false });
+    var apple = app.scratch.reminderApple !== undefined ? app.scratch.reminderApple : R.onApple();
+    var online = store.isOnline();
+    function leave() { var back = app.scratch.reminderBack || "profile"; app.scratch.reminderView = null; app.go(back, "back"); }
+    function add() {
+      if (!online) return;
+      openOut(apple ? R.icsPath(view.hour) : R.googleLink(view.hour, store.today()));
+      store.setReminder(view.hour);
+      view.added = true;
+      app.render();
+    }
+    var times = el("div.am-times", { role: "group", "aria-label": "Reminder time" }, R.HOURS.map(function (h) {
+      var on = view.hour === h;
+      return el("button.am-reset.am-pressable.am-time", {
+        type: "button", "aria-pressed": on ? "true" : "false",
+        onClick: function () { view.hour = h; view.added = false; app.render(); },
+        style: {
+          "--am-edge": on ? "var(--brand-blue-600)" : "var(--line-200)",
+          background: on ? "var(--brand-blue-100)" : "var(--surface-200)", color: on ? "var(--brand-blue-600)" : "var(--ink-900)"
+        }
+      }, R.label(h));
+    }));
+    return {
+      nav: null,
+      back: leave,
+      body: column([
+        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 8 } },
+          el("div.heading-lg", null, "Practice reminder"),
+          el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+            "Pick a time. Your phone's calendar will remind you to practise every day.")),
+        el("div", { style: { padding: "18px " + gutter() + "px 0" } }, times),
+        view.added ? el("div", { style: { padding: "18px " + gutter() + "px 0" } },
+          AM.Card({ style: { gap: 6 } },
+            el("span.label", { style: { display: "inline-flex", alignItems: "center", gap: 6, color: "var(--success-700)" } }, icon("check", 18), "Added for " + R.label(view.hour) + "?"),
+            el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+              "If your calendar asked, say yes, and it will remind you every day. To change the time later, delete this reminder in your calendar, then add a new one here."))) : null,
+        el("p.body-sm", { style: { margin: 0, padding: "18px " + gutter() + "px 0", color: "var(--ink-600)", textWrap: "pretty" } },
+          "Abante Minds sends nothing and keeps nothing for this. The reminder lives in your calendar, and you can delete it there any time."),
+        !online ? el("p.body-sm", { style: { margin: 0, padding: "10px " + gutter() + "px 0", color: "var(--danger-700)" } }, "Connect to the internet to add it.") : null,
+        !apple ? el("div", { style: { padding: "6px " + gutter() + "px 0" } },
+          el("button.am-reset.am-linkbtn.body-sm", { type: "button", style: { padding: "8px 0", textAlign: "left" },
+            onClick: function () { if (online) openOut(R.icsPath(view.hour)); } }, "Using another calendar? Get the calendar file")) : null
+      ], { paddingBottom: 24 }),
+      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
+        el("div", { style: { width: "100%", maxWidth: 520 } },
+          AM.Button({ label: apple ? "Add to Calendar" : "Add to Google Calendar", iconLeft: "clock", fullWidth: true, disabled: !online, onClick: add })))
+    };
+  };
+  /* After a round, once: the offer of a reminder. */
+  function reminderOffer(app, r) {
+    if (r.reminderOffer === undefined) r.reminderOffer = !!AM.reminder && store.takeReminderOffer();
+    if (!r.reminderOffer) return null;
+    return el("div", { style: { padding: "18px " + gutter() + "px 0" } },
+      AM.Card({ style: { gap: 10 } },
+        el("span.label", { style: { display: "inline-flex", alignItems: "center", gap: 6 } }, icon("clock", 18), "A daily reminder?"),
+        el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+          "Your phone's calendar can remind you to practise each day, at a time you pick. Nothing is sent anywhere."),
+        AM.Button({ label: "Set a reminder", variant: "ghost", fullWidth: true, onClick: function () { app.scratch.reminderBack = "summary"; app.go("reminder"); } })));
+  }
+
   screens.profile = function (app) {
     var s = store.get();
     var p = s.profile || { name: "", school: "", colorKey: 2 };
@@ -2717,6 +2789,19 @@
                 options: [{ value: "auto", label: "Auto" }, { value: "light", label: "Light" }, { value: "dark", label: "Dark" }]
               })));
         })(),
+
+        /* The practice reminder, in the phone's own calendar. */
+        AM.reminder ? (function () {
+          var rem = store.reminder();
+          return el("div", { style: { padding: "16px " + gutter() + "px 0" } },
+            AM.Card({ style: { gap: 10 } },
+              el("span", { style: { display: "flex", flexDirection: "column", gap: 2 } },
+                el("span.label", null, "Practice reminder"),
+                el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+                  rem ? "Added for " + AM.reminder.label(rem.hour) + ", in your calendar." : "Your phone's calendar can remind you to practise each day.")),
+              AM.Button({ label: rem ? "Change the time" : "Set a reminder", variant: "ghost", iconLeft: "clock", fullWidth: true,
+                onClick: function () { app.scratch.reminderBack = "profile"; app.go("reminder"); } })));
+        })() : null,
 
         /* One button, no card: it fits the space Profile had spare on a
            390x844 phone, so the footer and nav stay on screen. */

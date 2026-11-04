@@ -402,6 +402,32 @@ function run() {
           AM.app.go("summary");
         }
         break;
+      /* Not in the PDF: the practice reminder. &os=android shows the Google
+         Calendar route; an iPhone is the default here. */
+      case "reminder":
+      case "reminder-added":
+        AM.app.scratch.reminderApple = params.get("os") !== "android";
+        AM.app.scratch.reminderView = null;
+        AM.app.go("reminder");
+        if (screen === "reminder-added") { AM.app.scratch.reminderView.added = true; AM.store.setReminder(17); AM.app.render(); }
+        break;
+      case "profile-reminder":
+        AM.store.setReminder(17);
+        AM.app.go("profile");
+        var prb = w.document.querySelector(".am-slot-body");
+        prb.scrollTop = prb.scrollHeight;
+        break;
+      case "summary-reminder":
+        AM.store.set({ reminderOffered: false, reminder: null });
+        AM.app.startLevel("decimals", "add-and-subtract");
+        AM.app.scratch.result = {
+          topicKey: "decimals", topicLabel: "Decimals", colorKey: 1,
+          levelId: "add-and-subtract", levelTitle: "Add and subtract", levelNumber: 3, redo: false,
+          attempted: 10, correct: 6, levelStart: 0, bestRun: 4, missed: [], minutes: 8
+        };
+        AM.app.session = null;
+        AM.app.go("summary");
+        break;
       /* Not in the PDF: a certificate of practice, drawn by the app. */
       case "certificate":
         AM.share.certificate({ name: "Maya Santos", by: params.get("by") || "streak", days: 30, levels: 25, day: AM.store.today(), year: false }).then(function (blob) {
