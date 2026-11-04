@@ -669,6 +669,8 @@ function run() {
         Object.keys(rv).forEach(function (k) { rv[k].due = AM.store.today(); });
         AM.store.set({ review: rv });
         if (screen === "review-home") { AM.app.go("home"); break; }
+        /* Practice today already showed the streak, so the review ends on its own screen. */
+        if (screen === "review-done") AM.store.set({ streakShownDay: AM.store.today() });
         AM.app.startReview();
         if (screen === "review-done") {
           while (AM.app.session) {
