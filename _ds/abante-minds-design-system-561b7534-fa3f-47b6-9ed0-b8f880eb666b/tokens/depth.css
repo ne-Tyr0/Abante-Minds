@@ -5,7 +5,7 @@
   --press-duration: 80ms; /* @kind other */
 
   /* One depth rule (owner, 2026-11-05): what can be pressed stands on a shelf;
-     everything else lies flat, edged with a hairline. No soft floating shadow.
+     everything else lies flat, edged with a hairline. No soft floating shadow. */
   --shadow-card: inset 0 0 0 1.5px var(--surface-300);
   --shadow-celebration: 0 8px 28px rgba(245,180,0,0.35);
 }
