@@ -1459,6 +1459,40 @@
     }
   }
   function app() { return AM.app; }
+
+  /* A sheet from the bottom, for a road step and for hints: a scrim, the
+     content, and Close; Escape or the phone's Back closes it first. */
+  function openSheet(label, content, closeLabel) {
+    var frame = document.querySelector(".am-frame");
+    if (!frame) return null;
+    clearSheets(frame);
+    var previous = document.activeElement, snd = window.AbanteMinds && window.AbanteMinds.sound;
+    var scrim = el("div.am-sheet-scrim", { onClick: function () { close(); } });
+    var closeBtn = AM.Button({ label: closeLabel || "Close", variant: "ghost", fullWidth: true, onClick: function () { close(); } });
+    var sheet = el("div.am-sheet.am-sheet-left", { role: "dialog", "aria-modal": "true", "aria-label": label },
+      content, el("div", { style: { width: "100%", marginTop: 12 } }, closeBtn));
+    function close() {
+      if (app().closeSheet === close) app().closeSheet = null;
+      if (sheet.parentNode) sheet.parentNode.removeChild(sheet);
+      if (scrim.parentNode) scrim.parentNode.removeChild(scrim);
+      document.removeEventListener("keydown", onKey);
+      if (snd) snd.play("sheetDown");
+      if (previous && previous.focus) previous.focus();
+    }
+    function onKey(e) { if (e.key === "Escape") close(); }
+    document.addEventListener("keydown", onKey);
+    frame.appendChild(scrim);
+    frame.appendChild(sheet);
+    app().closeSheet = close;
+    closeBtn.focus();
+    if (snd) snd.play("sheetUp");
+    var m = window.AbanteMinds && window.AbanteMinds.moments;
+    if (m && !m.reduced()) {
+      sheet.animate([{ transform: "translateY(100%)" }, { transform: "none" }], { duration: 380, easing: m.ease.backSoft });
+      scrim.animate([{ opacity: 0 }, { opacity: 1 }], { duration: 250 });
+    }
+    return { close: close, sheet: sheet };
+  }
   AM.openBadge = openBadge;
 
   function clearSheets(frame) {
@@ -2759,23 +2793,75 @@
   screens.road = function (app) {
     var rd = store.road(), p = store.get().profile || {};
     var shown = Math.max(rd.reached + 3, 11);
-    /* The steps as a path, as a topic's levels are: reached, the one to
-       come with how near it is, and the ones after it. */
-    var path = el("div.am-lpath", { style: { "--tc": "var(--action-500)", "--tc-deep": "var(--action-700)" } });
-    for (var i = 0; i < shown; i++) {
+    /* A step's details, in a sheet from the map. */
+    function detail(i) {
       var st = AM.road.step(i), reached = i < rd.reached, next = i === rd.reached, log = rd.log[st.n] || {};
       var cert = reached && st.rewards.some(function (r) { return r.kind === "certificate"; }) ? certificateFor(app, st, rd, p) : null;
-      path.appendChild(el("div.am-lrow." + (reached ? "done" : next ? "now" : "locked"), null,
-        el("span.am-lnode", { "aria-hidden": "true" }, reached ? icon("check", 22, { glyph: true }) : String(st.n)),
-        el("div.am-lbody", { style: { gap: 10 } },
-          el("span", { style: { display: "flex", flexDirection: "column", gap: 2 } },
-            el("b", null, "Step " + st.n + " · " + stepLabel(st)),
-            reached ? el("small", { style: { color: "var(--success-700)" } },
-              "Reached " + (log.by === "levels" ? "by clearing " + st.levels + " levels" : "with a " + st.streak + "-day streak")) : null),
-          el("div", { style: { display: "flex", flexDirection: "column", gap: 10, width: "100%" } }, rewardRows(st).map(function (r) { return rewardRow(r, p.colorKey); })),
-          next ? el("div", { style: { width: "100%" } }, routeBars(rd, st)) : null,
-          cert ? AM.Button({ label: "Get your certificate", variant: "ghost", iconLeft: "certificate", fullWidth: true, onClick: cert }) : null)));
+      return el("div", { style: { display: "flex", flexDirection: "column", gap: 12, width: "100%" } },
+        el("span", { style: { display: "flex", flexDirection: "column", gap: 2 } },
+          el("span.heading-sm", null, "Step " + st.n + " · " + stepLabel(st)),
+          el("span.body-sm", { style: { color: reached ? "var(--success-700)" : "var(--ink-600)" } },
+            reached ? "Reached " + (log.by === "levels" ? "by clearing " + st.levels + " levels" : "with a " + st.streak + "-day streak")
+              : next ? "Your next step" : "Opens after step " + (st.n - 1))),
+        el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, rewardRows(st).map(function (r) { return rewardRow(r, p.colorKey); })),
+        next ? routeBars(rd, st) : null,
+        cert ? AM.Button({ label: "Get your certificate", variant: "ghost", iconLeft: "certificate", fullWidth: true, onClick: cert }) : null);
     }
+    /* The map: a winding route, the part walked filled in; a node for each
+     step (reached, next, still to come); the chapters on bands of their own
+     colour; and You at the next step. x is a share of the width, y pixels. */
+    var REGIONS = { 0: "Your first week", 2: "Your first month", 4: "A hundred days", 6: "The long road", 10: "One year" };
+    var REG = ["#ff9a3c", "#25a356", "#3b7bf0", "#7b6cf6", "#e2559f"];
+    var pts = [], lift = 0, starts = [];
+    for (var i = 0; i < shown; i++) {
+      if (REGIONS[i] !== undefined || (i > 10 && (i - 10) % 4 === 0)) { if (i) lift += 40; starts.push(i); }
+      pts.push([50 + Math.sin(i * 1.1 + 0.4) * 26, 104 + i * 150 + lift]);
+    }
+    var H = pts[pts.length - 1][1] + 110;
+    function route(n) {
+      var d = "M" + pts[0][0] + " " + (pts[0][1] - 70);
+      for (var k = 0; k < n; k++) {
+        var q = pts[k - 1], c = pts[k];
+        if (!k) d += " L" + c[0] + " " + c[1];
+        else { var my = (q[1] + c[1]) / 2; d += " C" + q[0] + " " + my + ", " + c[0] + " " + my + ", " + c[0] + " " + c[1]; }
+      }
+      return d;
+    }
+    var map = el("div.am-rmap", { style: { height: H + "px" } });
+    starts.forEach(function (i0, r) {
+      var i1 = starts[r + 1], t0 = r ? pts[i0][1] - 118 : 0, b0 = i1 !== undefined ? pts[i1][1] - 118 : H, c = REG[r % REG.length];
+      map.appendChild(el("div.am-rband", { "aria-hidden": "true", style: {
+        top: t0 + "px", height: (b0 - t0) + "px", background: "linear-gradient(180deg, " + c + "2b, " + c + "0f 55%, transparent)",
+        borderTop: r ? "2px dashed " + c + "4d" : "0"
+      } }));
+    });
+    map.appendChild(el("span", { "aria-hidden": "true", html: '<svg viewBox="0 0 100 ' + H + '" preserveAspectRatio="none">' +
+      '<path d="' + route(shown) + '" fill="none" stroke="var(--surface-300)" stroke-width="16" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' +
+      '<path d="' + route(shown) + '" fill="none" stroke="var(--surface-200)" stroke-width="6" stroke-linecap="round" stroke-dasharray="2 16" vector-effect="non-scaling-stroke"/>' +
+      (rd.reached ? '<path d="' + route(rd.reached) + '" fill="none" stroke="#3f78e0" stroke-width="16" stroke-linecap="round" vector-effect="non-scaling-stroke"/>' : "") + "</svg>" }));
+    pts.forEach(function (pt, i) {
+      var st = AM.road.step(i), state = i < rd.reached ? "done" : i === rd.reached ? "next" : "locked", r = starts.indexOf(i);
+      if (r > -1) {
+        var name = REGIONS[i] !== undefined ? REGIONS[i] : "Day " + st.streak + " and on";
+        map.appendChild(el("div.am-region", { "aria-hidden": "true", style: { top: (pt[1] - 100) + "px" } }, el("span", { style: { background: REG[r % REG.length] } }, name)));
+      }
+      var main = st.rewards[0].kind;
+      var face = main === "certificate" ? icon("certificate", 30) : main === "shield" ? icon("shield", 30) : main === "flame" && AM.Flame ? AM.Flame(32, state !== "locked") : String(st.n);
+      var rows = rewardRows(st), title = rows.length ? rows[0].label + (rows.length > 1 ? " and more" : "") : "Step " + st.n;
+      map.appendChild(el("button.am-reset.am-rnode." + state, {
+        type: "button", style: { left: pt[0] + "%", top: pt[1] + "px" },
+        "aria-label": "Step " + st.n + ", " + title + ", " + (state === "done" ? "reached" : state === "next" ? "your next step" : "not reached yet"),
+        onClick: function () { openSheet("Step " + st.n, detail(i)); }
+      }, el("span.am-rnode-face", null, face),
+        state === "next" ? null : el("span.am-rnode-badge", { "aria-hidden": "true" }, icon(state === "done" ? "check" : "lock", 14))));
+      var onLeft = pt[0] > 50;
+      map.appendChild(el("div.am-rlabel", { "aria-hidden": "true", style: onLeft
+        ? { top: (pt[1] - 22) + "px", right: "calc(" + (100 - pt[0]) + "% + 46px)", textAlign: "right" }
+        : { top: (pt[1] - 22) + "px", left: "calc(" + pt[0] + "% + 46px)" } },
+        el("b", null, title), stepLabel(st)));
+      if (state === "next") map.appendChild(el("div.am-you", { "aria-hidden": "true", style: { left: pt[0] + "%", top: pt[1] + "px" } },
+        el("span", null, el("i", { html: AM.monogramSVG(AM.initialsOf(p.name, p.initials), p.colorKey, store.tier().tier) }), "You")));
+    });
     return {
       nav: "road",
       banner: connectionBanner(),
@@ -2783,10 +2869,15 @@
         roadHead(app, "road"),
         el("p.body-sm", { style: { margin: 0, padding: "12px " + gutter() + "px 0", color: "var(--ink-600)", textWrap: "pretty" } },
           "Each step opens with a streak or with levels cleared, whichever comes first. What you earn stays yours."),
-        el("div", { style: { padding: "18px " + gutter() + "px 0" } }, path),
+        el("div", { style: { padding: "0 " + gutter() + "px" } }, map),
         el("p.body-sm", { style: { margin: 0, padding: "4px " + gutter() + "px 0", color: "var(--ink-600)", textWrap: "pretty" } },
           "After 365 days: a streak shield at 400 days, at 500, and every 100 days after.")
-      ], { paddingBottom: 24, maxWidth: 760 })
+      ], { paddingBottom: 24, maxWidth: 760 }),
+      /* Open at the next step, not the top of the road. */
+      after: function () {
+        var b = document.querySelector(".am-slot-body"), n = map.querySelector(".am-rnode.next");
+        if (b && n) b.scrollTop = Math.max(0, n.getBoundingClientRect().top - b.getBoundingClientRect().top + b.scrollTop - b.clientHeight * 0.62);
+      }
     };
   };
 
