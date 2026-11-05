@@ -505,6 +505,9 @@
     { key: "profile", icon: "profile", label: "Profile" }
   ];
 
+  /* The bar is built once and kept: switching tabs calls amSetActive, which
+     moves the highlight and the current item, so the bar itself never redraws
+     or slides with the screen. */
   function BottomNav(active, onNavigate) {
     var nav = el("nav.am-bottomnav", { "aria-label": "Main",
       style: {
@@ -512,21 +515,35 @@
         borderTop: "1px solid var(--line-200)"
       }
     });
-    NAV_ITEMS.forEach(function (item) {
-      var on = item.key === active;
-      nav.appendChild(el("button.am-reset.am-navitem", {
+    var pill = el("span.am-navpill", { "aria-hidden": "true", style: { width: (100 / NAV_ITEMS.length) + "%" } });
+    nav.appendChild(pill);
+    var buttons = NAV_ITEMS.map(function (item) {
+      var b = el("button.am-reset.am-navitem", {
         type: "button",
-        "aria-current": on ? "page" : null,
         onClick: function () { onNavigate(item.key); },
         style: {
           flex: 1, display: "flex", flexDirection: "column", alignItems: "center",
-          justifyContent: "center", gap: 2, border: 0, background: "none", cursor: "pointer",
-          color: on ? "var(--brand-blue-600)" : "var(--ink-600)"
+          justifyContent: "center", gap: 2, border: 0, background: "none", cursor: "pointer"
         }
-      }, icon(item.icon, 22), el("span.caption", null, item.label)));
+      }, icon(item.icon, 22), el("span.caption", null, item.label));
+      nav.appendChild(b);
+      return b;
     });
+    nav.amSetActive = function (key) {
+      var i = -1;
+      NAV_ITEMS.forEach(function (item, k) {
+        if (item.key === key) { i = k; buttons[k].setAttribute("aria-current", "page"); }
+        else buttons[k].removeAttribute("aria-current");
+      });
+      pill.hidden = i < 0;
+      if (i >= 0) pill.style.transform = "translateX(" + (i * 100) + "%)";
+    };
+    nav.amSetActive(active);
     return nav;
   }
+  /* The order of the tabs, left to right: a move to a tab further right
+     slides the new screen in from the right, and the other way from the left. */
+  BottomNav.order = NAV_ITEMS.map(function (item) { return item.key; });
 
   /* On desktop the bottom nav becomes a left rail — there is no thumb at the
      bottom of a desktop screen. */

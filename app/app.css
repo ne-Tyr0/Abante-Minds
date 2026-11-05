@@ -220,6 +220,15 @@ html, body {
   border-radius: var(--radius-sm);
 }
 .am-navitem, .am-railitem { min-height: var(--tap-button); }
+/* The tab bar stays put between tabs; only its highlight moves, gliding to
+   the tab chosen. Colours come from aria-current, so a tab change is a
+   state change, not a rebuild. */
+.am-bottomnav { position: relative; }
+.am-navitem { position: relative; z-index: 1; color: var(--ink-600); }
+.am-navitem[aria-current="page"] { color: var(--brand-blue-600); }
+.am-navpill { position: absolute; top: 0; bottom: 0; left: 0; pointer-events: none; transition: transform var(--dur-base) cubic-bezier(0.3, 1.25, 0.45, 1); }
+.am-navpill::before { content: ""; position: absolute; inset: 6px 10px; border-radius: var(--radius-md); background: var(--brand-blue-100); }
+@media (prefers-reduced-motion: reduce) { .am-navpill { transition: none; } }
 
 /* ---------- tablet ----------
    32px gutters, the extra width spent on a second card rather than longer
@@ -417,8 +426,8 @@ html, body {
    tile's colour; in dark mode the colours are light, so the word takes the
    surface colour, white in light mode and navy in dark. */
 .am-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
-.am-tile { display: flex; flex-direction: column; padding: 3px; border-radius: var(--radius-md); background: var(--tile); box-shadow: var(--shadow-card); }
-.am-tile-word { padding: 2px 4px 5px; text-align: center; color: var(--surface-200); font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+.am-tile { display: flex; flex-direction: column; padding: 3px; border-radius: var(--radius-md); background: var(--tile); }
+.am-tile-word { padding: 2px 4px 5px; text-align: center; color: var(--surface-200); font-weight: 700; }
 .am-tile-face { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px; border-radius: calc(var(--radius-md) - 3px); background: var(--surface-200); text-align: center; }
 .am-tile-num { color: var(--tile); font-variant-numeric: tabular-nums; white-space: nowrap; }
 .am-tile-acc { --tile: var(--success-700); }
