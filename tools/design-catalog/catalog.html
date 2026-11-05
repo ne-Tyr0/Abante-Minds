@@ -233,17 +233,38 @@ function build() {
     }))), cap("Result tiles", "the word reads Perfect, Sharp, Steady or Building")]));
   put(ctl);
 
-  section("The learner's card", "six colours (two from the reward road), four icons, frames and patterns");
-  put(el("div.grid.g3", null, [1, 2, 3, 4, 5, 6].map(function (k, i) {
-    return AM.ProfileCard({ name: ["Maya", "Juan", "Ana", "Paolo", "Bea", "Luis"][i], greeting: "Hello, ", colorKey: k, iconKey: ["triangle", "star", "scales", "coins", "triangle", "star"][i], style: { maxWidth: "none" } });
+  section("Home, Practice and the road", "the streak and today's goal, the level to do next, rows to tap, a topic's band and the hint button");
+  var week = ["M", "T", "W", "T", "F", "S", "S"].map(function (_, i) { return { done: i < 2 || i === 3, kept: i === 2, today: i === 3, later: i > 3 }; });
+  var segs = el("div", { style: { display: "flex", gap: "5px" } }, [1, 1, 0.5, 0, 0, 0].map(function (r) {
+    return el("span", { style: { flex: 1, height: "10px", borderRadius: "999px", background: "rgba(255,255,255,.25)", overflow: "hidden" } }, el("span", { style: { display: "block", height: "100%", width: r * 100 + "%", background: "#fff" } }));
+  }));
+  put(el("div.grid.g2", null,
+    box([AM.StreakPanel({ days: 4, strip: week, goal: { met: false, done: 0 } }), cap("The streak and today's goal", "this week day by day: practised, kept (dashed), today, still to come")]),
+    box([AM.HeroNext({ colorKey: 1, eyebrow: "Up next · Decimals", title: "Add and subtract", sub: "Level 3 of 6", segments: segs, meta: "4 of 8 right first time to earn Decimals Builder", button: AM.Button({ label: "Practise level 3", fullWidth: true }) }), cap("Up next", "in the topic's colour")]),
+    box([AM.RowCard({ lead: AM.LeadTile("trophy"), title: "Your badges · 13 of 90", caption: "Tap to see them all", onClick: function () {} }),
+      el("div", { style: { height: "2mm" } }),
+      AM.RowCard({ lead: AM.LeadTile("level-up", "action"), title: "Challenge · 60-second sprint", caption: "Clear a level to open it", onClick: function () {}, disabled: true }), cap("Rows to tap", "on a shelf; one not open yet lies flat")]),
+    box([AM.TopicBand({ colorKey: 3, art: AM.topicIcon("topic-fractions", 40, 3), title: "Fractions", sub: "1 of 6 levels cleared", ratio: 1 / 6, onBack: function () {} }), cap("A topic's band", "its colour, its picture, how far it has got")])));
+
+  section("The learner's card", "in the card's colour, with a weave drawn from the name, an initials monogram ringed in the tier's metal, a title, a motto and the tier");
+  var T = AM.store.CARD_TIERS;
+  put(el("div.grid.g2", null,
+    el("div", { style: { padding: "3mm 1mm 1mm" } }, AM.ProfileCard({ name: "Maya Santos", school: "Poblacion, Pilar · Grade 6", colorKey: 1, frame: "emerald", pattern: "kusikus", title: "Decimals Explorer", motto: "Kaya ko 'to!", tier: T[4], style: { maxWidth: "none" } }), cap("A title, a motto, the Emerald tier and its stone")),
+    el("div", { style: { padding: "3mm 1mm 1mm" } }, AM.ProfileCard({ name: "Juan dela Cruz", school: "Grade 6", colorKey: 2, frame: "bronze", tier: T[0], style: { maxWidth: "none" } }), cap("A new card: Bronze, and the binakol weave everyone starts with"))));
+
+  section("Card colours", "seven: four to start, two from the road's first step and one from its third");
+  put(el("div.grid.g4", null, [1, 2, 3, 4, 5, 6, 7].map(function (k, i) {
+    return el("div", { style: { padding: "1mm" } }, AM.ProfileCard({ name: ["Maya", "Juan", "Ana", "Paolo", "Bea", "Luis", "Rina"][i], colorKey: k, tier: T[0], style: { maxWidth: "none" } }), cap("Colour " + k));
   })));
-  put(el("div.grid.g4", { style: { marginTop: "4mm" } }, [null, "silver", "gold", "year"].map(function (f) {
-    return el("div", { style: { padding: "2mm" } }, AM.ProfileCard({ name: "Maya", greeting: "", colorKey: 1, iconKey: "triangle", frame: f, style: { maxWidth: "none" } }), cap(f ? f[0].toUpperCase() + f.slice(1) + " frame" : "No frame"));
+  section("Weaves", "drawn from the name, so the same name always weaves the same cloth; binakol from the start, the rest from the road");
+  put(el("div.grid.g3", null, [["binakol", "Binakol", "after the Ilocano binakol weave"], ["kusikus", "Kusikus", "the binakol whirlpool, step 4"], ["triangles", "Triangles", "step 5"], ["hexagons", "Hexagons", "step 7"], ["stars", "Stars", "step 9"], ["plain", "Plain", null]].map(function (w, i) {
+    return el("div", { style: { padding: "1mm" } }, AM.ProfileCard({ name: "Maya Santos", colorKey: [1, 2, 6, 5, 3, 4][i], pattern: w[0], tier: T[0], style: { maxWidth: "none" } }), cap(w[1], w[2]));
   })));
-  put(el("div.grid.g3", { style: { marginTop: "3mm" } }, ["binakol", "triangles", "hexagons", "stars", null].map(function (p, i) {
-    return el("div", null, AM.ProfileCard({ name: "Maya", greeting: "", colorKey: [1, 5, 2, 6, 3][i], iconKey: "triangle", pattern: p, frame: p === "binakol" ? "gold" : null, style: { maxWidth: "none" } }),
-      cap(p ? p[0].toUpperCase() + p.slice(1) : "No pattern", p === "binakol" ? "inspired by Ilocano binakol weaving" : null));
-  })));
+  section("Card tiers", "days with a full round climb them, and the tier is the card's frame; from Emerald up it carries its stone");
+  put(el("div.grid.g3", null, T.map(function (t) {
+    return el("div", { style: { padding: "4mm 2mm 1mm" } }, AM.ProfileCard({ name: "Maya Santos", colorKey: 1, frame: t.key, tier: t, style: { maxWidth: "none" } }),
+      cap(t.name, t.days ? t.days + " days with a full round" + (t.allTopics ? " and every topic cleared" : "") : "from the start"));
+  }).concat([el("div", { style: { padding: "4mm 2mm 1mm" } }, AM.ProfileCard({ name: "Maya Santos", colorKey: 1, frame: "year", tier: T[0], style: { maxWidth: "none" } }), cap("One-year frame", "kept by those the road gave it to before tiers"))])));
 
   section("Flames", "the streak flame, its three colours from the reward road, and unlit");
   function flame(size, key, lit) {
@@ -285,7 +306,7 @@ function build() {
   /* ---------- 4 · reward road and pictures ---------- */
   part("4", "The reward road and the pictures", "Each step opens with a streak or with levels cleared, whichever comes first, and what is earned stays. The share picture carries the first name only; the certificate carries the name as typed.");
   var NAMES = { colour: "card colour", shield: "Streak shield", frame: { silver: "Silver card frame", gold: "Gold card frame", year: "One-year card frame" },
-    pattern: { binakol: "Binakol pattern", triangles: "Triangle pattern", hexagons: "Hexagon pattern", stars: "Star pattern" },
+    pattern: { binakol: "Binakol weave", kusikus: "Kusikus weave", triangles: "Triangle weave", hexagons: "Hexagon weave", stars: "Star weave" },
     flame: { blue: "Blue flame", purple: "Purple flame" } };
   var rows = [];
   for (var i = 0; i < 13; i++) {
@@ -302,6 +323,15 @@ function build() {
   put(el("table.road-table", null, el("thead", null, el("tr", null, el("th", null, "Step"), el("th", null, "Streak"), el("th", null, "or levels cleared"), el("th", null, "Rewards"))), el("tbody", null, rows)));
   put(el("div.note", { style: { marginTop: "2mm" } }, "Then a streak shield at 600 days and every 100 after. At most two shields are held."));
 
+  section("Streak milestones", "each its own colour, flame and scene; the days between take the scene before them");
+  put(el("div.grid.g4", null, [3, 7, 14, 30, 50, 100, 200, 365].map(function (d) {
+    var M = AM.MILE[d];
+    return el("div", { style: { borderRadius: "4mm", padding: "3mm 2mm 2mm", background: M.bg, textAlign: "center", color: "#fff", breakInside: "avoid" } },
+      el("div", { style: { width: "100%", lineHeight: 0 }, html: AM.mileArt(d).replace("<svg ", '<svg width="100%" ') }),
+      el("div", { style: { font: "800 20px 'Baloo 2', sans-serif" } }, String(d)),
+      el("div", { style: { font: "600 11px Lexend, sans-serif", color: M.tint } }, M.name));
+  })));
+
   var pics = [];
   section("The milestone share picture", "orange, blue and purple flames");
   var picRow = put(el("div.grid.g3"));
@@ -312,7 +342,7 @@ function build() {
       picRow.appendChild(el("div.pic", null, el("img", { src: URL.createObjectURL(b) }), cap(f[1] + " days", f[0] + " flame")));
     }));
   });
-  [{ by: "streak", days: 30, levels: 25 }, { by: "levels", days: 30, levels: 25 }, { by: "streak", days: 365, levels: null, year: true }].forEach(function (o) {
+  [{ by: "streak", days: 30, levels: 25, step: 4 }, { by: "levels", days: 30, levels: 25, step: 4 }, { by: "streak", days: 365, levels: null, year: true, step: 11 }].forEach(function (o) {
     o.name = "Maya Santos"; o.day = today;
     pics.push(AM.share.certificate(o).then(function (b) {
       certRow.appendChild(el("div.pic", null, el("img", { src: URL.createObjectURL(b) }), cap(o.year ? "One year" : o.by === "levels" ? "By levels" : "By a streak")));

@@ -264,6 +264,11 @@ function run() {
       case "hint":
         s = canonicalAt(3); s.showHints = true; s.hintsRevealed = 1; AM.app.go("practice");
         break;
+      /* Not in the PDF: the hint sheet, open on its first hint. */
+      case "hint-sheet":
+        s = canonicalAt(3); AM.app.go("practice");
+        w.document.querySelector(".am-hintbtn").click();
+        break;
       case "correct":
         s = canonicalAt(3); AM.app.go("practice"); typeIn("4.65"); AM.app.check();
         break;
@@ -361,6 +366,7 @@ function run() {
          streak with 10 levels cleared has reached step 3 and holds a shield;
          &step=4 gives one past the 30-day certificate. */
       case "road":
+      case "road-step":
       case "profile-road":
       case "card-styles":
       case "road-new":
@@ -380,6 +386,8 @@ function run() {
           road: { reached: reachedN, seen: screen === "road-new" ? reachedN - 1 : reachedN, shields: 1, log: roadLog }
         });
         if (screen === "road") AM.app.go("road");
+        /* Not in the PDF: the next step's sheet, opened from the map. */
+        if (screen === "road-step") { AM.app.go("road"); w.document.querySelector(".am-rnode.next").click(); }
         if (screen === "profile-road") {
           AM.app.go("profile");
           var pb = w.document.querySelector(".am-slot-body");
