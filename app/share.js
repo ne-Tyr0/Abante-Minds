@@ -122,55 +122,66 @@
       : "for practising math " + o.days + " days in a row";
   }
 
-  /* A certificate of practice, landscape like a printed one, as a PNG blob.
-     o: {name, by, days, levels, day, year}. */
+  /* A certificate of practice, landscape like a printed one, as a PNG blob:
+     parchment in a double gold border with a band of diamonds, the mark,
+     the name, what it was earned for, the date, and a gold seal on red
+     ribbons with the step of the road (the owner's choice, November 2026:
+     a real certificate). Drawn at 600 x 420 and scaled up.
+     o: {name, by, days, levels, day, year, step}. */
   function certificate(o) {
-    var CW = 1600, CH = 1131;
+    var S = 8 / 3, CW = 1600, CH = 1120;
     return Promise.all([fontsReady(), markImage()]).then(function (got) {
       var canvas = document.createElement("canvas");
       canvas.width = CW; canvas.height = CH;
       var c = canvas.getContext("2d");
-      c.fillStyle = "#fffaf0"; c.fillRect(0, 0, CW, CH);
-      c.strokeStyle = "#16295a"; c.lineWidth = 18; c.strokeRect(40, 40, CW - 80, CH - 80);
-      c.strokeStyle = "#f5b400"; c.lineWidth = 4; c.strokeRect(74, 74, CW - 148, CH - 148);
-      [[74, 74], [CW - 74, 74], [74, CH - 74], [CW - 74, CH - 74]].forEach(function (p) {
-        c.save(); c.translate(p[0], p[1]); c.rotate(Math.PI / 4);
-        c.fillStyle = "#f5b400"; c.fillRect(-12, -12, 24, 24); c.restore();
-      });
-      c.textAlign = "center";
-      c.fillStyle = "#16295a";
-      c.font = "800 70px 'Baloo 2', sans-serif";
-      c.fillText(o.year ? "A YEAR OF PRACTICE" : "CERTIFICATE OF PRACTICE", CW / 2, 250);
-      c.fillStyle = "#51617a";
-      c.font = "500 36px 'Lexend', sans-serif";
-      c.fillText("awarded to", CW / 2, 350);
-      var name = String(o.name || "").trim() || "A Grade 6 learner", size = 120;
-      c.font = "800 " + size + "px 'Baloo 2', sans-serif";
-      while (c.measureText(name).width > CW - 360 && size > 56) { size -= 6; c.font = "800 " + size + "px 'Baloo 2', sans-serif"; }
-      c.fillStyle = "#16295a"; c.fillText(name, CW / 2, 500);
-      c.fillStyle = "#f5b400"; c.fillRect(CW / 2 - 300, 540, 600, 4);
-      c.fillStyle = "#16202c";
-      c.font = "500 44px 'Lexend', sans-serif";
-      c.fillText(certificateLine(o), CW / 2, 640);
-      c.fillStyle = "#51617a";
-      c.font = "500 34px 'Lexend', sans-serif";
-      c.fillText(longDate(o.day), CW / 2, 720);
-      /* The seal: the number the step was reached by. */
-      var sx = CW - 300, sy = CH - 290;
-      c.beginPath(); c.arc(sx, sy, 110, 0, 6.2832); c.fillStyle = "#f5b400"; c.fill();
-      c.beginPath(); c.arc(sx, sy, 92, 0, 6.2832); c.strokeStyle = "#fff6d6"; c.lineWidth = 4; c.stroke();
-      c.fillStyle = "#16295a";
-      c.font = "800 78px 'Baloo 2', sans-serif";
-      c.fillText(String(o.by === "levels" ? o.levels : o.days), sx, sy + 22);
-      c.font = "700 24px 'Lexend', sans-serif";
-      c.fillText(o.by === "levels" ? "LEVELS" : "DAYS", sx, sy + 58);
+      c.scale(S, S);
+      function rule(x1, y1, x2, y2) { c.beginPath(); c.moveTo(x1, y1); c.lineTo(x2, y2); c.stroke(); }
+      function spaced(px) { if ("letterSpacing" in c) c.letterSpacing = px; }
+      c.fillStyle = "#fffaf0"; c.fillRect(0, 0, 600, 420);
+      c.strokeStyle = "#c99a2e"; c.lineWidth = 3; c.strokeRect(18, 18, 564, 384);
+      c.globalAlpha = 0.55; c.lineWidth = 1.2; c.strokeRect(26, 26, 548, 368); c.globalAlpha = 1;
+      c.strokeStyle = "rgba(123, 108, 246, 0.45)"; c.lineWidth = 1.4;
+      for (var k = 0; k < 24; k++) {
+        [42, 378].forEach(function (y) { c.save(); c.translate(54 + k * 21.5, y); c.rotate(Math.PI / 4); c.strokeRect(-4, -4, 8, 8); c.restore(); });
+      }
       var mark = got[1];
-      c.textAlign = "left"; c.fillStyle = "#16295a";
-      c.font = "800 48px 'Baloo 2', sans-serif";
-      if (mark) c.drawImage(mark, 200, CH - 330, 64, 64);
-      c.fillText("Abante Minds", mark ? 282 : 200, CH - 282);
-      c.font = "500 26px 'Lexend', sans-serif"; c.fillStyle = "#51617a";
-      c.fillText("Grade 6 math practice", mark ? 282 : 200, CH - 244);
+      if (mark) c.drawImage(mark, 281, 65, 38, 38);
+      else { c.beginPath(); c.arc(300, 84, 19, 0, 6.2832); c.fillStyle = "#5b4de2"; c.fill(); }
+      c.textAlign = "center";
+      c.fillStyle = "#8a7a55"; c.font = "500 12px 'Lexend', sans-serif"; spaced("3px");
+      c.fillText("ABANTE MINDS", 300, 124); spaced("0px");
+      c.fillStyle = "#16295a"; c.font = "800 38px 'Baloo 2', sans-serif";
+      c.fillText(o.year ? "A Year of Practice" : "Certificate of Practice", 300, 166);
+      c.fillStyle = "#5b5b6b"; c.font = "400 14px 'Lexend', sans-serif";
+      c.fillText("This is to certify that", 300, 196);
+      var name = String(o.name || "").trim() || "A Grade 6 learner", size = 46;
+      c.font = "800 " + size + "px 'Baloo 2', sans-serif";
+      while (c.measureText(name).width > 430 && size > 22) { size -= 2; c.font = "800 " + size + "px 'Baloo 2', sans-serif"; }
+      c.fillStyle = "#4f40cf"; c.fillText(name, 300, 246);
+      c.strokeStyle = "#c99a2e"; c.lineWidth = 1.5; rule(160, 258, 440, 258);
+      c.fillStyle = "#3b3b4b"; c.font = "400 14px 'Lexend', sans-serif";
+      c.fillText(o.step ? "reached step " + o.step + " of the reward road" : "is awarded this certificate", 300, 286);
+      c.fillText(certificateLine(o) + ".", 300, 306);
+      c.textAlign = "left";
+      c.fillStyle = "#3b3b4b"; c.font = "600 14px 'Lexend', sans-serif"; c.fillText(longDate(o.day), 84, 344);
+      c.strokeStyle = "#c99a2e"; c.lineWidth = 1.2; rule(84, 352, 236, 352);
+      c.fillStyle = "#8a8a9a"; c.font = "400 11px 'Lexend', sans-serif"; c.fillText("Date", 84, 368);
+      /* The seal: gold, on two red ribbons, with the step (or the days or
+         levels it was reached by). */
+      c.save(); c.translate(486, 326);
+      function poly(pts, fill) { c.beginPath(); pts.forEach(function (q, i) { if (i) c.lineTo(q[0], q[1]); else c.moveTo(q[0], q[1]); }); c.closePath(); c.fillStyle = fill; c.fill(); }
+      poly([[-16, 30], [-26, 66], [-8, 56], [2, 72], [8, 34]], "#d6453a");
+      poly([[16, 30], [26, 66], [8, 56], [-2, 72], [-8, 34]], "#b8352c");
+      c.fillStyle = "#e9b93a";
+      for (k = 0; k < 16; k++) { var an = k / 16 * Math.PI * 2; c.beginPath(); c.arc(34 * Math.cos(an), 34 * Math.sin(an), 9, 0, 6.2832); c.fill(); }
+      c.beginPath(); c.arc(0, 0, 31, 0, 6.2832); c.fillStyle = "#f5c84a"; c.fill();
+      c.beginPath(); c.arc(0, 0, 25, 0, 6.2832); c.strokeStyle = "rgba(255, 255, 255, 0.7)"; c.lineWidth = 1.5; c.stroke();
+      c.textAlign = "center"; c.fillStyle = "#6e4d00";
+      c.font = "700 9px 'Lexend', sans-serif"; spaced("1px");
+      c.fillText(o.step ? "STEP" : o.by === "levels" ? "LEVELS" : "DAYS", 0, -3); spaced("0px");
+      c.font = "800 22px 'Baloo 2', sans-serif";
+      c.fillText(String(o.step || (o.by === "levels" ? o.levels : o.days)), 0, 17);
+      c.restore();
       return new Promise(function (resolve) { canvas.toBlob(resolve, "image/png"); });
     });
   }
