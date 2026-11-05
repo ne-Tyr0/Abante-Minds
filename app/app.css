@@ -409,6 +409,14 @@ html, body {
 .am-hintpips i.on { background: var(--celebration-gold-500); }
 .am-hintnext { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border: 2px dashed var(--surface-300); border-radius: var(--radius-md); background: transparent; color: var(--ink-600); text-align: left; cursor: pointer; }
 .am-hintnext:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+/* A decimal sum in columns, with the first hint. */
+.am-columns { align-self: flex-start; display: inline-flex; flex-direction: column; padding: 10px 16px 8px; border-radius: 14px; background: var(--surface-200); color: var(--ink-900); font-family: var(--font-display); font-weight: 800; font-size: 28px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.am-col-row { display: flex; justify-content: flex-end; }
+.am-col-row > span { width: 0.62em; text-align: center; }
+.am-col-row > .am-col-dot { width: 0.32em; }
+.am-col-row > .am-col-sign { width: 0.8em; color: var(--action-600); }
+.am-col-added { color: var(--brand-blue-600); }
+.am-col-rule { height: 3px; margin: 4px 0 6px; border-radius: 2px; background: var(--ink-900); }
 /* A new tier, veiled until it is held for. */
 .am-veiled > .am-lcard { filter: blur(10px) saturate(0.4); opacity: 0.55; transform: scale(0.94); }
 .am-hold { position: relative; display: grid; place-items: center; width: 96px; height: 96px; margin-top: 18px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.14); color: #fff; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }

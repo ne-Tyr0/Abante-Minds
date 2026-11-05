@@ -434,7 +434,7 @@ function run() {
         break;
       /* Not in the PDF: a certificate of practice, drawn by the app. */
       case "certificate":
-        AM.share.certificate({ name: "Maya Santos", by: params.get("by") || "streak", days: 30, levels: 25, day: AM.store.today(), year: false }).then(function (blob) {
+        AM.share.certificate({ name: "Maya Santos", by: params.get("by") || "streak", days: 30, levels: 25, day: AM.store.today(), year: false, step: 4 }).then(function (blob) {
           var img = document.createElement("img");
           img.style.cssText = "position:fixed;inset:0;width:100%;height:100%;object-fit:contain;background:#f6f8fc;z-index:9";
           img.onload = function () { settle(w, screen); };

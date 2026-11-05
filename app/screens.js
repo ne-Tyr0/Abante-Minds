@@ -1244,7 +1244,8 @@
         var n = ses.hintsRevealed, total = q.hints.length, left = total - n;
         var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } });
         q.hints.forEach(function (h, i) {
-          if (i < n) list.appendChild(el("div.am-hintcard", null, el("span.am-hintnum", { "aria-hidden": "true" }, String(i + 1)), el("span.body", { style: { textWrap: "pretty" } }, h)));
+          if (i < n) list.appendChild(el("div.am-hintcard", null, el("span.am-hintnum", { "aria-hidden": "true" }, String(i + 1)),
+            el("span", { style: { display: "flex", flexDirection: "column", gap: 10, minWidth: 0 } }, el("span.body", { style: { textWrap: "pretty" } }, h), i === 0 ? columnsFigure(q.prompt) : null)));
           else if (i === n) list.appendChild(el("button.am-reset.am-hintnext", {
             type: "button", "data-sound": "hint",
             onClick: function () { ses.hintsRevealed = i + 1; app.render(); AM.clear(box); box.appendChild(draw()); }
@@ -1379,6 +1380,29 @@
       footer: answered ? verdictPanel(levelStrip(), actions) : actions
     };
   };
+
+  /* A decimal sum set out in columns: the points lined up, the places a
+     number lacks filled with zeros (in blue), and a rule to work under; no
+     places for the answer, which could give its size away. Only for a prompt like "7 − 2.35 = ?" with a decimal in it; shown
+     in the hint sheet with the first hint, never before one is asked for;
+     not above the answer box, where it would push the box out of view. */
+  function columnsFigure(prompt) {
+    var m = /^\s*(\d+(?:\.\d+)?)\s*([+\u2212-])\s*(\d+(?:\.\d+)?)\s*=\s*\?\s*$/.exec(String(prompt || ""));
+    if (!m || (m[1].indexOf(".") < 0 && m[3].indexOf(".") < 0)) return null;
+    var a = m[1].split("."), b = m[3].split("."), op = m[2] === "+" ? "+" : "\u2212";
+    var d = Math.max((a[1] || "").length, (b[1] || "").length), w = Math.max(a[0].length, b[0].length);
+    function cells(whole, frac, sign, cls) {
+      var out = [el("span.am-col-sign", null, sign || "")], k;
+      for (k = 0; k < w; k++) { var ch = whole[whole.length - w + k]; out.push(el("span" + (cls || ""), null, ch === undefined ? "" : ch)); }
+      out.push(el("span.am-col-dot" + (cls || ""), null, "."));
+      for (k = 0; k < d; k++) { var f = (frac || "")[k]; out.push(el(f === undefined ? "span.am-col-added" : "span" + (cls || ""), null, f === undefined ? "0" : f)); }
+      return el("div.am-col-row", null, out);
+    }
+    var padA = a[0] + "." + (a[1] || "") + new Array(d - (a[1] || "").length + 1).join("0");
+    var padB = b[0] + "." + (b[1] || "") + new Array(d - (b[1] || "").length + 1).join("0");
+    return el("div.am-columns", { role: "img", "aria-label": padA + " " + (op === "+" ? "plus" : "minus") + " " + padB + ", set out in columns with the points lined up" },
+      cells(a[0], a[1]), cells(b[0], b[1], op), el("div.am-col-rule"));
+  }
 
   function minutesLabel(ses) {
     var mins = Math.max(1, Math.round((Date.now() - ses.startedAt) / 60000));
@@ -2785,7 +2809,7 @@
      it reaches the phone's share menu at once, as phones require. */
   function certificateFor(app, st, rd, p) {
     var log = rd.log[st.n] || {}, keep = app.scratch.certificates || (app.scratch.certificates = {});
-    var o = { name: p.name, by: log.by || "streak", days: st.streak, levels: st.levels, day: log.day || store.today(), year: st.streak === 365 };
+    var o = { name: p.name, by: log.by || "streak", days: st.streak, levels: st.levels, day: log.day || store.today(), year: st.streak === 365, step: st.n };
     var file = "abante-minds-certificate-" + (o.by === "levels" ? o.levels + "-levels" : o.days + "-days") + ".png";
     var job = keep[st.n] || (keep[st.n] = { drawing: AM.share.certificate(o).then(function (b) { job.blob = b; return b; }) });
     return function () {
