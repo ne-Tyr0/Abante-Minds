@@ -614,69 +614,77 @@
      the whole exam when it is not. */
   screens.topics = function (app) {
     var p = store.path();
-    var nextKey = p.next ? p.next.topic.key : null;
+    var next = p.next, nextKey = next ? next.topic.key : null;
+    var ready = store.readiness();
+    var gainKey = ready.started && ready.focus && ready.focus.key !== nextKey ? ready.focus.key : null;
 
-    var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: "18px " + gutter() + "px 0" } });
-    p.topics.forEach(function (t) {
-      var caption = !t.ready ? "Coming soon"
-        : t.done ? "All " + t.total + " levels cleared"
-        : t.cleared + " of " + t.total + " levels";
-      list.appendChild(el("button.am-reset.am-pressable.am-path-row", {
-        type: "button", disabled: !t.ready,
-        "aria-label": t.label + ", " + caption + (t.key === nextKey ? ", up next" : ""),
-        onClick: function () { if (t.ready) app.openTopic(t.key); },
-        style: {
-          "--am-edge": t.key === nextKey ? "var(--brand-blue-600)" : "var(--line-200)",
-          display: "flex", alignItems: "center", gap: "var(--space-3)", width: "100%", textAlign: "left",
-          padding: "12px 14px", borderRadius: "var(--radius-md)",
-          background: t.ready ? "var(--surface-200)" : "var(--surface-100)",
-          color: t.ready ? "var(--ink-900)" : "var(--ink-600)", cursor: t.ready ? "pointer" : "default"
-        }
+    /* Where you are: the level to carry on with, one tap from starting it. */
+    var resume = next ? (function () {
+      var lv = next.level, left = Math.max(0, lv.target - lv.correct);
+      var caption = lv.title + " · " + (!lv.lessonSeen && lv.hasLesson ? "starts with a short lesson" : left + " more to clear");
+      var segs = el("span.am-resume-segs", { "aria-hidden": "true" });
+      for (var i = 0; i < lv.target; i++) segs.appendChild(el(i < lv.correct ? "i.on" : "i"));
+      return el("button.am-reset.am-pressable.am-resume", {
+        type: "button", "aria-label": levelVerb(lv) + " " + levelLabel(next) + ": " + caption,
+        onClick: function () { app.startLevel(next.topic.key, lv.id); },
+        style: { "--am-edge": "var(--brand-blue-600)", "--tc": "var(--skill-" + next.topic.colorKey + "-bright)" }
       },
-        topicTile(t),
-        el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 } },
-          el("span", { style: { display: "flex", alignItems: "center", gap: "var(--space-2)", flexWrap: "wrap" } },
-            el("span.label", null, t.label),
-            t.key === nextKey ? AM.Chip({ label: "Up next" }) : null),
-          t.ready ? AM.ProgressBar({ ratio: t.total ? t.cleared / t.total : 0, height: 6, color: "var(--skill-" + t.colorKey + "-bright)", label: t.label + " levels cleared" }) : null,
-          el("span.caption", { style: { color: "var(--ink-600)" } }, caption)),
-        t.ready ? el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("next", 20)) : null));
+        topicTile(next.topic, 48),
+        el("span.am-resume-text", null, el("b", null, levelLabel(next)), el("small", null, caption), segs),
+        el("span.am-resume-go", { "aria-hidden": "true" }, icon("next", 24)));
+    })() : null;
+
+    /* Every topic, two to a row on a phone: how far it has got, and a tag on
+       the one to do next and the one with the most to gain. A topic not yet
+       written lies flat, as coming soon. */
+    var grid = el("div.am-tgrid");
+    p.topics.forEach(function (t) {
+      var caption = !t.ready ? "Coming soon" : t.done ? "All " + t.total + " levels cleared" : t.cleared + " of " + t.total + " levels";
+      var tag = t.key === nextKey ? "Up next" : t.key === gainKey ? "Most to gain" : null;
+      var dots = el("span.am-tdots", { "aria-hidden": "true" });
+      for (var i = 0; i < t.total; i++) dots.appendChild(el("i", { style: i < t.cleared ? { background: "var(--skill-" + t.colorKey + "-bright)" } : null }));
+      grid.appendChild(el(t.ready ? "button.am-reset.am-pressable.am-ttile" : "div.am-ttile.am-ttile-soon", {
+        type: t.ready ? "button" : null,
+        "aria-label": t.label + ", " + caption + (tag ? ", " + tag.toLowerCase() : ""),
+        onClick: t.ready ? function () { app.openTopic(t.key); } : null,
+        style: t.ready ? { "--am-edge": t.key === nextKey ? "var(--brand-blue-600)" : "var(--surface-300)" } : null
+      },
+        el("span.am-ttile-top", null, topicTile(t, 44),
+          tag ? el("span.am-ttag" + (tag === "Up next" ? "" : ".gain"), { "aria-hidden": "true" }, tag) : null),
+        el("span.am-ttile-name", null, t.label),
+        el("span.am-ttile-foot", null, t.total ? dots : null, el("span.caption.am-ttile-cap", null, caption))));
     });
 
+    /* Basics sit beside the path: open any time, and never counted on it. */
     var basics = store.basics();
-    var basicsRow = basics.length ? el("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: "24px " + gutter() + "px 0" } },
-      sectionLabel("Beside the path"),
-      el("button.am-reset.am-pressable.am-path-row", {
-        type: "button", "aria-label": "Basics: " + basics.map(function (t) { return t.label; }).join(", ") + ". Practise any time.",
-        onClick: function () { app.go("basics"); },
-        style: {
-          "--am-edge": "var(--line-200)", display: "flex", alignItems: "center", gap: "var(--space-3)", width: "100%", textAlign: "left",
-          padding: "12px 14px", borderRadius: "var(--radius-md)", background: "var(--surface-200)", color: "var(--ink-900)", cursor: "pointer"
-        }
-      },
-        topicTile(basics[0]),
-        el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 4 } },
-          el("span.label", null, "Basics"),
-          el("span.caption", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-            basics.map(function (t) { return t.label; }).join(", ") + ". Practise any time; they don't open or close anything here.")),
-        el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("next", 20)))) : null;
+    var basicsList = basics.length ? el("div.am-stack", null, basics.map(function (t) {
+      return AM.RowCard({
+        lead: topicTile(t, 44), title: t.label, caption: basicsCaption(t),
+        onClick: function () { app.scratch.basicsBack = "topics"; app.openBasicsTopic(t.key); }
+      });
+    })) : null;
 
     return {
       nav: "practice",
       banner: connectionBanner(),
       body: column([
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
-          el("div.heading-md", null, "Your path"),
+          el("h1.heading-lg", { style: { margin: 0 } }, "Practice"),
           el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4, textWrap: "pretty" } },
             p.levelsCleared + " of " + p.levelsTotal + " levels cleared" + (p.daysToExam === null ? "" : " · exam in " + p.daysToExam + " days"))),
-        list,
-        basicsRow
-      ], { paddingBottom: 24 }),
-      footer: p.next ? el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
-        el("div", { style: { width: "100%", maxWidth: 520 } },
-          AM.Button({ label: levelVerb(p.next.level) + " " + p.next.topic.label + " level " + p.next.level.number, fullWidth: true, onClick: function () { app.startLevel(p.next.topic.key, p.next.level.id); } }))) : null
+        el("div", { style: { padding: "0 " + gutter() + "px" } },
+          resume,
+          sectionHead("Topics", p.topics.length + " topics"),
+          grid,
+          basicsList ? sectionHead("Basics", "Practise any time") : null,
+          basicsList)
+      ], { paddingBottom: 24 })
     };
   };
+
+  function sectionHead(title, aside) {
+    return el("div.am-sec-h", null, el("h2", null, title), aside ? el("span", null, aside) : null);
+  }
 
   /* ---------- A topic's levels ----------
      Levels open in order: a cleared one can be reviewed, the current one
@@ -684,67 +692,53 @@
   screens.topic = function (app) {
     var t = store.topicPath(app.scratch.topic);
     if (!t || !t.ready) { app.go("topics"); return screens.topics(app); }
-    var current = t.current;
+    var current = t.current, back = function () { app.go("topics", "back"); };
 
-    var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: "18px " + gutter() + "px 0" } });
-    t.levels.forEach(function (lv) {
-      var isCurrent = current && current.id === lv.id;
-      var glyph = lv.cleared ? "check" : lv.unlocked ? "lesson" : "lock";
-      var caption = lv.cleared ? "Cleared · tap to review"
-        : lv.unlocked ? lv.correct + " of " + lv.target + " right first time to clear"
-        : "Clear level " + (lv.number - 1) + " to open";
-      list.appendChild(el("button.am-reset.am-pressable.am-path-row", {
-        type: "button", disabled: !lv.unlocked,
-        "aria-label": "Level " + lv.number + ", " + lv.title + ", " + caption,
-        onClick: function () { if (lv.unlocked) app.startLevel(t.key, lv.id); },
-        style: {
-          "--am-edge": isCurrent ? "var(--brand-blue-600)" : "var(--line-200)",
-          display: "flex", alignItems: "center", gap: "var(--space-3)", width: "100%", textAlign: "left",
-          padding: "12px 14px", borderRadius: "var(--radius-md)",
-          background: lv.unlocked ? "var(--surface-200)" : "var(--surface-100)",
-          color: lv.unlocked ? "var(--ink-900)" : "var(--ink-600)", cursor: lv.unlocked ? "pointer" : "default"
-        }
-      },
-        el("span", {
-          style: {
-            flex: "none", width: 40, height: 40, borderRadius: "50%",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            background: lv.cleared ? "var(--skill-" + t.colorKey + "-bright)" : lv.unlocked ? "var(--skill-" + t.colorKey + "-tint)" : "var(--surface-300)",
-            color: lv.cleared ? "var(--ink-inverse)" : lv.unlocked ? "var(--skill-" + t.colorKey + "-deep)" : "var(--ink-600)"
-          }
-        }, icon(glyph, 20)),
-        el("span", { style: { flex: 1, minWidth: 0, display: "flex", flexDirection: "column", gap: 6 } },
-          el("span.label", null, "Level " + lv.number + " · " + lv.title),
-          isCurrent ? AM.ProgressBar({ ratio: lv.correct / lv.target, height: 6, color: "var(--skill-" + t.colorKey + "-bright)", label: "Level progress" }) : null,
-          el("span.caption", { style: { color: "var(--ink-600)" } }, caption))));
+    var band = AM.TopicBand({
+      colorKey: t.colorKey, onBack: back, backLabel: "Back to Practice",
+      art: AM.topicIcon(t.icon, 40, t.colorKey), title: t.label,
+      sub: t.done ? "All " + t.total + " levels cleared" : t.cleared + " of " + t.total + " levels cleared",
+      ratio: t.total ? t.cleared / t.total : 0, barLabel: t.cleared + " of " + t.total + " levels cleared"
     });
 
-    var actions = [];
-    if (current) actions.push(AM.Button({
-      label: levelVerb(current) + " level " + current.number,
-      fullWidth: true, onClick: function () { app.startLevel(t.key, current.id); }
-    }));
-    if (current && current.lessonSeen && current.hasLesson) actions.push(AM.Button({
-      label: "See the lesson again", variant: "ghost", fullWidth: true,
-      onClick: function () { app.openLesson(t.key, current.id); }
-    }));
-    if (!current) actions.push(AM.Button({ label: "Back to the path", fullWidth: true, onClick: function () { app.go("topics", "back"); } }));
+    /* The levels as a path: cleared ones can be practised again, the current
+       one shows how far it has got, a locked one waits for the one before. */
+    var path = el("div.am-lpath", { style: { "--tc": "var(--skill-" + t.colorKey + "-bright)", "--tc-deep": "var(--skill-" + t.colorKey + "-deep)" } });
+    t.levels.forEach(function (lv) {
+      var st = lv.cleared ? "done" : lv.unlocked ? "now" : "locked";
+      var caption = lv.cleared ? "Cleared · tap to review"
+        : lv.unlocked ? (!lv.lessonSeen && lv.hasLesson ? "Starts with a short lesson · " : "") + lv.correct + " of " + lv.target + " right first time to clear"
+        : "Clear level " + (lv.number - 1) + " to open";
+      var head = [el("b", null, "Level " + lv.number + " · " + lv.title), el("small", null, caption)];
+      var body;
+      if (lv.cleared) {
+        body = el("button.am-reset.am-pressable.am-lbody", {
+          type: "button", "aria-label": "Level " + lv.number + ", " + lv.title + ", cleared. Practise it again.",
+          onClick: function () { app.startLevel(t.key, lv.id); }, style: { "--am-edge": "var(--surface-300)" }
+        }, head);
+      } else if (lv.unlocked) {
+        var segs = el("span.am-lsegs", { role: "img", "aria-label": lv.correct + " of " + lv.target + " right first time" });
+        for (var i = 0; i < lv.target; i++) segs.appendChild(el(i < lv.correct ? "i.on" : "i"));
+        body = el("div.am-lbody", null, head, segs,
+          lv.hasLesson && lv.lessonSeen ? el("button.am-reset.am-togain", { type: "button", onClick: function () { app.openLesson(t.key, lv.id); } }, "See the lesson again") : null);
+      } else body = el("div.am-lbody", null, head);
+      path.appendChild(el("div.am-lrow." + st, null,
+        el("span.am-lnode", { "aria-hidden": "true" }, lv.cleared ? icon("check", 22, { glyph: true }) : lv.unlocked ? String(lv.number) : icon("lock", 18)),
+        body));
+    });
 
     return {
       nav: "practice",
       banner: connectionBanner(),
-      back: function () { app.go("topics", "back"); },
+      onBack: back,
       body: column([
-        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", gap: "var(--space-3)", alignItems: "center" } },
-          topicTile(t, 48),
-          el("span", null,
-            el("div.heading-md", null, t.label),
-            el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 2 } },
-              t.done ? "All " + t.total + " levels cleared" : t.cleared + " of " + t.total + " levels cleared"))),
-        list
-      ], { paddingBottom: 24 }),
+        el("div", { style: { padding: "12px " + gutter() + "px 0" } }, band),
+        el("div", { style: { padding: "20px " + gutter() + "px 0" } }, path)
+      ], { paddingBottom: 24, maxWidth: 720 }),
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
-        el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } }, actions))
+        el("div", { style: { width: "100%", maxWidth: 520 } },
+          current ? AM.Button({ label: levelVerb(current) + " level " + current.number, fullWidth: true, onClick: function () { app.startLevel(t.key, current.id); } })
+            : AM.Button({ label: "Back to Practice", fullWidth: true, onClick: back })))
     };
   };
 
@@ -773,7 +767,7 @@
   screens.basics = function (app) {
     var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10, padding: "18px " + gutter() + "px 0" } });
     store.basics().forEach(function (t) {
-      list.appendChild(basicsRowButton(t, function () { app.openBasicsTopic(t.key); }, basicsCaption(t), basicsRatio(t)));
+      list.appendChild(basicsRowButton(t, function () { app.scratch.basicsBack = null; app.openBasicsTopic(t.key); }, basicsCaption(t), basicsRatio(t)));
     });
     return {
       nav: "practice",
@@ -845,19 +839,22 @@
       onClick: function () { app.openLesson(t.key, target.id); }
     }));
 
+    var from = app.scratch.basicsBack === "topics" ? "topics" : "basics";
+    var back = function () { app.go(from, "back"); };
     return {
       nav: "practice",
       banner: connectionBanner(),
-      back: function () { app.go("basics", "back"); },
+      onBack: back,
       body: column([
-        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", gap: "var(--space-3)", alignItems: "center" } },
-          topicTile(t, 48),
-          el("span", null,
-            el("div.heading-md", null, t.label),
-            el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 2 } }, basicsCaption(t)))),
+        el("div", { style: { padding: "12px " + gutter() + "px 0" } },
+          AM.TopicBand({
+            colorKey: t.colorKey, onBack: back, backLabel: from === "topics" ? "Back to Practice" : "Back to Basics",
+            art: AM.topicIcon(t.icon, 40, t.colorKey), title: t.label, sub: basicsCaption(t),
+            ratio: basicsRatio(t), barLabel: basicsCaption(t)
+          })),
         gridCard,
         list
-      ], { paddingBottom: 24 }),
+      ], { paddingBottom: 24, maxWidth: 720 }),
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } }, actions))
     };
@@ -895,17 +892,14 @@
       var steps = el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } });
       card.steps.forEach(function (st, i) {
         steps.appendChild(AM.Card({ style: { padding: 14, flexDirection: "row", alignItems: "flex-start", gap: "var(--space-3)" } },
-          el("span.label", {
-            style: {
-              flex: "none", width: 28, height: 28, borderRadius: "50%", background: "var(--brand-blue-100)",
-              color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
-            }
-          }, String(i + 1)),
+          el("span.am-lesson-step", { style: { background: "var(--skill-" + t.colorKey + "-tint)", color: "var(--skill-" + t.colorKey + "-deep)" } }, String(i + 1)),
           el("span.body-lg", { style: { textWrap: "pretty" } }, st)));
       });
       content = el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
         el("div.heading-md", null, card.title),
-        el("div.body-lg", { style: { fontWeight: 500, textWrap: "pretty" } }, card.prompt),
+        /* A short prompt is the sum itself, set large; a longer one is read. */
+        card.prompt && card.prompt.length <= 28 ? el("div.am-lesson-prompt", null, card.prompt)
+          : el("div.body-lg", { style: { fontWeight: 600, textWrap: "pretty" } }, card.prompt),
         card.chart ? AM.Chart(card.chart) : null,
         steps,
         el("div", {
@@ -926,7 +920,7 @@
       back: function () { app.lessonPage(-1); },
       body: column([
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "var(--space-3)" } },
-          el("span.caption", { style: { color: "var(--ink-600)" } }, t.label + " · Level " + lv.number + " · " + lv.title),
+          el("span.caption.am-lesson-eyebrow", { style: { color: "var(--skill-" + t.colorKey + "-deep)" } }, t.label + " · Level " + lv.number + " · " + lv.title),
           dots),
         content
       ], { paddingBottom: 24 }),

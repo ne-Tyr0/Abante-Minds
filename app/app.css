@@ -265,6 +265,67 @@ html, body {
 .am-togain { align-self: flex-start; margin-top: 4px; padding: 6px 12px; border: 0; border-radius: var(--radius-pill); background: var(--brand-blue-100); color: var(--brand-blue-600); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
 .am-togain:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 
+/* ---------- Practice (redesign stage 2b) ---------- */
+.am-sec-h { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; margin: 24px 0 10px; }
+.am-sec-h h2 { margin: 0; font-size: 17px; font-weight: 700; color: var(--ink-900); }
+.am-sec-h span { font-size: 13px; color: var(--ink-600); }
+.am-resume { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; margin-top: 16px; padding: 12px 12px 12px 14px; border-radius: 20px; background: var(--surface-200); color: var(--ink-900); text-align: left; }
+.am-resume-text b { display: block; font-size: 15px; font-weight: 700; }
+.am-resume-text small { display: block; margin-top: 2px; font-size: 13px; color: var(--ink-600); text-wrap: pretty; }
+.am-resume-segs { display: flex; gap: 3px; margin-top: 8px; }
+.am-resume-segs i { flex: 1; height: 6px; border-radius: 3px; background: var(--surface-300); }
+.am-resume-segs i.on { background: var(--tc); }
+.am-resume-go { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--action-500); color: var(--action-on); box-shadow: 0 3px 0 var(--action-700); }
+.am-tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+.am-ttile { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; width: 100%; padding: 12px 12px 14px; border-radius: 20px; background: var(--surface-200); color: var(--ink-900); text-align: left; }
+.am-ttile-soon { background: transparent; box-shadow: inset 0 0 0 1.5px var(--surface-300); color: var(--ink-600); }
+.am-ttile-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 6px; width: 100%; }
+.am-ttile-name { font-size: 14px; font-weight: 700; line-height: 1.25; margin-top: 4px; }
+/* The foot sits at the bottom, so tiles side by side line up whatever their names. */
+.am-ttile-foot { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: auto; padding-top: 6px; }
+.am-ttile-cap { color: var(--ink-600); }
+.am-tdots { display: flex; gap: 4px; width: 100%; }
+.am-tdots i { flex: 1; max-width: 22px; height: 6px; border-radius: 3px; background: var(--surface-300); }
+.am-ttag { padding: 5px 8px; border-radius: 8px; font-size: 11.5px; font-weight: 700; line-height: 1; background: var(--brand-blue-100); color: var(--brand-blue-600); }
+.am-ttag.gain { background: var(--skill-3-tint); color: var(--skill-3-deep); }
+.am-stack { display: flex; flex-direction: column; gap: 10px; }
+
+.am-band { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 4px; padding: 6px 18px 20px; border-radius: 24px; color: #fff; }
+.am-band::before { content: ""; position: absolute; right: -50px; top: -60px; width: 190px; height: 190px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); pointer-events: none; }
+.am-band > * { position: relative; }
+.am-band-back { align-self: flex-start; width: 44px; height: 44px; margin-left: -10px; display: grid; place-items: center; border: 0; border-radius: 14px; background: none; color: #fff; cursor: pointer; }
+.am-band-back:focus-visible { outline: 3px solid #fff; outline-offset: -3px; }
+.am-band-row { display: flex; align-items: center; gap: 16px; }
+.am-band-art { flex: none; width: 64px; height: 64px; border-radius: 18px; background: #fff; display: grid; place-items: center; transform: rotate(-6deg); box-shadow: 0 6px 14px rgba(0, 0, 0, 0.18); }
+.am-band-text { flex: 1; min-width: 0; }
+.am-band-title { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1.08; text-wrap: balance; }
+.am-band-sub { display: block; margin: 4px 0 10px; font-size: 14px; color: rgba(255, 255, 255, 0.9); }
+.am-band-bar { display: block; height: 10px; border-radius: 5px; background: rgba(255, 255, 255, 0.25); overflow: hidden; }
+.am-band-bar i { display: block; height: 100%; border-radius: 5px; background: #fff; }
+
+/* A topic's levels as a path: a node for each, joined by a line. */
+.am-lpath { position: relative; display: flex; flex-direction: column; gap: 12px; }
+.am-lpath::before { content: ""; position: absolute; left: 21px; top: 30px; bottom: 30px; width: 4px; border-radius: 2px; background: var(--surface-300); }
+.am-lrow { position: relative; display: grid; grid-template-columns: 46px minmax(0, 1fr); gap: 12px; align-items: start; }
+.am-lnode { width: 46px; height: 46px; margin-top: 4px; border-radius: 50%; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 18px; background: var(--surface-100); color: var(--ink-600); box-shadow: inset 0 0 0 2.5px var(--surface-300); }
+.am-lrow.done .am-lnode { background: var(--tc); color: #fff; box-shadow: none; }
+.am-lrow.now .am-lnode { background: var(--surface-200); color: var(--tc-deep); box-shadow: inset 0 0 0 4px var(--tc), 0 0 0 5px var(--surface-100); }
+.am-lbody { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; width: 100%; min-width: 0; padding: 12px 14px; border-radius: 18px; background: var(--surface-200); color: var(--ink-900); text-align: left; box-shadow: var(--shadow-card); }
+.am-lbody.am-pressable { box-shadow: 0 var(--am-depth) 0 var(--am-edge); }
+.am-lrow.now .am-lbody { box-shadow: inset 0 0 0 2.5px var(--tc); }
+.am-lrow.locked .am-lbody { background: transparent; color: var(--ink-600); box-shadow: none; border: 1.5px dashed var(--surface-300); }
+.am-lbody b { font-size: 15px; font-weight: 700; }
+.am-lbody small { font-size: 13px; color: var(--ink-600); text-wrap: pretty; }
+.am-lsegs { display: flex; gap: 4px; width: 100%; margin: 10px 0 2px; }
+.am-lsegs i { flex: 1; height: 8px; border-radius: 4px; background: var(--surface-300); }
+.am-lsegs i.on { background: var(--tc); }
+
+/* The lesson: the topic's colour on the step numbers, and a prompt that
+   reads as the sum it is. */
+.am-lesson-eyebrow { font-weight: 700; }
+.am-lesson-prompt { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1.15; font-variant-numeric: tabular-nums; }
+.am-lesson-step { flex: none; width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+
 /* ---------- tablet ----------
    32px gutters, the extra width spent on a second card rather than longer
    lines. Action and nav stay at the bottom because a tablet is still held. */
