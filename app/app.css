@@ -630,7 +630,6 @@ html, body {
   --flame-glow-1: rgba(226, 180, 255, 0.5); --flame-glow-2: rgba(168, 85, 247, 0.16); --flame-ink: #9333ea; --flame-ink-shadow: #ecd8ff; --flame-ink-deep: #6b21a8; }
 
 /* A milestone streak: a chip above the flame. */
-.am-mile-chip { position: relative; margin-bottom: 4px; padding: 4px 14px; border-radius: var(--radius-pill); background: rgba(255, 138, 21, 0.16); color: var(--action-700); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
 
 /* The round in three numbers (screens.resultTiles). The word sits on the
    tile's colour; in dark mode the colours are light, so the word takes the

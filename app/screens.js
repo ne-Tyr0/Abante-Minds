@@ -1935,10 +1935,9 @@
     }));
     var copy = days > 1 ? "Come back tomorrow to make it " + (days + 1) + "." : "Practise again tomorrow to start a streak.";
     if (store.forgivenYesterday()) copy = "Yesterday was forgiven: one missed day a week doesn't break your streak. " + copy;
-    /* A streak badge earned today makes this a milestone: its own line, and
-       a picture of the streak to share (app/share.js). */
+    /* A milestone day (a step of the road) is a moment of its own, with a
+       picture of the streak to share (app/share.js): milestoneView. */
     var mile = AM.road && AM.share && AM.road.isMilestone(days) ? days : null;
-    if (mile) copy = (MILESTONE_LINES[mile] || days + " days in a row. Keep going.") + " " + copy;
     var saved = store.shieldSaved();
     if (saved) copy = (saved.used === 1 ? "A streak shield" : saved.used + " streak shields") + " kept your streak going. " + copy;
     if (view.road === undefined) view.road = store.takeRoad();
@@ -1946,13 +1945,6 @@
       return view.drawn || (view.drawn = AM.share.picture(days, s.profile && s.profile.name, s.profile && s.profile.flame).then(function (b) { view.blob = b; return b; }));
     };
     var file = "abante-minds-" + days + "-day-streak.png", text = days + " days of math practice in a row!";
-    var share = mile ? AM.Button({ label: "Share", variant: "ghost", iconLeft: "share", fullWidth: true, onClick: function () {
-      /* Straight from the tap when the picture is ready, as phones require. */
-      (view.blob ? AM.share.send(view.blob, file, text) : draw().then(function (b) { return AM.share.send(b, file, text); })).then(function (how) {
-        if (how === "saved") AM.announce("Picture saved.");
-        if (how === "failed") AM.announce("This phone could not share the picture.");
-      });
-    } }) : null;
     var fresh = newBadgesCard(view.badges);
     var go = function () {
       if (view.tl) view.tl.skip();
@@ -1961,10 +1953,9 @@
       if (store.pendingTier()) { app.scratch.afterTier = next; next = "tierUp"; }
       app.go(next);
     };
-    if (mile && AM.MILE) return milestoneView(app, view, { days: days, saved: saved, go: go, draw: draw, file: file, text: text });
-    var body = el("div.am-streak" + (mile ? ".am-streak-mile" : ""), { style: { "--gutter": gutter() + "px", position: "relative" } },
+    if (mile) return milestoneView(app, view, { days: days, saved: saved, go: go, draw: draw, file: file, text: text });
+    var body = el("div.am-streak", { style: { "--gutter": gutter() + "px", position: "relative" } },
       el("div.am-streak-glow", { "aria-hidden": "true" }),
-      mile ? el("span.am-mile-chip.caption", null, "Milestone") : null,
       el("div", { style: { position: "relative", lineHeight: 0 } }, fl),
       num,
       el("div.am-streak-label", null, days === 1 ? "day of practice!" : "day streak!"),
@@ -1973,12 +1964,11 @@
       view.road.length ? el("div", { style: { width: "100%", maxWidth: 420 } }, roadNewCard(app, view.road)) : null,
       el("p.body", { style: { color: "var(--ink-600)", margin: "14px 0 0", maxWidth: 300, textWrap: "balance" } }, copy));
     var footer = el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center", background: "var(--surface-200)" } },
-      el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } }, share, AM.Button({ label: "Continue", fullWidth: true, cta: true, onClick: go })));
+      el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } }, AM.Button({ label: "Continue", fullWidth: true, cta: true, onClick: go })));
     return {
       nav: null, chrome: false, body: body, footer: footer, onBack: go,
       after: function () {
-        AM.announce(days + (days === 1 ? " day of practice." : " day streak.") + (mile && MILESTONE_LINES[mile] ? " " + MILESTONE_LINES[mile] : ""));
-        if (mile) draw();
+        AM.announce(days + (days === 1 ? " day of practice." : " day streak."));
         var m = window.AbanteMinds && window.AbanteMinds.moments;
         if (!m) return;
         var tl = view.tl = new m.Timeline(), E = m.ease, sound = window.AbanteMinds.sound;
@@ -1989,11 +1979,6 @@
         tl.call(play("ignite"), 0.15)
           .to(num, [{ opacity: 0, transform: "translateY(16px)" }, { opacity: 1, transform: "none" }], 450, 0.6);
         if (days > 1) tl.to(num.firstChild, [{ transform: "translateY(0)" }, { transform: "translateY(-50%)" }], 600, 1.0, E.back).call(play("roll"), 1.0);
-        if (mile) {
-          tl.to(body.querySelector(".am-mile-chip"), [{ opacity: 0, transform: "translateY(-8px)" }, { opacity: 1, transform: "none" }], 400, 0.3)
-            .call(function () { var p = m.centre(num); m.FX.stars(p.x, p.y, 14, ["#ffd23f", "#ff8a15", "#ffb000"]); }, 1.3)
-            .call(play("fanfare"), 1.3);
-        }
         tl.to(num, [{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], 650, 1.25, E.backSoft)
           .to(body.querySelector(".am-streak-label"), [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], 450, 1.35)
           .to(week, [{ opacity: 0, transform: "translateY(20px)" }, { opacity: 1, transform: "none" }], 500, 1.75);
@@ -2008,7 +1993,7 @@
         var cards = body.querySelectorAll(".am-card");
         if (cards.length) tl.to(cards[0], [{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], 450, 2.85).call(play("sparkle"), 2.9);
         tl.to(body.querySelector("p.body"), [{ opacity: 0 }, { opacity: 1 }], 450, 3.1)
-          .to(footer, [{ transform: "translateY(" + (mile ? 180 : 110) + "px)" }, { transform: "none" }], 500, 3.3, E.backSoft);
+          .to(footer, [{ transform: "translateY(110px)" }, { transform: "none" }], 500, 3.3, E.backSoft);
         if (view.played || m.reduced()) tl.skip();
         else body.addEventListener("click", function () { tl.skip(); });
         view.played = true;
