@@ -1351,6 +1351,7 @@
   AM.tierStone = tierStone;
   AM.weaveSVG = weaveSVG;
   AM.initialsOf = initialsOf;
+  AM.monogramSVG = monogramSVG;
   AM.PracticeHeader = PracticeHeader;
   AM.SkillCard = SkillCard;
   AM.CelebrationBanner = CelebrationBanner;
