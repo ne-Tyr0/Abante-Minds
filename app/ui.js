@@ -488,6 +488,7 @@
   var NAV_ITEMS = [
     { key: "home", icon: "home", label: "Home" },
     { key: "practice", icon: "lesson", label: "Practice" },
+    { key: "road", icon: "map", label: "Road" },
     { key: "profile", icon: "profile", label: "Profile" }
   ];
 
