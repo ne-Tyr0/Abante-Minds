@@ -404,6 +404,20 @@ html, body {
 .am-you i { width: 24px; height: 24px; line-height: 0; }
 .am-you i svg { width: 100%; height: 100%; }
 .am-sheet-left { align-items: stretch; text-align: left; }
+.am-hintpips { display: flex; gap: 4px; }
+.am-hintpips i { width: 22px; height: 6px; border-radius: 3px; background: var(--surface-300); }
+.am-hintpips i.on { background: var(--celebration-gold-500); }
+.am-hintnext { display: flex; align-items: center; gap: 12px; width: 100%; padding: 14px; border: 2px dashed var(--surface-300); border-radius: var(--radius-md); background: transparent; color: var(--ink-600); text-align: left; cursor: pointer; }
+.am-hintnext:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+/* A new tier, veiled until it is held for. */
+.am-veiled > .am-lcard { filter: blur(10px) saturate(0.4); opacity: 0.55; transform: scale(0.94); }
+.am-hold { position: relative; display: grid; place-items: center; width: 96px; height: 96px; margin-top: 18px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.14); color: #fff; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
+.am-hold-ring { position: absolute; inset: 4px; line-height: 0; }
+.am-hold-ring svg { width: 100%; height: 100%; }
+.am-hold-fill { transition: stroke-dashoffset 0.15s ease-out; }
+.am-hold.is-holding .am-hold-fill { stroke-dashoffset: 0; transition: stroke-dashoffset 0.95s linear; }
+.am-hold-label { position: relative; font-size: 15px; font-weight: 700; }
+.am-hold:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
 /* ---------- Card tiers (redesign stage 6) ---------- */
 .am-stone { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); z-index: 2; line-height: 0; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25)); }
 .am-tierladder { display: flex; flex-wrap: wrap; gap: 6px; }
