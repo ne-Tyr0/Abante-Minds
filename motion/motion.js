@@ -301,7 +301,16 @@
     pressedEl = null;
     if (e.type === "pointerup") {
       var sound = window.AbanteMinds && window.AbanteMinds.sound;
-      if (sound) sound.play("tap");
+      if (sound) {
+        /* A keypad key plays its own note, a tab the tab's tap, and a button
+           that names a sound (data-sound) plays that one instead. */
+        var own = t.getAttribute && t.getAttribute("data-sound");
+        var key = t.closest && t.closest(".am-keypad") ? (t.textContent || "").trim() : null;
+        if (own) sound.play(own);
+        else if (key !== null) sound.play("keys", key === "Delete" ? "del" : key);
+        else if (t.closest && t.closest(".am-bottomnav, .am-rail")) sound.play("tab");
+        else sound.play("tap");
+      }
     } else lastPressed = null;  /* a scroll took the touch: nothing was tapped */
     window.setTimeout(function () { t.classList.remove("am-pressed"); }, Math.max(0, PRESS_HOLD - (Date.now() - pressedAt)));
   }

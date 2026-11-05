@@ -1189,7 +1189,7 @@
        not come back. Revealing costs nothing but is visibly counted. */
     function hintButton() {
       return el("button.am-reset.am-pressable.am-hintbtn", {
-        type: "button", style: { "--am-edge": "var(--celebration-gold-500)" },
+        type: "button", "data-sound": "hint", style: { "--am-edge": "var(--celebration-gold-500)" },
         onClick: function () {
           ses.showHints = true;
           if (ses.hintsRevealed === 0) ses.hintsRevealed = 1;
@@ -1542,7 +1542,7 @@
         var m = window.AbanteMinds && window.AbanteMinds.moments;
         if (m && !m.reduced()) {
           btn.animate([{ transform: "scale(1)" }, { transform: "scale(1.3)", offset: 0.35 }, { transform: "scale(1)" }], { duration: 700, delay: 300, easing: m.ease.backSoft });
-          window.setTimeout(function () { var c = m.centre(btn); m.FX.stars(c.x, c.y, 8, ["#7b6cf6", "#ffd23f", "#ffffff"]); if (window.AbanteMinds.sound) window.AbanteMinds.sound.play("sparkle"); }, 420);
+          window.setTimeout(function () { var c = m.centre(btn); m.FX.stars(c.x, c.y, 8, ["#7b6cf6", "#ffd23f", "#ffffff"]); if (window.AbanteMinds.sound) window.AbanteMinds.sound.play("badge"); }, 420);
         }
       },
       body: column([
@@ -1724,7 +1724,7 @@
       .call(play("roll"), 1.1)
       .call(function () { grey.style.visibility = "hidden"; colour.style.visibility = ""; }, 1.78, true)
       .call(function () {
-        play("thump")(); play("fanfare")();
+        play("level")();
         var p = m.centre(d.flip, 0.45);
         m.FX.confetti(p.x, p.y, -90, 170, 420, 800, 60);
         m.FX.sparks(p.x, p.y, 14, ["#ffffff", "#fff1b8"]);
@@ -1739,6 +1739,7 @@
     tl.to(d.card, [{ transform: "translateY(20px)", opacity: 0 }, { transform: "none", opacity: 1 }], 500, 3.3)
       .to(ringFill, [{ strokeDashoffset: 100 }, { strokeDashoffset: 100 - d.share }], 1000, 3.45, "cubic-bezier(0.45, 0, 0.55, 1)")
       .call(function () { m.count(ringN, d.share, "%", 1000); m.count(rightN, d.right, "", 850); }, 3.45)
+      .call(play("count"), 3.45)
       .call(function () { ringN.textContent = d.share + "%"; rightN.textContent = String(d.right); }, 4.5, true)
       .call(play("step", 2), 4.4)
       .to(d.ring, [{ transform: "scale(1)" }, { transform: "scale(1.08)" }, { transform: "scale(1)" }], 450, 4.4, E.backSoft);
@@ -1960,7 +1961,7 @@
         /* The scene settles in, the words rise in order, one burst of confetti. */
         tl.to(hero.firstChild, [{ opacity: 0, transform: "scale(0.7)" }, { opacity: 1, transform: "none" }], 700, 0.05)
           .to(art, [{ opacity: 0, transform: "scale(0.6) translateY(16px)" }, { opacity: 1, transform: "scale(1.05)", offset: 0.6 }, { opacity: 1, transform: "none" }], 650, 0.1, E.out)
-          .call(play("fanfare"), 0.2)
+          .call(play("milestone"), 0.2)
           .call(function () { var p = m.centre(art, 0.45); m.FX.confetti(p.x, p.y, -90, 170, 420, 800, 40); }, 0.45);
         Array.prototype.forEach.call(body.children, function (c, k) {
           if (c === hero) return;

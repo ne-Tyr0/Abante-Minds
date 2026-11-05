@@ -527,7 +527,7 @@
       if (!right) sound.play("wrong");
       else if (s.facts && s.lastMastered) sound.play("check");
       else if (milestone) sound.play("combo", s.run);
-      else sound.play("correct");
+      else sound.play("correct", s.run);
     }
     render();
     var moments = window.AbanteMinds && window.AbanteMinds.moments;
@@ -687,7 +687,7 @@
   /* Today's goal: the end of the round that meets it says so (screens.goalMet). */
   function roundFinished() {
     app.scratch.goalMet = store.recordRound();
-    if (app.scratch.goalMet && sound) sound.play("check");
+    if (app.scratch.goalMet && sound) sound.play("goal");
   }
 
   /* The first session finished on a day goes by the streak screen on its
@@ -935,7 +935,7 @@
     if (sound) {
       if (!right) sound.play("wrong");
       else if (milestone) sound.play("combo", g.run);
-      else sound.play("correct");
+      else sound.play("correct", g.run);
     }
     render();
     var at = s.index;
