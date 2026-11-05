@@ -412,14 +412,14 @@
 
   /* The topic at a glance: a segment for each level, the cleared ones full and
      the current one filled as far as it has got. */
-  function levelSegments(next) {
-    var levels = store.topicPath(next.topic.key).levels, colour = "var(--skill-" + next.topic.colorKey + "-bright)";
+  function levelSegments(next, onColour) {
+    var levels = store.topicPath(next.topic.key).levels, colour = onColour ? "#fff" : "var(--skill-" + next.topic.colorKey + "-bright)";
     return el("div", {
       role: "img", "aria-label": "Level " + next.level.number + " of " + levels.length + ". " + next.level.correct + " of " + next.level.target + " right first time.",
-      style: { display: "flex", gap: 4 }
+      style: { display: "flex", gap: onColour ? 5 : 4 }
     }, levels.map(function (lv) {
       var ratio = lv.cleared ? 1 : lv.id === next.level.id ? next.level.correct / next.level.target : 0;
-      return el("span", { style: { flex: 1, height: 8, borderRadius: "var(--radius-pill)", background: "var(--surface-300)", overflow: "hidden" } },
+      return el("span", { style: { flex: 1, height: onColour ? 10 : 8, borderRadius: "var(--radius-pill)", background: onColour ? "rgba(255, 255, 255, 0.25)" : "var(--surface-300)", overflow: "hidden" } },
         el("span", { style: { display: "block", height: "100%", width: Math.round(ratio * 100) + "%", background: colour } }));
     }));
   }
@@ -442,44 +442,39 @@
           desktop ? null : streakBadge(s.streakDays)
         );
 
+    /* The exam at a glance: how ready, as a gauge, and where practice would
+       add the most, which opens that topic. */
     var ready = store.readiness();
-    var countdown = AM.Card({ style: { gap: 10 } },
-      el("span", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: "var(--space-2)" } },
+    var countdown = AM.Card({ style: { flexDirection: "row", alignItems: "center", gap: 14 } },
+      AM.Gauge(ready.started ? ready.percent || 0 : 0, 64),
+      el("span", { style: { display: "flex", flexDirection: "column", gap: 4, minWidth: 0 } },
         el("span.heading-sm", null, p.daysToExam === null ? "Your path" : p.daysToExam === 0 ? "Exam day" : "Exam in " + p.daysToExam + " day" + (p.daysToExam === 1 ? "" : "s")),
-        el("span.caption", { style: { color: "var(--ink-600)" } }, "30 January")),
-      AM.ProgressBar({ ratio: ready.share, height: 10, label: "Readiness estimate" }),
-      el("span.body", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-        !ready.started ? "Clear your first level to start filling this."
-          : (ready.percent ? "About " + ready.percent + "% ready" : "Just getting started") + (ready.focus ? " · most to gain in " + ready.focus.label.toLowerCase() : "")),
-      ready.started ? el("span.caption", { style: { color: "var(--ink-600)" } }, "An estimate from your answers, not the real exam.") : null);
+        el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+          (p.daysToExam === null ? "" : "30 January. ") + (!ready.started ? "Clear your first level to start filling this."
+            : (ready.percent ? "About " + ready.percent + "% ready" : "Just getting started") + ", from your answers, not the real exam.")),
+        ready.started && ready.focus ? el("button.am-reset.am-togain", { type: "button", onClick: function () { app.openTopic(ready.focus.key); } }, "Most to gain: " + ready.focus.label + " ›") : null));
 
+    /* Up next leads the screen, in its topic's colour. */
     var upNext = next
-      ? AM.Card({ style: { gap: 12 } },
-          sectionLabel("Up next"),
-          el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
-            topicTile(next.topic),
-            el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0, flex: 1 } },
-              el("span.label", null, levelLabel(next)),
-              el("span.body", { style: { color: "var(--ink-600)" } }, next.level.title)),
-            (function () {
-              var nb = store.findBadge("lv:" + next.topic.key + "/" + next.level.id);
-              return nb ? badgeButton(nb, 44) : null;
-            })()),
-          levelSegments(next),
-          el("span.caption", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-            !next.level.lessonSeen && next.level.hasLesson
-              ? "Starts with a short lesson. " + next.level.target + " right first time earns " + nextBadgeName(next) + "."
-              : next.level.correct + " of " + next.level.target + " right first time to earn " + nextBadgeName(next)),
-          el("span", { style: { display: "flex", marginTop: "var(--space-2)" } },
-            AM.Button({ label: levelVerb(next.level) + " level " + next.level.number, fullWidth: !desktop, onClick: function () { app.startLevel(next.topic.key, next.level.id); } })))
+      ? AM.HeroNext({
+          colorKey: next.topic.colorKey,
+          eyebrow: "Up next · " + next.topic.label,
+          title: next.level.title,
+          sub: "Level " + next.level.number + " of " + store.topicPath(next.topic.key).levels.length,
+          art: (function () {
+            var nb = store.findBadge("lv:" + next.topic.key + "/" + next.level.id);
+            return nb ? badgeButton(nb, 64) : el("span", { style: { width: 56, height: 56, borderRadius: 16, background: "#fff", display: "grid", placeItems: "center", transform: "rotate(-6deg)" } },
+              AM.topicIcon(next.topic.icon, 36, next.topic.colorKey));
+          })(),
+          segments: levelSegments(next, true),
+          meta: !next.level.lessonSeen && next.level.hasLesson
+            ? "Starts with a short lesson. " + next.level.target + " right first time earns " + nextBadgeName(next) + "."
+            : next.level.correct + " of " + next.level.target + " right first time to earn " + nextBadgeName(next),
+          button: AM.Button({ label: levelVerb(next.level) + " level " + next.level.number, fullWidth: true, onClick: function () { app.startLevel(next.topic.key, next.level.id); } })
+        })
       : AM.Card({ style: { gap: 10 } },
           sectionLabel("Up next"),
           el("span.body", { style: { textWrap: "pretty" } }, "Every level on the path is cleared. Review any level from the path, or try a practice exam."));
-
-    var streakBlock = (first || desktop) ? null : el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
-      sectionLabel(s.streakDays + " day" + (s.streakDays === 1 ? "" : "s") + " in a row"),
-      AM.StreakWeek({ days: s.streakDays, resetToday: s.resetToday, height: AM.device() === "phone" ? 38 : 48 })
-    );
 
     var written = p.topics.filter(function (t) { return t.ready; });
     var pathCard = (first || AM.device() === "phone") ? null : AM.Card({ style: { padding: "var(--space-6)", gap: 14 } },
@@ -495,11 +490,13 @@
       var cat = store.catalog(), shown = store.showcase();
       /* On a phone it waits for a first badge to show. */
       if (AM.device() === "phone" && !shown.length) return null;
-      return AM.Card({ style: AM.device() === "phone" ? { gap: "var(--space-3)" } : { padding: "var(--space-6)", gap: "var(--space-3)" } },
-        sectionLabel("Badges · " + cat.earned + " of " + cat.total),
-        shown.length ? el("div", { style: { display: "flex", gap: "var(--space-4)", alignItems: "flex-end" } },
-          shown.map(function (k) { return badgeButton(store.findBadge(k, cat), 64); })) : null,
-        AM.Button({ label: "See all badges", variant: "ghost", fullWidth: AM.device() === "phone", onClick: function () { app.scratch.badgesBack = null; app.go("badges"); } }));
+      return AM.RowCard({
+        lead: AM.LeadTile("trophy"), title: "Your badges · " + cat.earned + " of " + cat.total,
+        caption: shown.length ? null : "Clear a level to earn your first",
+        extra: shown.length ? el("span", { "aria-hidden": "true", style: { display: "flex", gap: 6, marginTop: 6 } },
+          shown.map(function (k) { var b = store.findBadge(k, cat); return b ? el("span", { style: { width: 36, height: 36, display: "inline-flex" }, html: AM.badgeArt.art(b, 36) }) : null; })) : null,
+        onClick: function () { app.scratch.badgesBack = null; app.go("badges"); }
+      });
     })();
 
     /* Basics sit beside the path: open any time, and never counted on it. */
@@ -519,51 +516,23 @@
 
     /* Missed questions that are due again (spaced review). */
     var due = store.reviewDue().length;
-    var reviewCard = due ? AM.Card({ style: { gap: 12 } },
-      sectionLabel("Review"),
-      el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
-        el("span", {
-          style: {
-            width: 40, height: 40, flex: "none", borderRadius: "var(--radius-sm)", background: "var(--brand-blue-100)",
-            color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
-          }
-        }, icon("retry", 22)),
-        el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
-          el("span.label", null, due + " question" + (due === 1 ? "" : "s") + " to try again"),
-          el("span.caption", { style: { color: "var(--ink-600)" } }, "Ones you missed, back so they stick"))),
-      AM.Button({ label: "Start review", variant: "ghost", fullWidth: true, onClick: function () { app.startReview(); } })) : null;
+    var reviewCard = due ? AM.RowCard({
+      lead: AM.LeadTile("retry"), title: due + " question" + (due === 1 ? "" : "s") + " to try again",
+      caption: "Ones you missed, back so they stick", trailing: "Review",
+      onClick: function () { app.startReview(); }
+    }) : null;
 
     /* The practice exam: the whole paper at once, against the clock. */
     var exam = store.examStats();
-    var examCard = first ? null : AM.Card({ style: { gap: 12 } },
-      sectionLabel("Practice exam"),
-      el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
-        el("span", {
-          style: {
-            width: 40, height: 40, flex: "none", borderRadius: "var(--radius-sm)", background: "var(--brand-blue-100)",
-            color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
-          }
-        }, icon("clock", 22)),
-        el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
-          el("span.label", null, app.EXAM_COUNT + " questions · " + app.EXAM_MINUTES + " minutes"),
-          el("span.caption", { style: { color: "var(--ink-600)" } },
-            exam ? "Last " + exam.last.score + " of " + exam.last.total + " · best " + exam.best.score + " of " + exam.best.total
-              : "Every topic, as the exam weighs them"))),
-      AM.Button({ label: exam ? "Take another" : "Try a practice exam", variant: "ghost", fullWidth: true, onClick: function () { app.go("examIntro"); } }));
+    var examCard = first ? null : AM.RowCard({
+      lead: AM.LeadTile("clock"), title: "Practice exam · " + app.EXAM_COUNT + " questions, " + app.EXAM_MINUTES + " minutes",
+      caption: exam ? "Last " + exam.last.score + " of " + exam.last.total + " · best " + exam.best.score + " of " + exam.best.total : "Every topic, as the exam weighs them",
+      onClick: function () { app.go("examIntro"); }
+    });
 
-    /* Today's goal, in one line above everything else. */
+    /* The streak and today's goal, together, above everything else. */
     var goal = store.dailyGoal();
-    var goalCard = AM.Card({ style: { flexDirection: "row", alignItems: "center", gap: "var(--space-3)", padding: "var(--space-3) var(--space-4)" } },
-      el("span", {
-        style: {
-          width: 32, height: 32, flex: "none", borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
-          background: goal.met ? "var(--success-100)" : "var(--surface-300)", color: goal.met ? "var(--success-700)" : "var(--ink-600)"
-        }
-      }, icon(goal.met ? "check" : "clock", 18, goal.met ? { glyph: true } : undefined)),
-      el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
-        el("span.label", null, goal.met ? "Today's goal done" : "Today's goal: finish 1 round"),
-        el("span.caption", { style: { color: "var(--ink-600)" } },
-          goal.met ? (goal.done > 1 ? goal.done + " rounds today. Well done." : "Anything more is a bonus.") : "A round is ten questions, or one quick challenge.")));
+    var goalCard = AM.StreakPanel({ days: s.streakDays, strip: store.weekStrip(), goal: goal });
 
     /* Last week, from the week after, until it is put away. */
     var last = store.recap();
@@ -603,22 +572,11 @@
       var b = store.challengeStats(m).best;
       return b ? b.score : 0;
     }));
-    var challengeCard = first ? null : AM.Card({ style: { gap: 12 } },
-      sectionLabel("Challenge"),
-      el("span", { style: { display: "flex", gap: "var(--space-3)", alignItems: "center" } },
-        el("span", {
-          style: {
-            width: 40, height: 40, flex: "none", borderRadius: "var(--radius-sm)", background: "var(--brand-blue-100)",
-            color: "var(--brand-blue-600)", display: "flex", alignItems: "center", justifyContent: "center"
-          }
-        }, icon("level-up", 22)),
-        el("span", { style: { display: "flex", flexDirection: "column", minWidth: 0 } },
-          el("span.label", null, "60-second sprint · speed ladder"),
-          el("span.caption", { style: { color: "var(--ink-600)" } },
-            !challengeOpen ? "Clear a level to open it"
-              : challengeBest ? "Your best: " + challengeBest + " points"
-              : "Quick rounds from levels you have cleared"))),
-      challengeOpen ? AM.Button({ label: "Play a challenge", variant: "ghost", fullWidth: true, onClick: function () { app.go("challengeIntro"); } }) : null);
+    var challengeCard = first ? null : AM.RowCard({
+      lead: AM.LeadTile("level-up", "action"), title: "Challenge · 60-second sprint, speed ladder",
+      caption: !challengeOpen ? "Clear a level to open it" : challengeBest ? "Your best: " + challengeBest + " points" : "Quick rounds from levels you have cleared",
+      onClick: function () { app.go("challengeIntro"); }, disabled: !challengeOpen
+    });
 
     var offer = s.totalCorrect > 0 && app.canOfferInstall() && !s.installCardDismissed ? installCard(app) : null;
 
@@ -626,7 +584,7 @@
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          goalCard, forgiven, recapCard, upNext, offer, reviewCard, countdown, badgeCard, examCard, challengeCard, basicsCard, streakBlock)
+          goalCard, forgiven, recapCard, upNext, offer, reviewCard, countdown, badgeCard, examCard, challengeCard, basicsCard)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
           goalCard,
           forgiven,
@@ -636,8 +594,7 @@
           offer,
           reviewCard,
           el("div.am-pair", null, examCard, challengeCard),
-          el("div.am-pair", null, pathCard, basicsCard),
-          streakBlock);
+          el("div.am-pair", null, pathCard, basicsCard));
 
     return {
       nav: "home",

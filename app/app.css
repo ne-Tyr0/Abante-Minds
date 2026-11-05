@@ -230,6 +230,41 @@ html, body {
 .am-navpill::before { content: ""; position: absolute; inset: 6px 10px; border-radius: var(--radius-md); background: var(--brand-blue-100); }
 @media (prefers-reduced-motion: reduce) { .am-navpill { transition: none; } }
 
+/* ---------- Home (redesign stage 2) ---------- */
+.am-streak-panel { display: grid; grid-template-columns: auto 1fr; gap: 14px 20px; align-items: center; padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface-200); box-shadow: var(--shadow-card); }
+.am-streak-count { display: flex; align-items: center; gap: 4px; }
+.am-streak-count b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 40px; line-height: 1; color: var(--action-600); }
+.am-streak-count small { display: block; font-size: 12px; line-height: 1.2; color: var(--ink-600); white-space: nowrap; }
+.am-sweek { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; min-width: 0; width: 100%; max-width: 300px; justify-self: start; }
+.am-sweek-day { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--ink-600); }
+.am-sweek-dot { width: 100%; max-width: 22px; aspect-ratio: 1; border-radius: 50%; display: grid; place-items: center; background: var(--surface-100); box-shadow: inset 0 0 0 2px var(--surface-300); color: #fff; }
+.am-sweek-dot.on { background: var(--action-500); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.15); }
+.am-sweek-dot.today { box-shadow: inset 0 0 0 2.5px var(--action-500); }
+.am-sweek-dot.kept { box-sizing: border-box; background: transparent; box-shadow: none; border: 2px dashed var(--action-500); }
+.am-sweek-dot.later { opacity: 0.55; }
+.am-sweek-day.is-today { color: var(--ink-900); font-weight: 800; }
+.am-streak-start { font-size: 13px; font-weight: 700; line-height: 1.25; color: var(--ink-900); }
+.am-goal-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding-top: 12px; border-top: 1.5px dashed var(--surface-300); font-size: 14px; color: var(--ink-600); }
+.am-goal-row b { color: var(--ink-900); font-weight: 600; }
+.am-hero { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 24px; color: #fff; }
+.am-hero::before { content: ""; position: absolute; right: -50px; top: -60px; width: 190px; height: 190px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); pointer-events: none; }
+.am-hero > * { position: relative; }
+.am-hero-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.am-hero-eyebrow { display: block; font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.85); }
+.am-hero-title { display: block; margin: 4px 0 2px; font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1.05; text-wrap: balance; }
+.am-hero-sub { display: block; font-size: 14px; color: rgba(255, 255, 255, 0.88); }
+.am-hero-art { flex: none; }
+.am-hero-meta { font-size: 13px; color: rgba(255, 255, 255, 0.9); }
+.am-rowcard { display: flex; align-items: center; gap: var(--space-3); width: 100%; padding: 14px; border-radius: var(--radius-md); background: var(--surface-200); text-align: left; color: var(--ink-900); }
+.am-rowcard-flat { box-shadow: var(--shadow-card); }
+.am-rowcard-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.am-rowcard-text .caption { color: var(--ink-600); text-wrap: pretty; }
+.am-rowcard-pill { flex: none; padding: 9px 14px; border-radius: 12px; background: var(--brand-blue-100); color: var(--brand-blue-600); font-weight: 700; font-size: 14px; }
+.am-rowcard-chev { flex: none; color: var(--ink-600); display: inline-flex; }
+.am-leadtile { flex: none; width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; background: var(--brand-blue-100); color: var(--brand-blue-600); }
+.am-togain { align-self: flex-start; margin-top: 4px; padding: 6px 12px; border: 0; border-radius: var(--radius-pill); background: var(--brand-blue-100); color: var(--brand-blue-600); font: inherit; font-size: 13px; font-weight: 600; cursor: pointer; }
+.am-togain:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+
 /* ---------- tablet ----------
    32px gutters, the extra width spent on a second card rather than longer
    lines. Action and nav stay at the bottom because a tablet is still held. */

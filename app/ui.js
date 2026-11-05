@@ -470,20 +470,6 @@
     return track;
   }
 
-  /* Seven blocks, one per day of the week. A reset day is a dashed outline
-     rather than a red block: the app does not perform disappointment. */
-  function StreakWeek(o) {
-    var row = el("span", { style: { display: "flex", gap: o.gap || 6 } });
-    for (var i = 0; i < 7; i++) {
-      var style = { flex: 1, height: o.height || 38, borderRadius: o.radius || "var(--radius-sm)" };
-      if (i < o.days) style.background = "var(--brand-blue-600)";
-      else if (i === o.days && o.resetToday) style.border = "2px dashed var(--line-200)";
-      else style.background = "var(--surface-300)";
-      row.appendChild(el("span", { style: style }));
-    }
-    return row;
-  }
-
   function TopicBars(topics, o) {
     o = o || {};
     var wrap = el("div", { style: { display: "flex", flexDirection: "column", gap: o.gap || "var(--space-3)" } });
@@ -574,6 +560,84 @@
     rail.appendChild(el("span", { style: { flex: 1 } }));
     if (footer) rail.appendChild(footer);
     return rail;
+  }
+
+  /* ---------- Home in the redesign (stage 2) ---------- */
+  /* A small ring, filled as far as a share (0 to 1). */
+  function Ring(share, size, colour) {
+    var r = 12, C = 2 * Math.PI * r, f = Math.max(0, Math.min(1, share || 0));
+    var svg = '<svg viewBox="0 0 30 30" width="' + size + '" height="' + size + '" aria-hidden="true"><circle cx="15" cy="15" r="' + r + '" fill="none" stroke="var(--surface-300)" stroke-width="4"/>' +
+      '<circle cx="15" cy="15" r="' + r + '" fill="none" stroke="' + (colour || "var(--success-700)") + '" stroke-width="4" stroke-linecap="round" stroke-dasharray="' + (C * f).toFixed(1) + " " + C.toFixed(1) + '" transform="rotate(-90 15 15)"/></svg>';
+    var s = el("span", { style: { flex: "none", display: "inline-flex" } }); s.innerHTML = svg; return s;
+  }
+  /* The readiness estimate as a gauge with the percent inside. */
+  function Gauge(percent, size) {
+    var r = 26, C = 2 * Math.PI * r, f = Math.max(0, Math.min(100, percent || 0)) / 100;
+    var s = el("span", { role: "img", "aria-label": "About " + (percent || 0) + "% ready", style: { flex: "none", display: "inline-flex" } });
+    s.innerHTML = '<svg viewBox="0 0 64 64" width="' + size + '" height="' + size + '" aria-hidden="true"><circle cx="32" cy="32" r="' + r + '" fill="none" stroke="var(--surface-300)" stroke-width="8"/>' +
+      '<circle cx="32" cy="32" r="' + r + '" fill="none" stroke="var(--brand-blue-600)" stroke-width="8" stroke-linecap="round" stroke-dasharray="' + (C * f).toFixed(1) + " " + C.toFixed(1) + '" transform="rotate(-90 32 32)"/>' +
+      '<text x="32" y="38" text-anchor="middle" font-family="var(--font-display), sans-serif" font-weight="800" font-size="17" fill="var(--ink-900)">' + (percent || 0) + "%</text></svg>";
+    return s;
+  }
+  /* The streak and today's goal in one panel: the flame and the count, the
+     last seven days by name (today ringed until it is done), and the goal.
+     The streak is a run of whole days, so the filled days are the last
+     `days` of them, ending today once today counts and yesterday before. */
+  /* The streak and today's goal, together: the count, this week day by day
+     (store.weekStrip: practised, kept by the free day or a shield, today,
+     still to come), and the goal. With no streak yet it invites one rather
+     than showing a nought. */
+  var WEEK_LETTERS = ["M", "T", "W", "T", "F", "S", "S"];
+  var WEEK_NAMES = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  function StreakPanel(o) {
+    var days = o.days || 0, goal = o.goal || {}, strip = o.strip || [];
+    var done = strip.filter(function (d) { return d.done; }).length;
+    var week = el("span.am-sweek", { role: "img", "aria-label": "This week: practised on " + done + " day" + (done === 1 ? "" : "s") +
+      strip.map(function (d, i) { return d.kept ? ". " + WEEK_NAMES[i] + " was kept for you" : ""; }).join("") + "." });
+    strip.forEach(function (d, i) {
+      var cls = d.done ? " on" : d.kept ? " kept" : d.today ? " today" : d.later ? " later" : "";
+      week.appendChild(el("span.am-sweek-day", { "aria-hidden": "true", className: d.today ? "is-today" : null }, WEEK_LETTERS[i],
+        el("span", { className: "am-sweek-dot" + cls }, d.done ? icon("check", 12, { glyph: true }) : null)));
+    });
+    return el("div.am-streak-panel", null,
+      el("span.am-streak-count", null, AM.Flame ? AM.Flame(40, days > 0) : icon("streak", 32),
+        days > 0 ? el("span", null, el("b", null, String(days)), el("small", null, days === 1 ? "day" : "days", el("br"), "in a row"))
+          : el("span.am-streak-start", null, "Start a", el("br"), "streak today")),
+      week,
+      el("span.am-goal-row", null, Ring(goal.met ? 1 : 0, 28),
+        el("span", null, goal.met ? el("b", null, "Today's goal done. ") : el("b", null, "Today's goal: "),
+          goal.met ? (goal.done > 1 ? goal.done + " rounds today." : "Anything more is a bonus.") : "finish 1 round")));
+  }
+  /* "Up next" as the screen's lead: the topic's own colour, the level, how
+     far it has got, and the button. The colours are the day ones in both
+     themes, as the gold celebration is, so white text always reads. */
+  var HERO = { 1: ["#7b6cf6", "#4f40cf"], 2: ["#13a3b3", "#0b6f7b"], 3: ["#e2559f", "#a8336f"], 4: ["#25a356", "#16703d"], 5: ["#2f95e0", "#17609c"], 6: ["#b14fd8", "#7a2d99"], 7: ["#679f14", "#426a0e"] };
+  function HeroNext(o) {
+    var c = HERO[o.colorKey] || HERO[1];
+    return el("div.am-hero", { style: { background: "linear-gradient(160deg, " + c[0] + " 0%, " + c[1] + " 100%)" } },
+      el("span.am-hero-row", null,
+        el("span", { style: { minWidth: 0 } },
+          el("span.am-hero-eyebrow", null, o.eyebrow), el("span.am-hero-title", null, o.title), el("span.am-hero-sub", null, o.sub)),
+        o.art ? el("span.am-hero-art", null, o.art) : null),
+      o.segments || null, o.meta ? el("span.am-hero-meta", null, o.meta) : null, o.button || null);
+  }
+  /* A row you can tap: a picture, a line and a caption, and where it goes.
+     It stands on a shelf like every other pressable thing; a row that cannot
+     be opened yet lies flat. */
+  function RowCard(o) {
+    var live = !!o.onClick && !o.disabled;
+    var trail = o.trailing === undefined ? (live ? el("span.am-rowcard-chev", null, icon("next", 20)) : null)
+      : typeof o.trailing === "string" ? el("span.am-rowcard-pill", null, o.trailing) : o.trailing;
+    return el(live ? "button.am-reset.am-pressable.am-rowcard" : "div.am-rowcard.am-rowcard-flat", {
+      type: live ? "button" : null, onClick: live ? o.onClick : null, "aria-label": o.ariaLabel || null,
+      style: live ? { "--am-edge": "var(--surface-300)" } : null
+    }, o.lead || null,
+      el("span.am-rowcard-text", null, el("span.label", null, o.title), o.caption ? el("span.caption", null, o.caption) : null, o.extra || null),
+      trail);
+  }
+  /* The square picture at the start of a row. */
+  function LeadTile(name, tone) {
+    return el("span.am-leadtile", { style: tone === "action" ? { background: "#fff1e0", color: "var(--action-700)" } : null }, icon(name, 22));
   }
 
   function Card(props) {
@@ -1131,11 +1195,16 @@
   AM.AnswerField = AnswerField;
   AM.Keypad = Keypad;
   AM.ProgressBar = ProgressBar;
-  AM.StreakWeek = StreakWeek;
   AM.TopicBars = TopicBars;
   AM.BottomNav = BottomNav;
   AM.SideRail = SideRail;
   AM.Card = Card;
+  AM.Ring = Ring;
+  AM.Gauge = Gauge;
+  AM.StreakPanel = StreakPanel;
+  AM.HeroNext = HeroNext;
+  AM.RowCard = RowCard;
+  AM.LeadTile = LeadTile;
   AM.Chip = Chip;
   AM.FactGrid = FactGrid;
   AM.Chart = Chart;
