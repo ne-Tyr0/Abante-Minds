@@ -164,7 +164,9 @@
        and draw no nav. The rail is different — it is the desktop window frame,
        so it stays. */
     var wantsNav = !!view.nav && view.bottomNav !== false && dev !== "desktop";
-    fill(slots.nav, wantsNav ? AM.BottomNav(view.nav, navigate) : null);
+    var bar = slots.nav.firstChild;
+    if (wantsNav && bar && bar.amSetActive && !slots.nav.hidden) bar.amSetActive(view.nav);
+    else fill(slots.nav, wantsNav ? AM.BottomNav(view.nav, navigate) : null);
 
     var wantsRail = !!view.nav && dev === "desktop";
     fill(slots.rail, wantsRail ? AM.SideRail(view.nav, navigate, view.railFooter || null) : null);
@@ -227,13 +229,16 @@
   }
 
   function navigate(key) {
-    if (key === "home") app.go("home");
-    else if (key === "profile") app.go("profile");
+    /* Between tabs, the new screen comes in from the side the tab is on. */
+    var order = AM.BottomNav.order, from = order.indexOf(currentView && currentView.nav), to = order.indexOf(key);
+    var dir = from >= 0 && to >= 0 && to < from ? "back" : "forward";
+    if (key === "home") app.go("home", dir);
+    else if (key === "profile") app.go("profile", dir);
     else if (key === "practice") {
       if (app.session && app.route !== "practice" && app.route !== "exam" && app.route !== "challenge") {
-        app.go(app.session.challenge ? "challenge" : app.session.exam ? "exam" : "practice");
+        app.go(app.session.challenge ? "challenge" : app.session.exam ? "exam" : "practice", dir);
       }
-      else app.go("topics");
+      else app.go("topics", dir);
     }
   }
 
