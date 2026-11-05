@@ -13,7 +13,7 @@
     { streak: 3, levels: 3, rewards: [{ kind: "colour", key: 5 }, { kind: "colour", key: 6 }] },
     { streak: 7, levels: 8, rewards: [{ kind: "shield" }] },
     { streak: 14, levels: 15, rewards: [{ kind: "colour", key: 7 }] },
-    { streak: 30, levels: 25, rewards: [{ kind: "certificate", key: 30 }, { kind: "pattern", key: "binakol" }] },
+    { streak: 30, levels: 25, rewards: [{ kind: "certificate", key: 30 }, { kind: "pattern", key: "kusikus" }] },
     { streak: 50, levels: 35, rewards: [{ kind: "shield" }, { kind: "pattern", key: "triangles" }] },
     { streak: 100, levels: 50, rewards: [{ kind: "certificate", key: 100 }, { kind: "flame", key: "blue" }] },
     { streak: 150, levels: 65, rewards: [{ kind: "pattern", key: "hexagons" }] },

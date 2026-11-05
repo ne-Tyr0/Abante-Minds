@@ -40,7 +40,8 @@ test("each step gives what was agreed", () => {
   assert.strictEqual(kinds(1), "shield");
   /* Frames moved to card tiers (2026-11-05): step 3 gives a card colour. */
   assert.strictEqual(kinds(2), "colour:7");
-  assert.strictEqual(kinds(3), "certificate:30 pattern:binakol");
+  /* Binakol is every card's weave from the start (2026-11-05); step 4 gives Kusikus. */
+  assert.strictEqual(kinds(3), "certificate:30 pattern:kusikus");
   assert.strictEqual(kinds(4), "shield pattern:triangles");
   assert.strictEqual(kinds(5), "certificate:100 flame:blue");
   assert.strictEqual(kinds(6), "pattern:hexagons");
@@ -91,11 +92,11 @@ test("nothing before the first step", () => {
 });
 test("everything the steps reached give, in order", () => {
   assert.deepStrictEqual(R.unlocked(6), {
-    colours: [5, 6, 7], frames: [], patterns: ["binakol", "triangles"], flames: ["blue"], certificates: [30, 100], shields: 2
+    colours: [5, 6, 7], frames: [], patterns: ["kusikus", "triangles"], flames: ["blue"], certificates: [30, 100], shields: 2
   });
   const all = R.unlocked(13);
   assert.deepStrictEqual(all.frames, [], "the road gives no frames: card tiers do");
-  assert.deepStrictEqual(all.patterns, ["binakol", "triangles", "hexagons", "stars"]);
+  assert.deepStrictEqual(all.patterns, ["kusikus", "triangles", "hexagons", "stars"]);
   assert.deepStrictEqual(all.flames, ["blue", "purple"]);
   assert.deepStrictEqual(all.certificates, [30, 100, 365]);
   assert.strictEqual(all.shields, 6);

@@ -382,6 +382,25 @@ html, body {
 .am-tierstep { padding: 4px 9px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 700; color: var(--ink-600); background: var(--surface-100); box-shadow: inset 0 0 0 1.5px var(--surface-300); }
 .am-tierstep.on { color: #16202c; background: linear-gradient(135deg, var(--t1), var(--t2)); box-shadow: none; }
 .am-tierstep.next { color: var(--ink-900); box-shadow: inset 0 0 0 2px var(--t2); }
+/* ---------- The learner's card (redesign, Profile) ---------- */
+.am-lcard-weave { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; opacity: 0.3; }
+.am-lcard-weave svg { display: block; }
+.am-lcard-row { position: relative; display: flex; align-items: center; gap: 12px; }
+.am-mono { flex: none; width: 56px; height: 56px; line-height: 0; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25)); }
+.am-mono svg { width: 100%; height: 100%; }
+.am-lcard-who { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
+.am-lcard-title { padding: 3px 9px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.92); font-size: 12px; font-weight: 700; line-height: 1.2; }
+.am-lcard-name { font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.1; overflow-wrap: anywhere; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
+.am-lcard-who small { font-size: 13px; color: rgba(255, 255, 255, 0.88); }
+.am-lcard-foot { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.25); }
+.am-lcard-motto { min-width: 0; font-family: var(--font-display); font-weight: 700; font-style: italic; font-size: 15px; overflow-wrap: anywhere; }
+.am-lcard-tier { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 4px; border-radius: var(--radius-pill); background: rgba(0, 0, 0, 0.22); font-size: 12px; font-weight: 700; }
+.am-lcard-tier i { width: 16px; height: 16px; border-radius: 50%; }
+.am-ecprev { position: sticky; top: 0; z-index: 2; padding: 12px 0; background: var(--surface-100); }
+.am-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.am-chipbtn { min-height: 40px; padding: 0 14px; border: 0; border-radius: var(--radius-pill); background: var(--surface-200); box-shadow: inset 0 0 0 1.5px var(--surface-300); color: var(--ink-900); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.am-chipbtn[aria-pressed="true"] { background: var(--brand-blue-100); box-shadow: inset 0 0 0 2px var(--brand-blue-600); color: var(--brand-blue-600); }
+.am-chipbtn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 
 /* ---------- tablet ----------
    32px gutters, the extra width spent on a second card rather than longer

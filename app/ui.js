@@ -155,7 +155,8 @@
     binakol: { w: 24, h: 24, d: '<rect x="2" y="2" width="20" height="20" fill="none" stroke="C" stroke-width="2"/><rect x="6.5" y="6.5" width="11" height="11" transform="rotate(18 12 12)" fill="none" stroke="C" stroke-width="2"/><rect x="9.8" y="9.8" width="4.4" height="4.4" transform="rotate(36 12 12)" fill="C"/>' },
     triangles: { w: 24, h: 21, d: '<path d="M0 21L12 0L24 21Z" fill="C"/>' },
     hexagons: { w: 24, h: 41.6, d: '<path d="M12 0L24 6.9V20.8L12 27.7L0 20.8V6.9ZM12 27.7V41.6" fill="none" stroke="C" stroke-width="1.6"/>' },
-    stars: { w: 28, h: 28, d: '<path d="M7 1Q7 7 13 7Q7 7 7 13Q7 7 1 7Q7 7 7 1ZM21 15Q21 21 27 21Q21 21 21 27Q21 21 15 21Q21 21 21 15Z" fill="C"/>' }
+    stars: { w: 28, h: 28, d: '<path d="M7 1Q7 7 13 7Q7 7 7 13Q7 7 1 7Q7 7 7 1ZM21 15Q21 21 27 21Q21 21 21 27Q21 21 15 21Q21 21 21 15Z" fill="C"/>' },
+    kusikus: { w: 24, h: 24, d: '<rect x="3" y="3" width="18" height="18" fill="none" stroke="C" stroke-width="2"/><rect x="6.5" y="6.5" width="11" height="11" transform="rotate(20 12 12)" fill="none" stroke="C" stroke-width="2"/><rect x="9.5" y="9.5" width="5" height="5" transform="rotate(40 12 12)" fill="C"/>' }
   };
   var patternIds = 0;
   /* A pattern tile filling its parent, in a colour (any CSS colour). */
@@ -168,37 +169,80 @@
     return wrap;
   }
 
+  /* ---------- the learner's card ----------
+     In the card's colour, with a weave made from the learner's name (the
+     same name always weaves the same cloth; a binakol whirl, after the
+     Ilocano weave, not copied from any one cloth), an initials monogram
+     ringed in the tier's metal, a title earned, a motto of their own, and
+     the tier. Its frame is the tier's, or one kept from the road. */
+  function hashStr(s) { var h = 2166136261 >>> 0; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h; }
+  function seeded(a) { return function () { a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+  var weaveCount = 0;
+  function weaveSVG(name, style) {
+    var r = seeded(hashStr(String(name || "").toLowerCase().replace(/\s+/g, " ").trim() + "|1|" + style));
+    var size = [36, 42, 48, 54][Math.floor(r() * 4)], m = size / 2, rings = 2 + Math.floor(r() * 3), sw = (1.3 + r() * 1.3).toFixed(2), th = "#ffffff", t = "", k;
+    var line = function (d, op) { return '<path d="' + d + '" fill="none" stroke="' + th + '" stroke-opacity="' + op + '" stroke-width="' + sw + '" stroke-linejoin="round"/>'; };
+    var diamond = function (cx, cy, d) { return "M" + cx + " " + (cy - d) + "L" + (cx + d) + " " + cy + "L" + cx + " " + (cy + d) + "L" + (cx - d) + " " + cy + "Z"; };
+    if (style === "binakol") {
+      [[m, m], [0, 0], [size, 0], [0, size], [size, size]].forEach(function (p) {
+        for (k = 0; k < rings; k++) t += line(diamond(p[0], p[1], m * (0.9 - k * (0.72 / rings))), k % 2 ? 0.28 : 0.7);
+      });
+      if (r() < 0.7) t += '<path d="' + diamond(m, m, m * 0.14) + '" fill="' + th + '" fill-opacity=".8"/>';
+    } else if (style === "kusikus") {
+      var spin = 12 + r() * 10;
+      for (k = 0; k < rings + 2; k++) { var s = m * (0.92 - k * 0.17); if (s < 2) break; t += '<rect x="' + (m - s) + '" y="' + (m - s) + '" width="' + 2 * s + '" height="' + 2 * s + '" fill="none" stroke="' + th + '" stroke-opacity="' + (k % 2 ? 0.3 : 0.72) + '" stroke-width="' + sw + '" transform="rotate(' + (k * spin).toFixed(1) + " " + m + " " + m + ')"/>'; }
+    } else if (style === "triangles") {
+      t += line("M0 " + size + "L" + m + " 0L" + size + " " + size, 0.7) + line("M" + m * 0.5 + " " + size + "L" + m + " " + m + "L" + m * 1.5 + " " + size, 0.3);
+    } else if (style === "hexagons") {
+      var hx = function (rr) { var p = []; for (var i = 0; i < 6; i++) { var a = (60 * i - 30) * Math.PI / 180; p.push((m + rr * Math.cos(a)).toFixed(1) + " " + (m + rr * Math.sin(a)).toFixed(1)); } return "M" + p.join("L") + "Z"; };
+      for (k = 0; k < rings; k++) t += line(hx(m * (0.95 - k * 0.3)), k % 2 ? 0.3 : 0.7);
+    } else {
+      var sq = function (rr) { return '<rect x="' + (m - rr) + '" y="' + (m - rr) + '" width="' + 2 * rr + '" height="' + 2 * rr + '"/>'; };
+      t += '<g fill="none" stroke="' + th + '" stroke-opacity=".7" stroke-width="' + sw + '">' + sq(m * 0.55) + '<g transform="rotate(45 ' + m + " " + m + ')">' + sq(m * 0.55) + "</g></g>";
+    }
+    var id = "am-weave-" + (++weaveCount), bands = "", nb = 1 + Math.floor(r() * 2);
+    for (k = 0; k < nb; k++) bands += '<rect x="0" y="' + (18 + r() * 64).toFixed(1) + '%" width="100%" height="5" fill="' + th + '" fill-opacity=".35"/>';
+    return '<svg width="100%" height="100%" aria-hidden="true"><defs><pattern id="' + id + '" width="' + size + '" height="' + size + '" patternUnits="userSpaceOnUse">' + t + '</pattern></defs><rect width="100%" height="100%" fill="url(#' + id + ')"/>' + bands + "</svg>";
+  }
+  function initialsOf(name, own) {
+    if (own && String(own).trim()) return String(own).trim().toUpperCase().slice(0, 3);
+    var w = String(name || "?").trim().split(/\s+/);
+    return (((w[0] || "?")[0] || "?") + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
+  }
+  var monoCount = 0;
+  function monogramSVG(initials, colorKey, tier) {
+    var hue = HERO[colorKey] || HERO[2], id = "am-mono-" + (++monoCount), big = initials.length > 2;
+    var ring = !tier ? ["#ffffff", "#e8edf4", "#aab6c8", "#6b7a92"] : tier.kind === "pearl" ? ["#fffaf2", "#f1dfcb", "#ffe0ea", "#d8c2ab"] : tier.c;
+    var safe = initials.replace(/[&<>"]/g, "");
+    var text = function (dy, fill, op) { return '<text x="32" y="' + ((big ? 38 : 40) + dy) + '" text-anchor="middle" style="font-family: var(--font-display)" font-weight="800" font-size="' + (big ? 19 : 24) + '" fill="' + fill + '"' + (op ? ' fill-opacity="' + op + '"' : "") + ">" + safe + "</text>"; };
+    return '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="' + id + 'r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + ring[0] + '"/><stop offset=".35" stop-color="' + ring[1] + '"/><stop offset=".7" stop-color="' + ring[2] + '"/><stop offset="1" stop-color="' + ring[3] + '"/></linearGradient>' +
+      '<radialGradient id="' + id + 'd" cx=".4" cy=".3" r=".9"><stop offset="0" stop-color="' + hue[0] + '"/><stop offset="1" stop-color="' + hue[1] + '"/></radialGradient></defs>' +
+      '<circle cx="32" cy="32" r="31" fill="url(#' + id + 'r)"/><circle cx="32" cy="32" r="25.5" fill="' + ring[3] + '" opacity=".5"/><circle cx="32" cy="32.6" r="24.5" fill="url(#' + id + 'd)"/>' +
+      text(1.5, "#000", 0.22) + text(0, "#ffffff") + "</svg>";
+  }
   function ProfileCard(o) {
     o = o || {};
-    var name = o.name || "there";
-    var greeting = o.greeting === undefined ? "Hello, " : o.greeting;
+    var hue = HERO[o.colorKey] || HERO[2];
+    var tier = o.tier || (AM.store && AM.store.tier ? AM.store.tier().tier : null);
+    var weave = o.pattern === "plain" ? null : (o.pattern || "binakol");
     var style = {
-      position: "relative", overflow: "hidden",
-      display: "flex", alignItems: "center", gap: "var(--space-4)",
-      padding: "var(--space-4)", borderRadius: "var(--radius-md)",
-      background: "var(--surface-200)", boxShadow: (CARD_FRAMES[o.frame] ? CARD_FRAMES[o.frame] + ", " : "") + "var(--shadow-card)", maxWidth: 320
+      position: "relative", display: "flex", flexDirection: "column", gap: 10, padding: "16px 16px 14px", borderRadius: 20,
+      color: "#ffffff", background: "linear-gradient(150deg, " + hue[0] + " 0%, " + hue[1] + " 100%)",
+      boxShadow: CARD_FRAMES[o.frame] || "none", maxWidth: 340, textAlign: "left"
     };
     if (o.style) Object.keys(o.style).forEach(function (k) { style[k] = o.style[k]; });
-    /* A frame's outer ring is drawn outside the card, so it must not be cut. */
-    if (CARD_FRAMES[o.frame]) style.overflow = "visible";
-
-    return el("div.am-reset", { style: style },
+    return el("div.am-reset.am-lcard", { style: style },
+      weave ? el("span.am-lcard-weave", { "aria-hidden": "true", html: weaveSVG(o.name, weave) }) : null,
       tierStone(o.frame, 22),
-      o.pattern ? el("span", { "aria-hidden": "true", style: { position: "absolute", inset: 0, borderRadius: "inherit", overflow: "hidden", pointerEvents: "none" } },
-        CardPattern(o.pattern, SKILL_INK[o.colorKey] || SKILL_INK[2])) : null,
-      el("div.heading-sm", {
-        style: {
-          width: 52, height: 52, borderRadius: "var(--radius-md)",
-          display: "flex", alignItems: "center", justifyContent: "center",
-          fontWeight: 700, color: "var(--ink-inverse)",
-          background: SKILL_INK[o.colorKey] || SKILL_INK[2], flexShrink: 0, position: "relative"
-        }
-      }, o.iconKey ? icon(o.iconKey, 24) : (o.initial || String(name).slice(0, 1).toUpperCase())),
-      el("div.am-name", { style: { position: "relative" } },
-        el("div.heading-sm", { style: { color: "var(--ink-900)" } }, greeting + name),
-        o.school ? el("div.body-sm", { style: { color: "var(--ink-600)" } }, o.school) : null
-      )
-    );
+      el("div.am-lcard-row", null,
+        el("span.am-mono", { "aria-hidden": "true", html: monogramSVG(initialsOf(o.name, o.initials), o.colorKey, tier) }),
+        el("div.am-lcard-who", null,
+          o.title ? el("span.am-lcard-title", { style: { color: hue[1] } }, o.title) : null,
+          el("b.am-lcard-name", null, o.name || "Your name"),
+          o.school ? el("small", null, o.school) : null)),
+      o.motto || tier ? el("div.am-lcard-foot", null,
+        el("span.am-lcard-motto", null, o.motto ? "\u201c" + o.motto + "\u201d" : ""),
+        tier ? el("span.am-lcard-tier", null, el("i", { style: { background: "linear-gradient(135deg, " + tier.c[0] + ", " + tier.c[2] + ")" } }), tier.name) : null) : null);
   }
 
   /* ---------- PracticeHeader ----------
@@ -1305,6 +1349,8 @@
   AM.CardPattern = CardPattern;
   AM.CARD_FRAMES = CARD_FRAMES;
   AM.tierStone = tierStone;
+  AM.weaveSVG = weaveSVG;
+  AM.initialsOf = initialsOf;
   AM.PracticeHeader = PracticeHeader;
   AM.SkillCard = SkillCard;
   AM.CelebrationBanner = CelebrationBanner;
