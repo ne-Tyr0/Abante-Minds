@@ -213,8 +213,17 @@
     var p = store.get().profile || {};
     var draft = app.scratch.setup || (app.scratch.setup = {
       name: p.name || "", school: p.school || "", colorKey: p.colorKey || 1, iconKey: p.iconKey || "triangle",
-      frame: p.frame || null, pattern: p.pattern || null, flame: p.flame || "orange"
+      frame: p.frame || null, pattern: p.pattern || "binakol", flame: p.flame || "orange",
+      initials: p.initials || "", title: p.title || "", motto: p.motto || ""
     });
+    /* A choice redraws the screen; the screen stays where it was scrolled
+       to, rather than jumping back to the top (seen by the owner, 2026-11-05). */
+    function rerender() {
+      var b = document.querySelector(".am-slot-body"), y = b ? b.scrollTop : 0;
+      app.render();
+      var b2 = document.querySelector(".am-slot-body");
+      if (b2) b2.scrollTop = y;
+    }
     /* What the reward road has given, and where the rest is on it. */
     var got = store.road().unlocked;
     function stepOf(kind, key) {
@@ -241,19 +250,19 @@
         el("input.body-lg.am-input", {
           type: "text", value: draft[key], "aria-label": labelText,
           oninput: function (e) { draft[key] = e.target.value; },
-          onchange: function () { app.render(); }
+          onchange: function () { rerender(); }
         })
       ];
     }
 
     var swatches = el("div", { style: { display: "flex", gap: "var(--space-3)" } });
     swatches.style.flexWrap = "wrap";
-    [1, 2, 3, 4, 5, 6].forEach(function (k) {
+    [1, 2, 3, 4, 5, 6, 7].forEach(function (k) {
       var on = draft.colorKey === k, shut = k > 4 && locked("colour", k);
       swatches.appendChild(el("button.am-reset.am-pressable" + (shut ? ".am-locked" : ""), {
         type: "button",
         "aria-label": "Colour " + k + (shut ? ", opens on the reward road" : ""), "aria-pressed": on ? "true" : "false",
-        onClick: function () { if (shut) { lockNote("colour", k); return; } draft.colorKey = k; app.render(); },
+        onClick: function () { if (shut) { lockNote("colour", k); return; } draft.colorKey = k; rerender(); },
         style: {
           "--am-edge": on ? "var(--ink-900)" : "var(--skill-" + k + "-deep)",
           width: 46, height: 46, borderRadius: "50%",
@@ -268,11 +277,11 @@
     function choices(kind, field, options, preview) {
       var row = el("div", { style: { display: "flex", gap: "var(--space-3)", flexWrap: "wrap" } });
       options.forEach(function (key) {
-        var on = draft[field] === key, shut = key !== null && key !== "orange" && locked(kind, key);
+        var on = draft[field] === key, shut = key !== null && key !== "orange" && key !== "binakol" && key !== "plain" && locked(kind, key);
         row.appendChild(el("button.am-reset.am-pressable" + (shut ? ".am-locked" : ""), {
           type: "button",
           "aria-label": (key || (kind === "frame" ? "your tier" : "none")) + (shut ? ", " + opensAt(kind, key) : ""), "aria-pressed": on ? "true" : "false",
-          onClick: function () { if (shut) { lockNote(kind, key); return; } draft[field] = key; app.render(); },
+          onClick: function () { if (shut) { lockNote(kind, key); return; } draft[field] = key; rerender(); },
           style: {
             "--am-edge": on ? "var(--ink-900)" : "var(--line-200)",
             position: "relative", width: 56, height: 56, borderRadius: "var(--radius-sm)", overflow: "hidden",
@@ -285,26 +294,39 @@
     var heldTier = store.tier().tier.key;
     var frameKeys = [null].concat(store.CARD_TIERS.map(function (t) { return t.key; }), got.frames.indexOf("year") > -1 ? ["year"] : []);
     var frames = choices("frame", "frame", frameKeys, function (key) { return miniCard(key || heldTier, draft.colorKey); });
-    var patterns = choices("pattern", "pattern", [null, "binakol", "triangles", "hexagons", "stars"], function (key) {
-      return key ? AM.CardPattern(key, "var(--skill-" + draft.colorKey + "-bright)", 0.75) : el("span.caption", { style: { color: "var(--ink-600)" } }, "None");
+    /* The weaves, each drawn from the name typed above. */
+    var patterns = choices("pattern", "pattern", ["binakol", "kusikus", "triangles", "hexagons", "stars", "plain"], function (key) {
+      if (key === "plain") return el("span.caption", { style: { color: "var(--ink-600)" } }, "Plain");
+      return el("span", { style: { position: "absolute", inset: 0, background: "var(--skill-" + draft.colorKey + "-bright)" }, html: AM.weaveSVG(draft.name || "Abante", key) });
     });
     var flames = choices("flame", "flame", ["orange", "blue", "purple"], function (key) { return flameIn(30, key); });
 
-    var glyphs = el("div", { style: { display: "flex", gap: "var(--space-3)" } });
-    ["star", "triangle", "scales", "coins"].forEach(function (g) {
-      var on = draft.iconKey === g;
-      glyphs.appendChild(el("button.am-reset.am-pressable", {
-        type: "button",
-        "aria-label": g, "aria-pressed": on ? "true" : "false",
-        onClick: function () { draft.iconKey = g; app.render(); },
-        style: {
-          "--am-edge": on ? "var(--ink-900)" : "var(--line-200)",
-          width: 56, height: 56, borderRadius: "var(--radius-sm)",
-          background: on ? "var(--brand-blue-100)" : "var(--surface-200)",
-          color: on ? "var(--brand-blue-600)" : "var(--ink-600)",
-          display: "flex", alignItems: "center", justifyContent: "center"
-        }
-      }, icon(g, 24)));
+    /* Chips: one of a few, pressed or not. */
+    function chipRow(key, options) {
+      return el("div.am-chips", null, options.map(function (opt) {
+        var on = draft[key] === opt[0];
+        return el("button.am-reset.am-chipbtn", { type: "button", "aria-pressed": on ? "true" : "false", onClick: function () { draft[key] = opt[0]; rerender(); } }, opt[1]);
+      }));
+    }
+    /* A title is something earned: the tier, or a badge (the newest first). */
+    var tierNow = store.tier().tier, cat = store.catalog(), earnedNames = [];
+    cat.topics.forEach(function (t) { t.levels.forEach(function (b) { if (b.earned) earnedNames.push([b.at || "", b.name]); }); });
+    cat.specials.forEach(function (b) { if (b.earned) earnedNames.push([b.at || "", b.name]); });
+    earnedNames.sort(function (a, b) { return a[0] < b[0] ? 1 : a[0] > b[0] ? -1 : 0; });
+    var titleOptions = [["", "No title"], [tierNow.name + " card", tierNow.name + " card"]];
+    earnedNames.slice(0, 8).forEach(function (n) { if (!titleOptions.some(function (o) { return o[0] === n[1]; })) titleOptions.push([n[1], n[1]]); });
+    if (draft.title && !titleOptions.some(function (o) { return o[0] === draft.title; })) titleOptions.push([draft.title, draft.title]);
+    var MOTTOS = ["Kaya ko 'to!", "Abante!", "Isa pa!", "Hakbang-hakbang", "Math is my thing"];
+    var mottoField = el("input.body-lg.am-input", {
+      type: "text", value: draft.motto, maxLength: 28, "aria-label": "Your motto", placeholder: "Something that keeps you going",
+      oninput: function (e) { draft.motto = e.target.value; },
+      onchange: function () { rerender(); }
+    });
+    var initialsField = el("input.body-lg.am-input", {
+      type: "text", value: draft.initials, maxLength: 3, "aria-label": "Your initials", placeholder: AM.initialsOf(draft.name),
+      style: { width: 120, textTransform: "uppercase" },
+      oninput: function (e) { draft.initials = e.target.value; },
+      onchange: function () { rerender(); }
     });
 
     return {
@@ -313,25 +335,32 @@
       body: el("div", { style: { flex: "none", width: "100%", maxWidth: 560, margin: "0 auto", boxSizing: "border-box", padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
         el("div.heading-md", null, "Edit your card"),
         el("div.body-sm", { style: { color: "var(--ink-600)" } }, "This stays on the phone."),
+        /* The card stays in view at the top while the choices scroll under it. */
+        el("div.am-ecprev", null,
+          AM.ProfileCard({
+            name: draft.name, school: (draft.school ? draft.school + " · " : "") + "Grade 6", colorKey: draft.colorKey,
+            frame: draft.frame || tierNow.key, pattern: draft.pattern, initials: draft.initials, title: draft.title, motto: draft.motto,
+            style: { maxWidth: "none", width: "100%" }
+          })),
         field("Your name", "name"),
         field("School or barangay (optional)", "school"),
-        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Pick a colour"),
+        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-2)" } }, "Your initials (optional)"),
+        initialsField,
+        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Card colour"),
         swatches,
-        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Pick an icon"),
-        glyphs,
-        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Card frame"),
-        frames,
-        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Card pattern"),
+        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Your weave · made from your name"),
         patterns,
         draft.pattern === "binakol" ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, "Inspired by Ilocano binakol weaving.") : null,
+        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Title · from what you have earned"),
+        chipRow("title", titleOptions),
+        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Your motto · a line of your own"),
+        mottoField,
+        chipRow("motto", MOTTOS.map(function (x) { return [x, x]; })),
+        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Card frame · your tier, or one you have kept"),
+        frames,
         el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "Flame"),
         flames,
-        el("span.body-sm", { style: { color: "var(--ink-600)" } }, "More open on your reward road."),
-        el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "This is how your card will look"),
-        AM.ProfileCard({
-          name: draft.name, school: draft.school, colorKey: draft.colorKey,
-          iconKey: draft.iconKey, frame: draft.frame || store.tier().tier.key, pattern: draft.pattern, style: { maxWidth: "none", width: "100%" }
-        })
+        el("span.body-sm", { style: { color: "var(--ink-600)", marginBottom: "var(--space-4)" } }, "More open on your reward road.")
       ),
       footer: el("div", { style: { flex: "none", width: "100%", maxWidth: 560, margin: "0 auto", boxSizing: "border-box", padding: "0 " + gutter() + "px 24px" } },
         AM.Button({
@@ -340,7 +369,8 @@
             store.set({
               profile: {
                 name: draft.name.trim(), school: draft.school.trim(), colorKey: draft.colorKey, iconKey: draft.iconKey,
-                frame: draft.frame, pattern: draft.pattern, flame: draft.flame
+                frame: draft.frame, pattern: draft.pattern, flame: draft.flame,
+                initials: draft.initials.trim().toUpperCase().slice(0, 3), title: draft.title, motto: draft.motto.trim().slice(0, 28)
               }
             });
             leave();
@@ -2010,7 +2040,7 @@
     var go = function () { if (view.tl) view.tl.skip(); var next = app.scratch.afterTier || "home"; app.scratch.tierUp = null; app.scratch.afterTier = null; app.go(next); };
     var t = view.t || store.tier(), x = t.tier, p = store.get().profile || {};
     var bg = "linear-gradient(180deg, " + x.c[2] + " 0%, " + x.c[3] + " 100%)";
-    var card = AM.ProfileCard({ name: p.name, greeting: "", school: x.name + " card", colorKey: p.colorKey, iconKey: p.iconKey, frame: x.key, pattern: p.pattern, style: { maxWidth: 300, width: "100%" } });
+    var card = AM.ProfileCard({ name: p.name, school: x.name + " card", colorKey: p.colorKey, frame: x.key, pattern: p.pattern, initials: p.initials, title: p.title, motto: p.motto, tier: x, style: { maxWidth: 300, width: "100%" } });
     var hero = el("div.am-moment-hero", { "aria-hidden": "true", style: { width: "100%", height: 170 } }, el("div.am-halo", { html: AM.haloSVG(x.c[0]) }), card);
     var body = el("div.am-moment", { style: { "--gutter": gutter() + "px", background: bg } },
       el("div.am-moment-eyebrow", { style: { color: x.c[0] } }, "A new card tier"),
@@ -2594,7 +2624,7 @@
      streak or with levels cleared, and what is earned stays. */
   var REWARD_NAMES = {
     frame: { silver: "Silver card frame", gold: "Gold card frame", year: "One-year card frame" },
-    pattern: { binakol: "Binakol card pattern", triangles: "Triangle card pattern", hexagons: "Hexagon card pattern", stars: "Star card pattern" },
+    pattern: { binakol: "Binakol weave", kusikus: "Kusikus weave", triangles: "Triangle weave", hexagons: "Hexagon weave", stars: "Star weave" },
     flame: { blue: "Blue flame", purple: "Purple flame" }
   };
   /* A step's rewards as rows; its colours make one row. */
@@ -2605,7 +2635,7 @@
       if (r.kind === "colour") return;
       if (r.kind === "shield") rows.push({ kind: "shield", label: "A streak shield", note: "Keeps your streak on a missed day" });
       else if (r.kind === "certificate") rows.push({ kind: "certificate", key: r.key, label: r.key === 365 ? "One-year certificate" : "Certificate of practice" });
-      else rows.push({ kind: r.kind, key: r.key, label: REWARD_NAMES[r.kind][r.key], note: r.key === "binakol" ? "Inspired by Ilocano binakol weaving" : null });
+      else rows.push({ kind: r.kind, key: r.key, label: REWARD_NAMES[r.kind][r.key], note: r.key === "binakol" ? "Inspired by Ilocano binakol weaving" : r.key === "kusikus" ? "The binakol whirlpool, woven from your name" : null });
     });
     return rows;
   }
@@ -2855,7 +2885,8 @@
           AM.ProfileCard({
             name: p.name, greeting: "",
             school: (p.school ? p.school + " · " : "") + "Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
-            colorKey: p.colorKey, iconKey: p.iconKey, frame: p.frame || store.tier().tier.key, pattern: p.pattern,
+            colorKey: p.colorKey, frame: p.frame || store.tier().tier.key, pattern: p.pattern,
+            initials: p.initials, title: p.title, motto: p.motto,
             style: { maxWidth: "none", width: "100%" }
           })),
         tierSection(app),

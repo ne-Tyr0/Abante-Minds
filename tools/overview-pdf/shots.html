@@ -473,7 +473,9 @@ function run() {
         if (AM.app.scratch.tierUp && AM.app.scratch.tierUp.tl) AM.app.scratch.tierUp.tl.skip();
         break;
       case "profile-emerald":
+      case "profile-motto":
         AM.store.set({ roundDays: 80, tierSeen: 4, keptFrames: ["silver"] });
+        if (screen === "profile-motto") AM.store.set({ profile: Object.assign({}, AM.store.get().profile, { title: "Decimals Explorer", motto: "Kaya ko 'to!", pattern: "kusikus", colorKey: 1 }) });
         AM.app.go("profile");
         break;
       /* Not in the PDF: the first round of the seventh day in a row, which
