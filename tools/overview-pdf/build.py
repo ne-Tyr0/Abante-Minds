@@ -299,7 +299,7 @@ p3 = f"""
   </div>
 
   <div class="shots" style="align-items:stretch;margin-bottom:4mm">
-    {detail("detail_hint", "<b>Three hints, one at a time.</b> Asking for help never costs the question.")}
+    {detail("detail_hint", "<b>Three hints, one at a time.</b> Asking for help never costs the question; a decimal sum is set out in columns.")}
     {detail("detail_correct", "<b>Right.</b> The working is shown even then: it is what carries over to the next question.")}
   </div>
 
@@ -358,8 +358,10 @@ p5 = f"""
   <h2>Every level is a badge, and good work gets its moment</h2>
   <div class="rule"></div>
   <p style="margin-bottom:4mm">Celebrations are short and calm: a tap skips to the end, and a
-  setting turns them into a still picture. The sounds are gentle gong-chimes in the voice of
-  the kulintang, and a phone on silent stays silent. Phones that can also give a short buzz.</p>
+  setting turns them into a still picture. The sounds are the kulintang's gongs, drums and
+  wood, each with one job: a note for each key, a ladder that climbs while answers keep coming
+  right, a held gong for a miss, a run of gongs for a level, a procession for a streak
+  milestone. A phone on silent stays silent, and phones that can also give a short buzz.</p>
 
   <div class="shots" style="margin-bottom:5mm">
     <div style="width:52mm;flex:none">{phone("combo", "<b>A run.</b> Three right in a row lights the flame, and every fifth turns it gold.")}</div>
@@ -378,6 +380,9 @@ p5 = f"""
         <li>Special badges mark streaks of 3, 7, 14 and 30 days, practice exam scores of 60, 75
           and 90 per cent, challenge rounds, five missed questions put right, and coming back
           after time away.</li>
+        <li>The learner's card climbs tiers with days of practice, from Bronze to Diamond, and
+          Pearl, the national gem, for those days and every topic cleared. Each streak
+          milestone has a scene of its own.</li>
       </ul>
     </div>
     <div style="width:62mm;flex:none">{detail("detail_badges", "The collection. Up to three badges are pinned to the learner's profile.")}</div>
@@ -529,7 +534,7 @@ print(f"facts: {len(TOPICS)} topics, {TYPES} kinds of question, {MISTAKES} named
       f"{REACHED} of {REACHABLE} reachable competencies, {SIZE:.2f} MB")
 
 out = os.path.abspath(ARGS[0]) if ARGS else os.path.join(HERE, "Abante-Minds-overview.pdf")
-subprocess.run([CHROME, "--headless=new", "--disable-gpu", "--no-pdf-header-footer",
+subprocess.run([CHROME, "--headless=new", "--mute-audio", "--disable-gpu", "--no-pdf-header-footer",
                 "--virtual-time-budget=20000", f"--print-to-pdf={out}", src],
                check=True, capture_output=True, timeout=180)
 print(f"pdf:  {os.path.getsize(out)/1024:.0f} KB -> {out}")

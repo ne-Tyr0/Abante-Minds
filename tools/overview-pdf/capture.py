@@ -21,7 +21,7 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 SHOTS = os.path.join(HERE, "shots")
 CHROME = os.environ.get("CHROME", r"C:\Program Files\Google\Chrome\Application\chrome.exe")
 
-SCREENS = ["home", "topic", "practice", "hint", "correct", "wrong", "levelup", "offline",
+SCREENS = ["home", "topic", "practice", "hint-sheet", "correct", "wrong", "levelup", "offline",
            "exam-result", "transform-pick-flip", "combo", "streak", "badges", "profile-settings",
            "basics-topic"]
 
@@ -33,7 +33,7 @@ DARK = ["home"]
 # against the current layout: if one of these screens changes, re-check its box
 # against the full capture before rebuilding.
 DETAILS = {
-    "detail_hint": ("hint", (0, 236, 780, 664)),        # the three hints
+    "detail_hint": ("hint-sheet", (0, 236, 780, 664)),  # the hint sheet: placed below, after capture
     "detail_correct": ("correct", (0, 204, 780, 540)),  # verdict and working
     "detail_badges": ("badges", (0, 80, 780, 500)),     # the count and the showcase
     "detail_settings": ("profile-settings", (0, 590, 780, 1380)),  # the settings card
@@ -41,9 +41,28 @@ DETAILS = {
     "detail_offline": ("offline", (0, 0, 780, 300)),                # the offline line
 }
 
-CHROME_ARGS = ["--headless=new", "--disable-gpu", "--hide-scrollbars",
+# --mute-audio: since the app plays its sounds through Web Audio, a headless
+# Chrome with audio on can lose its renderer mid-capture ("Abnormal renderer
+# termination"); muted, it never does.
+CHROME_ARGS = ["--headless=new", "--mute-audio", "--disable-gpu", "--hide-scrollbars",
                "--force-device-scale-factor=2", "--virtual-time-budget=10000",
                "--window-size=390,844"]
+
+
+def chrome(args, timeout=150):
+    """Run headless Chrome and return its stdout, or None if it hung. A hung
+    Chrome is killed with every process it started: on Windows a child left
+    running keeps the profile locked, and every later run would hang too."""
+    p = subprocess.Popen([CHROME, *args], stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
+    try:
+        return p.communicate(timeout=timeout)[0]
+    except subprocess.TimeoutExpired:
+        if os.name == "nt":
+            subprocess.run(["taskkill", "/F", "/T", "/PID", str(p.pid)], capture_output=True)
+        else:
+            p.kill()
+        p.communicate()
+        return None
 
 
 def main():
@@ -65,8 +84,7 @@ def main():
     profile = tempfile.mkdtemp(prefix="am-capture-")
     CHROME_ARGS.append(f"--user-data-dir={profile}")
     for _ in range(2):
-        subprocess.run([CHROME, *CHROME_ARGS, "--dump-dom", f"{origin}/tools/overview-pdf/shots.html?screen=home"],
-                       capture_output=True, text=True, timeout=120)
+        chrome([*CHROME_ARGS, "--dump-dom", f"{origin}/tools/overview-pdf/shots.html?screen=home"], timeout=300)
     def shoot(screen, dark):
         url = f"{origin}/tools/overview-pdf/shots.html?screen={screen}"
         scheme = [f"--blink-settings=preferredColorScheme={0 if dark else 1}"]
@@ -76,8 +94,7 @@ def main():
         # check that first rather than trust the picture.
         # A cold headless start sometimes misses the app (NO-APP); try again.
         for attempt in range(3):
-            dom = subprocess.run([CHROME, *CHROME_ARGS, *scheme, "--dump-dom", url],
-                                 capture_output=True, text=True, timeout=120).stdout
+            dom = chrome([*CHROME_ARGS, *scheme, "--dump-dom", url]) or ""
             title = (re.search(r"<title>([^<]*)</title>", dom) or [None, "no title"])[1]
             if title == f"READY-{screen}":
                 break
@@ -89,8 +106,8 @@ def main():
         name = screen + ("-dark" if dark else "")
         out = os.path.join(SHOTS, name + ".png")
         for attempt in range(3):
-            subprocess.run([CHROME, *CHROME_ARGS, *scheme, f"--screenshot={out}", url],
-                           check=True, capture_output=True, timeout=120)
+            if chrome([*CHROME_ARGS, *scheme, f"--screenshot={out}", url]) is None or not os.path.exists(out):
+                continue
             if len(Image.open(out).convert("RGB").resize((40, 80)).getcolors(40 * 80)) > 8:
                 break
         else:

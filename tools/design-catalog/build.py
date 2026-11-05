@@ -32,7 +32,8 @@ SCREENS = [
     ("practice", "topic", "A topic's levels"),
     ("practice", "lesson", "A lesson"),
     ("practice", "practice", "A question"),
-    ("practice", "hint", "A hint"),
+    ("practice", "hint-sheet", "A hint, in its sheet"),
+    ("practice", "hint", "Hints kept above the answer"),
     ("practice", "correct", "Right first time"),
     ("practice", "wrong", "A mistake, named"),
     ("practice", "combo", "In a row"),
@@ -85,7 +86,11 @@ SCREENS = [
     ("rewards", "badges", "The badge collection"),
     ("rewards", "badge-card", "A badge's card"),
     ("rewards", "challenge-badges", "Challenge badges"),
-    ("rewards", "road", "The reward road"),
+    ("rewards", "road", "The reward road, as a map"),
+    ("rewards", "road-step", "A step of the road"),
+    ("rewards", "tier-veil", "A new card tier, held for"),
+    ("rewards", "tier-up", "A new card tier: Silver"),
+    ("rewards", "tier-emerald", "Emerald, with its stone"),
     ("rewards", "profile-road", "Profile: the next step on the road"),
     ("rewards", "card-styles", "Edit your card: rewards to choose"),
     ("challenge", "challenge-intro", "Challenge: the sprint"),
@@ -103,6 +108,8 @@ SCREENS = [
     ("challenge", "review", "A review question"),
     ("challenge", "review-done", "Review done"),
     ("profile", "profile", "Profile"),
+    ("profile", "profile-motto", "Profile: a title and a motto"),
+    ("profile", "profile-emerald", "Profile: an Emerald card"),
     ("profile", "profile-settings", "Profile: settings"),
     ("profile", "edit-card", "Edit your card"),
     ("profile", "profile-install", "Profile: install"),
@@ -113,25 +120,47 @@ SCREENS = [
 ]
 DARK = [("home", "Home"), ("practice", "A question"), ("correct", "Right first time"), ("wrong", "A mistake, named"),
         ("summary-sharp", "Round summary"), ("levelup", "Level up"), ("streak-milestone", "A milestone"), ("badges", "Badges"),
-        ("profile", "Profile"), ("road", "Reward road"), ("card-styles", "Edit your card"), ("reminder", "Practice reminder")]
+        ("profile", "Profile"), ("road", "Reward road"), ("tier-emerald", "A new tier"), ("card-styles", "Edit your card"), ("reminder", "Practice reminder")]
+
+
+PROFILE = []
+
+
+def profile():
+    """One browser profile for the whole run, warmed up first: on a cold
+    profile the app's service worker is still fetching every file while the
+    picture is taken, which is slow and can leave a stylesheet out. Warm, it
+    answers from its cache at once."""
+    if not PROFILE:
+        PROFILE.append(tempfile.mkdtemp(prefix="am-cat-"))
+        for _ in range(2):
+            run([CHROME, "--headless=new", "--mute-audio", "--disable-gpu", "--virtual-time-budget=10000", "--window-size=390,844",
+                 "--user-data-dir=" + PROFILE[0], "--dump-dom", HARNESS + "home"], 300)
+    return PROFILE[0]
+
+
+def run(args, timeout):
+    """Run Chrome; True if it finished. A hung Chrome is killed with every
+    process it started, which would otherwise keep the profile locked."""
+    p = subprocess.Popen(args, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+    try:
+        p.wait(timeout=timeout)
+        return True
+    except subprocess.TimeoutExpired:
+        subprocess.run(["taskkill", "/F", "/T", "/PID", str(p.pid)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        return False
 
 
 def shoot(query, out, dark=False):
     """One screen at 390x844, twice the pixels, saved as a compact JPEG."""
     png = out + ".png"
     for attempt in range(3):
-        profile = tempfile.mkdtemp(prefix="am-cat-")
-        p = subprocess.Popen([CHROME, "--headless=new", "--hide-scrollbars", "--force-device-scale-factor=2",
-                              "--virtual-time-budget=10000", "--window-size=390,844", "--user-data-dir=" + profile,
-                              "--blink-settings=preferredColorScheme=" + ("0" if dark else "1"), "--screenshot=" + png, HARNESS + query],
-                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-        try:
-            p.wait(timeout=70)
-            ok = os.path.exists(png) and len(Image.open(png).convert("RGB").resize((40, 80)).getcolors(3200) or [0] * 99) > 8
-        except subprocess.TimeoutExpired:
-            subprocess.run(["taskkill", "/F", "/T", "/PID", str(p.pid)], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-            ok = False
-        shutil.rmtree(profile, ignore_errors=True)
+        if os.path.exists(png):
+            os.remove(png)
+        done = run([CHROME, "--headless=new", "--mute-audio", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=2",
+                    "--virtual-time-budget=10000", "--window-size=390,844", "--user-data-dir=" + profile(),
+                    "--blink-settings=preferredColorScheme=" + ("0" if dark else "1"), "--screenshot=" + png, HARNESS + query], 150)
+        ok = done and os.path.exists(png) and len(Image.open(png).convert("RGB").resize((40, 80)).getcolors(3200) or [0] * 99) > 8
         if ok:
             im = Image.open(png).convert("RGB")
             im.resize((520, round(im.height * 520 / im.width)), Image.LANCZOS).save(out, "JPEG", quality=84, optimize=True)
@@ -162,7 +191,7 @@ def main():
         entries.append(group + ":" + name + ":" + urllib.parse.quote(caption, safe=""))
     url = SERVER + "tools/design-catalog/catalog.html?build=" + build + "&shots=" + urllib.parse.quote(",".join(entries), safe=":,")
     profile = tempfile.mkdtemp(prefix="am-cat-")
-    subprocess.run([CHROME, "--headless=new", "--no-pdf-header-footer", "--virtual-time-budget=90000",
+    subprocess.run([CHROME, "--headless=new", "--mute-audio", "--no-pdf-header-footer", "--virtual-time-budget=90000",
                     "--user-data-dir=" + profile, "--blink-settings=preferredColorScheme=1",
                     "--print-to-pdf=" + PDF, url], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, timeout=300)
     shutil.rmtree(profile, ignore_errors=True)
