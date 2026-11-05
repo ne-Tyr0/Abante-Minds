@@ -364,6 +364,18 @@ html, body {
 .am-moment-note { margin: 14px 0 0; max-width: 34ch; font-size: 14px; color: rgba(255, 255, 255, 0.8); text-wrap: balance; }
 .am-moment-link { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 46px; border: 0; background: none; color: #fff; cursor: pointer; }
 .am-moment-link:focus-visible { outline: 3px solid #fff; outline-offset: 2px; border-radius: 12px; }
+/* ---------- The reward road (redesign stage 5) ---------- */
+.am-roadtabs { display: flex; gap: 4px; padding: 4px; border-radius: var(--radius-pill); background: var(--surface-300); }
+.am-roadtab { flex: 1; min-height: 44px; border: 0; border-radius: var(--radius-pill); background: transparent; color: var(--ink-600); font: inherit; font-weight: 600; cursor: pointer; }
+.am-roadtab[aria-current="page"] { background: var(--segment-on); color: var(--ink-900); box-shadow: 0 1px 2px rgba(22, 32, 44, 0.3); }
+.am-roadtab:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
+.am-roadchips { display: flex; flex-wrap: wrap; gap: 8px; }
+.am-rchip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px 6px 10px; border-radius: var(--radius-pill); background: var(--surface-200); box-shadow: var(--shadow-card); font-size: 14px; color: var(--ink-600); }
+.am-rchip b { color: var(--ink-900); font-weight: 700; }
+.am-rchip svg { color: var(--brand-blue-600); }
+.am-showcase { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 24px; background: linear-gradient(160deg, #5b4bd8 0%, #3a2c9e 100%); color: #fff; }
+.am-showcase-head { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; font-weight: 700; }
+.am-showcase-head span + span { font-size: 13px; font-weight: 600; opacity: 0.8; }
 
 /* ---------- tablet ----------
    32px gutters, the extra width spent on a second card rather than longer
@@ -533,15 +545,6 @@ html, body {
 .am-time { height: 48px; border-radius: var(--radius-pill); font: 600 16px/1 var(--font-body, inherit); }
 
 /* The reward road: steps down a line, reached ones filled in. */
-.am-road { margin: 0; list-style: none; display: flex; flex-direction: column; }
-.am-road-step { position: relative; display: flex; gap: 12px; padding-bottom: 14px; }
-.am-road-step::before { content: ""; position: absolute; left: 15px; top: 34px; bottom: 0; width: 2px; background: var(--surface-300); }
-.am-road-step.on::before { background: var(--brand-blue-600); }
-.am-road-step:last-child::before { display: none; }
-.am-road-node { position: relative; flex: none; width: 32px; height: 32px; margin-top: 12px; border-radius: 50%; display: grid; place-items: center;
-  font: 700 14px/1 var(--font-body, inherit); background: var(--surface-300); color: var(--ink-600); }
-.am-road-step.on .am-road-node { background: var(--brand-blue-600); color: var(--ink-inverse); }
-.am-road-step.next .am-road-node { background: var(--surface-200); color: var(--brand-blue-600); box-shadow: inset 0 0 0 2px var(--brand-blue-600); }
 /* A choice not reached yet on the road. */
 .am-locked { opacity: 0.55; }
 .am-lock-mark { position: absolute; right: 3px; bottom: 3px; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-200); color: var(--ink-600); }

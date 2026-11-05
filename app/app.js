@@ -234,6 +234,7 @@
     var dir = from >= 0 && to >= 0 && to < from ? "back" : "forward";
     if (key === "home") app.go("home", dir);
     else if (key === "profile") app.go("profile", dir);
+    else if (key === "road") app.go("road", dir);
     else if (key === "practice") {
       if (app.session && app.route !== "practice" && app.route !== "exam" && app.route !== "challenge") {
         app.go(app.session.challenge ? "challenge" : app.session.exam ? "exam" : "practice", dir);

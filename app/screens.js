@@ -1527,8 +1527,9 @@
     /* Opened from a level-up mid-session, the way back is the session. */
     var resume = app.scratch.badgesBack || null;
     return {
-      nav: "profile",
-      back: function () { if (resume) resume(); else app.go("profile", "back"); },
+      nav: "road",
+      banner: connectionBanner(),
+      onBack: resume || null,
       footer: resume ? el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 20px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520 } }, AM.Button({ label: "Back to practice", fullWidth: true, onClick: resume }))) : null,
       after: function () {
@@ -1545,18 +1546,20 @@
         }
       },
       body: column([
-        el("div", { style: { padding: "12px " + gutter() + "px 0" } },
+        roadHead(app, "badges"),
+        el("div", { style: { padding: "18px " + gutter() + "px 0" } },
           el("div", { style: { display: "flex", alignItems: "baseline", justifyContent: "space-between", gap: 8 } },
-            el("div.heading-lg", null, "Your badges"),
+            el("span.label", null, "Your badges"),
             el("span.label", { style: { color: "var(--ink-600)" } }, cat.earned + " of " + cat.total)),
           el("div", { style: { marginTop: 8 } }, AM.ProgressBar({ ratio: cat.total ? cat.earned / cat.total : 0, height: 10, label: "Badges collected" }))),
+        /* The showcase is what the card shows, so it sits on a panel of its own. */
         el("div", { style: { padding: "16px " + gutter() + "px 0" } },
-          AM.Card({ style: { gap: 6 } },
-            sectionLabel("Showcase"),
+          el("div.am-showcase", null,
+            el("div.am-showcase-head", null, el("span", null, "Showcase"), el("span", null, "On your card")),
             shown.length
               ? el("div", { style: { display: "flex", justifyContent: "space-around", alignItems: "flex-end" } },
                   shown.map(function (k) { return badgeButton(store.findBadge(k, cat), 72); }))
-              : el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "Clear a level to earn your first badge. Your newest three show here, or pick your own from any badge's card."))),
+              : el("span.body-sm", { style: { textWrap: "pretty" } }, "Clear a level to earn your first badge. Your newest three show here, or pick your own from any badge's card."))),
         nextFound ? el("div", { style: { padding: "12px " + gutter() + "px 0" } },
           AM.Card({ style: { flexDirection: "row", alignItems: "center", gap: 12 } },
             badgeButton(nextFound, 56),
@@ -2634,37 +2637,57 @@
         AM.Button({ label: "See the road", variant: "ghost", fullWidth: true, onClick: function () { app.go("road"); } })));
   }
 
+  /* The Road tab's two halves, the road and the trophy room, and where the
+     learner stands: days in a row, levels cleared, shields held. */
+  function roadHead(app, which) {
+    var rd = store.road();
+    function tab(key, label) {
+      var on = key === which;
+      return el("button.am-reset.am-roadtab", {
+        type: "button", "aria-current": on ? "page" : null,
+        onClick: function () { if (!on) { app.scratch.badgesBack = null; app.go(key, key === "road" ? "back" : "forward"); } }
+      }, label);
+    }
+    return el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 12 } },
+      el("h1.heading-lg", { style: { margin: 0 } }, "Reward road"),
+      el("nav.am-roadtabs", { "aria-label": "Reward road" }, tab("road", "Road"), tab("badges", "Trophy room")),
+      el("div.am-roadchips", null,
+        el("span.am-rchip", null, AM.Flame ? AM.Flame(18, rd.streak > 0) : icon("streak", 16), el("b", null, String(rd.streak)), rd.streak === 1 ? "day" : "days"),
+        el("span.am-rchip", null, icon("level-up", 16), el("b", null, String(rd.levels)), rd.levels === 1 ? "level" : "levels"),
+        el("span.am-rchip", null, icon("shield", 16), el("b", null, String(rd.shields)), rd.shields === 1 ? "shield" : "shields")));
+  }
+
   screens.road = function (app) {
     var rd = store.road(), p = store.get().profile || {};
-    var shown = Math.max(rd.reached + 3, 11), items = [];
+    var shown = Math.max(rd.reached + 3, 11);
+    /* The steps as a path, as a topic's levels are: reached, the one to
+       come with how near it is, and the ones after it. */
+    var path = el("div.am-lpath", { style: { "--tc": "var(--action-500)", "--tc-deep": "var(--action-700)" } });
     for (var i = 0; i < shown; i++) {
       var st = AM.road.step(i), reached = i < rd.reached, next = i === rd.reached, log = rd.log[st.n] || {};
       var cert = reached && st.rewards.some(function (r) { return r.kind === "certificate"; }) ? certificateFor(app, st, rd, p) : null;
-      items.push(el("li.am-road-step" + (reached ? ".on" : next ? ".next" : ""), null,
-        el("span.am-road-node", { "aria-hidden": "true" }, reached ? icon("check", 16) : String(st.n)),
-        AM.Card({ style: { flex: 1, minWidth: 0, gap: 10, opacity: reached || next ? 1 : 0.78 } },
+      path.appendChild(el("div.am-lrow." + (reached ? "done" : next ? "now" : "locked"), null,
+        el("span.am-lnode", { "aria-hidden": "true" }, reached ? icon("check", 22, { glyph: true }) : String(st.n)),
+        el("div.am-lbody", { style: { gap: 10 } },
           el("span", { style: { display: "flex", flexDirection: "column", gap: 2 } },
-            el("span.label", null, "Step " + st.n + " · " + stepLabel(st)),
-            reached ? el("span.body-sm", { style: { color: "var(--success-700)" } },
+            el("b", null, "Step " + st.n + " · " + stepLabel(st)),
+            reached ? el("small", { style: { color: "var(--success-700)" } },
               "Reached " + (log.by === "levels" ? "by clearing " + st.levels + " levels" : "with a " + st.streak + "-day streak")) : null),
-          el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, rewardRows(st).map(function (r) { return rewardRow(r, p.colorKey); })),
-          next ? routeBars(rd, st) : null,
+          el("div", { style: { display: "flex", flexDirection: "column", gap: 10, width: "100%" } }, rewardRows(st).map(function (r) { return rewardRow(r, p.colorKey); })),
+          next ? el("div", { style: { width: "100%" } }, routeBars(rd, st)) : null,
           cert ? AM.Button({ label: "Get your certificate", variant: "ghost", iconLeft: "certificate", fullWidth: true, onClick: cert }) : null)));
     }
     return {
-      nav: "profile",
-      back: function () { app.go("profile", "back"); },
+      nav: "road",
+      banner: connectionBanner(),
       body: column([
-        el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 6 } },
-          el("div.heading-lg", null, "Reward road"),
-          el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-            "Each step opens with a streak or with levels cleared, whichever comes first. What you earn stays yours."),
-          el("div", { style: { display: "flex", gap: 8, marginTop: 6, flexWrap: "wrap" } },
-            AM.Chip({ label: rd.reached ? "Step " + rd.reached + " reached" : "No step yet" }), shieldCount(rd))),
-        el("ol.am-road", { style: { padding: "18px " + gutter() + "px 0" } }, items),
+        roadHead(app, "road"),
+        el("p.body-sm", { style: { margin: 0, padding: "12px " + gutter() + "px 0", color: "var(--ink-600)", textWrap: "pretty" } },
+          "Each step opens with a streak or with levels cleared, whichever comes first. What you earn stays yours."),
+        el("div", { style: { padding: "18px " + gutter() + "px 0" } }, path),
         el("p.body-sm", { style: { margin: 0, padding: "4px " + gutter() + "px 0", color: "var(--ink-600)", textWrap: "pretty" } },
           "After 365 days: a streak shield at 400 days, at 500, and every 100 days after.")
-      ], { paddingBottom: 24 })
+      ], { paddingBottom: 24, maxWidth: 760 })
     };
   };
 
