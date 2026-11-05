@@ -1478,12 +1478,12 @@
   AM.openLeave = openLeave;
 
   /* New badges, as a card on a summary. */
-  function newBadgesCard(keys) {
+  function newBadgesCard(keys, bare) {
     if (!keys || !keys.length) return null;
     var cat = store.catalog();
     var found = keys.map(function (k) { return store.findBadge(k, cat); }).filter(Boolean);
     if (!found.length) return null;
-    return el("div", { style: { padding: "18px " + gutter() + "px 0" } },
+    return el("div", { style: bare ? null : { padding: "18px " + gutter() + "px 0" } },
       AM.Card({ style: { gap: 10 } },
         sectionLabel(found.length === 1 ? "New badge" : found.length + " new badges"),
         el("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
@@ -1664,7 +1664,7 @@
       el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 4 } }, see, keep));
 
     var body = el("div.am-celebrate.am-lvup", { style: { "--gutter": gutter() + "px" } },
-      el("div.am-rays", { "aria-hidden": "true" }),
+      el("div.am-halo", { "aria-hidden": "true", html: AM.haloSVG("#ffffff") }),
       el("div.am-lvup-badge", { role: "img", "aria-label": b ? b.name + (b.shiny ? ", shiny" : "") : "" }, el("div.am-lvup-float", null, flip)),
       el("h2.am-lvup-title", null, "Level " + (here + 1) + " cleared!"),
       el("p.am-lvup-sub.body-lg", null, "You earned ", el("b", null, b ? b.name : "a badge"), b && b.shiny ? " · shiny" : ""),
@@ -1705,7 +1705,7 @@
     tl.to(rise, [{ clipPath: "inset(0 0 0 0)" }, { clipPath: "inset(0 0 100% 0)" }], 700, 0.05, E.in)
       .call(play("charge"), 0.05)
       .call(function () { if (rise.parentNode) rise.parentNode.removeChild(rise); }, 0.8, true)
-      .to(q(".am-rays"), [{ opacity: 0, transform: "scale(0.6)" }, { opacity: 1, transform: "none" }], 1200, 1.7);
+      .to(q(".am-halo"), [{ opacity: 0, transform: "scale(0.7)" }, { opacity: 1, transform: "none" }], 900, 1.7);
     /* 2. the badge */
     tl.to(q(".am-lvup-badge"), [{ transform: "scale(0.3)", opacity: 0 }, { transform: "none", opacity: 1 }], 500, 0.6, E.back)
       .to(d.flip, [
@@ -1833,6 +1833,7 @@
       app.scratch.streak = null;
       app.go(next);
     };
+    if (mile && AM.MILE) return milestoneView(app, view, { days: days, saved: saved, go: go, draw: draw, file: file, text: text });
     var body = el("div.am-streak" + (mile ? ".am-streak-mile" : ""), { style: { "--gutter": gutter() + "px", position: "relative" } },
       el("div.am-streak-glow", { "aria-hidden": "true" }),
       mile ? el("span.am-mile-chip.caption", null, "Milestone") : null,
@@ -1886,6 +1887,89 @@
       }
     };
   };
+
+  /* ---------- a streak milestone ----------
+     A moment, not the daily screen: the milestone's own colour and scene,
+     the number, what it covers, and what it earned. The days without a scene
+     of their own (150, 250, 300, 400 and on) take the one before them. */
+  var MILE_KEYS = [3, 7, 14, 30, 50, 100, 200, 365];
+  function milestoneView(app, view, o) {
+    var s = store.get(), days = o.days;
+    var key = MILE_KEYS.filter(function (n) { return n <= days; }).pop() || 3, M = AM.MILE[key], exact = key === days;
+    var name = exact ? M.name : days + " days";
+    var sub = exact ? M.sub : (MILESTONE_LINES[days] || days + " days in a row. Keep going.");
+    var stops = M.bg.match(/#[0-9a-f]{6}/gi), end = stops[stops.length - 1];
+    var flame = { orange: "#ff8a15", gold: "#f2c13e", blue: "#5b9bff", ice: "#a9d4ff", purple: "#9b5cff" }[M.fl] || "#ff8a15";
+
+    /* What the streak covers: the days themselves up to two weeks, a month
+       of them at thirty, and after that the numbers. */
+    var what;
+    if (days <= 14) {
+      var cells = days <= 7 ? 7 : 14, dots = [];
+      for (var i = 0; i < cells; i++) dots.push(el(i < days ? "i.on" : "i", null, i < days ? icon("check", 14, { glyph: true }) : null));
+      what = [el("div.am-mgrid", { style: { gridTemplateColumns: "repeat(7, 26px)", "--fl": flame } }, dots),
+        el("div.am-mnext", null, days === 3 ? "3 of your first 7 days" : days === 7 ? "A whole week" : "Two full weeks")];
+    } else if (days === 30) {
+      var month = [];
+      for (var j = 0; j < 30; j++) month.push(el("i.on"));
+      what = [el("div.am-mgrid.small", { style: { gridTemplateColumns: "repeat(10, 16px)", "--fl": flame } }, month), el("div.am-mnext", null, "Every day of a month")];
+    } else {
+      what = el("div.am-mstat3", null,
+        el("div", null, el("b", null, String(days)), el("small", null, "days in a row")),
+        el("div", null, el("b", null, String(store.path().levelsCleared)), el("small", null, "levels cleared")),
+        el("div", null, el("b", null, String(s.totalCorrect || 0)), el("small", null, "right answers")));
+    }
+    var note = /tomorrow/.test(sub) ? "" : "Come back tomorrow to make it " + (days + 1) + ".";
+    if (store.forgivenYesterday()) note = "Yesterday was forgiven: one missed day a week doesn't break your streak. " + note;
+    if (o.saved) note = (o.saved.used === 1 ? "A streak shield" : o.saved.used + " streak shields") + " kept your streak going. " + note;
+
+    var art = el("div.am-mile-art", { html: AM.mileArt(key) });
+    var hero = el("div.am-moment-hero", { "aria-hidden": "true" }, el("div.am-halo", { html: AM.haloSVG(M.tint) }), art);
+    var fresh = newBadgesCard(view.badges, true), road = view.road.length ? roadNewCard(app, view.road, true) : null;
+    var body = el("div.am-moment", { style: { "--gutter": gutter() + "px", background: M.bg } },
+      el("div.am-moment-eyebrow", { style: { color: M.tint } }, name),
+      hero,
+      el("h1.am-moment-title", null, el("span.am-moment-big", null, String(days)), "day streak!"),
+      el("p.am-moment-sub", null, sub),
+      el("div.am-mcard", null, what),
+      fresh ? el("div.am-mcard-wrap", null, fresh) : null,
+      road ? el("div.am-mcard-wrap", null, road) : null,
+      note ? el("p.am-moment-note", null, note) : null);
+    var shareBtn = el("button.am-reset.am-moment-link.label", { type: "button", onClick: function () {
+      /* Straight from the tap when the picture is ready, as phones require. */
+      (view.blob ? AM.share.send(view.blob, o.file, o.text) : o.draw().then(function (b) { return AM.share.send(b, o.file, o.text); })).then(function (how) {
+        if (how === "saved") AM.announce("Picture saved.");
+        if (how === "failed") AM.announce("This phone could not share the picture.");
+      });
+    } }, icon("share", 18), "Share");
+    var footer = el("div", { style: { flex: "none", padding: "8px " + gutter() + "px 20px", display: "flex", justifyContent: "center", background: end } },
+      el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 4 } },
+        AM.Button({ label: "Continue", variant: "inverse", fullWidth: true, cta: true, onClick: o.go }), shareBtn));
+    return {
+      nav: null, chrome: false, body: body, footer: footer, onBack: o.go,
+      after: function () {
+        AM.announce(days + " day streak. " + name + ". " + sub);
+        o.draw();
+        var m = window.AbanteMinds && window.AbanteMinds.moments;
+        if (!m) return;
+        var tl = view.tl = new m.Timeline(), E = m.ease, sound = window.AbanteMinds.sound;
+        var play = function (n) { return function () { if (sound) sound.play(n); }; };
+        /* The scene settles in, the words rise in order, one burst of confetti. */
+        tl.to(hero.firstChild, [{ opacity: 0, transform: "scale(0.7)" }, { opacity: 1, transform: "none" }], 700, 0.05)
+          .to(art, [{ opacity: 0, transform: "scale(0.6) translateY(16px)" }, { opacity: 1, transform: "scale(1.05)", offset: 0.6 }, { opacity: 1, transform: "none" }], 650, 0.1, E.out)
+          .call(play("fanfare"), 0.2)
+          .call(function () { var p = m.centre(art, 0.45); m.FX.confetti(p.x, p.y, -90, 170, 420, 800, 40); }, 0.45);
+        Array.prototype.forEach.call(body.children, function (c, k) {
+          if (c === hero) return;
+          tl.to(c, [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], 440, 0.25 + k * 0.09, E.out);
+        });
+        tl.to(footer, [{ transform: "translateY(140px)" }, { transform: "none" }], 500, 1.1, E.backSoft);
+        if (view.played || m.reduced()) tl.skip();
+        else body.addEventListener("click", function () { tl.skip(); });
+        view.played = true;
+      }
+    };
+  }
 
   /* ---------- 16 · Session summary ---------- */
   /* 14 October, as Home writes the exam date. */
@@ -2525,11 +2609,11 @@
   }
 
   /* What a round or a streak just reached on the road, once. */
-  function roadNewCard(app, steps) {
+  function roadNewCard(app, steps, bare) {
     if (!steps || !steps.length || !AM.road) return null;
     var p = store.get().profile || {}, rows = [];
     steps.forEach(function (n) { rewardRows(AM.road.step(n - 1)).forEach(function (r) { rows.push(r); }); });
-    return el("div", { style: { padding: "18px " + gutter() + "px 0", width: "100%", boxSizing: "border-box", textAlign: "left" } },
+    return el("div", { style: { padding: bare ? 0 : "18px " + gutter() + "px 0", width: "100%", boxSizing: "border-box", textAlign: "left" } },
       AM.Card({ style: { gap: 10 } },
         sectionLabel("New on your reward road · step " + (steps.length === 1 ? steps[0] : steps[0] + " to " + steps[steps.length - 1])),
         el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } }, rows.map(function (r) { return rewardRow(r, p.colorKey); })),

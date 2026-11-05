@@ -636,6 +636,78 @@
           typeof o.ratio === "number" ? el("span.am-band-bar", { role: "img", "aria-label": o.barLabel || Math.round(o.ratio * 100) + "% done" },
             el("i", { style: { width: Math.round(Math.max(0, Math.min(1, o.ratio)) * 100) + "%" } })) : null)));
   }
+  /* ---------- Celebrations (redesign stage 4) ---------- */
+  /* A soft glow and three fine rings behind the hero of a moment. It breathes
+     slowly and never turns: no rays. */
+  var haloCount = 0;
+  function haloSVG(tint) {
+    var id = "am-halo-" + (++haloCount), c = tint || "#ffffff";
+    return '<svg viewBox="0 0 380 380" aria-hidden="true"><defs><radialGradient id="' + id + '"><stop offset="0" stop-color="' + c + '" stop-opacity=".34"/>' +
+      '<stop offset=".5" stop-color="' + c + '" stop-opacity=".08"/><stop offset="1" stop-color="' + c + '" stop-opacity="0"/></radialGradient></defs>' +
+      '<circle cx="190" cy="190" r="190" fill="url(#' + id + ')"/><circle cx="190" cy="190" r="92" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.5"/>' +
+      '<circle cx="190" cy="190" r="130" fill="none" stroke="#fff" stroke-opacity=".1" stroke-width="1.5"/><circle cx="190" cy="190" r="170" fill="none" stroke="#fff" stroke-opacity=".06" stroke-width="1.5"/></svg>';
+  }
+  /* Each streak milestone has its own flame, scene and colour (the owner's
+     choice, November 2026): 3, 7, 14, 30, 50, 100, 200 and 365 days. */
+  var FL = { orange: ["#ff7a1a", "#ff9a2e", "#ffd23f", "#ffe27a", "#fff6d6"], soft: ["#ff9a2e", "#ffb45c", "#ffe27a", "#fff0b0", "#ffffff"], gold: ["#c9921a", "#f2c13e", "#fff0a8", "#fff8d6", "#ffffff"],
+    blue: ["#2f6fe0", "#5b9bff", "#9fd0ff", "#d6ecff", "#ffffff"], ice: ["#5b9bff", "#a9d4ff", "#e6f4ff", "#ffffff", "#ffffff"], purple: ["#7a3fe0", "#9b5cff", "#d7b8ff", "#efe4ff", "#ffffff"] };
+  function flameG(col, cx, cy, s) {
+    var tx = cx - 100 * s, ty = cy - 105 * s;
+    return '<g transform="translate(' + tx.toFixed(1) + " " + ty.toFixed(1) + ") scale(" + s + ')">' +
+      '<path d="M100 18c6 30 26 46 42 64 15 17 22 34 22 52 0 36-29 58-64 58s-64-22-64-58c0-24 12-42 28-56 3 16 12 27 24 33-5-33-1-64 12-93z" fill="' + col[0] + '"/>' +
+      '<path d="M100 18c6 30 26 46 42 64 15 17 22 34 22 52 0 36-29 58-64 58z" fill="' + col[1] + '"/>' +
+      '<path d="M100 92c4 17 15 25 22 35 6 8 8 15 8 23 0 19-14 32-30 32s-30-13-30-31c0-14 8-24 17-31 1 9 5 15 11 19 0-18 0-32 2-47z" fill="' + col[2] + '"/>' +
+      '<path d="M100 92c4 17 15 25 22 35 6 8 8 15 8 23 0 19-14 32-30 32z" fill="' + col[3] + '"/><ellipse cx="100" cy="162" rx="12" ry="14" fill="' + col[4] + '"/></g>';
+  }
+  function star4(x, y, s, col) { return '<path transform="translate(' + x + " " + y + ") scale(" + s + ')" d="M0-10 2-2 10 0 2 2 0 10-2 2-10 0-2-2z" fill="' + (col || "#fff") + '"/>'; }
+  /* Each streak milestone has its own flame and its own scene. */
+  var MILE = {
+    3: { name: "First spark", sub: "Three days in a row. A habit is starting.", bg: "linear-gradient(180deg, #6e2477 0%, #4c1655 55%, #350e3b 100%)", mc: "#5b1a62", fl: "orange", tint: "#ffb347" },
+    7: { name: "A whole week", sub: "Seven days in a row. Come back tomorrow to make it 8.", bg: "linear-gradient(180deg, #34248c 0%, #261868 55%, #1b104d 100%)", mc: "#3b1d8f", fl: "orange", tint: "#ffb347" },
+    14: { name: "Two weeks strong", sub: "Fourteen days without a break. That takes real effort.", bg: "linear-gradient(180deg, #7c1a44 0%, #561030 55%, #3d0820 100%)", mc: "#7c1a44", fl: "orange", tint: "#ff9a6b" },
+    30: { name: "A whole month", sub: "Thirty days. Practising is part of your day now.", bg: "linear-gradient(180deg, #11707a 0%, #0b4d54 55%, #06343a 100%)", mc: "#0d5c63", fl: "orange", tint: "#ffd27a" },
+    50: { name: "Golden fifty", sub: "Fifty days in a row. Few learners get this far.", bg: "linear-gradient(180deg, #4d3812 0%, #2e2008 55%, #1a1204 100%)", mc: "#7a5a10", fl: "gold", tint: "#f5c84a" },
+    100: { name: "One hundred days", sub: "A hundred days in a row. The blue flame is yours.", bg: "linear-gradient(180deg, #153f96 0%, #0d2a6a 55%, #071a45 100%)", mc: "#1d4fb8", fl: "blue", tint: "#9fd0ff" },
+    200: { name: "Two hundred days", sub: "Two hundred days: a whole school year of practice.", bg: "linear-gradient(180deg, #21456a 0%, #142c46 55%, #0b1a2a 100%)", mc: "#24496d", fl: "ice", tint: "#cfe8ff" },
+    365: { name: "One whole year", sub: "Every day for a year. The purple flame is yours.", bg: "linear-gradient(180deg, #5c1ca6 0%, #3a0f74 55%, #24064e 100%)", mc: "#5a1aa0", fl: "purple", tint: "#e0c8ff" }
+  };
+  function mileArt(d) {
+    var h = "", k, col = FL[MILE[d].fl];
+    if (d === 3) { h += flameG(col, 120, 118, .62) + star4(70, 70, 1.1) + star4(170, 58, .8, "#ffe27a") + star4(158, 112, .6); }
+    if (d === 7) { h += flameG(col, 120, 112, .86); }
+    if (d === 14) { h += flameG(FL.soft, 92, 124, .58) + flameG(col, 136, 112, .8); }
+    if (d === 30) {
+      for (k = 0; k < 30; k++) { var a = k / 30 * Math.PI * 2 - Math.PI / 2; h += '<rect x="-2.5" y="-7" width="5" height="14" rx="2.5" fill="' + (k % 2 ? "#ffd27a" : "#ff9a2e") + '" transform="translate(' + (120 + 100 * Math.cos(a)).toFixed(1) + " " + (112 + 100 * Math.sin(a)).toFixed(1) + ") rotate(" + (k * 12) + ')"/>'; }
+      h += flameG(col, 120, 116, .68);
+    }
+    if (d === 50) { h += '<circle cx="120" cy="112" r="98" fill="none" stroke="url(#mgold)" stroke-width="7"/><circle cx="120" cy="112" r="86" fill="none" stroke="#f5c84a" stroke-opacity=".4" stroke-width="1.5"/>' + flameG(col, 120, 116, .7); }
+    if (d === 100) {
+      [-1, 1].forEach(function (side) {
+        for (k = 0; k < 8; k++) {
+          var an = (100 + k * 19) * Math.PI / 180, x = 120 + side * 94 * Math.cos(an) * -1, y = 112 + 94 * Math.sin(an);
+          var rot = Math.atan2(Math.cos(an), side * Math.sin(an)) * 180 / Math.PI + (side < 0 ? -28 : 28);
+          h += '<path d="M0 0C6-6 15-6 21 0C15 6 6 6 0 0Z" fill="' + (k % 2 ? "#cfe8ff" : "#9fd0ff") + '" transform="translate(' + x.toFixed(1) + " " + y.toFixed(1) + ") rotate(" + rot.toFixed(0) + ')"/>';
+        }
+      });
+      h += '<path d="M104 210C112 214 128 214 136 210" fill="none" stroke="#9fd0ff" stroke-width="3" stroke-linecap="round"/>' + flameG(col, 120, 112, .72);
+    }
+    if (d === 200) {
+      var stars = [[34, 40], [70, 22], [64, 78], [196, 30], [214, 84], [178, 60], [30, 150], [208, 162], [120, 12]];
+      h += '<path d="M34 40 70 22 64 78M196 30 178 60 214 84M30 150 64 78M208 162 214 84" fill="none" stroke="#cfe8ff" stroke-opacity=".35" stroke-width="1.2"/>';
+      stars.forEach(function (p, i) { h += star4(p[0], p[1], i % 3 ? .45 : .7, i % 2 ? "#ffffff" : "#cfe8ff"); });
+      h += flameG(FL.blue, 98, 124, .58) + flameG(col, 138, 112, .76);
+    }
+    if (d === 365) {
+      for (k = 0; k < 12; k++) { var am = k / 12 * Math.PI * 2 - Math.PI / 2, mx = 120 + 100 * Math.cos(am), my = 112 + 100 * Math.sin(am); h += '<rect x="' + (mx - 5).toFixed(1) + '" y="' + (my - 5).toFixed(1) + '" width="10" height="10" fill="' + (k % 3 ? "#f5c84a" : "#fff0a8") + '" transform="rotate(45 ' + mx.toFixed(1) + " " + my.toFixed(1) + ')"/>'; }
+      h += '<circle cx="120" cy="112" r="100" fill="none" stroke="#f5c84a" stroke-opacity=".3" stroke-width="1.5"/>' + flameG(col, 120, 122, .66) +
+        '<path d="M96 48 92 24 106 36 120 18 134 36 148 24 144 48z" fill="url(#mgold)" stroke="#a87a10" stroke-width="1.5" stroke-linejoin="round"/><circle cx="92" cy="24" r="3.5" fill="#fff0a8"/><circle cx="120" cy="18" r="4" fill="#fff0a8"/><circle cx="148" cy="24" r="3.5" fill="#fff0a8"/>';
+    }
+    return '<svg viewBox="0 0 240 224" aria-hidden="true"><defs><linearGradient id="mgold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff2b0"/><stop offset=".45" stop-color="#f2c13e"/><stop offset="1" stop-color="#a87a10"/></linearGradient></defs>' + h + "</svg>";
+  }
+  AM.haloSVG = haloSVG;
+  AM.MILE = MILE;
+  AM.mileArt = mileArt;
+
   /* A row you can tap: a picture, a line and a caption, and where it goes.
      It stands on a shelf like every other pressable thing; a row that cannot
      be opened yet lies flat. */

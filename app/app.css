@@ -341,6 +341,29 @@ html, body {
 .am-hintbtn { display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap-button); padding: 0 18px; border-radius: var(--radius-pill); background: var(--gold-tint); color: var(--ink-900); font-weight: 700; }
 .am-hintcard { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: var(--radius-md); background: var(--gold-tint); color: var(--ink-900); }
 .am-hintnum { flex: none; width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: var(--celebration-gold-500); color: #16202c; font-family: var(--font-display); font-weight: 800; font-size: 15px; }
+/* ---------- Celebrations (redesign stage 4) ---------- */
+.am-moment { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 22px var(--gutter, 24px) 12px; text-align: center; color: #fff; overflow: hidden; }
+.am-moment > * { position: relative; }
+.am-moment-eyebrow { font-size: 14px; font-weight: 700; }
+.am-moment-hero { position: relative; display: grid; place-items: center; width: 230px; height: 214px; margin: 6px 0 2px; }
+.am-mile-art { position: relative; line-height: 0; }
+.am-mile-art svg { width: 230px; height: 214px; filter: drop-shadow(0 16px 22px rgba(0, 0, 0, 0.28)); }
+.am-moment-title { margin: 0; font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1.05; }
+.am-moment-big { display: block; font-size: 92px; line-height: 0.9; text-shadow: 0 6px 0 rgba(0, 0, 0, 0.16); }
+.am-moment-sub { margin: 8px 0 0; max-width: 32ch; font-size: 15px; line-height: 1.45; color: rgba(255, 255, 255, 0.88); text-wrap: balance; }
+.am-mcard { width: 100%; max-width: 420px; margin-top: 18px; padding: 14px 16px; border-radius: 20px; background: var(--surface-200); color: var(--ink-900); }
+.am-mcard-wrap { width: 100%; max-width: 420px; margin-top: 10px; text-align: left; color: var(--ink-900); }
+.am-mgrid { display: grid; gap: 6px; justify-content: center; }
+.am-mgrid i { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; background: var(--surface-100); box-shadow: inset 0 0 0 2px var(--surface-300); color: #fff; }
+.am-mgrid i.on { background: var(--fl, #ff8a15); box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.15); }
+.am-mgrid.small i { width: 16px; height: 16px; }
+.am-mnext { margin-top: 10px; font-size: 13px; color: var(--ink-600); }
+.am-mstat3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.am-mstat3 b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1; }
+.am-mstat3 small { display: block; margin-top: 4px; font-size: 12px; color: var(--ink-600); }
+.am-moment-note { margin: 14px 0 0; max-width: 34ch; font-size: 14px; color: rgba(255, 255, 255, 0.8); text-wrap: balance; }
+.am-moment-link { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 46px; border: 0; background: none; color: #fff; cursor: pointer; }
+.am-moment-link:focus-visible { outline: 3px solid #fff; outline-offset: 2px; border-radius: 12px; }
 
 /* ---------- tablet ----------
    32px gutters, the extra width spent on a second card rather than longer
@@ -444,14 +467,11 @@ html, body {
 /* The level-up. */
 .am-lvup { position: relative; flex: 1; display: flex; flex-direction: column; align-items: center; padding: 20px var(--gutter, 24px) 8px; min-height: 0; overflow: hidden; text-align: center; }
 .am-lvup-rise { position: fixed; inset: 0; background: var(--surface-100); z-index: 20; pointer-events: none; }
-.am-rays {
-  position: absolute; top: -270px; left: 50%; width: 820px; height: 820px; margin-left: -410px; border-radius: 50%;
-  background: repeating-conic-gradient(from 0deg, rgba(255, 255, 255, 0.26) 0deg 7deg, rgba(255, 255, 255, 0) 7deg 22.5deg);
-  -webkit-mask-image: radial-gradient(circle, #000 0, #000 16%, transparent 52%);
-  mask-image: radial-gradient(circle, #000 0, #000 16%, transparent 52%);
-  pointer-events: none; animation: am-spin 60s linear infinite;
-}
-@keyframes am-spin { to { transform: rotate(360deg); } }
+.am-halo { position: absolute; left: 50%; top: 50%; width: 380px; height: 380px; margin: -190px 0 0 -190px; pointer-events: none; }
+.am-halo svg { width: 100%; height: 100%; display: block; animation: am-halo-breathe 5s ease-in-out infinite; }
+@keyframes am-halo-breathe { 0%, 100% { transform: scale(1); opacity: 0.9; } 50% { transform: scale(1.04); opacity: 1; } }
+/* Centred on the badge: 20px of padding, then half of its 139px. */
+.am-lvup > .am-halo { top: 89px; }
 .am-lvup-badge { position: relative; width: 132px; height: 139px; flex: none; }
 .am-lvup-float { width: 100%; height: 100%; animation: am-float 4.4s ease-in-out infinite alternate; }
 @keyframes am-float { from { transform: translateY(0); } to { transform: translateY(-6px); } }
@@ -461,7 +481,7 @@ html, body {
 .am-lvup-sub { position: relative; margin: 6px 0 0; color: var(--ink-900); }
 .am-lvup-card {
   position: relative; display: flex; align-items: center; gap: 14px; width: 100%; max-width: 420px; margin-top: 16px; padding: 12px 14px;
-  background: var(--surface-200); border: 2px solid var(--ink-900); box-shadow: 0 4px 0 var(--ink-900); border-radius: var(--radius-md); text-align: left;
+  background: var(--surface-200); border-radius: 20px; text-align: left;
 }
 .am-ring { position: relative; width: 68px; height: 68px; flex: none; }
 .am-ring svg { width: 100%; height: 100%; display: block; }
@@ -573,9 +593,9 @@ html, body {
 @keyframes am-reveal { from { transform: scale(0.4); opacity: 0; } to { transform: none; opacity: 1; } }
 
 @media (prefers-reduced-motion: reduce) {
-  .am-rays, .am-lvup-float { animation: none; }
+  .am-halo svg, .am-lvup-float { animation: none; }
 }
-:root[data-calm="true"] .am-rays,
+:root[data-calm="true"] .am-halo svg,
 :root[data-calm="true"] .am-lvup-float { animation: none; }
 
 /* The challenge round: the time left, the multiplier, and an answer's moment. */
