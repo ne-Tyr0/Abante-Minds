@@ -621,6 +621,21 @@
         o.art ? el("span.am-hero-art", null, o.art) : null),
       o.segments || null, o.meta ? el("span.am-hero-meta", null, o.meta) : null, o.button || null);
   }
+  /* A topic's band: its colour, its picture on a white tile, how far it has
+     got, and the way back. The colours are the hero's, the day ones in both
+     themes, so white text always reads. */
+  function TopicBand(o) {
+    var c = HERO[o.colorKey] || HERO[1];
+    return el("div.am-band", { style: { background: "linear-gradient(160deg, " + c[0] + " 0%, " + c[1] + " 100%)" } },
+      o.onBack ? el("button.am-reset.am-band-back", { type: "button", "aria-label": o.backLabel || "Back", onClick: o.onBack }, icon("back", 22)) : null,
+      el("span.am-band-row", null,
+        o.art ? el("span.am-band-art", { "aria-hidden": "true" }, o.art) : null,
+        el("span.am-band-text", null,
+          el("h1.am-band-title", null, o.title),
+          o.sub ? el("span.am-band-sub", null, o.sub) : null,
+          typeof o.ratio === "number" ? el("span.am-band-bar", { role: "img", "aria-label": o.barLabel || Math.round(o.ratio * 100) + "% done" },
+            el("i", { style: { width: Math.round(Math.max(0, Math.min(1, o.ratio)) * 100) + "%" } })) : null)));
+  }
   /* A row you can tap: a picture, a line and a caption, and where it goes.
      It stands on a shelf like every other pressable thing; a row that cannot
      be opened yet lies flat. */
@@ -1204,6 +1219,7 @@
   AM.StreakPanel = StreakPanel;
   AM.HeroNext = HeroNext;
   AM.RowCard = RowCard;
+  AM.TopicBand = TopicBand;
   AM.LeadTile = LeadTile;
   AM.Chip = Chip;
   AM.FactGrid = FactGrid;
