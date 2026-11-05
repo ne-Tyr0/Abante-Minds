@@ -58,6 +58,22 @@ for (const css of SHELL.filter((p) => p.endsWith(".css"))) {
 }
 check("every url() in a precached stylesheet is precached", cssRefs);
 
+/* A comment left open in a stylesheet silently swallows what follows it: an
+   open one in depth.css once hid --shadow-card, and every shadow built on it
+   (2026-11-05). Every stylesheet the app loads opens and closes its comments
+   in pairs. */
+check("every stylesheet the app loads closes its comments",
+  htmlRefs.filter((u) => u.endsWith(".css") && exists(u)).filter((u) => {
+    const css = read(u);
+    let depth = 0, i = 0;
+    while (i < css.length) {
+      if (!depth && css.startsWith("/*", i)) { depth = 1; i += 2; }
+      else if (depth && css.startsWith("*/", i)) { depth = 0; i += 2; }
+      else i++;
+    }
+    return depth !== 0;
+  }).map((u) => "a comment is left open in " + u));
+
 /* 4. GitHub Pages runs Jekyll unless this file exists, and Jekyll drops every
       path that starts with an underscore: all of _ds/. The site then returns
       200 for index.html and loads with no design system at all. */
