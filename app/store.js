@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 74;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 75;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -93,7 +93,10 @@
       road: null,                  /* the reward road: {reached, seen, shields, log}; see "the reward road" below */
       reminder: null,              /* {hour, day}: the time a calendar reminder was added for; see "the practice reminder" */
       reminderOffered: false,      /* the offer after a round has been made */
-      recapSeen: null              /* the week (its Monday) whose look back was put away */
+      recapSeen: null,             /* the week (its Monday) whose look back was put away */
+      roundDays: null,             /* days with a full round, for the card's tier; counted from the log once */
+      tierSeen: null,              /* the tier (its index) last celebrated */
+      keptFrames: null             /* frames the road gave before tiers took over frames: kept */
     };
   }
 
@@ -800,10 +803,13 @@
     var r = state.rounds && state.rounds.day === today() ? state.rounds.n : 0;
     return { target: DAILY_GOAL, done: r, met: r >= DAILY_GOAL };
   }
-  /* A round finished. Says whether this is the one that met today's goal. */
+  /* A round finished. Says whether this is the one that met today's goal.
+     The first round of a day counts a day towards the card's tier. */
   function recordRound() {
-    var before = dailyGoal().met;
+    tierState();
+    var before = dailyGoal().met, first = dailyGoal().done === 0;
     state.rounds = { day: today(), n: dailyGoal().done + 1 };
+    if (first) state.roundDays += 1;
     commit();
     return !before && dailyGoal().met;
   }
@@ -873,7 +879,11 @@
     return {
       reached: r.reached, shields: r.shields, maxShields: AM.road ? AM.road.MAX_SHIELDS : 0,
       best: bestStreak(), levels: levelsCleared(), streak: state.streakDays, log: r.log,
-      unlocked: AM.road ? AM.road.unlocked(r.reached) : { colours: [], frames: [], patterns: [], flames: [], certificates: [], shields: 0 }
+      unlocked: (function () {
+        var u = AM.road ? AM.road.unlocked(r.reached) : { colours: [], frames: [], patterns: [], flames: [], certificates: [], shields: 0 };
+        u.frames = cardFrames();
+        return u;
+      })()
     };
   }
   /* The steps reached and not yet shown, once. */
@@ -933,6 +943,84 @@
       var iso = x.getFullYear() + "-" + pad(x.getMonth() + 1) + "-" + pad(x.getDate());
       out.push({ day: iso, done: !!week[i], kept: !week[i] && !!kept[iso], today: i === ti, later: i > ti });
     }
+    return out;
+  }
+
+  /* ---------- card tiers ----------
+     Days with a full round climb the tiers, and the tier is the card's frame
+     (decided 2026-11-05): Bronze from the start, then Silver to Diamond, and
+     Pearl, the national gem, for Diamond's days and every topic cleared. The
+     reward road no longer gives frames; any it gave before stay the
+     learner's (keptFrames). c holds a tier's light, mid, deep and darkest
+     shades. */
+  var CARD_TIERS = [
+    { key: "bronze", name: "Bronze", days: 0, kind: "metal", c: ["#ffe1c2", "#e0a06a", "#9c5a2c", "#5e3214"] },
+    { key: "silver", name: "Silver", days: 7, kind: "metal", c: ["#ffffff", "#d7dee8", "#93a1b6", "#56637a"] },
+    { key: "gold", name: "Gold", days: 21, kind: "metal", c: ["#fff7cc", "#f5c94a", "#b8860f", "#6e4d00"] },
+    { key: "platinum", name: "Platinum", days: 45, kind: "metal", c: ["#ffffff", "#e8edf4", "#aab6c8", "#6b7a92"] },
+    { key: "emerald", name: "Emerald", days: 75, kind: "gem", c: ["#d6ffe6", "#36d688", "#0c8a4c", "#03401f"] },
+    { key: "sapphire", name: "Sapphire", days: 110, kind: "gem", c: ["#dde9ff", "#5b8cff", "#1b43b0", "#0a1d5c"] },
+    { key: "ruby", name: "Ruby", days: 150, kind: "gem", c: ["#ffe0e6", "#f04a6c", "#a3123a", "#4d0418"] },
+    { key: "diamond", name: "Diamond", days: 200, kind: "gem", c: ["#ffffff", "#eef9ff", "#bfe2f7", "#7aa9cc"] },
+    { key: "pearl", name: "Pearl", days: 250, kind: "pearl", allTopics: true, c: ["#fffdf8", "#f6ecdf", "#dccbb8", "#b49b84"] }
+  ];
+  var ROUND_ANSWERS = 10;
+  /* Worked out once, the first time a saved learner meets tiers: the days
+     with a full round so far (days in the attempt log with a round's worth
+     of answers), the frames the road gave before (silver at step 3, gold at
+     6, the year frame at 11), and the tier already held, so it is not
+     celebrated as new. */
+  function tierState() {
+    if (typeof state.roundDays !== "number") {
+      var per = {};
+      loadLog().forEach(function (r) {
+        if (!r || !r.at) return;
+        var d = new Date(r.at), k = d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate());
+        per[k] = (per[k] || 0) + 1;
+      });
+      state.roundDays = Object.keys(per).filter(function (k) { return per[k] >= ROUND_ANSWERS; }).length;
+    }
+    if (!Array.isArray(state.keptFrames)) {
+      var reached = roadState().reached, kept = [];
+      if (reached >= 3) kept.push("silver");
+      if (reached >= 6) kept.push("gold");
+      if (reached >= 11) kept.push("year");
+      state.keptFrames = kept;
+    }
+    if (typeof state.tierSeen !== "number") state.tierSeen = tierIndexFor(state.roundDays, allTopicsCleared());
+  }
+  function allTopicsCleared() {
+    var p = path();
+    return p.levelsTotal > 0 && p.levelsCleared >= p.levelsTotal;
+  }
+  function tierIndexFor(days, allTopics) {
+    var k = 0;
+    CARD_TIERS.forEach(function (t, i) { if (days >= t.days && (!t.allTopics || allTopics)) k = i; });
+    return k;
+  }
+  /* The tier held, the next, and how far off it is. */
+  function tier() {
+    tierState();
+    var all = allTopicsCleared(), i = tierIndexFor(state.roundDays, all), next = CARD_TIERS[i + 1] || null;
+    return {
+      index: i, tier: CARD_TIERS[i], next: next, days: state.roundDays,
+      toNext: next ? Math.max(0, next.days - state.roundDays) : 0,
+      needsTopics: !!(next && next.allTopics && !all)
+    };
+  }
+  /* A tier reached and not yet celebrated, once. */
+  function pendingTier() { return tier().index > state.tierSeen; }
+  function takeTier() {
+    var t = tier();
+    if (t.index <= state.tierSeen) return null;
+    state.tierSeen = t.index;
+    commit();
+    return t;
+  }
+  /* The frames a card can wear: every tier held, and any kept from the road. */
+  function cardFrames() {
+    var t = tier(), out = CARD_TIERS.slice(0, t.index + 1).map(function (x) { return x.key; });
+    state.keptFrames.forEach(function (k) { if (out.indexOf(k) < 0) out.push(k); });
     return out;
   }
   /* Yesterday was missed and forgiven: what Home and the streak screen say. */
@@ -1149,6 +1237,11 @@
     recap: recap,
     dismissRecap: dismissRecap,
     forgivenYesterday: forgivenYesterday,
+    CARD_TIERS: CARD_TIERS,
+    tier: tier,
+    pendingTier: pendingTier,
+    takeTier: takeTier,
+    cardFrames: cardFrames,
     weekStrip: weekStrip,
     road: road,
     takeRoad: takeRoad,

@@ -462,6 +462,20 @@ function run() {
         AM.app.session = null;
         AM.app.go("summary");
         break;
+      /* Not in the PDF: card tiers. A new tier's moment (Silver at seven
+         days with a full round, Emerald at seventy-five), and Profile with a
+         gem card. */
+      case "tier-up":
+      case "tier-emerald":
+        AM.store.set({ roundDays: screen === "tier-up" ? 7 : 80, tierSeen: screen === "tier-up" ? 0 : 3, keptFrames: [] });
+        AM.app.scratch.afterTier = "home";
+        AM.app.go("tierUp");
+        if (AM.app.scratch.tierUp && AM.app.scratch.tierUp.tl) AM.app.scratch.tierUp.tl.skip();
+        break;
+      case "profile-emerald":
+        AM.store.set({ roundDays: 80, tierSeen: 4, keptFrames: ["silver"] });
+        AM.app.go("profile");
+        break;
       /* Not in the PDF: the first round of the seventh day in a row, which
          earns the 7-day badge and makes the streak screen a milestone. */
       case "streak-milestone":

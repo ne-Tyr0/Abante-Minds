@@ -493,6 +493,44 @@ test("Home's week strip marks the days a shield covered", () => {
   assert.strictEqual(S.get().streakDays, 7);
   assert.strictEqual(S.weekStrip().map((d) => d.kept ? "k" : d.today ? "o" : "-").join(""), "kko----", "Monday the free day, Tuesday the shield");
 });
+/* ---------- card tiers ---------- */
+test("a day with a full round counts once towards the card's tier", () => {
+  const S = launch();
+  onDay("2026-10-19");
+  assert.strictEqual(S.tier().tier.key, "bronze", "everyone starts at Bronze");
+  assert.strictEqual(S.tier().days, 0);
+  S.recordRound(); S.recordRound();
+  assert.strictEqual(S.tier().days, 1, "two rounds on one day are one day");
+  onDay("2026-10-20"); S.recordRound();
+  assert.strictEqual(S.tier().days, 2);
+  assert.strictEqual(S.tier().next.key, "silver");
+  assert.strictEqual(S.tier().toNext, 5);
+});
+test("seven days with a full round reach Silver, celebrated once", () => {
+  const S = launch();
+  WEEK.forEach((d) => { onDay(d); S.recordRound(); });
+  assert.strictEqual(S.tier().tier.key, "silver");
+  assert.strictEqual(S.pendingTier(), true);
+  assert.strictEqual(S.takeTier().tier.key, "silver");
+  assert.strictEqual(S.pendingTier(), false);
+  assert.strictEqual(S.takeTier(), null, "once");
+  assert.deepStrictEqual(S.cardFrames(), ["bronze", "silver"]);
+});
+test("Pearl needs every topic cleared as well as the days", () => {
+  const S = launch(saved({ roundDays: 300, tierSeen: 0, keptFrames: [] }));
+  assert.strictEqual(S.tier().tier.key, "diamond");
+  assert.strictEqual(S.tier().needsTopics, true);
+});
+test("frames the road gave before tiers stay the learner's", () => {
+  const S = launch(saved({ road: { reached: 6, seen: 6, shields: 0, log: {} } }));
+  assert.ok(S.cardFrames().indexOf("silver") > -1 && S.cardFrames().indexOf("gold") > -1, "steps 3 and 6 gave silver and gold");
+  assert.strictEqual(S.cardFrames().indexOf("year"), -1);
+  assert.strictEqual(S.pendingTier(), false, "the tier already held is not celebrated as new");
+});
+test("a new learner gets no frames from the road, only from tiers", () => {
+  const S = launch();
+  assert.deepStrictEqual(S.cardFrames(), ["bronze"]);
+});
 test("a shield is not spent when the streak ends anyway", () => {
   const S = launch();
   practiseOn(S, WEEK);

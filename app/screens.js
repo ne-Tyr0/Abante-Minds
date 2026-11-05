@@ -225,8 +225,13 @@
       var list = { colour: got.colours, frame: got.frames, pattern: got.patterns, flame: got.flames }[kind];
       return list.indexOf(key) < 0;
     }
+    function opensAt(kind, key) {
+      var t = kind === "frame" ? store.CARD_TIERS.filter(function (x) { return x.key === key; })[0] : null;
+      if (t) return "opens at " + t.name + ": " + t.days + " days with a full round" + (t.allTopics ? " and every topic cleared" : "");
+      return "opens at step " + stepOf(kind, key) + " of the reward road";
+    }
     function lockNote(kind, key) {
-      AM.announce("This opens at step " + stepOf(kind, key) + " of your reward road.");
+      AM.announce("This " + opensAt(kind, key) + ".");
     }
     function leave() { app.scratch.setup = null; app.go("profile", "back"); }
 
@@ -266,7 +271,7 @@
         var on = draft[field] === key, shut = key !== null && key !== "orange" && locked(kind, key);
         row.appendChild(el("button.am-reset.am-pressable" + (shut ? ".am-locked" : ""), {
           type: "button",
-          "aria-label": (key || "none") + (shut ? ", opens at step " + stepOf(kind, key) + " of the reward road" : ""), "aria-pressed": on ? "true" : "false",
+          "aria-label": (key || (kind === "frame" ? "your tier" : "none")) + (shut ? ", " + opensAt(kind, key) : ""), "aria-pressed": on ? "true" : "false",
           onClick: function () { if (shut) { lockNote(kind, key); return; } draft[field] = key; app.render(); },
           style: {
             "--am-edge": on ? "var(--ink-900)" : "var(--line-200)",
@@ -277,7 +282,9 @@
       });
       return row;
     }
-    var frames = choices("frame", "frame", [null, "silver", "gold", "year"], function (key) { return miniCard(key, draft.colorKey); });
+    var heldTier = store.tier().tier.key;
+    var frameKeys = [null].concat(store.CARD_TIERS.map(function (t) { return t.key; }), got.frames.indexOf("year") > -1 ? ["year"] : []);
+    var frames = choices("frame", "frame", frameKeys, function (key) { return miniCard(key || heldTier, draft.colorKey); });
     var patterns = choices("pattern", "pattern", [null, "binakol", "triangles", "hexagons", "stars"], function (key) {
       return key ? AM.CardPattern(key, "var(--skill-" + draft.colorKey + "-bright)", 0.75) : el("span.caption", { style: { color: "var(--ink-600)" } }, "None");
     });
@@ -323,7 +330,7 @@
         el("div.caption", { style: { color: "var(--ink-600)", marginTop: "var(--space-3)" } }, "This is how your card will look"),
         AM.ProfileCard({
           name: draft.name, school: draft.school, colorKey: draft.colorKey,
-          iconKey: draft.iconKey, frame: draft.frame, pattern: draft.pattern, style: { maxWidth: "none", width: "100%" }
+          iconKey: draft.iconKey, frame: draft.frame || store.tier().tier.key, pattern: draft.pattern, style: { maxWidth: "none", width: "100%" }
         })
       ),
       footer: el("div", { style: { flex: "none", width: "100%", maxWidth: 560, margin: "0 auto", boxSizing: "border-box", padding: "0 " + gutter() + "px 24px" } },
@@ -1835,6 +1842,7 @@
       if (view.tl) view.tl.skip();
       var next = app.scratch.afterStreak || "home";
       app.scratch.streak = null;
+      if (store.pendingTier()) { app.scratch.afterTier = next; next = "tierUp"; }
       app.go(next);
     };
     if (mile && AM.MILE) return milestoneView(app, view, { days: days, saved: saved, go: go, draw: draw, file: file, text: text });
@@ -1974,6 +1982,66 @@
       }
     };
   }
+
+  /* ---------- card tiers ----------
+     Profile shows the tier held, how near the next is, and the ladder. */
+  function tierSection(app) {
+    var t = store.tier(), T = store.CARD_TIERS;
+    var line = !t.next ? "The highest tier. Every day still counts."
+      : t.needsTopics ? "Pearl needs every topic cleared as well."
+      : t.toNext + " more day" + (t.toNext === 1 ? "" : "s") + " with a full round to " + t.next.name;
+    var ladder = el("div.am-tierladder", { "aria-hidden": "true" }, T.map(function (x, i) {
+      return el("span.am-tierstep" + (i <= t.index ? ".on" : i === t.index + 1 ? ".next" : ""), { style: { "--t1": x.c[1], "--t2": x.c[2] } }, x.name);
+    }));
+    return el("div", { style: { padding: "16px " + gutter() + "px 0" } },
+      AM.Card({ style: { gap: 10 } },
+        el("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 } },
+          el("span.label", null, t.tier.name + " card"),
+          el("span.caption", { style: { color: "var(--ink-600)" } }, t.days + " day" + (t.days === 1 ? "" : "s") + " with a full round")),
+        t.next ? AM.ProgressBar({ ratio: t.next.days ? Math.min(1, t.days / t.next.days) : 1, height: 8, label: "Days to the next tier" }) : null,
+        el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, line),
+        ladder));
+  }
+
+  /* A new tier: a moment of its own, after the day's streak. The card is
+     shown wearing it, with its stone from Emerald up. */
+  screens.tierUp = function (app) {
+    var view = app.scratch.tierUp || (app.scratch.tierUp = { t: store.takeTier(), played: false });
+    var go = function () { if (view.tl) view.tl.skip(); var next = app.scratch.afterTier || "home"; app.scratch.tierUp = null; app.scratch.afterTier = null; app.go(next); };
+    var t = view.t || store.tier(), x = t.tier, p = store.get().profile || {};
+    var bg = "linear-gradient(180deg, " + x.c[2] + " 0%, " + x.c[3] + " 100%)";
+    var card = AM.ProfileCard({ name: p.name, greeting: "", school: x.name + " card", colorKey: p.colorKey, iconKey: p.iconKey, frame: x.key, pattern: p.pattern, style: { maxWidth: 300, width: "100%" } });
+    var hero = el("div.am-moment-hero", { "aria-hidden": "true", style: { width: "100%", height: 170 } }, el("div.am-halo", { html: AM.haloSVG(x.c[0]) }), card);
+    var body = el("div.am-moment", { style: { "--gutter": gutter() + "px", background: bg } },
+      el("div.am-moment-eyebrow", { style: { color: x.c[0] } }, "A new card tier"),
+      hero,
+      el("h1.am-moment-title", null, el("span.am-moment-big", { style: { fontSize: 64 } }, x.name)),
+      el("p.am-moment-sub", null, t.days + " days with a full round. Your card wears " + x.name + " now" + (x.kind === "metal" ? "." : ", with its stone.")),
+      t.next ? el("p.am-moment-note", null, t.next.allTopics ? "Next, Pearl: Diamond's days and every topic cleared." : "Next, " + t.next.name + " at " + t.next.days + " days.") : null);
+    var footer = el("div", { style: { flex: "none", padding: "8px " + gutter() + "px 20px", display: "flex", justifyContent: "center", background: x.c[3] } },
+      el("div", { style: { width: "100%", maxWidth: 520 } }, AM.Button({ label: "Continue", variant: "inverse", fullWidth: true, cta: true, onClick: go })));
+    return {
+      nav: null, chrome: false, body: body, footer: footer, onBack: go,
+      after: function () {
+        AM.announce("A new card tier: " + x.name + ".");
+        var m = window.AbanteMinds && window.AbanteMinds.moments;
+        if (!m) return;
+        var tl = view.tl = new m.Timeline(), E = m.ease, sound = window.AbanteMinds.sound;
+        tl.to(hero.firstChild, [{ opacity: 0, transform: "scale(0.7)" }, { opacity: 1, transform: "none" }], 700, 0.05)
+          .to(card, [{ opacity: 0, transform: "scale(0.85) translateY(18px)" }, { opacity: 1, transform: "none" }], 700, 0.15, E.out)
+          .call(function () { if (sound) sound.play("tier"); }, 0.1)
+          .call(function () { var c = m.centre(card, 0.5); m.FX.confetti(c.x, c.y, -90, 170, 380, 800, 36); }, 1.1);
+        Array.prototype.forEach.call(body.children, function (c, k) {
+          if (c === hero) return;
+          tl.to(c, [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], 440, 0.3 + k * 0.1, E.out);
+        });
+        tl.to(footer, [{ transform: "translateY(120px)" }, { transform: "none" }], 500, 1.2, E.backSoft);
+        if (view.played || m.reduced()) tl.skip();
+        else body.addEventListener("click", function () { tl.skip(); });
+        view.played = true;
+      }
+    };
+  };
 
   /* ---------- 16 · Session summary ---------- */
   /* 14 October, as Home writes the exam date. */
@@ -2787,9 +2855,10 @@
           AM.ProfileCard({
             name: p.name, greeting: "",
             school: (p.school ? p.school + " · " : "") + "Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
-            colorKey: p.colorKey, iconKey: p.iconKey, frame: p.frame, pattern: p.pattern,
+            colorKey: p.colorKey, iconKey: p.iconKey, frame: p.frame || store.tier().tier.key, pattern: p.pattern,
             style: { maxWidth: "none", width: "100%" }
           })),
+        tierSection(app),
 
         el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", gap: 10 } },
           stat(s.streakDays, "days in a row"), stat(s.totalCorrect, "right first time"),
