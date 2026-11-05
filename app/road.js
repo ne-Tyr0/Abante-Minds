@@ -12,15 +12,15 @@
   var STEPS = [
     { streak: 3, levels: 3, rewards: [{ kind: "colour", key: 5 }, { kind: "colour", key: 6 }] },
     { streak: 7, levels: 8, rewards: [{ kind: "shield" }] },
-    { streak: 14, levels: 15, rewards: [{ kind: "frame", key: "silver" }] },
+    { streak: 14, levels: 15, rewards: [{ kind: "colour", key: 7 }] },
     { streak: 30, levels: 25, rewards: [{ kind: "certificate", key: 30 }, { kind: "pattern", key: "binakol" }] },
     { streak: 50, levels: 35, rewards: [{ kind: "shield" }, { kind: "pattern", key: "triangles" }] },
-    { streak: 100, levels: 50, rewards: [{ kind: "certificate", key: 100 }, { kind: "flame", key: "blue" }, { kind: "frame", key: "gold" }] },
+    { streak: 100, levels: 50, rewards: [{ kind: "certificate", key: 100 }, { kind: "flame", key: "blue" }] },
     { streak: 150, levels: 65, rewards: [{ kind: "pattern", key: "hexagons" }] },
     { streak: 200, levels: 80, rewards: [{ kind: "shield" }] },
     { streak: 250, levels: 90, rewards: [{ kind: "pattern", key: "stars" }] },
     { streak: 300, levels: null, rewards: [{ kind: "shield" }] },
-    { streak: 365, levels: null, rewards: [{ kind: "flame", key: "purple" }, { kind: "certificate", key: 365 }, { kind: "frame", key: "year" }] }
+    { streak: 365, levels: null, rewards: [{ kind: "flame", key: "purple" }, { kind: "certificate", key: 365 }] }
   ];
   /* Past the table: 400 days, 500 days and every 100 after, a shield each. */
   var AFTER = 400, EVERY = 100;

@@ -376,6 +376,12 @@ html, body {
 .am-showcase { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 24px; background: linear-gradient(160deg, #5b4bd8 0%, #3a2c9e 100%); color: #fff; }
 .am-showcase-head { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; font-weight: 700; }
 .am-showcase-head span + span { font-size: 13px; font-weight: 600; opacity: 0.8; }
+/* ---------- Card tiers (redesign stage 6) ---------- */
+.am-stone { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); z-index: 2; line-height: 0; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25)); }
+.am-tierladder { display: flex; flex-wrap: wrap; gap: 6px; }
+.am-tierstep { padding: 4px 9px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 700; color: var(--ink-600); background: var(--surface-100); box-shadow: inset 0 0 0 1.5px var(--surface-300); }
+.am-tierstep.on { color: #16202c; background: linear-gradient(135deg, var(--t1), var(--t2)); box-shadow: none; }
+.am-tierstep.next { color: var(--ink-900); box-shadow: inset 0 0 0 2px var(--t2); }
 
 /* ---------- tablet ----------
    32px gutters, the extra width spent on a second card rather than longer

@@ -38,15 +38,16 @@ test("steps are numbered from one", () => {
 test("each step gives what was agreed", () => {
   assert.strictEqual(kinds(0), "colour:5 colour:6");
   assert.strictEqual(kinds(1), "shield");
-  assert.strictEqual(kinds(2), "frame:silver");
+  /* Frames moved to card tiers (2026-11-05): step 3 gives a card colour. */
+  assert.strictEqual(kinds(2), "colour:7");
   assert.strictEqual(kinds(3), "certificate:30 pattern:binakol");
   assert.strictEqual(kinds(4), "shield pattern:triangles");
-  assert.strictEqual(kinds(5), "certificate:100 flame:blue frame:gold");
+  assert.strictEqual(kinds(5), "certificate:100 flame:blue");
   assert.strictEqual(kinds(6), "pattern:hexagons");
   assert.strictEqual(kinds(7), "shield");
   assert.strictEqual(kinds(8), "pattern:stars");
   assert.strictEqual(kinds(9), "shield");
-  assert.strictEqual(kinds(10), "flame:purple certificate:365 frame:year");
+  assert.strictEqual(kinds(10), "flame:purple certificate:365");
   assert.strictEqual(kinds(11), "shield");
   assert.strictEqual(kinds(20), "shield");
 });
@@ -90,10 +91,10 @@ test("nothing before the first step", () => {
 });
 test("everything the steps reached give, in order", () => {
   assert.deepStrictEqual(R.unlocked(6), {
-    colours: [5, 6], frames: ["silver", "gold"], patterns: ["binakol", "triangles"], flames: ["blue"], certificates: [30, 100], shields: 2
+    colours: [5, 6, 7], frames: [], patterns: ["binakol", "triangles"], flames: ["blue"], certificates: [30, 100], shields: 2
   });
   const all = R.unlocked(13);
-  assert.deepStrictEqual(all.frames, ["silver", "gold", "year"]);
+  assert.deepStrictEqual(all.frames, [], "the road gives no frames: card tiers do");
   assert.deepStrictEqual(all.patterns, ["binakol", "triangles", "hexagons", "stars"]);
   assert.deepStrictEqual(all.flames, ["blue", "purple"]);
   assert.deepStrictEqual(all.certificates, [30, 100, 365]);

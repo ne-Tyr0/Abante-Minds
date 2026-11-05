@@ -120,10 +120,37 @@
      tile behind it in the card's own colour. Binakol is drawn after the
      Ilocano weave's whirl of squares, not copied from any cloth. */
   var CARD_FRAMES = {
+    bronze: "0 0 0 3px #c98a55, 0 0 0 5px rgba(156, 90, 44, 0.22)",
     silver: "0 0 0 3px #c3cdd9, 0 0 0 4px rgba(22, 32, 44, 0.08)",
     gold: "0 0 0 3px #f5b400, 0 0 0 7px rgba(245, 180, 0, 0.22)",
+    platinum: "0 0 0 3px #e8edf4, 0 0 0 6px #aab6c8",
+    emerald: "0 0 0 3px #36d688, 0 0 0 6px #f5c94a",
+    sapphire: "0 0 0 3px #5b8cff, 0 0 0 6px #d7dee8",
+    ruby: "0 0 0 3px #f04a6c, 0 0 0 6px #f5c94a",
+    diamond: "0 0 0 3px #eef9ff, 0 0 0 6px #9fd0f2, 0 0 16px 6px rgba(159, 208, 242, 0.55)",
+    pearl: "0 0 0 3px #f6ecdf, 0 0 0 6px #dccbb8, 0 0 14px 5px rgba(255, 246, 230, 0.6)",
     year: "0 0 0 3px #8b5cf6, 0 0 0 6px #f5b400"
   };
+  /* From Emerald up the card carries its stone at the top, in the middle:
+     a brilliant cut, or for Pearl a pearl. */
+  var STONES = { emerald: ["#36d688", "#0c8a4c"], sapphire: ["#5b8cff", "#1b43b0"], ruby: ["#f04a6c", "#a3123a"], diamond: ["#ffffff", "#9fc9e6"], pearl: ["#fffdf8", "#cdb9a3"] };
+  var stoneCount = 0;
+  function tierStone(key, size) {
+    var c = STONES[key];
+    if (!c) return null;
+    var s = size || 24, svg;
+    if (key === "pearl") {
+      var id = "am-pearl-" + (++stoneCount);
+      svg = '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" aria-hidden="true"><defs><radialGradient id="' + id + '" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#ffffff"/><stop offset="0.55" stop-color="' + c[0] + '"/><stop offset="1" stop-color="' + c[1] + '"/></radialGradient></defs>' +
+        '<circle cx="12" cy="12" r="10" fill="url(#' + id + ')" stroke="#b49b84" stroke-opacity="0.5"/></svg>';
+    } else {
+      svg = '<svg viewBox="0 0 24 22" width="' + s + '" height="' + Math.round(s * 22 / 24) + '" aria-hidden="true">' +
+        '<path d="M5 1h14l5 6-12 14L0 7z" fill="' + c[0] + '"/><path d="M0 7h24L12 21z" fill="' + c[1] + '"/>' +
+        '<path d="M5 1l3 6 4-6 4 6 3-6M0 7h24" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1"/>' +
+        '<path d="M8 7l4 14 4-14" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="1"/></svg>';
+    }
+    return el("span.am-stone", { "aria-hidden": "true", html: svg });
+  }
   var CARD_PATTERNS = {
     binakol: { w: 24, h: 24, d: '<rect x="2" y="2" width="20" height="20" fill="none" stroke="C" stroke-width="2"/><rect x="6.5" y="6.5" width="11" height="11" transform="rotate(18 12 12)" fill="none" stroke="C" stroke-width="2"/><rect x="9.8" y="9.8" width="4.4" height="4.4" transform="rotate(36 12 12)" fill="C"/>' },
     triangles: { w: 24, h: 21, d: '<path d="M0 21L12 0L24 21Z" fill="C"/>' },
@@ -156,6 +183,7 @@
     if (CARD_FRAMES[o.frame]) style.overflow = "visible";
 
     return el("div.am-reset", { style: style },
+      tierStone(o.frame, 22),
       o.pattern ? el("span", { "aria-hidden": "true", style: { position: "absolute", inset: 0, borderRadius: "inherit", overflow: "hidden", pointerEvents: "none" } },
         CardPattern(o.pattern, SKILL_INK[o.colorKey] || SKILL_INK[2])) : null,
       el("div.heading-sm", {
@@ -1276,6 +1304,7 @@
   AM.ProfileCard = ProfileCard;
   AM.CardPattern = CardPattern;
   AM.CARD_FRAMES = CARD_FRAMES;
+  AM.tierStone = tierStone;
   AM.PracticeHeader = PracticeHeader;
   AM.SkillCard = SkillCard;
   AM.CelebrationBanner = CelebrationBanner;
