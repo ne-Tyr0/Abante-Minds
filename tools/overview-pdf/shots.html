@@ -467,8 +467,10 @@ function run() {
          gem card. */
       case "tier-up":
       case "tier-emerald":
-        AM.store.set({ roundDays: screen === "tier-up" ? 7 : 80, tierSeen: screen === "tier-up" ? 0 : 3, keptFrames: [] });
+      case "tier-veil":
+        AM.store.set({ roundDays: screen === "tier-emerald" ? 80 : 7, tierSeen: screen === "tier-emerald" ? 3 : 0, keptFrames: [] });
         AM.app.scratch.afterTier = "home";
+        AM.app.scratch.tierUp = { t: AM.store.takeTier(), played: false, revealed: screen !== "tier-veil" };
         AM.app.go("tierUp");
         if (AM.app.scratch.tierUp && AM.app.scratch.tierUp.tl) AM.app.scratch.tierUp.tl.skip();
         break;

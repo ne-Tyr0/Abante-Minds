@@ -1231,8 +1231,36 @@
           ses.showHints = true;
           if (ses.hintsRevealed === 0) ses.hintsRevealed = 1;
           app.render();
+          openHints();
         }
       }, icon("hint", 20), "Show a hint");
+    }
+    /* Hints open in a sheet, one at a time: a nudge, not the answer. Those
+       shown stay above the answer box once it closes, to read while
+       working. */
+    function openHints() {
+      var box = el("div");
+      function draw() {
+        var n = ses.hintsRevealed, total = q.hints.length, left = total - n;
+        var list = el("div", { style: { display: "flex", flexDirection: "column", gap: 10 } });
+        q.hints.forEach(function (h, i) {
+          if (i < n) list.appendChild(el("div.am-hintcard", null, el("span.am-hintnum", { "aria-hidden": "true" }, String(i + 1)), el("span.body", { style: { textWrap: "pretty" } }, h)));
+          else if (i === n) list.appendChild(el("button.am-reset.am-hintnext", {
+            type: "button", "data-sound": "hint",
+            onClick: function () { ses.hintsRevealed = i + 1; app.render(); AM.clear(box); box.appendChild(draw()); }
+          }, icon("lock", 20), el("span.body-sm", null, "Hint " + (i + 1) + " · tap to show")));
+        });
+        return el("div", { style: { display: "flex", flexDirection: "column", gap: 12 } },
+          el("span.caption", { style: { color: "var(--ink-600)", fontWeight: 700 } }, "Hint " + n + " of " + total),
+          el("span.heading-md", null, "A nudge, not the answer"),
+          el("span", { style: { display: "flex", alignItems: "center", gap: 8 } },
+            el("span.am-hintpips", { "aria-hidden": "true" }, q.hints.map(function (_, i) { return el(i < n ? "i.on" : "i"); })),
+            el("span.caption", { style: { color: "var(--ink-600)" } }, left ? left + " more if you need " + (left === 1 ? "it" : "them") : "That's every hint")),
+          list,
+          el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "A hint never costs you the question: a right answer still counts."));
+      }
+      box.appendChild(draw());
+      openSheet("Hints", box, "Back to the question", true);
     }
 
     function hintsUsedCard() {
@@ -1462,7 +1490,7 @@
 
   /* A sheet from the bottom, for a road step and for hints: a scrim, the
      content, and Close; Escape or the phone's Back closes it first. */
-  function openSheet(label, content, closeLabel) {
+  function openSheet(label, content, closeLabel, quiet) {
     var frame = document.querySelector(".am-frame");
     if (!frame) return null;
     clearSheets(frame);
@@ -1485,7 +1513,7 @@
     frame.appendChild(sheet);
     app().closeSheet = close;
     closeBtn.focus();
-    if (snd) snd.play("sheetUp");
+    if (snd && !quiet) snd.play("sheetUp");
     var m = window.AbanteMinds && window.AbanteMinds.moments;
     if (m && !m.reduced()) {
       sheet.animate([{ transform: "translateY(100%)" }, { transform: "none" }], { duration: 380, easing: m.ease.backSoft });
@@ -2070,25 +2098,50 @@
   /* A new tier: a moment of its own, after the day's streak. The card is
      shown wearing it, with its stone from Emerald up. */
   screens.tierUp = function (app) {
-    var view = app.scratch.tierUp || (app.scratch.tierUp = { t: store.takeTier(), played: false });
+    var view = app.scratch.tierUp || (app.scratch.tierUp = { t: store.takeTier(), played: false, revealed: false });
+    var m = window.AbanteMinds && window.AbanteMinds.moments;
+    /* With reduced motion or calm there is nothing to hold for. */
+    if (!m || m.reduced()) view.revealed = true;
     var go = function () { if (view.tl) view.tl.skip(); var next = app.scratch.afterTier || "home"; app.scratch.tierUp = null; app.scratch.afterTier = null; app.go(next); };
     var t = view.t || store.tier(), x = t.tier, p = store.get().profile || {};
     var bg = "linear-gradient(180deg, " + x.c[2] + " 0%, " + x.c[3] + " 100%)";
     var card = AM.ProfileCard({ name: p.name, school: x.name + " card", colorKey: p.colorKey, frame: x.key, pattern: p.pattern, initials: p.initials, title: p.title, motto: p.motto, tier: x, style: { maxWidth: 300, width: "100%" } });
-    var hero = el("div.am-moment-hero", { "aria-hidden": "true", style: { width: "100%", height: 170 } }, el("div.am-halo", { html: AM.haloSVG(x.c[0]) }), card);
+    var hero = el("div.am-moment-hero" + (view.revealed ? "" : ".am-veiled"), { "aria-hidden": "true", style: { width: "100%", height: 170 } }, el("div.am-halo", { html: AM.haloSVG(x.c[0]) }), card);
+    var title = el("h1.am-moment-title", null, el("span.am-moment-big", { style: { fontSize: 64 } }, view.revealed ? x.name : "A new tier"));
+    var sub = el("p.am-moment-sub", null, view.revealed
+      ? t.days + " days with a full round. Your card wears " + x.name + " now" + (x.kind === "metal" ? "." : ", with its stone.")
+      : t.days + " days with a full round. Hold to see your card's new tier.");
+    var note = view.revealed && t.next ? el("p.am-moment-note", null, t.next.allTopics ? "Next, Pearl: Diamond's days and every topic cleared." : "Next, " + t.next.name + " at " + t.next.days + " days.") : null;
+
+    /* Hold the button: a ring fills, and the card is revealed when it is
+       full. Letting go early starts again. A key reveals it at once. */
+    var hold = null;
+    if (!view.revealed) {
+      var ringSvg = '<svg viewBox="0 0 88 88" aria-hidden="true"><circle cx="44" cy="44" r="40" fill="none" stroke="rgba(255,255,255,.25)" stroke-width="6"/>' +
+        '<circle class="am-hold-fill" cx="44" cy="44" r="40" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" pathLength="100" stroke-dasharray="100" stroke-dashoffset="100" transform="rotate(-90 44 44)"/></svg>';
+      var timer = null;
+      var reveal = function () { if (view.revealed) return; view.revealed = true; view.played = false; app.render(); };
+      var start = function (e) { if (e && e.preventDefault) e.preventDefault(); hold.classList.add("is-holding"); timer = window.setTimeout(reveal, 950); };
+      var stop = function () { if (view.revealed) return; hold.classList.remove("is-holding"); window.clearTimeout(timer); };
+      hold = el("button.am-reset.am-hold", {
+        type: "button", "aria-label": "Reveal your new tier",
+        onpointerdown: start, onpointerup: stop, onpointerleave: stop, onpointercancel: stop,
+        onkeydown: function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reveal(); } },
+        onClick: function (e) { if (e.detail === 0) reveal(); }
+      }, el("span.am-hold-ring", { html: ringSvg }), el("span.am-hold-label", null, "Hold"));
+    }
     var body = el("div.am-moment", { style: { "--gutter": gutter() + "px", background: bg } },
       el("div.am-moment-eyebrow", { style: { color: x.c[0] } }, "A new card tier"),
-      hero,
-      el("h1.am-moment-title", null, el("span.am-moment-big", { style: { fontSize: 64 } }, x.name)),
-      el("p.am-moment-sub", null, t.days + " days with a full round. Your card wears " + x.name + " now" + (x.kind === "metal" ? "." : ", with its stone.")),
-      t.next ? el("p.am-moment-note", null, t.next.allTopics ? "Next, Pearl: Diamond's days and every topic cleared." : "Next, " + t.next.name + " at " + t.next.days + " days.") : null);
+      hero, title, sub, note, hold);
     var footer = el("div", { style: { flex: "none", padding: "8px " + gutter() + "px 20px", display: "flex", justifyContent: "center", background: x.c[3] } },
-      el("div", { style: { width: "100%", maxWidth: 520 } }, AM.Button({ label: "Continue", variant: "inverse", fullWidth: true, cta: true, onClick: go })));
+      el("div", { style: { width: "100%", maxWidth: 520 } }, view.revealed
+        ? AM.Button({ label: "Continue", variant: "inverse", fullWidth: true, cta: true, onClick: go })
+        : el("button.am-reset.am-moment-link.label", { type: "button", onClick: function () { view.revealed = true; view.played = true; app.render(); } }, "Skip")));
     return {
       nav: null, chrome: false, body: body, footer: footer, onBack: go,
       after: function () {
+        if (!view.revealed) { AM.announce("A new card tier. Hold the button to reveal it."); return; }
         AM.announce("A new card tier: " + x.name + ".");
-        var m = window.AbanteMinds && window.AbanteMinds.moments;
         if (!m) return;
         var tl = view.tl = new m.Timeline(), E = m.ease, sound = window.AbanteMinds.sound;
         tl.to(hero.firstChild, [{ opacity: 0, transform: "scale(0.7)" }, { opacity: 1, transform: "none" }], 700, 0.05)
