@@ -89,7 +89,7 @@
             onkeydown: function (e) { if (e.key === "Enter") begin(); }
           }),
           el("span.caption", { style: { color: "var(--ink-600)" } }, "Your first name is enough. It stays on this phone.")),
-        AM.Button({ label: "Start my first lesson", fullWidth: true, onClick: begin })
+        (function () { var b = AM.Button({ label: "Start my first lesson", fullWidth: true, onClick: begin }); b.setAttribute("data-sound", "hello"); return b; })()
       )
     };
   };
@@ -260,7 +260,7 @@
     [1, 2, 3, 4, 5, 6, 7].forEach(function (k) {
       var on = draft.colorKey === k, shut = k > 4 && locked("colour", k);
       swatches.appendChild(el("button.am-reset.am-pressable" + (shut ? ".am-locked" : ""), {
-        type: "button",
+        type: "button", "data-sound": shut ? "nope" : null,
         "aria-label": "Colour " + k + (shut ? ", opens on the reward road" : ""), "aria-pressed": on ? "true" : "false",
         onClick: function () { if (shut) { lockNote("colour", k); return; } draft.colorKey = k; rerender(); },
         style: {
@@ -279,7 +279,7 @@
       options.forEach(function (key) {
         var on = draft[field] === key, shut = key !== null && key !== "orange" && key !== "binakol" && key !== "plain" && locked(kind, key);
         row.appendChild(el("button.am-reset.am-pressable" + (shut ? ".am-locked" : ""), {
-          type: "button",
+          type: "button", "data-sound": shut ? "nope" : null,
           "aria-label": (key || (kind === "frame" ? "your tier" : "none")) + (shut ? ", " + opensAt(kind, key) : ""), "aria-pressed": on ? "true" : "false",
           onClick: function () { if (shut) { lockNote(kind, key); return; } draft[field] = key; rerender(); },
           style: {
@@ -1436,7 +1436,7 @@
     var o = opts || {};
     var isNew = found.badge.earned && found.badge.seen === false;
     return el("button.am-reset.am-badge-btn", {
-      type: "button", "aria-label": found.badge.name + (found.badge.earned ? "" : ", not earned yet") + (isNew ? ", new" : ""),
+      type: "button", "data-sound": "none", "aria-label": found.badge.name + (found.badge.earned ? "" : ", not earned yet") + (isNew ? ", new" : ""),
       onClick: function () { openBadge(found.badge.key); },
       style: o.style || null
     }, AM.Badge(found, size), isNew ? el("span.am-newtag", { "aria-hidden": "true" }, "New") : null,
@@ -1452,8 +1452,6 @@
     if (!frame || !found) return;
     var b = found.badge;
     store.markBadgeSeen(key);
-    var sound = window.AbanteMinds && window.AbanteMinds.sound;
-    if (sound) sound.play("pop");
     clearSheets(frame);
 
     var lines = [];
@@ -1482,6 +1480,7 @@
       }
     }) : null;
     var closeBtn = AM.Button({ label: "Close", fullWidth: true, onClick: function () { close(); } });
+    closeBtn.setAttribute("data-sound", "none");  /* closing sounds for itself */
     var sheet = el("div.am-badge-sheet", { role: "dialog", "aria-modal": "true", "aria-label": b.name },
       el("div", { style: { lineHeight: 0 } }, AM.Badge(found, 128)),
       b.earned && b.shiny ? AM.Chip({ label: "Shiny", background: "var(--celebration-gold-500)", color: "var(--ink-900)" }) : null,
@@ -1494,6 +1493,7 @@
       if (scrim.parentNode) scrim.parentNode.removeChild(scrim);
       document.removeEventListener("keydown", onKey);
       if (previous && previous.focus) previous.focus();
+      cue("sheetDown");
       app().keepScroll = true;
       app().render();
     }
@@ -1503,6 +1503,7 @@
     frame.appendChild(sheet);
     app().closeSheet = close;  /* the phone's Back button closes it first */
     closeBtn.focus();
+    cue(b.earned ? "badge" : "sheetUp");
     var m = window.AbanteMinds && window.AbanteMinds.moments;
     if (m && !m.reduced()) {
       sheet.animate([{ transform: "translateY(100%)" }, { transform: "none" }], { duration: 380, easing: m.ease.backSoft });
@@ -1511,6 +1512,14 @@
     }
   }
   function app() { return AM.app; }
+
+  /* A sound by name, when sound is on (motion/sound.js decides). */
+  function cue(name) { var snd = window.AbanteMinds && window.AbanteMinds.sound; if (snd) snd.play(name); }
+  /* Steps just reached on the road: a certificate's fanfare if one of
+     them gives a certificate, otherwise the road step's call and answer. */
+  function roadCue(steps) {
+    return steps.some(function (n) { return AM.road.step(n - 1).rewards.some(function (r) { return r.kind === "certificate"; }); }) ? "cert" : "roadStep";
+  }
 
   /* A sheet from the bottom, for a road step and for hints: a scrim, the
      content, and Close; Escape or the phone's Back closes it first. */
@@ -1521,6 +1530,7 @@
     var previous = document.activeElement, snd = window.AbanteMinds && window.AbanteMinds.sound;
     var scrim = el("div.am-sheet-scrim", { onClick: function () { close(); } });
     var closeBtn = AM.Button({ label: closeLabel || "Close", variant: "ghost", fullWidth: true, onClick: function () { close(); } });
+    closeBtn.setAttribute("data-sound", "none");  /* closing sounds for itself */
     var sheet = el("div.am-sheet.am-sheet-left", { role: "dialog", "aria-modal": "true", "aria-label": label },
       content, el("div", { style: { width: "100%", marginTop: 12 } }, closeBtn));
     function close() {
@@ -1991,7 +2001,8 @@
             .call(play("check"), 2.43);
         }
         var cards = body.querySelectorAll(".am-card");
-        if (cards.length) tl.to(cards[0], [{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], 450, 2.85).call(play("sparkle"), 2.9);
+        if (cards.length) tl.to(cards[0], [{ opacity: 0, transform: "translateY(12px)" }, { opacity: 1, transform: "none" }], 450, 2.85)
+          .call(play(view.road.length ? roadCue(view.road) : "reward"), 2.9);
         tl.to(body.querySelector("p.body"), [{ opacity: 0 }, { opacity: 1 }], 450, 3.1)
           .to(footer, [{ transform: "translateY(110px)" }, { transform: "none" }], 500, 3.3, E.backSoft);
         if (view.played || m.reduced()) tl.skip();
@@ -2133,7 +2144,7 @@
       var start = function (e) { if (e && e.preventDefault) e.preventDefault(); hold.classList.add("is-holding"); timer = window.setTimeout(reveal, 950); };
       var stop = function () { if (view.revealed) return; hold.classList.remove("is-holding"); window.clearTimeout(timer); };
       hold = el("button.am-reset.am-hold", {
-        type: "button", "aria-label": "Reveal your new tier",
+        type: "button", "data-sound": "none", "aria-label": "Reveal your new tier",
         onpointerdown: start, onpointerup: stop, onpointerleave: stop, onpointercancel: stop,
         onkeydown: function (e) { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); reveal(); } },
         onClick: function (e) { if (e.detail === 0) reveal(); }
@@ -2276,10 +2287,14 @@
       banner: connectionBanner(),
       after: function () {
         countTiles(tiles, r);
+        if (!r.rewardSounded && ((r.road && r.road.length) || (r.badges && r.badges.length))) {
+          r.rewardSounded = true;
+          var what = r.road && r.road.length ? roadCue(r.road) : "reward";
+          window.setTimeout(function () { cue(what); }, 700);
+        }
         if (r.sounded || !moment || added <= 0) return;
         r.sounded = true;
-        var sound = window.AbanteMinds && window.AbanteMinds.sound;
-        if (sound) sound.play("sparkle");
+        cue("sparkle");
       },
       body: column([
         el("div", { style: { padding: "24px " + gutter() + "px 0" } },
@@ -2839,7 +2854,7 @@
     function tab(key, label) {
       var on = key === which;
       return el("button.am-reset.am-roadtab", {
-        type: "button", "aria-current": on ? "page" : null,
+        type: "button", "data-sound": "tab", "aria-current": on ? "page" : null,
         onClick: function () { if (!on) { app.scratch.badgesBack = null; app.go(key, key === "road" ? "back" : "forward"); } }
       }, label);
     }
@@ -2911,7 +2926,7 @@
       var face = main === "certificate" ? icon("certificate", 30) : main === "shield" ? icon("shield", 30) : main === "flame" && AM.Flame ? AM.Flame(32, state !== "locked") : String(st.n);
       var rows = rewardRows(st), title = rows.length ? rows[0].label + (rows.length > 1 ? " and more" : "") : "Step " + st.n;
       map.appendChild(el("button.am-reset.am-rnode." + state, {
-        type: "button", style: { left: pt[0] + "%", top: pt[1] + "px" },
+        type: "button", "data-sound": "none", style: { left: pt[0] + "%", top: pt[1] + "px" },
         "aria-label": "Step " + st.n + ", " + title + ", " + (state === "done" ? "reached" : state === "next" ? "your next step" : "not reached yet"),
         onClick: function () { openSheet("Step " + st.n, detail(i)); }
       }, el("span.am-rnode-face", null, face),

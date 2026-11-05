@@ -285,6 +285,35 @@
     return { index: Array.prototype.indexOf.call(all, t), text: (t.textContent || "").trim() };
   }
 
+  /* What a tap sounds like: a keypad key its own note, a tab the tab's tap,
+     a button that names a sound (data-sound; "none" for silence, when what
+     it opens sounds for itself) that one, and anything else the soft tap. */
+  function tapSound(t) {
+    var sound = window.AbanteMinds && window.AbanteMinds.sound;
+    if (!sound) return;
+    var own = t.getAttribute && t.getAttribute("data-sound");
+    var key = t.closest && t.closest(".am-keypad") ? (t.textContent || "").trim() : null;
+    if (own) { if (own !== "none") sound.play(own); }
+    else if (key !== null) sound.play("keys", key === "Delete" ? "del" : key);
+    else if (t.closest && t.closest(".am-bottomnav, .am-rail")) sound.play("tab");
+    else sound.play("tap");
+  }
+  /* Buttons without a shelf (the tabs, chips, links, the road's steps)
+     sound when tapped too; they just do not press down. A scroll that takes
+     the touch is not a tap. */
+  var plainEl = null;
+  function plain(target) {
+    var b = target && target.closest ? target.closest("button") : null;
+    return b && !b.disabled && !pressable(b) ? b : null;
+  }
+  document.addEventListener("pointerdown", function (e) { plainEl = e.button > 0 ? null : plain(e.target); }, true);
+  document.addEventListener("pointerup", function (e) {
+    var t = plainEl;
+    plainEl = null;
+    if (t && t.contains(e.target)) tapSound(t);
+  }, true);
+  document.addEventListener("pointercancel", function () { plainEl = null; }, true);
+
   document.addEventListener("touchstart", function () {}, { passive: true });
   document.addEventListener("pointerdown", function (e) {
     if (e.button > 0) return;
@@ -299,19 +328,8 @@
     var t = pressedEl;
     if (!t) return;
     pressedEl = null;
-    if (e.type === "pointerup") {
-      var sound = window.AbanteMinds && window.AbanteMinds.sound;
-      if (sound) {
-        /* A keypad key plays its own note, a tab the tab's tap, and a button
-           that names a sound (data-sound) plays that one instead. */
-        var own = t.getAttribute && t.getAttribute("data-sound");
-        var key = t.closest && t.closest(".am-keypad") ? (t.textContent || "").trim() : null;
-        if (own) sound.play(own);
-        else if (key !== null) sound.play("keys", key === "Delete" ? "del" : key);
-        else if (t.closest && t.closest(".am-bottomnav, .am-rail")) sound.play("tab");
-        else sound.play("tap");
-      }
-    } else lastPressed = null;  /* a scroll took the touch: nothing was tapped */
+    if (e.type === "pointerup") tapSound(t);
+    else lastPressed = null;  /* a scroll took the touch: nothing was tapped */
     window.setTimeout(function () { t.classList.remove("am-pressed"); }, Math.max(0, PRESS_HOLD - (Date.now() - pressedAt)));
   }
   document.addEventListener("pointerup", lift, true);
