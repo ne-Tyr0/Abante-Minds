@@ -949,6 +949,7 @@
 
     /* ----- question text ----- */
     var answered = ses.phase !== "ask";
+    if (!answered) ses.verdictShown = null;
     var promptNode = answered
       ? el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           el("div.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, q.prompt))
@@ -997,8 +998,8 @@
       });
       q.hints.forEach(function (h, i) {
         if (i < ses.hintsRevealed) {
-          list.appendChild(AM.Card({ style: { flexDirection: "row", gap: "var(--space-3)", alignItems: "flex-start", padding: 14 } },
-            el("span", { style: { color: "var(--brand-blue-600)", flex: "none" } }, icon("hint", 22)),
+          list.appendChild(el("div.am-hintcard", null,
+            el("span.am-hintnum", { "aria-hidden": "true" }, String(i + 1)),
             el("span.body", { style: { textWrap: "pretty" } }, h)));
         } else {
           list.appendChild(el("button.am-reset.am-locked", {
@@ -1010,42 +1011,41 @@
               color: "var(--ink-600)", background: "transparent", cursor: "pointer", textAlign: "left"
             }
           }, icon("lock", 20),
-             el("span.body-sm", null, "Hint " + (i + 1) + " · " + (desktop ? "click" : "tap") + " to reveal")));
+             el("span.body-sm", null, "Hint " + (i + 1) + " · " + (desktop ? "click" : "tap") + " to show")));
         }
       });
       wrap.appendChild(list);
       return wrap;
     }
 
-    /* ----- verdict (11 / 12) ----- */
-    function verdict() {
-      if (ses.phase === "ask") return null;
-      var right = ses.phase === "correct";
-      var given = q.type === "choice" ? AM.content.choiceText(q, ses.picked) : (q.unit || "") + AM.entry.text(ses.entry) + q.suffix;
-      return el("div", { style: { padding: "16px " + gutter() + "px 0" } },
-        el("div", {
-          style: {
-            border: "2px solid " + (right ? "var(--success-700)" : "var(--danger-700)"),
-            background: right ? "var(--success-100)" : "var(--danger-100)",
-            borderRadius: "var(--radius-md)", padding: "var(--space-4)",
-            display: "flex", alignItems: "center", gap: 14
-          }
-        },
-          el("span", {
-            style: {
-              width: 44, height: 44, flex: "none", borderRadius: "50%", background: "var(--surface-200)",
-              color: right ? "var(--success-700)" : "var(--danger-700)",
-              display: "flex", alignItems: "center", justifyContent: "center"
-            }
-          }, icon(right ? "check" : "x", 24, { glyph: true })),
-          el("span", null,
-            el("span.heading-md", { style: { display: "block" } }, given),
-            el("span.label", { style: { color: right ? "var(--success-700)" : "var(--danger-700)" } }, right ? "Tama" : "Not yet"))
-        ),
-        /* On a phone the options are gone once answered, so a picture answer
-           shows the picture picked. Not the right one: a retry follows. */
-        q.choiceFigures && !desktop ? el("div", { style: { paddingTop: "var(--space-3)", display: "flex" } },
-          AM.Chart(Object.assign({}, q.choiceFigures[ses.picked], { title: "Your answer, picture " + q.choices[ses.picked] }))) : null);
+    /* ----- verdict (11 / 12) -----
+       Right or not, said once, at the foot: the verdict, how far the level
+       has got and the next step sit together in one panel, green or coral,
+       so the eye goes from the answer to what to do about it. It rises in
+       when the answer is checked, not again when a step is shown. */
+    function givenText() {
+      return q.type === "choice" ? AM.content.choiceText(q, ses.picked) : (q.unit || "") + AM.entry.text(ses.entry) + q.suffix;
+    }
+    function verdictPanel(strip, buttons) {
+      var right = ses.phase === "correct", key = ses.index + ":" + ses.phase;
+      var enter = ses.verdictShown !== key;
+      ses.verdictShown = key;
+      var said = right ? givenText() + " is right." : "You put " + givenText() + ".";
+      if (enter && AM.announce) AM.announce((right ? "Tama! " : "Not yet. ") + said);
+      return el("div.am-fb" + (right ? ".good" : ".bad") + (enter ? ".am-fb-enter" : ""), null,
+        el("div.am-fb-head", { style: { padding: "16px " + gutter() + "px 14px" } },
+          el("span.am-fb-icon", { "aria-hidden": "true" }, icon(right ? "check" : "x", 24, { glyph: true })),
+          el("span", { style: { minWidth: 0 } },
+            el("span.am-fb-title", null, right ? "Tama!" : "Not yet"),
+            el("span.am-fb-sub", null, said))),
+        strip, buttons);
+    }
+    /* On a phone the options are gone once answered, so a picture answer
+       shows the picture picked. Not the right one: a retry follows. */
+    function pickedPicture() {
+      if (ses.phase === "ask" || !q.choiceFigures || desktop) return null;
+      return el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex" } },
+        AM.Chart(Object.assign({}, q.choiceFigures[ses.picked], { title: "Your answer, picture " + q.choices[ses.picked] })));
     }
 
     /* Correct explains how it works. Wrong names the mistake when the answer
@@ -1188,14 +1188,14 @@
     /* Revealing is one way: the list becomes the control, and the button does
        not come back. Revealing costs nothing but is visibly counted. */
     function hintButton() {
-      return AM.Button({
-        label: "Show a hint", variant: "ghost", fullWidth: false,
+      return el("button.am-reset.am-pressable.am-hintbtn", {
+        type: "button", style: { "--am-edge": "var(--celebration-gold-500)" },
         onClick: function () {
           ses.showHints = true;
           if (ses.hintsRevealed === 0) ses.hintsRevealed = 1;
           app.render();
         }
-      });
+      }, icon("hint", 20), "Show a hint");
     }
 
     function hintsUsedCard() {
@@ -1207,7 +1207,7 @@
           padding: "12px var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)"
         }
       },
-        el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon("hint", 20)),
+        el("span", { style: { flex: "none", color: "var(--ink-600)" } }, icon("hint", 20)),
         el("span.body-sm", { style: { flex: 1, color: "var(--ink-600)" } },
           "Hints used this session: " + ses.hintsRevealed + " of " + q.hints.length + ". Using them all still counts the question."));
     }
@@ -1273,9 +1273,9 @@
           q.chart ? AM.Chart(q.chart) : null,
           q.type === "choice" ? answerArea() : null,
           row,
-          verdict(), clearedChip(), explanation(), streakChip(),
+          clearedChip(), explanation(), streakChip(),
           hintPanel(),
-          levelStrip()
+          ses.phase === "ask" ? levelStrip() : null
         ));
 
       return {
@@ -1283,8 +1283,8 @@
         railFooter: el("span.am-rail-note", { style: { background: "var(--surface-100)", color: "var(--ink-600)" } },
           icon("clock", 22), el("span.label", { style: { color: "var(--ink-900)" } }, minutesLabel(ses))),
         body: deskBody,
-        footer: (ses.phase === "ask") ? null : el("div", { style: { display: "flex", justifyContent: "center", padding: "0 " + gutter() + "px 24px" } },
-          el("div", { style: { width: "100%", maxWidth: 520 } }, actions))
+        footer: (ses.phase === "ask") ? null : el("div", { style: { display: "flex", justifyContent: "center", padding: "0 " + gutter() + "px 20px" } },
+          el("div.am-fb-desk", { style: { width: "100%", maxWidth: 720 } }, verdictPanel(levelStrip(), actions)))
       };
     }
 
@@ -1303,15 +1303,15 @@
           : null,
         hintPanel(),
         (ses.phase === "ask" && ses.showHints) ? answerArea() : null,
-        verdict(),
+        pickedPicture(),
         explanation(),
         clearedChip(),
         streakChip()
       ]),
-      belowFold: el("div", null,
+      belowFold: answered ? null : el("div", null,
         hintsUsedCard(),
         keypadNode ? el("div", { style: { padding: "0 " + gutter() + "px" } }, keypadNode) : levelStrip()),
-      footer: actions
+      footer: answered ? verdictPanel(levelStrip(), actions) : actions
     };
   };
 

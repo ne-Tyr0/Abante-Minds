@@ -324,7 +324,23 @@ html, body {
    reads as the sum it is. */
 .am-lesson-eyebrow { font-weight: 700; }
 .am-lesson-prompt { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1.15; font-variant-numeric: tabular-nums; }
-.am-lesson-step { flex: none; width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+.am-lesson-step { flex: none; width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+/* ---------- Questions and feedback (redesign stage 3) ---------- */
+.am-fb { flex: none; border-radius: 24px 24px 0 0; background: var(--success-100); }
+.am-fb.bad { background: var(--danger-100); }
+.am-fb-desk .am-fb { border-radius: 24px; }
+.am-fb-enter { animation: am-fb-in 280ms cubic-bezier(0.2, 0.9, 0.3, 1.05) both; }
+@keyframes am-fb-in { from { transform: translateY(28px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .am-fb-enter { animation: none; } }
+.am-fb-head { display: flex; align-items: center; gap: 12px; }
+.am-fb-icon { flex: none; width: 40px; height: 40px; border-radius: 50%; display: grid; place-items: center; background: var(--success-700); color: var(--surface-200); }
+.am-fb.bad .am-fb-icon { background: var(--danger-700); }
+.am-fb-title { display: block; font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.1; color: var(--success-700); }
+.am-fb.bad .am-fb-title { color: var(--danger-700); }
+.am-fb-sub { display: block; margin-top: 2px; font-size: 14px; color: var(--ink-900); overflow-wrap: anywhere; }
+.am-hintbtn { display: inline-flex; align-items: center; gap: 8px; min-height: var(--tap-button); padding: 0 18px; border-radius: var(--radius-pill); background: var(--gold-tint); color: var(--ink-900); font-weight: 700; }
+.am-hintcard { display: flex; align-items: flex-start; gap: 12px; padding: 14px; border-radius: var(--radius-md); background: var(--gold-tint); color: var(--ink-900); }
+.am-hintnum { flex: none; width: 28px; height: 28px; border-radius: 9px; display: grid; place-items: center; background: var(--celebration-gold-500); color: #16202c; font-family: var(--font-display); font-weight: 800; font-size: 15px; }
 
 /* ---------- tablet ----------
    32px gutters, the extra width spent on a second card rather than longer
