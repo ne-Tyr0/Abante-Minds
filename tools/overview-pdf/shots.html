@@ -89,12 +89,16 @@ function run() {
      with it whatever day this runs. Monday is the first day of the week. */
   var todayIndex = (now.getDay() + 6) % 7;
   LEARNER.week = LEARNER.week.map(function (_, i) { return i <= todayIndex && i > todayIndex - 4; });
+  var monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - todayIndex);
+  LEARNER.weekStart = monday.getFullYear() + "-" + String(monday.getMonth() + 1).padStart(2, "0") + "-" + String(monday.getDate()).padStart(2, "0");
 
   /* Back after one missed day: the day before yesterday was the last practised. */
   if (SCREEN === "home-forgiven") {
     var twoAgo = new Date(now.getTime() - 2 * 86400000);
     LEARNER.lastActiveDay = twoAgo.getFullYear() + "-" + String(twoAgo.getMonth() + 1).padStart(2, "0") + "-" + String(twoAgo.getDate()).padStart(2, "0");
     LEARNER.lastRolledDay = null;
+    /* The four days end the day before yesterday; yesterday was missed. */
+    LEARNER.week = LEARNER.week.map(function (_, i) { return i <= todayIndex - 2 && i > todayIndex - 6; });
   }
 
   /* Today's goal met, and last week to look back on. */
