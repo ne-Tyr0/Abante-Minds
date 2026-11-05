@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 68;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 69;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -911,6 +911,30 @@
     var next = STREAK_BADGES.filter(function (n) { return !badgeOf("streak:" + n); })[0];
     return next ? { days: next, left: Math.max(1, next - state.streakDays) } : null;
   }
+  /* This week, Monday first, as Home's strip draws it: each day practised,
+     kept (missed, but forgiven or covered by a shield), today, or still to
+     come. A week the day roll has not reached yet reads as empty. */
+  function weekStrip() {
+    var t = today(), monday = weekOf(t), ti = weekdayIndex(t);
+    var week = state.weekStart === monday && state.week ? state.week : [];
+    var kept = {};
+    if (state.forgivenDay) kept[state.forgivenDay] = true;
+    var sv = state.shieldSave;
+    /* The shields covered the missed days just before the return, all but
+       the one the free day took. */
+    if (sv) for (var d = dayBefore(sv.day), n = sv.used; n > 0; d = dayBefore(d)) {
+      if (d === state.forgivenDay) continue;
+      kept[d] = true;
+      n--;
+    }
+    var out = [], first = new Date(monday + "T00:00:00");
+    for (var i = 0; i < 7; i++) {
+      var x = new Date(first.getFullYear(), first.getMonth(), first.getDate() + i);
+      var iso = x.getFullYear() + "-" + pad(x.getMonth() + 1) + "-" + pad(x.getDate());
+      out.push({ day: iso, done: !!week[i], kept: !week[i] && !!kept[iso], today: i === ti, later: i > ti });
+    }
+    return out;
+  }
   /* Yesterday was missed and forgiven: what Home and the streak screen say. */
   function forgivenYesterday() {
     return !!state.forgivenDay && state.forgivenDay === dayBefore(today());
@@ -1125,6 +1149,7 @@
     recap: recap,
     dismissRecap: dismissRecap,
     forgivenYesterday: forgivenYesterday,
+    weekStrip: weekStrip,
     road: road,
     takeRoad: takeRoad,
     shieldSaved: shieldSaved,

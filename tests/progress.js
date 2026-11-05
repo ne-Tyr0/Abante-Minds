@@ -472,6 +472,27 @@ test("a shield covers a second missed day in the same week", () => {
   assert.strictEqual(S.get().streakDays, 10);
   assert.strictEqual(S.road().shields, 0);
 });
+test("Home's week strip: days practised, kept, today and still to come", () => {
+  const S = launch();
+  const marks = () => S.weekStrip().map((d) => d.done ? "x" : d.kept ? "k" : d.today ? "o" : d.later ? "." : "-").join("");
+  practiseOn(S, ["2026-10-19", "2026-10-20"]);                   /* Mon, Tue */
+  onDay("2026-10-22");                                           /* Thu: Wed missed, forgiven */
+  S.rollDay();
+  assert.strictEqual(marks(), "xxko...", "Wednesday kept, Thursday not yet practised");
+  assert.strictEqual(S.weekStrip()[0].day, "2026-10-19", "Monday first");
+  S.recordAnswer("a", "a1", true, true);
+  assert.strictEqual(marks(), "xxkx...");
+  onDay("2026-10-26");                                           /* the next Monday, before the day roll */
+  assert.strictEqual(marks(), "o......", "last week's days are not this week's");
+});
+test("Home's week strip marks the days a shield covered", () => {
+  const S = launch();
+  practiseOn(S, WEEK);
+  onDay("2026-10-28");                                           /* Mon 26 and Tue 27 missed */
+  S.rollDay();
+  assert.strictEqual(S.get().streakDays, 7);
+  assert.strictEqual(S.weekStrip().map((d) => d.kept ? "k" : d.today ? "o" : "-").join(""), "kko----", "Monday the free day, Tuesday the shield");
+});
 test("a shield is not spent when the streak ends anyway", () => {
   const S = launch();
   practiseOn(S, WEEK);
