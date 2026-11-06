@@ -712,6 +712,33 @@
         el("span.am-ttile-foot", null, t.total ? dots : null, el("span.caption.am-ttile-cap", null, caption))));
     });
 
+    /* The practice hub: what to practise besides the next level, each with
+       its count. Questions due again; the kind of problem got right least
+       often; the topic with the most of the exam still to gain. */
+    var hub = (function () {
+      var due = store.reviewDue().length, back = store.reviewNext(), kind = app.kindPlan();
+      var focus = ready.started && ready.focus ? ready.focus : null;
+      var focusPath = focus ? p.topics.filter(function (t) { return t.key === focus.key; })[0] : null;
+      var weightAll = ready.topics.reduce(function (n, t) { return n + t.weight; }, 0);
+      var lower = function (x) { return x.charAt(0).toLowerCase() + x.slice(1); };
+      return el("div.am-stack", null,
+        AM.RowCard({
+          lead: AM.LeadTile("retry"), title: due ? due + " question" + (due === 1 ? "" : "s") + " to try again" : "Questions to try again",
+          caption: due ? "Ones you missed, back so they stick" : back ? "Nothing due. The next come back on " + dayAndMonth(back) + "." : "A question you miss comes back the next day",
+          trailing: due ? "Review" : undefined, onClick: due ? function () { app.startReview(); } : null
+        }),
+        AM.RowCard({
+          lead: AM.LeadTile("hint"), title: kind ? "Needs practice: " + lower(kind.name) : "Needs practice",
+          caption: kind ? kind.right + " of " + kind.asked + " right first time · a round of " + app.KIND_COUNT + " like these" : "Shows after a few more questions on the path",
+          trailing: kind ? "Start" : undefined, onClick: kind ? function () { app.startKind(); } : null
+        }),
+        AM.RowCard({
+          lead: focusPath ? topicTile(focusPath, 44) : AM.LeadTile("percent"), title: focus ? "Most to gain: " + focus.label : "Most to gain",
+          caption: focus ? "About " + Math.round(100 * focus.weight / (weightAll || 1)) + "% of the exam · " + focusPath.cleared + " of " + focusPath.total + " levels" : "Clear a level to see where practice adds the most",
+          onClick: focus ? function () { app.openTopic(focus.key); } : null
+        }));
+    })();
+
     /* Basics sit beside the path: open any time, and never counted on it. */
     var basics = store.basics();
     var basicsList = basics.length ? el("div.am-stack", null, basics.map(function (t) {
@@ -731,6 +758,8 @@
             p.levelsCleared + " of " + p.levelsTotal + " levels cleared" + (p.daysToExam === null ? "" : " · exam in " + p.daysToExam + " days"))),
         el("div", { style: { padding: "0 " + gutter() + "px" } },
           resume,
+          sectionHead("Your practice", null),
+          hub,
           sectionHead("Topics", p.topics.length + " topics"),
           grid,
           basicsList ? sectionHead("Basics", "Practise any time") : null,
@@ -1000,6 +1029,7 @@
     var header = AM.PracticeHeader({
       onClose: openLeave,
       tier: ses.review ? (offline ? "Offline · review" : "Review")
+        : ses.kind === "kind" ? (offline ? "Offline · needs practice" : "Needs practice")
         : ses.facts ? (offline ? "Offline · " : "") + ses.levelTitle : (offline ? "Offline · level " : "Level ") + ses.levelNumber,
       questionIndex: ses.index, questionTotal: ses.questions.length
     });
@@ -1195,7 +1225,7 @@
     /* How far the level is from clearing. A redo session says it does not
        count, rather than show a bar that will not move. */
     /* A review says where its questions came from and how far through it is. */
-    function reviewStrip() {
+    function reviewStrip(kindName) {
       return el("div", {
         style: {
           flex: "none", margin: "0 " + gutter() + "px 16px", background: "var(--surface-200)",
@@ -1203,15 +1233,16 @@
           padding: "12px var(--space-4)", display: "flex", alignItems: "center", gap: "var(--space-3)"
         }
       },
-        el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon("retry", 20)),
+        el("span", { style: { flex: "none", color: "var(--brand-blue-600)" } }, icon(kindName ? "hint" : "retry", 20)),
         el("span", { style: { flex: 1, display: "flex", flexDirection: "column", gap: 6 } },
-          el("span.caption", { style: { color: "var(--ink-600)" } }, q.topicLabel + " · a question you missed before"),
-          AM.ProgressBar({ ratio: ses.index / ses.questions.length, label: "Review progress" })),
+          el("span.caption", { style: { color: "var(--ink-600)" } }, kindName ? "Needs practice · " + kindName.charAt(0).toLowerCase() + kindName.slice(1) : q.topicLabel + " · a question you missed before"),
+          AM.ProgressBar({ ratio: ses.index / ses.questions.length, label: kindName ? "Round progress" : "Review progress" })),
         el("span.body-sm", { style: { flex: "none", color: "var(--ink-600)" } }, (ses.index + 1) + " of " + ses.questions.length));
     }
 
     function levelStrip() {
       if (ses.review) return reviewStrip();
+      if (ses.kind === "kind") return reviewStrip(ses.levelTitle);
       if (ses.facts) return factStrip();
       var lv = store.levelState(ses.topicKey, ses.levelId);
       var shown = Math.min(lv.correct, store.CLEAR_TARGET);
@@ -1597,6 +1628,7 @@
       : challenge ? [s.challenge.daily ? "It won't be scored, and today's challenge stays open." : "It won't be scored."]
       : s.redo ? ["These questions don't move the level, so nothing is lost."]
       : s.review ? ["Questions you've put right stay put right."]
+      : s.kind === "kind" ? ["This round doesn't move a level, so nothing is lost."]
       : s.facts ? ["Facts you've mastered stay mastered."]
       : ["Your right answers so far are kept."];
     if (badged && store.canStillShine(s.topicKey, s.levelId)) lines.push("If you leave now, this level's badge can't be shiny.");
@@ -2278,26 +2310,29 @@
     }
     var later = r.due ? r.due + " more " + (r.due === 1 ? "is" : "are") + " due now."
       : r.next ? "The next ones come back on " + dayAndMonth(r.next) + "." : "Nothing else is waiting.";
+    var kind = r.kind;
     return {
       nav: "practice", bottomNav: false,
       banner: connectionBanner(),
       body: column([
         el("div", { style: { padding: "24px " + gutter() + "px 0" } },
-          el("div.heading-lg", null, "Review done"),
-          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, "Questions you missed before")),
+          el("div.heading-lg", null, kind ? "Round done" : "Review done"),
+          el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4 } }, kind ? "Needs practice · " + kind.charAt(0).toLowerCase() + kind.slice(1) : "Questions you missed before")),
         el("div", { style: { padding: "18px " + gutter() + "px 0", display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 } },
-          stat(r.attempted, "reviewed"), stat(r.correct, "right first time")),
+          stat(r.attempted, kind ? "answered" : "reviewed"), stat(r.correct, "right first time")),
         newBadgesCard(r.badges || (r.badges = takeBadges(anyBadge))),
         el("div", { style: { padding: "20px " + gutter() + "px 0" } },
           AM.Card({ style: { gap: 10 } },
-            sectionLabel("How review works"),
-            el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-              "A question you miss comes back the next day. Right first time, and it comes back in 3 days, then in 7, and then it is done. A miss sends it back to the next day. " + later)))
+            sectionLabel(kind ? "How this round works" : "How review works"),
+            el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, kind
+              ? "It takes the kind of problem you get right least often, from the levels you have opened. It doesn't move a level; a question you miss comes back in review. " + later
+              : "A question you miss comes back the next day. Right first time, and it comes back in 3 days, then in 7, and then it is done. A miss sends it back to the next day. " + later)))
       ], { paddingBottom: 24 }),
       footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 24px", display: "flex", justifyContent: "center" } },
         el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
-          r.due ? AM.Button({ label: "Review more", fullWidth: true, onClick: function () { app.startReview(); } }) : null,
-          AM.Button({ label: "Home", variant: r.due ? "ghost" : "primary", fullWidth: true, onClick: function () { app.go("home"); } })))
+          kind ? AM.Button({ label: "Another round", fullWidth: true, onClick: function () { app.startKind(); } })
+            : r.due ? AM.Button({ label: "Review more", fullWidth: true, onClick: function () { app.startReview(); } }) : null,
+          AM.Button({ label: kind ? "Practice" : "Home", variant: kind || r.due ? "ghost" : "primary", fullWidth: true, onClick: function () { app.go(kind ? "topics" : "home"); } })))
     };
   };
 

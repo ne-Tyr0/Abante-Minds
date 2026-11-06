@@ -1024,6 +1024,37 @@
     return decorate(generateFrom(t, PACK, tier, q.seed), found.topic, found.level, index);
   }
 
+  /* ---------- needs practice ----------
+     One kind of problem (a template's schema) from the levels given: which
+     of those levels teach it, and a round of it. Each question is drawn as
+     on its own level, at the tier given for that level, and carries its own
+     topic and level, so the attempt log can rebuild it. No template twice
+     running. */
+  function levelsOfKind(entries, schema) {
+    return entries.filter(function (e) {
+      var topic = TOPIC_BY_KEY[e.topic];
+      var level = topic && topic.ready ? topic.levels.filter(function (lv) { return lv.id === e.level; })[0] : null;
+      return !!level && level.kind === "practice" && level.templates.some(function (t) { return t.schema === schema; });
+    });
+  }
+  function kindSession(o) {
+    if (!PACK) throw ContentError("no content pack installed yet");
+    var r = rng(o.seed >>> 0), pool = [];
+    levelsOfKind(o.levels, o.schema).forEach(function (e) {
+      var found = levelOf(e.topic, e.level);
+      found.level.templates.forEach(function (t) { if (t.schema === o.schema) pool.push({ t: t, found: found, tier: e.tier || 1 }); });
+    });
+    var out = [], last = -1;
+    while (pool.length && out.length < o.count) {
+      var i = Math.floor(r() * pool.length);
+      if (i === last && pool.length > 1) i = (i + 1) % pool.length;
+      last = i;
+      var p = pool[i], qseed = Math.floor(r() * 4294967296) >>> 0;
+      out.push(decorate(generateFrom(p.t, PACK, p.tier, qseed), p.found.topic, p.found.level, out.length));
+    }
+    return out;
+  }
+
   /* A question again, exactly as it was asked: from its template, tier and
      seed, or for a pinned item, from its place in the topic's pinned list.
      Null when a later pack no longer has it, so a stale recipe is dropped
@@ -1350,6 +1381,8 @@
     QUICK_PROMPT: QUICK_PROMPT,
     rebuild: rebuild,
     retier: retier,
+    levelsOfKind: levelsOfKind,
+    kindSession: kindSession,
     examPlan: examPlan,
     EXAM_TIER: EXAM_TIER,
     lesson: lesson,

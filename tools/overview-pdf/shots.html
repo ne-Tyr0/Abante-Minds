@@ -488,6 +488,40 @@ function run() {
         if (screen === "profile-motto") AM.store.set({ profile: Object.assign({}, AM.store.get().profile, { title: "Decimals Explorer", motto: "Kaya ko 'to!", pattern: "kusikus", colorKey: 1 }) });
         AM.app.go("profile");
         break;
+      /* Not in the PDF: the practice hub, with three questions due again, a
+         kind of problem that needs practice (one kind answered right a third
+         of the time, the rest four in five) and the topic with most to gain;
+         a question in the needs-practice round; and its end. */
+      case "practice-hub":
+      case "kind-round":
+      case "kind-done":
+        (function () {
+          var schema = {}, all = [], weak = null, count = {};
+          AM.content.templates().forEach(function (t) { schema[t.id] = t.schema; });
+          AM.store.path().topics.forEach(function (t, i) {
+            if (!t.ready) return;
+            t.levels.forEach(function (lv, j) {
+              if (lv.unlocked) all = all.concat(AM.content.buildSession({ topic: t.key, level: lv.id, count: 8, tier: 1, seed: 31 + i * 7 + j }));
+            });
+          });
+          all.forEach(function (q) { var k = schema[q.templateId]; if (k) count[k] = (count[k] || 0) + 1; });
+          weak = Object.keys(count).sort(function (a, b) { return count[b] - count[a]; })[1] || Object.keys(count)[0];
+          all.forEach(function (q, n) {
+            var k = schema[q.templateId];
+            AM.store.logAttempt({ session: "hub", topic: q.topicKey, level: q.levelId, kind: "practice", template: q.templateId, tier: q.tier, seed: q.seed,
+              pinned: null, format: q.format, fact: null, pack: q.packVersion, ordinal: n % 10, attempt: 1, given: "", error: null, ms: 9000, hints: 0, steps: 0,
+              correct: k === weak ? n % 3 === 0 : n % 5 !== 0 });
+          });
+          all.slice(0, 3).forEach(function (q) { AM.store.scheduleReview(q); });
+          var rv = AM.store.get().review || {};
+          Object.keys(rv).forEach(function (k) { rv[k].due = AM.store.today(); });
+          AM.store.set({ review: rv });
+        })();
+        if (screen === "practice-hub") { AM.app.go("topics"); break; }
+        if (screen === "kind-round") { AM.app.startKind(); break; }
+        AM.app.scratch.review = { attempted: 10, correct: 6, due: 3, next: null, kind: AM.app.kindPlan().name };
+        AM.app.go("reviewDone");
+        break;
       /* Not in the PDF: the tiers as the approved prototype was shot (Maya,
          82 days, Emerald; a Diamond and a Pearl tier-up; her card in every
          tier), for the draft-beside-real sheet. */
