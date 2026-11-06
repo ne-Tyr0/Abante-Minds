@@ -339,7 +339,7 @@
         el("div.am-ecprev", null,
           AM.ProfileCard({
             name: draft.name, school: (draft.school ? draft.school + " · " : "") + "Grade 6", colorKey: draft.colorKey,
-            frame: draft.frame || tierNow.key, pattern: draft.pattern, initials: draft.initials, title: draft.title, motto: draft.motto,
+            frame: draft.frame || tierNow.key, pattern: draft.pattern, initials: draft.initials, title: draft.title, motto: draft.motto, streak: store.get().streakDays, flame: draft.flame,
             style: { maxWidth: "none", width: "100%" }
           })),
         field("Your name", "name"),
@@ -2096,24 +2096,75 @@
   }
 
   /* ---------- card tiers ----------
-     Profile shows the tier held, how near the next is, and the ladder. */
-  function tierSection(app) {
-    var t = store.tier(), T = store.CARD_TIERS;
-    var line = !t.next ? "The highest tier. Every day still counts."
-      : t.needsTopics ? "Pearl needs every topic cleared as well."
-      : t.toNext + " more day" + (t.toNext === 1 ? "" : "s") + " with a full round to " + t.next.name;
-    var ladder = el("div.am-tierladder", { "aria-hidden": "true" }, T.map(function (x, i) {
-      return el("span.am-tierstep" + (i <= t.index ? ".on" : i === t.index + 1 ? ".next" : ""), { style: { "--t1": x.c[1], "--t2": x.c[2] } }, x.name);
-    }));
-    return el("div", { style: { padding: "16px " + gutter() + "px 0" } },
-      AM.Card({ style: { gap: 10 } },
-        el("div", { style: { display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 8 } },
-          el("span.label", null, t.tier.name + " card"),
-          el("span.caption", { style: { color: "var(--ink-600)" } }, t.days + " day" + (t.days === 1 ? "" : "s") + " with a full round")),
-        t.next ? AM.ProgressBar({ ratio: t.next.days ? Math.min(1, t.days / t.next.days) : 1, height: 8, label: "Days to the next tier" }) : null,
-        el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, line),
-        ladder));
+     As the approved prototype has them: on Profile one row (the tier's stone
+     or coin, how near the next is) that opens the tiers; the tiers screen
+     with the crest, the climb, and the ladder of coins and stones. */
+  function daysWord(n) { return n + " day" + (n === 1 ? "" : "s"); }
+  function tierClimb(t) {
+    var x = t.tier, span = t.next ? Math.max(1, t.next.days - x.days) : 1;
+    return {
+      line: !t.next ? "The highest tier" : t.needsTopics ? "Every topic cleared for Pearl" : t.toNext + " more to " + t.next.name,
+      ratio: t.next ? Math.max(0, Math.min(1, (t.days - x.days) / span)) : 1
+    };
   }
+  function tierBar(t, ratio) {
+    return t.next ? el("span.am-tierbar", { "aria-hidden": "true" }, el("i", { style: { width: Math.round(ratio * 100) + "%", background: AM.tierFrame(t.next) } })) : null;
+  }
+  function tierSection(app) {
+    var t = store.tier(), c = tierClimb(t);
+    return el("div", { style: { padding: "12px " + gutter() + "px 0" } },
+      el("button.am-reset.am-tierrow", {
+        type: "button", "aria-label": t.tier.name + " tier. " + daysWord(t.days) + " with a full round. " + c.line + ". See the tiers.",
+        onClick: function () { app.go("tiers"); }
+      },
+        el("span.am-tierrow-gem", { "aria-hidden": "true", html: AM.tierGem(t.tier) }),
+        el("span", { style: { minWidth: 0 } },
+          el("b", null, t.tier.name + " tier"),
+          el("small", null, daysWord(t.days) + " · " + c.line),
+          tierBar(t, c.ratio)),
+        el("span.am-chev", { "aria-hidden": "true" }, icon("next", 20))));
+  }
+
+  /* Every tier, from Bronze to Pearl: the one held, the ones reached, the
+     ones ahead. A tier opens your card wearing it. */
+  screens.tiers = function (app) {
+    var t = store.tier(), T = store.CARD_TIERS, k = t.index, x = t.tier, c = tierClimb(t), p = store.get().profile || {};
+    function show(y) {
+      var card = AM.ProfileCard({
+        name: p.name, school: (p.school ? p.school + " · " : "") + "Grade 6", colorKey: p.colorKey, frame: y.key, tier: y, pattern: p.pattern,
+        initials: p.initials, title: p.title, motto: p.motto, streak: store.get().streakDays, flame: p.flame, style: { maxWidth: "none", width: "100%" }
+      });
+      openSheet("Your card in " + y.name, el("div", { style: { width: "100%", textAlign: "left" } },
+        el("div.caption", { style: { color: "var(--ink-600)" } }, y.days ? daysWord(y.days) + " with a full round" + (y.allTopics ? ", and every topic cleared" : "") : "Where everyone starts"),
+        el("div.heading-md", { style: { margin: "4px 0 0" } }, "Your card in " + y.name),
+        card,
+        el("p.am-tr-note", { style: { marginTop: 14 } }, y.look + "." + (y.kind === "pearl" ? " Pearls are the Philippines' national gem." : ""))));
+    }
+    var rungs = T.map(function (y, i) {
+      var st = i < k ? "got" : i === k ? "now" : "lock";
+      return el("button.am-reset.am-rung.is-" + st, { type: "button", style: { "--tc": y.c[2] }, onClick: function () { show(y); } },
+        el("span.am-rung-gem", { "aria-hidden": "true", html: AM.tierGem(y, { glints: i <= k }) }),
+        el("span", { style: { minWidth: 0 } },
+          el("b", null, y.name, y.allTopics ? el("span.am-honour", null, "Honour") : null),
+          el("small", null, y.days ? daysWord(y.days) + (y.allTopics ? ", and every topic cleared" : "") : "Where everyone starts"),
+          el("span.am-rung-look", null, y.look)),
+        el("span.am-rung-st", null, st === "got" ? [icon("check", 16, { glyph: true }), "Reached"] : st === "now" ? "Your tier" : icon("lock", 16)));
+    });
+    return {
+      nav: "profile",
+      back: function () { app.go("profile", "back"); },
+      body: column([el("div", { style: { padding: "0 " + gutter() + "px" } },
+        el("div.am-tr-hero", null,
+          el("span.am-tr-crest", { "aria-hidden": "true", html: AM.tierCrest(x) }),
+          el("h1", null, x.name + " tier"),
+          el("p", null, daysWord(t.days) + " with a full round so far")),
+        t.next ? el("div.am-tr-prog", null,
+          el("div.am-tr-progrow", null, el("span", null, x.name + " · " + daysWord(x.days)), el("b", null, c.line)),
+          tierBar(t, c.ratio)) : null,
+        el("p.am-tr-note", null, "A day counts when you finish a full round of 10 questions, in a row or not. A tier is never taken away: missed days only slow the climb."),
+        el("div.am-ladder", null, rungs))])
+    };
+  };
 
   /* A new tier: a moment of its own, after the day's streak. The card is
      shown wearing it, with its stone from Emerald up. */
@@ -2123,15 +2174,19 @@
     /* With reduced motion or calm there is nothing to hold for. */
     if (!m || m.reduced()) view.revealed = true;
     var go = function () { if (view.tl) view.tl.skip(); var next = app.scratch.afterTier || "home"; app.scratch.tierUp = null; app.scratch.afterTier = null; app.go(next); };
-    var t = view.t || store.tier(), x = t.tier, p = store.get().profile || {};
-    var bg = "linear-gradient(180deg, " + x.c[2] + " 0%, " + x.c[3] + " 100%)";
-    var card = AM.ProfileCard({ name: p.name, school: x.name + " card", colorKey: p.colorKey, frame: x.key, pattern: p.pattern, initials: p.initials, title: p.title, motto: p.motto, tier: x, style: { maxWidth: 300, width: "100%" } });
-    var hero = el("div.am-moment-hero" + (view.revealed ? "" : ".am-veiled"), { "aria-hidden": "true", style: { width: "100%", height: 170 } }, el("div.am-halo", { html: AM.haloSVG(x.c[0]) }), card);
-    var title = el("h1.am-moment-title", null, el("span.am-moment-big", { style: { fontSize: 64 } }, view.revealed ? x.name : "A new tier"));
-    var sub = el("p.am-moment-sub", null, view.revealed
-      ? t.days + " days with a full round. Your card wears " + x.name + " now" + (x.kind === "metal" ? "." : ", with its stone.")
-      : t.days + " days with a full round. Hold to see your card's new tier.");
-    var note = view.revealed && t.next ? el("p.am-moment-note", null, t.next.allTopics ? "Next, Pearl: Diamond's days and every topic cleared." : "Next, " + t.next.name + " at " + t.next.days + " days.") : null;
+    var t = view.t || store.tier(), x = t.tier, p = store.get().profile || {}, s = store.get();
+    /* The prototype's night: the tier's deep colour mixed into navy at the top. */
+    var mixHex = function (a, b, k) { var h = function (c) { var n = parseInt(c.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }, A = h(a), B = h(b); return "rgb(" + [0, 1, 2].map(function (i) { return Math.round(A[i] + (B[i] - A[i]) * k); }).join(",") + ")"; };
+    var bg = "radial-gradient(100% 60% at 50% 30%, " + mixHex(x.c[2], "#0c1222", 0.5) + " 0%, #0d1424 62%, #080c16 100%)";
+    var crest = el("span.am-tu-crest", { html: AM.tierCrest(x) });
+    var hero = el("div.am-moment-hero" + (view.revealed ? "" : ".am-veiled"), { "aria-hidden": "true", style: { width: "100%", height: 170 } }, el("div.am-halo", { html: AM.haloSVG(x.c[1]) }), crest);
+    var card = view.revealed ? AM.ProfileCard({
+      name: p.name, school: (p.school ? p.school + " · " : "") + "Grade 6", colorKey: p.colorKey, frame: x.key, tier: x, pattern: p.pattern,
+      initials: p.initials, title: p.title, motto: p.motto, streak: s.streakDays, flame: p.flame, style: { maxWidth: "none", width: "100%" }
+    }) : null;
+    var cardWrap = card ? el("div.am-tu-card", null, card) : null;
+    var title = el("h1.am-moment-title", { style: { fontSize: 38 } }, view.revealed ? x.name + " tier" : "A new tier is ready");
+    var sub = el("p.am-moment-sub", null, view.revealed ? (x.days ? daysWord(x.days) + " with a full round. " : "") + x.look + "." : "Hold the button to reveal it.");
 
     /* Hold the button: a ring fills, and the card is revealed when it is
        full. Letting go early starts again. A key reveals it at once. */
@@ -2151,11 +2206,13 @@
       }, el("span.am-hold-ring", { html: ringSvg }), el("span.am-hold-label", null, "Hold"));
     }
     var body = el("div.am-moment", { style: { "--gutter": gutter() + "px", background: bg } },
-      el("div.am-moment-eyebrow", { style: { color: x.c[0] } }, "A new card tier"),
-      hero, title, sub, note, hold);
-    var footer = el("div", { style: { flex: "none", padding: "8px " + gutter() + "px 20px", display: "flex", justifyContent: "center", background: x.c[3] } },
-      el("div", { style: { width: "100%", maxWidth: 520 } }, view.revealed
-        ? AM.Button({ label: "Continue", variant: "inverse", fullWidth: true, cta: true, onClick: go })
+      el("div.am-moment-eyebrow", { style: { color: "rgba(255,255,255,.72)", letterSpacing: "0.12em", textTransform: "uppercase", fontSize: 13 } }, daysWord(t.days) + " with a full round"),
+      hero, title, sub, cardWrap, hold);
+    var seeCard = function () { if (view.tl) view.tl.skip(); app.scratch.tierUp = null; app.scratch.afterTier = null; app.go("profile"); };
+    var footer = el("div", { style: { flex: "none", padding: "8px " + gutter() + "px 20px", display: "flex", justifyContent: "center", background: "#080c16" } },
+      el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 4 } }, view.revealed
+        ? [AM.Button({ label: "See my card", variant: "inverse", fullWidth: true, cta: true, onClick: seeCard }),
+           el("button.am-reset.am-moment-link.label", { type: "button", onClick: go }, "Continue")]
         : el("button.am-reset.am-moment-link.label", { type: "button", onClick: function () { view.revealed = true; view.played = true; app.render(); } }, "Skip")));
     return {
       nav: null, chrome: false, body: body, footer: footer, onBack: go,
@@ -2164,12 +2221,13 @@
         AM.announce("A new card tier: " + x.name + ".");
         if (!m) return;
         var tl = view.tl = new m.Timeline(), E = m.ease, sound = window.AbanteMinds.sound;
-        tl.to(hero.firstChild, [{ opacity: 0, transform: "scale(0.7)" }, { opacity: 1, transform: "none" }], 700, 0.05)
-          .to(card, [{ opacity: 0, transform: "scale(0.85) translateY(18px)" }, { opacity: 1, transform: "none" }], 700, 0.15, E.out)
+        tl.to(hero.firstChild, [{ opacity: 0.5, transform: "scale(0.85)" }, { opacity: 1, transform: "scale(1.12)", offset: 0.5 }, { opacity: 0.9, transform: "none" }], 1000, 0.05)
+          .to(crest, [{ transform: "scale(0.94)" }, { transform: "scale(1.08)", offset: 0.45 }, { transform: "none" }], 750, 0.05, E.out)
+          .to(cardWrap, [{ opacity: 0, transform: "translateY(40px)" }, { opacity: 1, transform: "none" }], 800, 0.7, E.out)
           .call(function () { if (sound) sound.play("tier"); }, 0.1)
-          .call(function () { var c = m.centre(card, 0.5); m.FX.confetti(c.x, c.y, -90, 170, 380, 800, 36); }, 1.1);
+          .call(function () { var c = m.centre(crest, 0.5); m.FX.confetti(c.x, c.y, -90, 170, 380, 800, 36); }, 0.38);
         Array.prototype.forEach.call(body.children, function (c, k) {
-          if (c === hero) return;
+          if (c === hero || c === cardWrap) return;
           tl.to(c, [{ opacity: 0, transform: "translateY(14px)" }, { opacity: 1, transform: "none" }], 440, 0.3 + k * 0.1, E.out);
         });
         tl.to(footer, [{ transform: "translateY(120px)" }, { transform: "none" }], 500, 1.2, E.backSoft);
@@ -3054,7 +3112,7 @@
             name: p.name, greeting: "",
             school: (p.school ? p.school + " · " : "") + "Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
             colorKey: p.colorKey, frame: p.frame || store.tier().tier.key, pattern: p.pattern,
-            initials: p.initials, title: p.title, motto: p.motto,
+            initials: p.initials, title: p.title, motto: p.motto, streak: s.streakDays, flame: p.flame,
             style: { maxWidth: "none", width: "100%" }
           })),
         tierSection(app),

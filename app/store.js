@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 79;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 80;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -954,15 +954,15 @@
      learner's (keptFrames). c holds a tier's light, mid, deep and darkest
      shades. */
   var CARD_TIERS = [
-    { key: "bronze", name: "Bronze", days: 0, kind: "metal", c: ["#ffe1c2", "#e0a06a", "#9c5a2c", "#5e3214"] },
-    { key: "silver", name: "Silver", days: 7, kind: "metal", c: ["#ffffff", "#d7dee8", "#93a1b6", "#56637a"] },
-    { key: "gold", name: "Gold", days: 21, kind: "metal", c: ["#fff7cc", "#f5c94a", "#b8860f", "#6e4d00"] },
-    { key: "platinum", name: "Platinum", days: 45, kind: "metal", c: ["#ffffff", "#e8edf4", "#aab6c8", "#6b7a92"] },
-    { key: "emerald", name: "Emerald", days: 75, kind: "gem", c: ["#d6ffe6", "#36d688", "#0c8a4c", "#03401f"] },
-    { key: "sapphire", name: "Sapphire", days: 110, kind: "gem", c: ["#dde9ff", "#5b8cff", "#1b43b0", "#0a1d5c"] },
-    { key: "ruby", name: "Ruby", days: 150, kind: "gem", c: ["#ffe0e6", "#f04a6c", "#a3123a", "#4d0418"] },
-    { key: "diamond", name: "Diamond", days: 200, kind: "gem", c: ["#ffffff", "#eef9ff", "#bfe2f7", "#7aa9cc"] },
-    { key: "pearl", name: "Pearl", days: 250, kind: "pearl", allTopics: true, c: ["#fffdf8", "#f6ecdf", "#dccbb8", "#b49b84"] }
+    { key: "bronze", look: "Bronze frame and seal", name: "Bronze", days: 0, kind: "metal", c: ["#ffe1c2", "#e0a06a", "#9c5a2c", "#5e3214"] },
+    { key: "silver", look: "Silver frame, winged seal", name: "Silver", days: 7, kind: "metal", c: ["#ffffff", "#d7dee8", "#93a1b6", "#56637a"] },
+    { key: "gold", look: "Gold frame, filigree wings", name: "Gold", days: 21, kind: "metal", c: ["#fff7cc", "#f5c94a", "#b8860f", "#6e4d00"] },
+    { key: "platinum", look: "Platinum frame and studs", sheen: true, name: "Platinum", days: 45, kind: "metal", c: ["#ffffff", "#e8edf4", "#aab6c8", "#6b7a92"] },
+    { key: "emerald", look: "An emerald card, in a gold mount", cut: "emerald", setting: "gold", name: "Emerald", days: 75, kind: "gem", c: ["#d6ffe6", "#36d688", "#0c8a4c", "#03401f"] },
+    { key: "sapphire", look: "A sapphire card, with diamond side stones", cut: "oval", setting: "platinum", name: "Sapphire", days: 110, kind: "gem", c: ["#dde9ff", "#5b8cff", "#1b43b0", "#0a1d5c"] },
+    { key: "ruby", look: "A ruby card, in a crowned mount", cut: "cushion", setting: "gold", name: "Ruby", days: 150, kind: "gem", c: ["#ffe0e6", "#f04a6c", "#a3123a", "#4d0418"] },
+    { key: "diamond", look: "A diamond card, with a halo and light", cut: "round", setting: "platinum", fire: true, name: "Diamond", days: 200, kind: "gem", c: ["#ffffff", "#eef9ff", "#bfe2f7", "#7aa9cc"] },
+    { key: "pearl", look: "A pearl card: the national gem", name: "Pearl", days: 250, kind: "pearl", allTopics: true, c: ["#fffdf8", "#f6ecdf", "#dccbb8", "#b49b84"] }
   ];
   var ROUND_ANSWERS = 10;
   /* Worked out once, the first time a saved learner meets tiers: the days
