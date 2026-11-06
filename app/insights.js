@@ -22,7 +22,7 @@
   var NAMES = {
     change: "An amount goes up or down",
     combine: "Putting amounts together",
-    compare: "Comparing two amounts",
+    compare: "Comparing and choosing",   /* also which is greatest, which picture, which graph */
     "equal-groups": "Equal groups",
     rate: "Rates, like per kilo or per hour",
     "multiplicative-compare": "How many times as much",
