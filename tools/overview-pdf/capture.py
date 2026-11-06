@@ -33,12 +33,12 @@ DARK = ["home"]
 # against the current layout: if one of these screens changes, re-check its box
 # against the full capture before rebuilding.
 DETAILS = {
-    "detail_hint": ("hint-sheet", (0, 236, 780, 664)),  # the hint sheet: placed below, after capture
-    "detail_correct": ("correct", (0, 204, 780, 540)),  # verdict and working
-    "detail_badges": ("badges", (0, 80, 780, 500)),     # the count and the showcase
-    "detail_settings": ("profile-settings", (0, 590, 780, 1380)),  # the settings card
-    "detail_basics": ("basics-topic", (40, 236, 740, 1230)),        # the times-table grid
-    "detail_offline": ("offline", (0, 0, 780, 300)),                # the offline line
+    "detail_hint": ("hint-sheet", (0, 740, 780, 1290)),          # the hint sheet: the first hint and its columns
+    "detail_correct": ("correct", (0, 1244, 780, 1688)),          # the verdict panel at the foot
+    "detail_badges": ("badges", (0, 350, 780, 760)),              # the count and the showcase
+    "detail_settings": ("profile-settings", (0, 180, 780, 1040)),  # the settings card
+    "detail_basics": ("basics-topic", (40, 360, 740, 1190)),      # the times-table grid
+    "detail_offline": ("offline", (0, 0, 780, 300)),              # the offline line
 }
 
 # --mute-audio: since the app plays its sounds through Web Audio, a headless
