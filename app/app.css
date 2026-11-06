@@ -231,9 +231,9 @@ html, body {
 @media (prefers-reduced-motion: reduce) { .am-navpill { transition: none; } }
 
 /* ---------- Home (redesign stage 2) ---------- */
-.am-streak-panel { display: grid; grid-template-columns: auto 1fr; gap: 14px 20px; align-items: center; padding: var(--space-4); border-radius: var(--radius-md); background: var(--surface-200); box-shadow: var(--shadow-card); }
+.am-streak-panel { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; align-items: center; padding: 12px 14px; border-radius: var(--radius-md); background: var(--surface-200); box-shadow: var(--shadow-card); }
 .am-streak-count { display: flex; align-items: center; gap: 4px; }
-.am-streak-count b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 40px; line-height: 1; color: var(--action-600); }
+.am-streak-count b { display: block; font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1; color: var(--action-600); }
 .am-streak-count small { display: block; font-size: 12px; line-height: 1.2; color: var(--ink-600); white-space: nowrap; }
 .am-sweek { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 3px; min-width: 0; width: 100%; max-width: 300px; justify-self: start; }
 .am-sweek-day { display: flex; flex-direction: column; align-items: center; gap: 4px; font-size: 11px; font-weight: 600; color: var(--ink-600); }
@@ -244,14 +244,14 @@ html, body {
 .am-sweek-dot.later { opacity: 0.55; }
 .am-sweek-day.is-today { color: var(--ink-900); font-weight: 800; }
 .am-streak-start { font-size: 13px; font-weight: 700; line-height: 1.25; color: var(--ink-900); }
-.am-goal-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding-top: 12px; border-top: 1.5px dashed var(--surface-300); font-size: 14px; color: var(--ink-600); }
+.am-goal-row { grid-column: 1 / -1; display: flex; align-items: center; gap: 10px; padding-top: 10px; border-top: 1.5px dashed var(--surface-300); font-size: 14px; color: var(--ink-600); }
 .am-goal-row b { color: var(--ink-900); font-weight: 600; }
-.am-hero { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 12px; padding: 20px; border-radius: 24px; color: #fff; }
+.am-hero { position: relative; overflow: hidden; display: flex; flex-direction: column; gap: 10px; padding: 16px 18px 18px; border-radius: 22px; color: #fff; }
 .am-hero::before { content: ""; position: absolute; right: -50px; top: -60px; width: 190px; height: 190px; border-radius: 50%; background: rgba(255, 255, 255, 0.12); pointer-events: none; }
 .am-hero > * { position: relative; }
 .am-hero-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
 .am-hero-eyebrow { display: block; font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, 0.85); }
-.am-hero-title { display: block; margin: 4px 0 2px; font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1.05; text-wrap: balance; }
+.am-hero-title { display: block; margin: 2px 0 2px; font-family: var(--font-display); font-weight: 800; font-size: 25px; line-height: 1.08; text-wrap: balance; }
 .am-hero-sub { display: block; font-size: 14px; color: rgba(255, 255, 255, 0.88); }
 .am-hero-art { flex: none; }
 .am-hero-meta { font-size: 13px; color: rgba(255, 255, 255, 0.9); }
@@ -277,12 +277,14 @@ html, body {
 .am-resume-segs i.on { background: var(--tc); }
 .am-resume-go { width: 48px; height: 48px; border-radius: 50%; display: grid; place-items: center; background: var(--action-500); color: var(--action-on); box-shadow: 0 3px 0 var(--action-700); }
 .am-tgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
-.am-ttile { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 6px; min-width: 0; width: 100%; padding: 12px 12px 14px; border-radius: 20px; background: var(--surface-200); color: var(--ink-900); text-align: left; }
+.am-ttile { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; width: 100%; padding: 10px 12px 12px; border-radius: 18px; background: var(--surface-200); color: var(--ink-900); text-align: left; }
 .am-ttile-soon { background: transparent; box-shadow: inset 0 0 0 1.5px var(--surface-300); color: var(--ink-600); }
 .am-ttile-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 6px; width: 100%; }
-.am-ttile-name { font-size: 14px; font-weight: 700; line-height: 1.25; margin-top: 4px; }
+.am-ttile-head { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 36px; }
+.am-ttile-name { min-width: 0; font-size: 14px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
 /* The foot sits at the bottom, so tiles side by side line up whatever their names. */
-.am-ttile-foot { display: flex; flex-direction: column; gap: 6px; width: 100%; margin-top: auto; padding-top: 6px; }
+.am-ttile-foot { display: flex; flex-direction: column; gap: 5px; width: 100%; margin-top: auto; }
+.am-ttile > .am-ttag { position: absolute; top: -9px; right: 10px; z-index: 1; }
 .am-ttile-cap { color: var(--ink-600); }
 .am-tdots { display: flex; gap: 4px; width: 100%; }
 .am-tdots i { flex: 1; max-width: 22px; height: 6px; border-radius: 3px; background: var(--surface-300); }
@@ -798,3 +800,23 @@ html, body {
 
 /* A learner's name can be one long word: it wraps rather than leaving the screen. */
 .am-name { min-width: 0; overflow-wrap: anywhere; }
+/* ---------- Round 2: compact (owner, 2026-11-06) ---------- */
+/* Home's top bar: monogram, greeting, the tier. */
+.am-topbar { display: flex; align-items: center; gap: 12px; }
+.am-topbar-mono { width: 44px; height: 44px; }
+.am-topbar-who { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.am-topbar-hello { font-family: var(--font-display); font-weight: 800; font-size: 24px; line-height: 1.1; color: var(--ink-900); }
+.am-topbar-sub { font-size: 13px; line-height: 18px; color: var(--ink-600); }
+.am-topbar-tier { flex: none; display: grid; place-items: center; width: 44px; height: 44px; border: 0; border-radius: 50%; background: var(--surface-200); box-shadow: var(--shadow-card); cursor: pointer; line-height: 0; }
+.am-topbar-tier svg { width: 30px; height: 30px; }
+.am-tierchip { flex: none; display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 3px 10px 3px 4px; border: 0; border-radius: 999px; background: var(--brand-blue-100); color: var(--brand-blue-600); font: 600 12.5px/1 var(--font-ui); cursor: pointer; }
+.am-tierchip svg { width: 22px; height: 22px; }
+/* Profile: the title and Edit card on one line; the stats small. */
+.am-pagehead { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.am-editbtn { flex: none; min-height: 40px; padding: 0 16px; border: 0; border-radius: 999px; background: var(--surface-200); box-shadow: var(--shadow-card); color: var(--brand-blue-600); font: 600 14px/1 var(--font-ui); cursor: pointer; }
+.am-editbtn:focus-visible, .am-topbar-tier:focus-visible, .am-tierchip:focus-visible { outline: 3px solid var(--brand-blue-600); outline-offset: 2px; }
+.am-pstat { flex: 1; min-width: 0; padding: 10px 12px; border-radius: var(--radius-md); background: var(--surface-200); box-shadow: var(--shadow-card); }
+.am-pstat b { display: flex; align-items: center; gap: 2px; font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.1; color: var(--ink-900); }
+.am-pstat small { display: block; margin-top: 2px; font-size: 12px; line-height: 15px; color: var(--ink-600); }
+/* Question text keeps its size when headings step down. */
+.am-qprompt { font-size: 28px; line-height: 34px; }

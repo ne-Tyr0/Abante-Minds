@@ -435,6 +435,13 @@
   }
 
   /* The next streak badge in a line, under the learner's name. */
+  /* The greeting's second line: where the streak stands, briefly. */
+  function shortGoal(s) {
+    var goal = store.nextStreakBadge(), n = s.streakDays;
+    if (!goal) return n > 1 ? "Day " + n + " in a row" : "Good to see you";
+    if (n < 2) return goal.days + " days in a row earns a badge";
+    return "Day " + n + " · a badge in " + goal.left + " day" + (goal.left === 1 ? "" : "s");
+  }
   function streakGoal(s) {
     var goal = store.nextStreakBadge(), back = s.streakDays > 1 ? "Back for day " + s.streakDays : null;
     if (!goal) return back || "Good to see you";
@@ -472,12 +479,21 @@
       ? el("div", { style: { padding: "24px " + gutter() + "px 0" } },
           el("div.heading-lg.am-name", null, "Hello, " + ((s.profile && s.profile.name.split(" ")[0]) || "there")),
           el("div.body-sm", { style: { color: "var(--ink-600)", marginTop: 4, textWrap: "pretty" } }, streakGoal(s)))
-      : el("div", {
-          style: { padding: "24px " + gutter() + "px 0", display: "flex", alignItems: "flex-start", justifyContent: "space-between", gap: "var(--space-3)" }
-        },
-          greetingBlock(s, streakGoal(s)),
-          desktop ? null : streakBadge(s.streakDays)
-        );
+      : (function () {
+          /* One slim bar, as the approved prototype has it: the learner's
+             monogram in their tier's metal, the greeting, and the tier, which
+             opens the tiers. */
+          var pr = s.profile || {}, tierNow = store.tier().tier;
+          return el("div.am-topbar", { style: { padding: "16px " + gutter() + "px 0" } },
+            el("span.am-mono.am-topbar-mono", { "aria-hidden": "true", html: AM.monogramSVG(AM.initialsOf(pr.name, pr.initials), pr.colorKey, tierNow) }),
+            el("span.am-topbar-who.am-name", null,
+              el("span.am-topbar-hello", null, "Hello, " + ((pr.name && pr.name.split(" ")[0]) || "there")),
+              el("span.am-topbar-sub", null, shortGoal(s))),
+            el("button.am-reset.am-topbar-tier", {
+              type: "button", "aria-label": tierNow.name + " card. See the tiers.",
+              onClick: function () { app.scratch.tiersBack = "home"; app.go("tiers"); }
+            }, el("span", { "aria-hidden": "true", html: AM.tierGem(tierNow, { glints: false }) })));
+        })();
 
     /* The exam at a glance: how ready, as a gauge, and where practice would
        add the most, which opens that topic. */
@@ -500,8 +516,8 @@
           sub: "Level " + next.level.number + " of " + store.topicPath(next.topic.key).levels.length,
           art: (function () {
             var nb = store.findBadge("lv:" + next.topic.key + "/" + next.level.id);
-            return nb ? badgeButton(nb, 64) : el("span", { style: { width: 56, height: 56, borderRadius: 16, background: "#fff", display: "grid", placeItems: "center", transform: "rotate(-6deg)" } },
-              AM.topicIcon(next.topic.icon, 36, next.topic.colorKey));
+            return nb ? badgeButton(nb, 54) : el("span", { style: { width: 48, height: 48, borderRadius: 14, background: "#fff", display: "grid", placeItems: "center", transform: "rotate(-6deg)" } },
+              AM.topicIcon(next.topic.icon, 30, next.topic.colorKey));
           })(),
           segments: levelSegments(next, true),
           meta: !next.level.lessonSeen && next.level.hasLesson
@@ -569,7 +585,12 @@
 
     /* The streak and today's goal, together, above everything else. */
     var goal = store.dailyGoal();
-    var goalCard = AM.StreakPanel({ days: s.streakDays, strip: store.weekStrip(), goal: goal });
+    var tierHere = store.tier();
+    var goalCard = AM.StreakPanel({ days: s.streakDays, strip: store.weekStrip(), goal: goal,
+      chip: tierHere.next && !tierHere.needsTopics ? el("button.am-reset.am-tierchip", {
+        type: "button", "aria-label": (goal.met ? "Today counted toward " : "A full round today counts toward ") + tierHere.next.name + ". See the tiers.",
+        onClick: function () { app.scratch.tiersBack = "home"; app.go("tiers"); }
+      }, el("span", { "aria-hidden": "true", html: AM.tierGem(tierHere.next, { glints: false }) }), (goal.met ? "Counted for " : "+1 to ") + tierHere.next.name) : null });
 
     /* Last week, from the week after, until it is put away. */
     var last = store.recap();
@@ -686,9 +707,8 @@
         onClick: t.ready ? function () { app.openTopic(t.key); } : null,
         style: t.ready ? { "--am-edge": t.key === nextKey ? "var(--brand-blue-600)" : "var(--surface-300)" } : null
       },
-        el("span.am-ttile-top", null, topicTile(t, 44),
-          tag ? el("span.am-ttag" + (tag === "Up next" ? "" : ".gain"), { "aria-hidden": "true" }, tag) : null),
-        el("span.am-ttile-name", null, t.label),
+        tag ? el("span.am-ttag" + (tag === "Up next" ? "" : ".gain"), { "aria-hidden": "true" }, tag) : null,
+        el("span.am-ttile-head", null, topicTile(t, 36), el("span.am-ttile-name", null, t.label)),
         el("span.am-ttile-foot", null, t.total ? dots : null, el("span.caption.am-ttile-cap", null, caption))));
     });
 
@@ -1335,7 +1355,7 @@
 
       var deskBody = el("div", { style: { flex: 1, display: "flex", justifyContent: "center", padding: gutter() + "px", minHeight: 0, overflowY: "auto" } },
         el("div", { style: { width: "100%", maxWidth: 720, display: "flex", flexDirection: "column", gap: 32 } },
-          el("div.heading-lg", { style: { textWrap: "pretty" } }, q.prompt),
+          el("div.heading-lg.am-qprompt", { style: { textWrap: "pretty" } }, q.prompt),
           q.chart ? AM.Chart(q.chart) : null,
           q.type === "choice" ? answerArea() : null,
           row,
@@ -2115,7 +2135,7 @@
     return el("div", { style: { padding: "12px " + gutter() + "px 0" } },
       el("button.am-reset.am-tierrow", {
         type: "button", "aria-label": t.tier.name + " tier. " + daysWord(t.days) + " with a full round. " + c.line + ". See the tiers.",
-        onClick: function () { app.go("tiers"); }
+        onClick: function () { app.scratch.tiersBack = "profile"; app.go("tiers"); }
       },
         el("span.am-tierrow-gem", { "aria-hidden": "true", html: AM.tierGem(t.tier) }),
         el("span", { style: { minWidth: 0 } },
@@ -2150,9 +2170,10 @@
           el("span.am-rung-look", null, y.look)),
         el("span.am-rung-st", null, st === "got" ? [icon("check", 16, { glyph: true }), "Reached"] : st === "now" ? "Your tier" : icon("lock", 16)));
     });
+    var from = app.scratch.tiersBack || "profile";
     return {
-      nav: "profile",
-      back: function () { app.go("profile", "back"); },
+      nav: from === "home" ? "home" : "profile",
+      back: function () { app.scratch.tiersBack = null; app.go(from, "back"); },
       body: column([el("div", { style: { padding: "0 " + gutter() + "px" } },
         el("div.am-tr-hero", null,
           el("span.am-tr-crest", { "aria-hidden": "true", html: AM.tierCrest(x) }),
@@ -2541,7 +2562,7 @@
       multi > 1 ? el("span.am-chal-multi" + (g.rose && right ? ".am-chal-pop" : ""), null, "×" + multi) : null,
       el("span.label", { style: { marginLeft: "auto", fontVariantNumeric: "tabular-nums" } }, g.score + " points"));
 
-    var prompt = el("div.heading-lg", { style: { textAlign: "center", textWrap: "balance", padding: "16px 0 12px", minHeight: 84, display: "flex", alignItems: "center", justifyContent: "center" } }, q.prompt);
+    var prompt = el("div.heading-lg.am-qprompt", { style: { textAlign: "center", textWrap: "balance", padding: "16px 0 12px", minHeight: 84, display: "flex", alignItems: "center", justifyContent: "center" } }, q.prompt);
     var chart = q.chart ? el("div", { style: { display: "flex", paddingBottom: 12 } }, AM.Chart(q.chart)) : null;
 
     var answer;
@@ -3094,20 +3115,68 @@
     var written = path.topics.filter(function (t) { return t.ready; });
     var readiness = store.readiness();
 
-    function stat(value, label) {
-      return el("div", {
-        style: {
-          flex: 1, background: "var(--surface-200)", borderRadius: "var(--radius-md)",
-          boxShadow: "var(--shadow-card)", padding: "var(--space-3)", textAlign: "center"
-        }
-      }, el("div.heading-md", null, String(value)), el("div.caption", { style: { color: "var(--ink-600)" } }, label));
+    function stat(value, label, lead) {
+      return el("div.am-pstat", null, el("b", null, lead || null, String(value)), el("small", null, label));
     }
+    /* A list shown in a sheet, so Profile stays one screen of rows. */
+    function sheetOf(title, content) {
+      return function () { openSheet(title, el("div", { style: { width: "100%", textAlign: "left", display: "flex", flexDirection: "column", gap: 12 } }, el("div.heading-md", null, title), content)); };
+    }
+    var cat = store.catalog(), shown = store.showcase();
+    var badgesRow = AM.RowCard({
+      title: "Your badges · " + cat.earned + " of " + cat.total,
+      caption: shown.length ? null : "Every level you clear is a badge",
+      extra: shown.length ? el("span", { "aria-hidden": "true", style: { display: "flex", gap: 6, marginTop: 6 } },
+        shown.map(function (k) { var b = store.findBadge(k, cat); return b ? el("span", { style: { width: 36, height: 36, display: "inline-flex" }, html: AM.badgeArt.art(b, 36) }) : null; })) : null,
+      onClick: function () { app.scratch.badgesBack = null; app.go("badges"); }
+    });
+    var roadRow = AM.road ? (function () {
+      var rd = store.road(), st = AM.road.step(rd.reached);
+      var ratio = Math.max(Math.min(1, rd.streak / st.streak), st.levels ? Math.min(1, rd.levels / st.levels) : 0);
+      return AM.RowCard({
+        title: "Next on your road: " + stepLabel(st),
+        caption: (st.levels ? Math.min(rd.levels, st.levels) + " of " + st.levels + " levels, or " : "") + Math.min(rd.streak, st.streak) + " of " + st.streak + " days in a row",
+        extra: el("span", { style: { display: "block", marginTop: 8 } }, AM.ProgressBar({ ratio: ratio, height: 6, color: "var(--brand-blue-600)", label: "Road progress" })),
+        onClick: function () { app.go("road"); }
+      });
+    })() : null;
+    var progressList = el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
+      readiness.started ? el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
+        (readiness.percent ? "About " + readiness.percent + "% ready for the exam." : "Just getting started.") + " This is an estimate from your answers and the levels you have cleared, not the real exam.") : null,
+      AM.TopicBars(written.map(function (t) {
+        var band = readiness.topics.filter(function (x) { return x.key === t.key; })[0];
+        return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels" + (band && band.started ? " · " + band.band : ""), color: "var(--skill-" + t.colorKey + "-bright)" };
+      })),
+      path.topics.length > written.length
+        ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (path.topics.length - written.length) + " more topic" + (path.topics.length - written.length === 1 ? "" : "s") + " coming")
+        : null);
+    var progressRow = AM.RowCard({
+      title: "Progress by topic",
+      caption: (readiness.started ? (readiness.percent ? "About " + readiness.percent + "% ready" : "Just getting started") : "Clear a level to start") + " · " + path.levelsCleared + " of " + path.levelsTotal + " levels",
+      onClick: sheetOf("Progress by topic", progressList)
+    });
+    /* The same sums in different stories: which stories come easily. First
+       tries on the path and in practice exams, the most recent ones. */
+    var kinds = AM.insights.summarize(store.attempts(), problemType);
+    var kindsRow = AM.RowCard({
+      title: "Kinds of problem",
+      caption: kinds.types.length ? kindsNote(kinds) : "Shows after a few more questions on the path",
+      onClick: kinds.types.length ? sheetOf("Kinds of problem", el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
+        AM.TopicBars(kinds.types.map(function (t) {
+          return { label: t.name, correct: t.right, total: t.asked, caption: t.right + " of " + t.asked, color: "var(--brand-blue-600)" };
+        })),
+        el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, kindsNote(kinds)))) : null
+    });
 
     return {
       nav: "profile",
       banner: connectionBanner(),
       body: column([
-        el("div", { style: { padding: "20px " + gutter() + "px 0" } },
+        /* The title, and the way to edit the card, at the top. */
+        el("div.am-pagehead", { style: { padding: "16px " + gutter() + "px 0" } },
+          el("h1.heading-lg", { style: { margin: 0 } }, "Profile"),
+          el("button.am-reset.am-editbtn", { type: "button", onClick: function () { app.go("setup"); } }, "Edit card")),
+        el("div", { style: { padding: "0 " + gutter() + "px" } },
           AM.ProfileCard({
             name: p.name, greeting: "",
             school: (p.school ? p.school + " · " : "") + "Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
@@ -3117,47 +3186,11 @@
           })),
         tierSection(app),
 
-        el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", gap: 10 } },
-          stat(s.streakDays, "days in a row"), stat(s.totalCorrect, "right first time"),
+        el("div", { style: { padding: "12px " + gutter() + "px 0", display: "flex", gap: 10 } },
+          stat(s.streakDays, "days in a row", AM.Flame ? AM.Flame(18, s.streakDays > 0) : null), stat(s.totalCorrect, "right first time"),
           store.basics().length ? stat(store.basics().reduce(function (n, t) { return n + t.mastered; }, 0), "facts mastered") : null),
 
-        (function () {
-          var cat = store.catalog(), shown = store.showcase();
-          return el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
-            sectionLabel("Badges · " + cat.earned + " of " + cat.total),
-            AM.Card({ style: { gap: 10 } },
-              shown.length
-                ? el("div", { style: { display: "flex", justifyContent: "space-around", alignItems: "flex-end" } },
-                    shown.map(function (k) { return badgeButton(store.findBadge(k, cat), 64); }))
-                : el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "Every level you clear is a badge. Clear one to earn your first."),
-              AM.Button({ label: "See all badges", variant: "ghost", fullWidth: true, onClick: function () { app.scratch.badgesBack = null; app.go("badges"); } })));
-        })(),
-
-        roadSection(app),
-
-        el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
-          sectionLabel("Progress by topic"),
-          readiness.started ? el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } },
-            (readiness.percent ? "About " + readiness.percent + "% ready for the exam." : "Just getting started.") + " This is an estimate from your answers and the levels you have cleared, not the real exam.") : null,
-          AM.TopicBars(written.map(function (t) {
-            var band = readiness.topics.filter(function (x) { return x.key === t.key; })[0];
-            return { label: t.label, correct: t.cleared, total: t.total, caption: t.cleared + " of " + t.total + " levels" + (band && band.started ? " · " + band.band : ""), color: "var(--skill-" + t.colorKey + "-bright)" };
-          })),
-          path.topics.length > written.length
-            ? el("span.body-sm", { style: { color: "var(--ink-600)" } }, (path.topics.length - written.length) + " more topic" + (path.topics.length - written.length === 1 ? "" : "s") + " coming")
-            : null),
-
-        /* The same sums in different stories: which stories come easily. First
-           tries on the path and in practice exams, the most recent ones. */
-        (function () {
-          var kinds = AM.insights.summarize(store.attempts(), problemType);
-          return el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
-            sectionLabel("Kinds of problem"),
-            kinds.types.length ? AM.TopicBars(kinds.types.map(function (t) {
-              return { label: t.name, correct: t.right, total: t.asked, caption: t.right + " of " + t.asked, color: "var(--brand-blue-600)" };
-            })) : null,
-            el("span.body-sm", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, kindsNote(kinds)));
-        })(),
+        el("div.am-stack", { style: { padding: "12px " + gutter() + "px 0" } }, badgesRow, roadRow, progressRow, kindsRow),
 
         /* Sound, vibration, calm and the theme, for this phone. */
         (function () {
@@ -3194,10 +3227,7 @@
           ? el("div", { style: { padding: "18px " + gutter() + "px 0" } },
               AM.Button({ label: "Add to home screen", variant: "ghost", iconLeft: "home", fullWidth: true, onClick: function () { app.offerInstall(); } }))
           : null
-      ], { paddingBottom: 24 }),
-      footer: el("div", { style: { flex: "none", padding: "0 " + gutter() + "px 20px", display: "flex", justifyContent: "center" } },
-        el("div", { style: { width: "100%", maxWidth: 520, display: "flex", flexDirection: "column", gap: 10 } },
-          AM.Button({ label: "Edit my card", variant: "ghost", fullWidth: true, onClick: function () { app.go("setup"); } })))
+      ], { paddingBottom: 24 })
     };
   };
 
