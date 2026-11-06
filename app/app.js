@@ -466,7 +466,8 @@
     s.phase = right ? "correct" : "wrong";
     q.__tries = (q.__tries || 0) + 1;
     store.logAttempt({
-      session: s.id, topic: s.topicKey, level: s.levelId, kind: s.redo ? "redo" : s.kind,
+      /* A needs-practice round mixes levels: each row names its question's own. */
+      session: s.id, topic: s.kind === "kind" ? q.topicKey : s.topicKey, level: s.kind === "kind" ? q.levelId : s.levelId, kind: s.redo ? "redo" : s.kind,
       template: q.templateId, tier: q.tier, seed: q.seed, pinned: q.pinned ? q.pinnedAt : null,
       format: q.format, fact: q.factKey || null, pack: q.packVersion,
       ordinal: s.index, attempt: q.__tries, given: given, correct: right, error: s.diagnosis.error,
@@ -485,7 +486,7 @@
     }
     if (s.facts) checkFact(s, q, right);
     else if (s.review) { if (firstTry) store.recordReview(q.reviewKey, right); else store.notePractice(); }
-    else if (s.redo) store.notePractice();
+    else if (s.redo || s.kind === "kind") store.notePractice();
     else {
       /* Where the level stood, for the end of the round to show what it added. */
       if (s.levelStart === undefined) s.levelStart = Math.min(store.levelState(s.topicKey, s.levelId).correct, store.CLEAR_TARGET);
@@ -649,7 +650,7 @@
   function finish() {
     var s = app.session;
     if (s.exam) { finishExam(s, false); return; }
-    if (s.review) { finishReview(s); return; }
+    if (s.review || s.kind === "kind") { finishReview(s); return; }
     var minutes = Math.max(1, Math.round((Date.now() - s.startedAt) / 60000));
     var result = {
       topicKey: s.topicKey,
@@ -738,6 +739,7 @@
   function endLeft(s) {
     app.session = null;
     if (s.review) app.go("home", "back");
+    else if (s.kind === "kind") app.go("topics", "back");
     else backToTopic(s.topicKey);
   }
 
@@ -767,11 +769,51 @@
   };
 
   function finishReview(s) {
-    app.scratch.review = { attempted: s.attempted, correct: s.correct, due: store.reviewDue().length, next: store.reviewNext() };
+    app.scratch.review = { attempted: s.attempted, correct: s.correct, due: store.reviewDue().length, next: store.reviewNext(), kind: s.kind === "kind" ? s.levelTitle : null };
     roundFinished();
     app.session = null;
     afterSession("reviewDone");
   }
+
+  /* ---------- needs practice ----------
+     The kind of problem got right least often on a first try (Profile's
+     kinds of problem), as a round of its own: KIND_COUNT questions of that
+     kind from the levels already open, each at its level's tier. It moves
+     no level and no badge; a miss comes back in review like any other, and
+     its rows are kept apart (kind "kind") from what the strengths and the
+     readiness count. */
+  var KIND_COUNT = 10;
+  app.KIND_COUNT = KIND_COUNT;
+  var schemaOf = null;
+  function schemaFor(id) {
+    if (!schemaOf) { schemaOf = Object.create(null); C.templates().forEach(function (t) { schemaOf[t.id] = t.schema; }); }
+    return schemaOf[id] || null;
+  }
+  app.kindPlan = function () {
+    var kinds = AM.insights.summarize(store.attempts(), schemaFor);
+    if (!kinds.types.length) return null;
+    var open = [];
+    store.path().topics.forEach(function (t) {
+      if (t.ready) t.levels.forEach(function (lv) { if (lv.unlocked) open.push({ topic: t.key, level: lv.id, tier: store.tierFor(t.key, lv.id) }); });
+    });
+    var weakest = kinds.types.slice().reverse();
+    for (var i = 0; i < weakest.length; i++) {
+      var k = weakest[i], levels = C.levelsOfKind(open, k.key);
+      if (levels.length) return { kind: k.key, name: k.name, right: k.right, asked: k.asked, levels: levels };
+    }
+    return null;
+  };
+  app.startKind = function () {
+    var plan = app.kindPlan();
+    var questions = plan ? C.kindSession({ schema: plan.kind, levels: plan.levels, count: KIND_COUNT, seed: Date.now() >>> 0 }) : [];
+    if (!questions.length) { app.go("topics"); return; }
+    store.rollDay();
+    var meta = { topic: { key: "kind", label: "Needs practice", colorKey: 1 }, id: plan.kind, title: plan.name, number: 0, track: "kind", kind: "kind" };
+    var s = newSession(meta, questions, false);
+    s.entry = freshEntry(s);
+    app.session = s;
+    app.go("practice");
+  };
 
   /* ---------- the practice exam ----------
      EXAM_COUNT questions across the path by blueprint weight, against a clock

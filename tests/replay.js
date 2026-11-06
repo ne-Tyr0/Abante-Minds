@@ -155,5 +155,31 @@ function parse(text) {
   return rows;
 }
 
+/* The hub's needs-practice round mixes levels, so each row names its
+   question's own topic and level, and must still rebuild. */
+test("a needs-practice round draws one kind, from the levels given, and every row rebuilds", () => {
+  const levels = [];
+  for (const k of ["decimals", "fractions", "solids"]) C.byKey(k).levels.forEach((lv) => { if (lv.kind === "practice") levels.push({ topic: k, level: lv.id, tier: 2 }); });
+  const schemaOf = {};
+  C.templates().forEach((t) => { schemaOf[t.id] = t.schema; });
+  const open = C.levelsOfKind(levels, "multi-step");
+  assert.ok(open.length > 0 && open.length < levels.length, "some levels teach it, not all");
+  const qs = C.kindSession({ schema: "multi-step", levels: open, count: 10, seed: 99 });
+  assert.strictEqual(qs.length, 10);
+  qs.forEach((q, i) => {
+    assert.strictEqual(schemaOf[q.templateId], "multi-step", q.templateId);
+    assert.ok(open.some((e) => e.topic === q.topicKey && e.level === q.levelId), q.topicKey + "/" + q.levelId);
+    assert.strictEqual(q.tier, 2);
+    if (i) assert.notStrictEqual(q.templateId, qs[i - 1].templateId, "no template twice running");
+    const [row] = rowFor(q.topicKey, q.templateId, q.tier, q.seed, { kind: "kind", level: q.levelId });
+    const x = R.replayRow(row);
+    assert.strictEqual(x.q.prompt, q.prompt, q.templateId);
+    assert.deepStrictEqual(x.flags, [], q.templateId);
+  });
+  assert.deepStrictEqual(C.kindSession({ schema: "multi-step", levels: open, count: 10, seed: 99 }).map((q) => q.prompt), qs.map((q) => q.prompt), "the same seed, the same round");
+  assert.deepStrictEqual(C.levelsOfKind(levels, "no-such-kind"), []);
+  assert.deepStrictEqual(C.kindSession({ schema: "no-such-kind", levels: levels, count: 10, seed: 1 }), []);
+});
+
 if (failed) { console.log(`\n${failed} failed`); process.exit(1); }
 console.log("\nok: replay rebuilds what was asked");
