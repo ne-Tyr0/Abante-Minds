@@ -131,26 +131,178 @@
     pearl: "0 0 0 3px #f6ecdf, 0 0 0 6px #dccbb8, 0 0 14px 5px rgba(255, 246, 230, 0.6)",
     year: "0 0 0 3px #8b5cf6, 0 0 0 6px #f5b400"
   };
-  /* From Emerald up the card carries its stone at the top, in the middle:
-     a brilliant cut, or for Pearl a pearl. */
-  var STONES = { emerald: ["#36d688", "#0c8a4c"], sapphire: ["#5b8cff", "#1b43b0"], ruby: ["#f04a6c", "#a3123a"], diamond: ["#ffffff", "#9fc9e6"], pearl: ["#fffdf8", "#cdb9a3"] };
-  var stoneCount = 0;
-  function tierStone(key, size) {
-    var c = STONES[key];
-    if (!c) return null;
-    var s = size || 24, svg;
-    if (key === "pearl") {
-      var id = "am-pearl-" + (++stoneCount);
-      svg = '<svg viewBox="0 0 24 24" width="' + s + '" height="' + s + '" aria-hidden="true"><defs><radialGradient id="' + id + '" cx="0.38" cy="0.32" r="0.75"><stop offset="0" stop-color="#ffffff"/><stop offset="0.55" stop-color="' + c[0] + '"/><stop offset="1" stop-color="' + c[1] + '"/></radialGradient></defs>' +
-        '<circle cx="12" cy="12" r="10" fill="url(#' + id + ')" stroke="#b49b84" stroke-opacity="0.5"/></svg>';
-    } else {
-      svg = '<svg viewBox="0 0 24 22" width="' + s + '" height="' + Math.round(s * 22 / 24) + '" aria-hidden="true">' +
-        '<path d="M5 1h14l5 6-12 14L0 7z" fill="' + c[0] + '"/><path d="M0 7h24L12 21z" fill="' + c[1] + '"/>' +
-        '<path d="M5 1l3 6 4-6 4 6 3-6M0 7h24" fill="none" stroke="#fff" stroke-opacity="0.6" stroke-width="1"/>' +
-        '<path d="M8 7l4 14 4-14" fill="none" stroke="#fff" stroke-opacity="0.35" stroke-width="1"/></svg>';
-    }
-    return el("span.am-stone", { "aria-hidden": "true", html: svg });
+  /* ---------- the card tiers' art ----------
+     Ported as drawn from the approved prototype (owner, 2026-11-06: "port
+     the approved draft exactly"): a coin for each metal tier, a cut stone for
+     each gem (an emerald step cut; oval, cushion and round brilliants, the
+     diamond with fire), a pearl; a crest above the card (a seal for the
+     metals, the stone in a mount with prongs and filigree wings for the
+     gems, side stones from Sapphire, a crown for Ruby, a halo and soft
+     blurred light for Diamond and Pearl); the frame in the mount's metal;
+     and from Emerald up a card body that is the gem, with its facets. */
+  function TIERS() { return (AM.store && AM.store.CARD_TIERS) || []; }
+  function tierIndexOf(t) { var T = TIERS(); for (var i = 0; i < T.length; i++) if (T[i].key === t.key) return i; return 0; }
+  function metalGrad(c, ang) { return "linear-gradient(" + (ang || 135) + "deg," + c[1] + " 0%," + c[0] + " 16%," + c[2] + " 36%," + c[1] + " 52%," + c[0] + " 64%," + c[2] + " 82%," + c[3] + " 100%)"; }
+  function settingOf(t) { return t.kind === "metal" ? t : t.kind === "pearl" ? t : TIERS()[t.setting === "gold" ? 2 : 3]; }
+  function frameGrad(t) {
+    if (t.kind === "pearl") return "linear-gradient(135deg,#fffaf2 0%,#f3e2d0 18%,#ffe3ec 34%,#fffaf2 48%,#dff7ec 62%,#e9e2ff 78%,#f3e2d0 100%)";
+    return metalGrad(settingOf(t).c);
   }
+
+  /* ---------- shading: mix the four tones by a brightness from 0 to 1 ---------- */
+  function hex2(h) { var n = parseInt(h.slice(1), 16); return [n >> 16, (n >> 8) & 255, n & 255]; }
+  function mix(a, b, k) { var x = hex2(a), y = hex2(b); return "rgb(" + [0, 1, 2].map(function (i) { return Math.round(x[i] + (y[i] - x[i]) * k); }).join(",") + ")"; }
+  function tone(c, b) {
+    b = Math.max(0, Math.min(1, b));
+    if (b < 1 / 3) return mix(c[3], c[2], b * 3);
+    if (b < 2 / 3) return mix(c[2], c[1], (b - 1 / 3) * 3);
+    return mix(c[1], c[0], (b - 2 / 3) * 3);
+  }
+  var LIGHT = -128;
+  function lit(angle, tilt, base) { var d = (angle - LIGHT) * Math.PI / 180; return base + tilt * Math.cos(d); }
+  function poly(pts, fill, extra) { return '<polygon points="' + pts.map(function (p) { return p[0].toFixed(1) + "," + p[1].toFixed(1); }).join(" ") + '" fill="' + fill + '"' + (extra || "") + "/>"; }
+  function cen(pts) { var x = 0, y = 0; pts.forEach(function (p) { x += p[0]; y += p[1]; }); return [x / pts.length, y / pts.length]; }
+  function ang(p) { return Math.atan2(p[1] - 50, p[0] - 50) * 180 / Math.PI; }
+  var FIRE = ["#ffd1e8", "#d1f0ff", "#fff3c4", "#d9ffd6", "#e6d9ff"];
+
+  /* A round brilliant seen from above; squashed into an oval, or pushed toward a square for a cushion. */
+  function brilliant(t) {
+    var sx = t.cut === "oval" ? .8 : 1, sy = 1, sq = t.cut === "cushion";
+    var R = function (deg, r) {
+      if (sq && r > 40) { var a = deg * Math.PI / 180, p = 4; r = r / Math.pow(Math.pow(Math.abs(Math.cos(a)), p) + Math.pow(Math.abs(Math.sin(a)), p), 1 / p) * .9; }
+      var b = deg * Math.PI / 180; return [50 + r * Math.cos(b) * sx, 50 + r * Math.sin(b) * sy];
+    };
+    var T = [], Sx = [], G = [], H = [], k, h = "";
+    for (k = 0; k < 8; k++) { T.push(R(k * 45 + 22.5, 21)); Sx.push(R(k * 45, 33)); G.push(R(k * 45 + 22.5, 46)); H.push(R(k * 45, 46)); }
+    var c = t.c, f = 0;
+    for (k = 0; k < 8; k++) {
+      var km = (k + 7) % 8, kp = (k + 1) % 8;
+      var g1 = [Sx[k], G[km], H[k]], g2 = [Sx[k], H[k], G[k]];
+      [g1, g2].forEach(function (pp, j) { var b = lit(ang(cen(pp)), .42, .42) + (j ? -.06 : .05); f++; h += poly(pp, t.fire && f % 3 === 0 ? FIRE[f % 5] : tone(c, b)); });
+      var kite = [T[k], Sx[kp], G[k], Sx[k]];
+      h += poly(kite, tone(c, lit(ang(cen(kite)), .38, .55)));
+      var star = [T[km], Sx[k], T[k]];
+      h += poly(star, t.fire && k % 2 ? FIRE[k % 5] : tone(c, lit(ang(cen(star)), .3, .66)));
+    }
+    h += poly(T, tone(c, .8));
+    h += poly([T[5], T[6], T[7]], "rgba(255,255,255,.35)");
+    return h;
+  }
+  /* The emerald cut: a step cut, rings of long facets like a hall of mirrors. */
+  function stepCut(t) {
+    var ring = function (w, hh, ch) { return [[-w + ch, -hh], [w - ch, -hh], [w, -hh + ch], [w, hh - ch], [w - ch, hh], [-w + ch, hh], [-w, hh - ch], [-w, -hh + ch]].map(function (p) { return [50 + p[0], 50 + p[1]]; }); };
+    var rings = [ring(44, 33, 11), ring(36, 25, 8.5), ring(28, 17.5, 6), ring(21, 11, 4)], normals = [-90, -45, 0, 45, 90, 135, 180, -135], h = "";
+    for (var r = 0; r < rings.length - 1; r++) {
+      var A = rings[r], B = rings[r + 1];
+      for (var i = 0; i < 8; i++) {
+        var j = (i + 1) % 8, b = lit(normals[i], .4 - r * .06, .45 + r * .1) + (r % 2 ? .08 : -.04);
+        h += poly([A[i], A[j], B[j], B[i]], tone(t.c, b));
+      }
+    }
+    h += poly(rings[3], tone(t.c, .74)) + poly([rings[3][7], rings[3][0], rings[3][1], [50, 50]], "rgba(255,255,255,.25)");
+    return h;
+  }
+  function glint(x, y, s, d) { return '<path class="am-glint" style="animation-delay:' + d + 's" transform="translate(' + x + " " + y + ") scale(" + s + ')" d="M0-10 1.8-1.8 10 0 1.8 1.8 0 10-1.8 1.8-10 0-1.8-1.8z" fill="#fff"/>'; }
+  var gemUid = 0;
+  /* gem(tier, {glints}) : a 100 x 100 picture of the tier's stone or medal. */
+  function gem(t, o) {
+    o = o || {}; var id = "am-tg" + (gemUid++), h = "", c = t.c;
+    if (t.kind === "metal") {
+      h += '<defs><linearGradient id="' + id + 'a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset=".45" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[3] + '"/></linearGradient>' +
+        '<linearGradient id="' + id + 'b" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="' + c[0] + '"/><stop offset=".5" stop-color="' + c[2] + '"/><stop offset="1" stop-color="' + c[3] + '"/></linearGradient>' +
+        '<radialGradient id="' + id + 'c" cx=".38" cy=".32" r=".8"><stop offset="0" stop-color="' + c[0] + '"/><stop offset=".55" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[2] + '"/></radialGradient></defs>';
+      h += '<circle cx="50" cy="53" r="46" fill="' + c[3] + '" opacity=".5"/><circle cx="50" cy="50" r="46" fill="url(#' + id + 'a)"/>';
+      for (var n = 0; n < 48; n++) { var a = n * 7.5 * Math.PI / 180; h += '<line x1="' + (50 + 42 * Math.cos(a)).toFixed(1) + '" y1="' + (50 + 42 * Math.sin(a)).toFixed(1) + '" x2="' + (50 + 46 * Math.cos(a)).toFixed(1) + '" y2="' + (50 + 46 * Math.sin(a)).toFixed(1) + '" stroke="' + c[3] + '" stroke-opacity=".28" stroke-width="1.2"/>'; }
+      h += '<circle cx="50" cy="50" r="37" fill="url(#' + id + 'b)"/><circle cx="50" cy="50" r="32" fill="url(#' + id + 'c)"/>';
+      var star = []; for (var s = 0; s < 10; s++) { var r2 = s % 2 ? 9 : 21, b2 = (s * 36 - 90) * Math.PI / 180; star.push([50 + r2 * Math.cos(b2), 51 + r2 * Math.sin(b2)]); }
+      h += poly(star.map(function (p) { return [p[0] + 1, p[1] + 1.5]; }), c[3], ' opacity=".35"') + poly(star, "url(#" + id + "a)", ' stroke="' + c[0] + '" stroke-width="1.2"');
+      if (t.sheen) h += '<ellipse cx="50" cy="40" rx="24" ry="9" fill="#cfe6ff" opacity=".22"/>';
+    } else if (t.kind === "pearl") {
+      h += '<defs><radialGradient id="' + id + '" cx=".36" cy=".3" r=".85"><stop offset="0" stop-color="#ffffff"/><stop offset=".32" stop-color="#fcf6ee"/><stop offset=".72" stop-color="#eadccc"/><stop offset="1" stop-color="#c8b29c"/></radialGradient>' +
+        '<radialGradient id="' + id + 'p" cx=".7" cy=".72" r=".5"><stop offset="0" stop-color="#ffc9dc" stop-opacity=".55"/><stop offset="1" stop-color="#ffc9dc" stop-opacity="0"/></radialGradient>' +
+        '<radialGradient id="' + id + 'g" cx=".25" cy=".7" r=".45"><stop offset="0" stop-color="#c9ffe6" stop-opacity=".5"/><stop offset="1" stop-color="#c9ffe6" stop-opacity="0"/></radialGradient></defs>';
+      h += '<ellipse cx="50" cy="92" rx="30" ry="5" fill="#000" opacity=".12"/><circle cx="50" cy="50" r="40" fill="url(#' + id + ')"/><circle cx="50" cy="50" r="40" fill="url(#' + id + 'p)"/><circle cx="50" cy="50" r="40" fill="url(#' + id + 'g)"/>' +
+        '<ellipse cx="37" cy="33" rx="11" ry="7" fill="#fff" opacity=".85" transform="rotate(-30 37 33)"/><circle cx="62" cy="66" r="3" fill="#fff" opacity=".5"/>';
+    } else {
+      h += '<g filter="url(#' + id + 's)">' + (t.cut === "emerald" ? stepCut(t) : brilliant(t)) + "</g>";
+      h = '<defs><filter id="' + id + 's" x="-10%" y="-10%" width="120%" height="130%"><feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-color="' + c[3] + '" flood-opacity=".45"/></filter></defs>' + h;
+    }
+    if (o.glints !== false) h += glint(t.kind === "metal" ? 30 : 34, 30, .9, 0) + glint(70, 64, .55, 1.7) + (t.fire ? glint(64, 28, .7, .9) : "");
+    return '<svg viewBox="0 0 100 100" class="am-gem" aria-hidden="true">' + h + "</svg>";
+  }
+
+  function nest(svg, x, y, w, h) { return svg.replace('<svg viewBox="0 0 100 100" class="am-gem"', '<svg x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" viewBox="0 0 100 100" class="am-gem"'); }
+  /* crest(tier): 140 x 70. A seal for the metals; for the gems, the stone in a mount with prongs,
+     filigree wings, side stones (Sapphire up), a crown (Ruby), a halo and rays (Diamond). */
+  function crest(t) {
+    var i = tierIndexOf(t), mt = t.kind === "pearl" ? TIERS()[2] : settingOf(t), mc = mt.c, id = "am-cr" + (gemUid++), h = "", M = "url(#" + id + ")";
+    h += '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + mc[0] + '"/><stop offset=".4" stop-color="' + mc[1] + '"/><stop offset=".75" stop-color="' + mc[2] + '"/><stop offset="1" stop-color="' + mc[3] + '"/></linearGradient>' +
+      '<radialGradient id="' + id + 'g"><stop offset="0" stop-color="' + (t.kind === "metal" ? mc[0] : t.c[1]) + '" stop-opacity=".75"/><stop offset="1" stop-color="' + (t.kind === "metal" ? mc[1] : t.c[1]) + '" stop-opacity="0"/></radialGradient></defs>';
+    if (i >= 3) h += '<circle class="am-cr-glow" cx="70" cy="34" r="' + (i >= 7 ? 36 : 30) + '" fill="url(#' + id + 'g)"/>';
+    if (i >= 7) {
+      var bc = t.kind === "pearl" ? "#fff0d8" : "#ffffff";
+      h += '<defs><radialGradient id="' + id + 'b" gradientUnits="userSpaceOnUse" cx="70" cy="34" r="66"><stop offset="0" stop-color="' + bc + '" stop-opacity=".95"/><stop offset=".3" stop-color="' + bc + '" stop-opacity=".5"/><stop offset=".7" stop-color="' + bc + '" stop-opacity=".12"/><stop offset="1" stop-color="' + bc + '" stop-opacity="0"/></radialGradient>' +
+        '<filter id="' + id + 'f" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="1.6"/></filter></defs><g filter="url(#' + id + 'f)">';
+      [[-90, 66, 7], [-111, 58, 5], [-69, 58, 5], [-132, 50, 4], [-48, 50, 4], [-153, 42, 3.4], [-27, 42, 3.4], [-100, 46, 2.6], [-80, 46, 2.6], [-170, 32, 2.6], [-10, 32, 2.6]].forEach(function (bm, k) {
+        var a0 = (bm[0] - bm[2]) * Math.PI / 180, a1 = (bm[0] + bm[2]) * Math.PI / 180, L = bm[1];
+        h += '<path class="am-cr-ray" style="animation-delay:' + (k * .55).toFixed(2) + 's" d="M70 34L' + (70 + L * Math.cos(a0)).toFixed(1) + " " + (34 + L * Math.sin(a0)).toFixed(1) + "Q" + (70 + L * 1.04 * Math.cos(bm[0] * Math.PI / 180)).toFixed(1) + " " + (34 + L * 1.04 * Math.sin(bm[0] * Math.PI / 180)).toFixed(1) + " " + (70 + L * Math.cos(a1)).toFixed(1) + " " + (34 + L * Math.sin(a1)).toFixed(1) + 'Z" fill="url(#' + id + 'b)"/>';
+      });
+      h += "</g>";
+    }
+    var wing = function (lvl) {
+      var w = '<path d="M50 38C42 30 31 29 24 35C19 40 21 47 27 46C31 45 31 40 27.5 40" fill="none" stroke="' + M + '" stroke-width="3.2" stroke-linecap="round"/><circle cx="27.5" cy="40" r="2.2" fill="' + M + '"/>';
+      if (lvl >= 2) w += '<path d="M50 30C43 21 32 17 22 21C16 24 15 30 19.5 31" fill="none" stroke="' + M + '" stroke-width="2.5" stroke-linecap="round"/><circle cx="19.5" cy="31" r="2.2" fill="' + M + '"/>';
+      if (lvl >= 4) w += '<path d="M50 44C44 47 38 48 33 48" fill="none" stroke="' + M + '" stroke-width="2" stroke-linecap="round"/><path d="M36 24l-3-6M42 21l-1-6" stroke="' + M + '" stroke-width="2" stroke-linecap="round"/>';
+      return w;
+    };
+    if (i >= 1) { var wg = wing(i); h += "<g>" + wg + '</g><g transform="translate(140 0) scale(-1 1)">' + wg + "</g>"; }
+    if (i === 3) h += '<circle cx="40" cy="44" r="3" fill="' + M + '"/><circle cx="100" cy="44" r="3" fill="' + M + '"/>';
+    if (t.kind === "metal") {
+      h += nest(gem(t, { glints: i >= 2 }), 50, 14, 40, 40);
+    } else if (t.kind === "pearl") {
+      h += nest(gem(TIERS()[8], { glints: false }), 29, 36, 14, 14) + nest(gem(TIERS()[8], { glints: false }), 97, 36, 14, 14);
+      h += '<path d="M54 44C56 54 84 54 86 44Z" fill="' + M + '"/><path d="M56 45C60 50 80 50 84 45" fill="none" stroke="' + mc[0] + '" stroke-width="1.4"/>';
+      h += nest(gem(t), 50, 10, 40, 40);
+    } else {
+      if (i >= 5) h += nest(gem(TIERS()[7], { glints: false }), 33, 39, 13, 13) + nest(gem(TIERS()[7], { glints: false }), 94, 39, 13, 13);
+      if (i === 6) h += '<path d="M58 14l3-8 4 6 5-9 5 9 4-6 3 8z" fill="' + M + '" stroke="' + mc[3] + '" stroke-opacity=".4" stroke-width="1"/><circle cx="70" cy="5" r="2.4" fill="' + t.c[1] + '"/>';
+      if (i === 7) for (var q = 0; q < 14; q++) { var b = q / 14 * Math.PI * 2; h += '<circle cx="' + (70 + 25 * Math.cos(b)).toFixed(1) + '" cy="' + (34 + 25 * Math.sin(b)).toFixed(1) + '" r="2.7" fill="#f4fbff" stroke="' + mc[2] + '" stroke-width=".8"/>'; }
+      h += t.cut === "emerald" ? '<rect x="49" y="17" width="42" height="34" rx="7" fill="' + M + '" stroke="' + mc[3] + '" stroke-opacity=".45" stroke-width="1"/>' : '<circle cx="70" cy="34" r="21.5" fill="' + M + '" stroke="' + mc[3] + '" stroke-opacity=".45" stroke-width="1"/>';
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (d) { var px = 70 + d[0] * (t.cut === "emerald" ? 19 : 15.5), py = 34 + d[1] * (t.cut === "emerald" ? 15 : 15.5); h += '<circle cx="' + px + '" cy="' + py + '" r="3.1" fill="' + M + '" stroke="' + mc[3] + '" stroke-opacity=".5" stroke-width=".8"/>'; });
+      h += t.cut === "emerald" ? nest(gem(t), 50, 13, 40, 42) : nest(gem(t), 51, 15, 38, 38);
+    }
+    return '<svg class="am-crest" viewBox="0 0 140 70" aria-hidden="true">' + h + "</svg>";
+  }
+  /* From Emerald up the card body is the gem, with the learner's colour kept as an accent. */
+  var BODY = { emerald: ["#22c172", "#0a6b3c"], sapphire: ["#4a7ff2", "#112f86"], ruby: ["#ea4166", "#7d0a2c"], diamond: ["#6aa9dc", "#1b3f6e"], pearl: ["#fdf7f0", "#e4d3c1"] };
+  function facets(t) {
+    if (t.kind === "pearl") return "";
+    var h = "", k;
+    if (t.cut === "emerald") {
+      var ring = function (d) { var c = 6 + d * .4; return [[d + c, d * .6], [100 - d - c, d * .6], [100 - d, d * .6 + c * .6], [100 - d, 60 - d * .6 - c * .6], [100 - d - c, 60 - d * .6], [d + c, 60 - d * .6], [d, 60 - d * .6 - c * .6], [d, d * .6 + c * .6]]; };
+      var R = [ring(2), ring(9), ring(16), ring(23)];
+      for (var r = 0; r < 3; r++) for (k = 0; k < 8; k++) { var j = (k + 1) % 8; h += poly([R[r][k], R[r][j], R[r + 1][j], R[r + 1][k]], k < 2 || k > 6 ? "rgba(255,255,255," + (.1 - r * .02) + ")" : k > 2 && k < 6 ? "rgba(0,0,0," + (.1 - r * .02) + ")" : "rgba(255,255,255,.03)"); }
+      return '<svg viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">' + h + "</svg>";
+    }
+    var cx = 74, cy = 20, n = 18, P = [];
+    for (k = 0; k < n; k++) { var a = k / n * Math.PI * 2; P.push([cx + 160 * Math.cos(a), cy + 160 * Math.sin(a)]); }
+    for (k = 0; k < n; k++) h += poly([[cx, cy], P[k], P[(k + 1) % n]], k % 2 ? "rgba(255,255,255,.07)" : "rgba(0,0,0,.07)");
+    if (t.fire) for (k = 0; k < n; k += 3) h += poly([[cx, cy], P[k], P[(k + 1) % n]], FIRE[k % 5], ' opacity=".12"');
+    return '<svg viewBox="0 0 100 60" preserveAspectRatio="none" aria-hidden="true">' + h + "</svg>";
+  }
+
+  var BODY = { emerald: ["#22c172", "#0a6b3c"], sapphire: ["#4a7ff2", "#112f86"], ruby: ["#ea4166", "#7d0a2c"], diamond: ["#6aa9dc", "#1b3f6e"], pearl: ["#fdf7f0", "#e4d3c1"] };
+  function gemAura(c) { return "radial-gradient(90% 130% at 100% 100%, " + c + "66, transparent 62%), radial-gradient(70% 100% at 0% 0%, " + c + "40, transparent 60%)"; }
+  var AURA = {
+    gold: "radial-gradient(120% 90% at 0% 0%, rgba(255,216,99,.3), transparent 55%)",
+    platinum: "linear-gradient(120deg, transparent 25%, rgba(200,230,255,.2) 42%, rgba(255,220,250,.16) 55%, transparent 72%)",
+    emerald: gemAura("#36d688"), sapphire: gemAura("#5b8cff"), ruby: gemAura("#ff4f74"),
+    diamond: "conic-gradient(from 200deg at 70% 30%, rgba(255,200,230,.2), rgba(200,240,255,.22), rgba(255,250,200,.2), rgba(210,255,220,.18), rgba(255,200,230,.2))",
+    pearl: "conic-gradient(from 120deg at 30% 60%, rgba(255,214,230,.3), rgba(214,255,236,.26), rgba(220,226,255,.3), rgba(255,240,214,.26), rgba(255,214,230,.3))"
+  };
+  /* The frames a road gave before tiers, kept: drawn as rings, as they were. */
+  var KEPT_FRAMES = { year: true };
+
   var CARD_PATTERNS = {
     binakol: { w: 24, h: 24, d: '<rect x="2" y="2" width="20" height="20" fill="none" stroke="C" stroke-width="2"/><rect x="6.5" y="6.5" width="11" height="11" transform="rotate(18 12 12)" fill="none" stroke="C" stroke-width="2"/><rect x="9.8" y="9.8" width="4.4" height="4.4" transform="rotate(36 12 12)" fill="C"/>' },
     triangles: { w: 24, h: 21, d: '<path d="M0 21L12 0L24 21Z" fill="C"/>' },
@@ -212,7 +364,7 @@
   var monoCount = 0;
   function monogramSVG(initials, colorKey, tier) {
     var hue = HERO[colorKey] || HERO[2], id = "am-mono-" + (++monoCount), big = initials.length > 2;
-    var ring = !tier ? ["#ffffff", "#e8edf4", "#aab6c8", "#6b7a92"] : tier.kind === "pearl" ? ["#fffaf2", "#f1dfcb", "#ffe0ea", "#d8c2ab"] : tier.c;
+    var ring = !tier ? ["#ffffff", "#e8edf4", "#aab6c8", "#6b7a92"] : tier.kind === "pearl" ? ["#fffaf2", "#f1dfcb", "#ffe0ea", "#d8c2ab"] : settingOf(tier).c;
     var safe = initials.replace(/[&<>"]/g, "");
     var text = function (dy, fill, op) { return '<text x="32" y="' + ((big ? 38 : 40) + dy) + '" text-anchor="middle" style="font-family: var(--font-display)" font-weight="800" font-size="' + (big ? 19 : 24) + '" fill="' + fill + '"' + (op ? ' fill-opacity="' + op + '"' : "") + ">" + safe + "</text>"; };
     return '<svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="' + id + 'r" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + ring[0] + '"/><stop offset=".35" stop-color="' + ring[1] + '"/><stop offset=".7" stop-color="' + ring[2] + '"/><stop offset="1" stop-color="' + ring[3] + '"/></linearGradient>' +
@@ -220,29 +372,49 @@
       '<circle cx="32" cy="32" r="31" fill="url(#' + id + 'r)"/><circle cx="32" cy="32" r="25.5" fill="' + ring[3] + '" opacity=".5"/><circle cx="32" cy="32.6" r="24.5" fill="url(#' + id + 'd)"/>' +
       text(1.5, "#000", 0.22) + text(0, "#ffffff") + "</svg>";
   }
+  function flameFor(key, lit) {
+    if (!AM.Flame) return null;
+    var f = AM.Flame(20, lit), c = key && AM.share && AM.share.FLAMES && AM.share.FLAMES[key];
+    if (c) ["--flame-shelf", "--flame-body", "--flame-mid", "--flame-core"].forEach(function (v, i) { f.style.setProperty(v, c[i]); });
+    return f;
+  }
   function ProfileCard(o) {
     o = o || {};
-    var hue = HERO[o.colorKey] || HERO[2];
-    var tier = o.tier || (AM.store && AM.store.tier ? AM.store.tier().tier : null);
+    var hue = HERO[o.colorKey] || HERO[2], T = TIERS();
+    var tier = o.tier || (AM.store && AM.store.tier ? AM.store.tier().tier : T[0]);
+    /* A frame the road gave before tiers is drawn as it was; otherwise the frame is the tier's. */
+    var kept = KEPT_FRAMES[o.frame] ? o.frame : null;
+    var shown = !kept && o.frame ? (T.filter(function (x) { return x.key === o.frame; })[0] || tier) : tier;
+    var ti = tierIndexOf(shown), gemBody = ti >= 4, body = gemBody ? BODY[shown.key] : hue, bw = [4, 4, 5, 5, 6, 6, 6, 7, 7][ti] || 4;
     var weave = o.pattern === "plain" ? null : (o.pattern || "binakol");
     var style = {
-      position: "relative", display: "flex", flexDirection: "column", gap: 10, padding: "16px 16px 14px", borderRadius: 20,
-      color: "#ffffff", background: "linear-gradient(150deg, " + hue[0] + " 0%, " + hue[1] + " 100%)",
-      boxShadow: CARD_FRAMES[o.frame] || "none", maxWidth: 340, textAlign: "left"
+      "--c1": body[0], "--c2": body[1], "--acc": hue[1], "--frame": kept ? "linear-gradient(135deg,#8b5cf6,#f5b400)" : frameGrad(shown),
+      borderWidth: bw + "px", maxWidth: 340
     };
     if (o.style) Object.keys(o.style).forEach(function (k) { style[k] = o.style[k]; });
-    return el("div.am-reset.am-lcard", { style: style },
-      weave ? el("span.am-lcard-weave", { "aria-hidden": "true", html: weaveSVG(o.name, weave) }) : null,
-      tierStone(o.frame, 22),
-      el("div.am-lcard-row", null,
-        el("span.am-mono", { "aria-hidden": "true", html: monogramSVG(initialsOf(o.name, o.initials), o.colorKey, tier) }),
-        el("div.am-lcard-who", null,
-          o.title ? el("span.am-lcard-title", { style: { color: hue[1] } }, o.title) : null,
-          el("b.am-lcard-name", null, o.name || "Your name"),
-          o.school ? el("small", null, o.school) : null)),
-      o.motto || tier ? el("div.am-lcard-foot", null,
-        el("span.am-lcard-motto", null, o.motto ? "\u201c" + o.motto + "\u201d" : ""),
-        tier ? el("span.am-lcard-tier", null, el("i", { style: { background: "linear-gradient(135deg, " + tier.c[0] + ", " + tier.c[2] + ")" } }), tier.name) : null) : null);
+    var parts = [];
+    if (weave) parts.push(el("span.am-lc-wv", { "aria-hidden": "true", html: weaveSVG(o.name, weave) }));
+    parts.push(el("span.am-lc-aura", { "aria-hidden": "true", style: { background: AURA[shown.key] || "none" } }));
+    if (gemBody) parts.push(el("span.am-lc-facets", { "aria-hidden": "true", html: facets(shown) }));
+    if (shown.kind === "gem" || shown.kind === "pearl") parts.push(el("span.am-lc-inlay", { "aria-hidden": "true", style: { "--inlay": shown.kind === "pearl" ? "#fff7ee" : shown.c[0] } }));
+    if (shown.key === "diamond") [[14, 26, 0], [58, 18, 1.2], [86, 60, 2.1], [40, 72, 0.6], [70, 82, 2.8], [8, 74, 1.7], [30, 44, 3.2]].forEach(function (q) {
+      parts.push(el("span.am-lc-spk", { "aria-hidden": "true", style: { left: q[0] + "%", top: q[1] + "%" },
+        html: '<svg viewBox="-10 -10 20 20"><path style="animation-delay:' + q[2] + 's" d="M0-10 1.8-1.8 10 0 1.8 1.8 0 10-1.8 1.8-10 0-1.8-1.8z" fill="#fff"/></svg>' }));
+    });
+    if (gemBody) parts.push(el("span.am-lc-accent", { "aria-hidden": "true", style: { background: "linear-gradient(90deg," + hue[0] + "," + hue[1] + ")" } }));
+    parts.push(el("span.am-lc-sweep", { "aria-hidden": "true" }));
+    parts.push(el("span.am-lc-crest", { "aria-hidden": "true", html: crest(shown) }));
+    parts.push(el("div.am-lc-row1", null,
+      el("span.am-mono", { "aria-hidden": "true", html: monogramSVG(initialsOf(o.name, o.initials), o.colorKey, shown) }),
+      el("div.am-lc-who", null,
+        o.title ? el("span.am-lc-ttl", null, o.title) : null,
+        el("b.am-lc-name", null, o.name || "Your name"),
+        o.school ? el("small", null, o.school) : null),
+      typeof o.streak === "number" ? el("span.am-lc-fl", null, flameFor(o.flame, o.streak > 0), String(o.streak)) : null));
+    parts.push(el("div.am-lc-row2", null,
+      el("span.am-lc-motto", null, o.motto ? "\u201c" + o.motto + "\u201d" : ""),
+      el("span.am-lc-tchip", null, el("span", { "aria-hidden": "true", html: gem(shown, { glints: false }) }), shown.name)));
+    return el("div.am-reset.am-lcard.am-lc-tier-" + shown.key + (gemBody ? ".am-lc-gembody" : ""), { style: style, role: "img", "aria-label": (o.name || "Your card") + ", " + shown.name + " card" + (o.title ? ", " + o.title : "") }, parts);
   }
 
   /* ---------- PracticeHeader ----------
@@ -1348,7 +1520,9 @@
   AM.ProfileCard = ProfileCard;
   AM.CardPattern = CardPattern;
   AM.CARD_FRAMES = CARD_FRAMES;
-  AM.tierStone = tierStone;
+  AM.tierGem = gem;
+  AM.tierCrest = crest;
+  AM.tierFrame = frameGrad;
   AM.weaveSVG = weaveSVG;
   AM.initialsOf = initialsOf;
   AM.monogramSVG = monogramSVG;

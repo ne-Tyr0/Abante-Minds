@@ -488,6 +488,36 @@ function run() {
         if (screen === "profile-motto") AM.store.set({ profile: Object.assign({}, AM.store.get().profile, { title: "Decimals Explorer", motto: "Kaya ko 'to!", pattern: "kusikus", colorKey: 1 }) });
         AM.app.go("profile");
         break;
+      /* Not in the PDF: the tiers as the approved prototype was shot (Maya,
+         82 days, Emerald; a Diamond and a Pearl tier-up; her card in every
+         tier), for the draft-beside-real sheet. */
+      case "proto-profile":
+      case "proto-tiers":
+      case "proto-tier-diamond":
+      case "proto-tier-pearl":
+      case "proto-gallery":
+        AM.store.set({ roundDays: 82, tierSeen: 4, keptFrames: [], streakDays: 16, lastActiveDay: AM.store.today(),
+          profile: { name: "Maya Santos", school: "Poblacion, Pilar", colorKey: 1, iconKey: "triangle", pattern: "binakol", flame: "orange", title: "Decimals Explorer", motto: "Kaya ko 'to!" } });
+        if (screen === "proto-profile") { AM.app.go("profile"); break; }
+        if (screen === "proto-tiers") { AM.app.go("tiers"); break; }
+        if (screen === "proto-gallery") {
+          var T = AM.store.CARD_TIERS, pp = AM.store.get().profile, wall = w.document.createElement("div");
+          wall.style.cssText = "position:fixed;inset:0;z-index:20;overflow:auto;background:var(--surface-100);padding:8px 16px 24px;display:grid;gap:4px";
+          T.forEach(function (x) {
+            wall.appendChild(AM.el("div", { style: { font: "800 18px/1 var(--font-display)", color: "var(--ink-900)", marginTop: 10, display: "flex", alignItems: "center", gap: 8 } },
+              AM.el("span", { style: { width: 26, height: 26, lineHeight: 0 }, html: AM.tierGem(x, { glints: false }).replace("<svg ", '<svg width="26" height="26" ') }), x.name,
+              AM.el("small", { style: { font: "500 12.5px var(--font-ui)", color: "var(--ink-600)" } }, x.days ? x.days + " days" : "start")));
+            wall.appendChild(AM.ProfileCard({ name: pp.name, school: pp.school + " · Grade 6", colorKey: 1, frame: x.key, tier: x, pattern: "binakol", title: pp.title, motto: pp.motto, streak: 16, flame: "orange", style: { maxWidth: "none", width: "100%" } }));
+          });
+          w.document.querySelector(".am-frame").appendChild(wall);
+          break;
+        }
+        var Tk = AM.store.CARD_TIERS, ix = screen === "proto-tier-pearl" ? 8 : 7;
+        AM.app.scratch.afterTier = "home";
+        AM.app.scratch.tierUp = { t: { index: ix, tier: Tk[ix], next: Tk[ix + 1] || null, days: Tk[ix].days, toNext: 0 }, played: false, revealed: true };
+        AM.app.go("tierUp");
+        if (AM.app.scratch.tierUp && AM.app.scratch.tierUp.tl) AM.app.scratch.tierUp.tl.skip();
+        break;
       /* Not in the PDF: the first round of the seventh day in a row, which
          earns the 7-day badge and makes the streak screen a milestone. */
       case "streak-milestone":

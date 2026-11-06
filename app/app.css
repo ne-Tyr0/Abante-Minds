@@ -324,7 +324,7 @@ html, body {
    reads as the sum it is. */
 .am-lesson-eyebrow { font-weight: 700; }
 .am-lesson-prompt { font-family: var(--font-display); font-weight: 800; font-size: 30px; line-height: 1.15; font-variant-numeric: tabular-nums; }
-.am-lesson-step { flex: none; width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 16px; }
+.am-lesson-step { flex: none; width: 30px; height: 30px; border-radius: 10px; display: grid; place-items: center; font-family: var(--font-display); font-weight: 800; font-size: 16px; }
 /* ---------- Questions and feedback (redesign stage 3) ---------- */
 .am-fb { flex: none; border-radius: 24px 24px 0 0; background: var(--success-100); }
 .am-fb.bad { background: var(--danger-100); }
@@ -375,7 +375,7 @@ html, body {
 .am-rchip svg { color: var(--brand-blue-600); }
 .am-showcase { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px 16px; border-radius: 24px; background: linear-gradient(160deg, #5b4bd8 0%, #3a2c9e 100%); color: #fff; }
 .am-showcase-head { display: flex; justify-content: space-between; gap: 8px; font-size: 15px; font-weight: 700; }
-.am-showcase-head span + span { font-size: 13px; font-weight: 600; opacity: 0.8; }
+.am-showcase-head span + span { font-size: 13px; font-weight: 600; opacity: 0.8; }
 /* The road as a map. The route's fills are fixed blues and oranges, so the
    white on them reads in both themes. */
 .am-rmap { position: relative; width: 100%; max-width: 390px; margin: 4px auto 0; }
@@ -418,7 +418,6 @@ html, body {
 .am-col-added { color: var(--brand-blue-600); }
 .am-col-rule { height: 3px; margin: 4px 0 6px; border-radius: 2px; background: var(--ink-900); }
 /* A new tier, veiled until it is held for. */
-.am-veiled > .am-lcard { filter: blur(10px) saturate(0.4); opacity: 0.55; transform: scale(0.94); }
 .am-hold { position: relative; display: grid; place-items: center; width: 96px; height: 96px; margin-top: 18px; border: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.14); color: #fff; cursor: pointer; touch-action: none; user-select: none; -webkit-user-select: none; }
 .am-hold-ring { position: absolute; inset: 4px; line-height: 0; }
 .am-hold-ring svg { width: 100%; height: 100%; }
@@ -426,26 +425,93 @@ html, body {
 .am-hold.is-holding .am-hold-fill { stroke-dashoffset: 0; transition: stroke-dashoffset 0.95s linear; }
 .am-hold-label { position: relative; font-size: 15px; font-weight: 700; }
 .am-hold:focus-visible { outline: 3px solid #fff; outline-offset: 4px; }
-/* ---------- Card tiers (redesign stage 6) ---------- */
-.am-stone { position: absolute; top: -12px; left: 50%; transform: translateX(-50%); z-index: 2; line-height: 0; filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25)); }
-.am-tierladder { display: flex; flex-wrap: wrap; gap: 6px; }
-.am-tierstep { padding: 4px 9px; border-radius: var(--radius-pill); font-size: 12px; font-weight: 700; color: var(--ink-600); background: var(--surface-100); box-shadow: inset 0 0 0 1.5px var(--surface-300); }
-.am-tierstep.on { color: #16202c; background: linear-gradient(135deg, var(--t1), var(--t2)); box-shadow: none; }
-.am-tierstep.next { color: var(--ink-900); box-shadow: inset 0 0 0 2px var(--t2); }
-/* ---------- The learner's card (redesign, Profile) ---------- */
-.am-lcard-weave { position: absolute; inset: 0; border-radius: inherit; overflow: hidden; pointer-events: none; opacity: 0.3; }
-.am-lcard-weave svg { display: block; }
-.am-lcard-row { position: relative; display: flex; align-items: center; gap: 12px; }
+/* ---------- The learner's card, as the approved prototype draws it ----------
+   The body in the card's colour (from Emerald up, the gem's), the frame in
+   the tier's metal shining slowly across, the crest above, the gem's facets,
+   an inlay line, and for Diamond a few glints. */
+.am-lcard { position: relative; box-sizing: border-box; display: grid; gap: 10px; min-height: 150px; margin-top: 34px; padding: 24px 14px 12px; border: 6px solid transparent; border-radius: 26px; color: #fff; text-align: left;
+  background: linear-gradient(140deg, var(--c1), var(--c2)) padding-box, var(--frame) border-box; background-size: 100% 100%, 260% 260%; animation: am-frame-shine 9s ease-in-out infinite;
+  box-shadow: 0 16px 30px -14px rgba(10, 10, 40, 0.55); }
+@keyframes am-frame-shine { 0%, 100% { background-position: 0 0, 0% 30%; } 50% { background-position: 0 0, 100% 70%; } }
+.am-lc-wv, .am-lc-aura, .am-lc-facets, .am-lc-sweep { position: absolute; inset: 0; border-radius: 20px; overflow: hidden; pointer-events: none; }
+.am-lc-wv svg, .am-lc-facets svg { width: 100%; height: 100%; display: block; }
+.am-lc-wv { opacity: 0.55; -webkit-mask-image: linear-gradient(100deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 45%, #000 88%); mask-image: linear-gradient(100deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.5) 45%, #000 88%); }
+.am-lc-inlay { position: absolute; inset: 4px; border-radius: 16px; box-shadow: inset 0 0 0 1.5px var(--inlay); opacity: 0.85; pointer-events: none; }
+.am-lc-spk { position: absolute; width: 14px; height: 14px; line-height: 0; pointer-events: none; }
+.am-lc-spk svg { width: 100%; height: 100%; }
+.am-lc-spk path { transform-box: fill-box; transform-origin: center; animation: am-glint 3.6s ease-in-out infinite; opacity: 0; }
+.am-lc-accent { position: absolute; left: 16px; right: 16px; bottom: 5px; height: 4px; border-radius: 2px; pointer-events: none; }
+.am-lc-sweep::before { content: ""; position: absolute; top: -40%; bottom: -40%; width: 34%; left: -50%; background: linear-gradient(100deg, transparent, rgba(255, 255, 255, 0.26), transparent); transform: rotate(14deg); animation: am-card-sweep 7s ease-in-out infinite; }
+@keyframes am-card-sweep { 0%, 66% { left: -50%; } 100% { left: 130%; } }
+.am-lc-crest { position: absolute; left: 50%; top: -38px; width: 148px; height: 74px; margin-left: -74px; z-index: 2; line-height: 0; pointer-events: none; filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.3)); }
+.am-lc-crest svg { width: 100%; height: 100%; display: block; overflow: visible; }
+.am-lc-row1 { position: relative; display: grid; grid-template-columns: 62px minmax(0, 1fr) auto; gap: 12px; align-items: center; }
 .am-mono { flex: none; width: 56px; height: 56px; line-height: 0; filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.25)); }
 .am-mono svg { width: 100%; height: 100%; }
-.am-lcard-who { min-width: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 2px; }
-.am-lcard-title { padding: 3px 9px; border-radius: var(--radius-pill); background: rgba(255, 255, 255, 0.92); font-size: 12px; font-weight: 700; line-height: 1.2; }
-.am-lcard-name { font-family: var(--font-display); font-weight: 800; font-size: 22px; line-height: 1.1; overflow-wrap: anywhere; text-shadow: 0 1px 2px rgba(0, 0, 0, 0.25); }
-.am-lcard-who small { font-size: 13px; color: rgba(255, 255, 255, 0.88); }
-.am-lcard-foot { position: relative; display: flex; justify-content: space-between; align-items: center; gap: 10px; padding-top: 8px; border-top: 1px solid rgba(255, 255, 255, 0.25); }
-.am-lcard-motto { min-width: 0; font-family: var(--font-display); font-weight: 700; font-style: italic; font-size: 15px; overflow-wrap: anywhere; }
-.am-lcard-tier { flex: none; display: inline-flex; align-items: center; gap: 6px; padding: 3px 9px 3px 4px; border-radius: var(--radius-pill); background: rgba(0, 0, 0, 0.22); font-size: 12px; font-weight: 700; }
-.am-lcard-tier i { width: 16px; height: 16px; border-radius: 50%; }
+.am-lcard .am-mono { width: 62px; height: 62px; filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.25)); }
+.am-lc-who { min-width: 0; }
+.am-lc-ttl { display: inline-block; margin-bottom: 5px; padding: 4px 7px; border-radius: 7px; background: rgba(0, 0, 0, 0.22); font: 700 10.5px/1 var(--font-ui); letter-spacing: 0.07em; text-transform: uppercase; }
+.am-lc-gembody .am-lc-ttl { background: var(--acc); }
+.am-lc-name { display: block; font: 800 24px/1.02 var(--font-display); text-shadow: 0 2px 0 rgba(0, 0, 0, 0.14); overflow-wrap: anywhere; }
+.am-lc-who small { display: block; margin-top: 3px; font-size: 12px; opacity: 0.92; }
+.am-lc-fl { align-self: start; display: flex; align-items: center; gap: 2px; padding: 5px 10px 5px 6px; border-radius: 999px; background: rgba(0, 0, 0, 0.22); font: 800 17px/1 var(--font-display); }
+.am-lc-row2 { position: relative; display: flex; justify-content: space-between; align-items: flex-end; gap: 10px; }
+.am-lc-motto { min-width: 0; font: italic 700 15px/1.2 var(--font-display); opacity: 0.95; overflow-wrap: anywhere; }
+.am-lc-tchip { flex: none; display: inline-flex; align-items: center; gap: 5px; padding: 4px 9px 4px 4px; border-radius: 999px; background: rgba(0, 0, 0, 0.25); font: 700 11.5px/1 var(--font-ui); letter-spacing: 0.03em; }
+.am-lc-tchip svg { display: block; width: 20px; height: 20px; }
+.am-lc-tier-pearl { color: #3b2a1c; }
+.am-lc-tier-pearl .am-lc-name { text-shadow: none; }
+.am-lc-tier-pearl .am-lc-fl, .am-lc-tier-pearl .am-lc-tchip { background: rgba(80, 50, 20, 0.1); }
+.am-lc-tier-pearl .am-lc-ttl { color: #fff; }
+/* The tiers' coins, stones and crests: glints that come and go, a glow, and soft light behind Diamond and Pearl. */
+.am-gem .am-glint { transform-box: fill-box; transform-origin: center; animation: am-glint 4.2s ease-in-out infinite; opacity: 0; }
+@keyframes am-glint { 0%, 78%, 100% { opacity: 0; transform: scale(0.2) rotate(0deg); } 86% { opacity: 1; transform: scale(1) rotate(45deg); } 92% { opacity: 0; transform: scale(0.4) rotate(90deg); } }
+.am-crest { overflow: visible; }
+.am-crest .am-cr-glow { transform-box: fill-box; transform-origin: center; animation: am-cr-glow 3.2s ease-in-out infinite; }
+@keyframes am-cr-glow { 0%, 100% { opacity: 0.6; transform: scale(0.92); } 50% { opacity: 1; transform: scale(1.06); } }
+.am-crest .am-cr-ray { opacity: 0.55; animation: am-cr-ray 5s ease-in-out infinite; }
+@keyframes am-cr-ray { 0%, 100% { opacity: 0.4; } 50% { opacity: 0.85; } }
+/* Profile's tier row, and the tiers screen: the crest, how near the next is, and the ladder. */
+.am-tierrow { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 14px; align-items: center; width: 100%; padding: 12px 14px 12px 12px; border: 0; border-radius: 20px; background: var(--surface-200); box-shadow: var(--shadow-card); color: var(--ink-900); text-align: left; cursor: pointer; }
+.am-tierrow-gem, .am-rung-gem { line-height: 0; }
+.am-tierrow-gem svg, .am-rung-gem svg { display: block; width: 52px; height: 52px; }
+.am-tierrow b, .am-rung b { display: block; font: 800 19px/1.15 var(--font-display); }
+.am-tierrow small, .am-rung small { display: block; font-size: 13px; color: var(--ink-600); }
+.am-tierrow .am-chev { color: var(--ink-600); line-height: 0; }
+.am-tierbar { display: block; height: 8px; margin-top: 8px; border-radius: 4px; background: var(--surface-300); overflow: hidden; }
+.am-tierbar > i { display: block; height: 100%; border-radius: 4px; }
+.am-tr-hero { display: flex; flex-direction: column; align-items: center; text-align: center; padding: 18px 0 4px; }
+.am-tr-crest { line-height: 0; }
+.am-tr-crest svg { display: block; width: 260px; height: 130px; margin: 2px auto -8px; }
+.am-tr-hero h1 { margin: 6px 0 2px; font: 800 32px/1.1 var(--font-display); }
+.am-tr-hero p { margin: 0; font-size: 14px; color: var(--ink-600); }
+.am-tr-prog { margin-top: 14px; padding: 14px; border-radius: 20px; background: var(--surface-200); box-shadow: var(--shadow-card); }
+.am-tr-progrow { display: flex; justify-content: space-between; gap: 8px; font-size: 13px; color: var(--ink-600); }
+.am-tr-progrow b { color: var(--ink-900); }
+.am-tr-prog .am-tierbar { height: 12px; border-radius: 6px; }
+.am-tr-note { margin: 10px 2px 0; font-size: 13px; line-height: 1.5; color: var(--ink-600); text-wrap: pretty; }
+.am-ladder { display: grid; gap: 8px; margin-top: 16px; padding-bottom: 24px; }
+.am-rung { display: grid; grid-template-columns: 52px minmax(0, 1fr) auto; gap: 12px; align-items: center; width: 100%; padding: 10px 14px 10px 10px; border: 0; border-radius: 20px; background: var(--surface-200); box-shadow: var(--shadow-card); color: var(--ink-900); text-align: left; cursor: pointer; }
+.am-rung-look { display: block; margin-top: 1px; font-size: 12px; color: var(--ink-600); }
+.am-rung-st { display: flex; align-items: center; gap: 4px; font-size: 12px; font-weight: 600; color: var(--ink-600); }
+.am-rung.is-got .am-rung-st { color: var(--success-700); }
+.am-rung.is-now { box-shadow: inset 0 0 0 2.5px var(--tc), var(--shadow-card); }
+.am-rung.is-now .am-rung-st { color: var(--tc); }
+.am-rung.is-lock .am-rung-gem svg { filter: grayscale(1) contrast(0.85); opacity: 0.5; }
+.am-rung.is-lock b { color: var(--ink-600); }
+.am-honour { display: inline-block; margin-left: 6px; padding: 4px 6px; border-radius: 6px; background: #f6ecdf; color: #7a5a3a; font: 700 10px/1 var(--font-ui); letter-spacing: 0.06em; text-transform: uppercase; vertical-align: middle; }
+/* A new tier: the crest, veiled until it is held for; the card comes after. */
+.am-tu-crest { line-height: 0; }
+.am-tu-crest svg { display: block; width: 280px; height: 140px; transition: filter 0.9s ease; }
+.am-veiled .am-tu-crest svg { filter: grayscale(1) brightness(0.42) contrast(0.9); }
+.am-veiled .am-tu-crest .am-glint, .am-veiled .am-tu-crest .am-cr-glow, .am-veiled .am-tu-crest .am-cr-ray { animation: none; opacity: 0; }
+.am-tu-card { width: 100%; max-width: 360px; margin-top: 6px; }
+@media (prefers-reduced-motion: reduce) {
+  .am-lcard, .am-gem .am-glint, .am-lc-spk path, .am-crest .am-cr-glow, .am-crest .am-cr-ray { animation: none; }
+  .am-lc-sweep::before { display: none; }
+}
+:root[data-calm="true"] .am-lcard, :root[data-calm="true"] .am-gem .am-glint, :root[data-calm="true"] .am-lc-spk path, :root[data-calm="true"] .am-crest .am-cr-glow, :root[data-calm="true"] .am-crest .am-cr-ray { animation: none; }
+:root[data-calm="true"] .am-lc-sweep::before { display: none; }
 .am-ecprev { position: sticky; top: 0; z-index: 2; padding: 12px 0; background: var(--surface-100); }
 .am-chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .am-chipbtn { min-height: 40px; padding: 0 14px; border: 0; border-radius: var(--radius-pill); background: var(--surface-200); box-shadow: inset 0 0 0 1.5px var(--surface-300); color: var(--ink-900); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
