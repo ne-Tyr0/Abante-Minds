@@ -845,13 +845,14 @@
         el("span", { className: "am-sweek-dot" + cls }, d.done ? icon("check", 12, { glyph: true }) : null)));
     });
     return el("div.am-streak-panel", null,
-      el("span.am-streak-count", null, AM.Flame ? AM.Flame(40, days > 0) : icon("streak", 32),
+      el("span.am-streak-count", null, AM.Flame ? AM.Flame(32, days > 0) : icon("streak", 28),
         days > 0 ? el("span", null, el("b", null, String(days)), el("small", null, days === 1 ? "day" : "days", el("br"), "in a row"))
           : el("span.am-streak-start", null, "Start a", el("br"), "streak today")),
       week,
-      el("span.am-goal-row", null, Ring(goal.met ? 1 : 0, 28),
-        el("span", null, goal.met ? el("b", null, "Today's goal done. ") : el("b", null, "Today's goal: "),
-          goal.met ? (goal.done > 1 ? goal.done + " rounds today." : "Anything more is a bonus.") : "finish 1 round")));
+      el("span.am-goal-row", null, Ring(goal.met ? 1 : 0, 22),
+        el("span", { style: { flex: 1, minWidth: 0 } }, goal.met ? el("b", null, "Today's goal done. ") : el("b", null, "Today: "),
+          goal.met ? (goal.done > 1 ? goal.done + " rounds today." : "Anything more is a bonus.") : "one full round"),
+        o.chip || null));
   }
   /* "Up next" as the screen's lead: the topic's own colour, the level, how
      far it has got, and the button. The colours are the day ones in both
