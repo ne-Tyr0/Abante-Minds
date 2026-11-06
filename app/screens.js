@@ -3108,7 +3108,7 @@
           return el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
             sectionLabel("Settings"),
             AM.Card({ style: { gap: 0, paddingTop: 4, paddingBottom: 4 } },
-              AM.Toggle({ label: "Sound", sub: "Gong-chimes for answers, streaks and levels. A phone on silent stays silent.", on: set.sound, onChange: change("sound") }),
+              AM.Toggle({ label: "Sound", sub: "Kulintang gongs, drums and wood: a note for each key, a sound for each answer and moment. A phone on silent stays silent.", on: set.sound, onChange: change("sound") }),
               AM.Toggle({ label: "Vibration", sub: "A short buzz with answers and level-ups, on phones that can.", on: set.vibration, onChange: change("vibration") }),
               AM.Toggle({ label: "Calm animations", sub: "Celebrations show their end straight away, with no confetti or movement.", on: set.calm, onChange: change("calm") }),
               AM.Segmented({

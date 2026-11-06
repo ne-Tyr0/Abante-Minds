@@ -300,7 +300,7 @@ p3 = f"""
 
   <div class="shots" style="align-items:stretch;margin-bottom:4mm">
     {detail("detail_hint", "<b>Three hints, one at a time.</b> Asking for help never costs the question; a decimal sum is set out in columns.")}
-    {detail("detail_correct", "<b>Right.</b> The working is shown even then: it is what carries over to the next question.")}
+    {detail("detail_correct", "<b>Right.</b> The verdict comes at the foot with the level's progress and the next step; the working stays above it.")}
   </div>
 
   <div class="good" style="margin-top:auto">
