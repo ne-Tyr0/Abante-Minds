@@ -442,6 +442,63 @@
     return el("div.am-reset.am-lcard.am-lc-tier-" + shown.key + (gemBody ? ".am-lc-gembody" : ""), { style: style, role: "img", "aria-label": (o.name || "Your card") + ", " + shown.name + " card" + (o.title ? ", " + o.title : "") }, parts);
   }
 
+  /* ---------- the maths, drawn (content.js renderModel) ----------
+     Shown after a right answer and in a lesson's worked example, in the
+     topic's colours. Each says in words what it shows. */
+  function MathModel(m, colorKey) {
+    var k = colorKey || 1, bright = "var(--skill-" + k + "-bright)", deep = "var(--skill-" + k + "-deep)", tint = "var(--skill-" + k + "-tint)";
+    var fill = function (c) { return ' style="fill:' + c + '"'; };
+    var art, words;
+    if (m.kind === "columns") {
+      var split = m.rows.concat([m.result]).map(function (r) { var p = r.split("."); return { w: p[0], f: p[1] || "" }; });
+      var w = Math.max.apply(null, split.map(function (r) { return r.w.length; })), d = split[0].f.length;
+      var row = function (r, sign, cls) {
+        var cells = [el("span.am-col-sign", null, sign || "")], j;
+        for (j = 0; j < w; j++) cells.push(el("span", null, r.w[r.w.length - w + j] || ""));
+        if (d) { cells.push(el("span.am-col-dot", null, ".")); for (j = 0; j < d; j++) cells.push(el("span", null, r.f[j])); }
+        return el("div.am-col-row" + (cls || ""), null, cells);
+      };
+      art = el("div.am-columns", null, row(split[0]), row(split[1], m.op), el("div.am-col-rule"), row(split[2], "", ".am-col-result"));
+      art.style.setProperty("--model-ink", deep);
+      words = m.rows[0] + (m.op === "+" ? " plus " : " minus ") + m.rows[1] + " is " + m.result + ", in columns with the points lined up";
+    } else if (m.kind === "array") {
+      var s = Math.max(8, Math.min(22, Math.floor(280 / m.cols))), g = Math.max(3, Math.round(s * 0.3)), W = m.cols * (s + g) + g, H = m.rows * (s + g) + g, h = "";
+      for (var r = 0; r < m.rows; r++) {
+        if (r < m.tint) h += '<rect x="0" y="' + (r * (s + g) + g / 2) + '" width="' + W + '" height="' + (s + g) + '" rx="' + (s / 2) + '"' + fill(tint) + "/>";
+        for (var c = 0; c < m.cols; c++) {
+          var x = g + c * (s + g) + s / 2, y = g + r * (s + g) + s / 2;
+          h += r < m.tint && c < m.mark ? '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2) + '"' + fill(bright) + "/>"
+            : r < m.tint ? '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2 - 1) + '" style="fill:#fff;stroke:' + bright + ';stroke-width:1.5"/>'
+            : '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2 - 1) + '"' + fill("var(--surface-300)") + "/>";
+        }
+      }
+      art = el("span", { html: '<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">' + h + "</svg>" });
+      words = m.rows * m.cols + " dots in " + m.rows + " rows; " + m.tint + " row" + (m.tint === 1 ? "" : "s") + " picked out, and " + m.tint * m.mark + " of " + (m.tint === 1 ? "its" : "their") + " dots coloured";
+    } else if (m.kind === "hundred") {
+      var q = 21, gp = 3, side = 10 * (q + gp) + gp, hh = "";
+      for (var n = 0; n < 100; n++) hh += '<rect x="' + (gp + (n % 10) * (q + gp)) + '" y="' + (gp + Math.floor(n / 10) * (q + gp)) + '" width="' + q + '" height="' + q + '" rx="4"' + fill(n < m.shaded ? bright : "var(--surface-300)") + "/>";
+      art = el("span", { html: '<svg viewBox="0 0 ' + side + " " + side + '" width="' + side + '" height="' + side + '" aria-hidden="true">' + hh + "</svg>" });
+      words = "A hundred square with " + m.shaded + " of its 100 squares coloured";
+    } else if (m.kind === "tape") {
+      var total = m.parts.reduce(function (a, b) { return a + b; }, 0), TW = 300, u = TW / total, inks = [bright, "var(--action-500)", "var(--brand-blue-600)"], th = "", at = 0;
+      m.parts.forEach(function (p, i) {
+        for (var j = 0; j < p; j++) {
+          var bx = (at + j) * u;
+          th += '<rect x="' + (bx + 1).toFixed(1) + '" y="1" width="' + (u - 2).toFixed(1) + '" height="34" rx="5"' + fill(inks[i]) + "/>";
+          if (u >= 24) th += '<text x="' + (bx + u / 2).toFixed(1) + '" y="23" text-anchor="middle" font-size="' + (u >= 36 ? 13 : 11) + '" font-weight="700" style="fill:#fff">' + m.unit + "</text>";
+        }
+        var x0 = at * u + 2, x1 = (at + p) * u - 2;
+        th += '<path d="M' + x0.toFixed(1) + " 42v6H" + x1.toFixed(1) + 'v-6" style="fill:none;stroke:var(--ink-600);stroke-width:1.5"/>' +
+          '<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="66" text-anchor="middle" font-size="13" font-weight="600" style="fill:var(--ink-900)">' + p + " part" + (p === 1 ? "" : "s") + "</text>";
+        at += p;
+      });
+      art = el("span", { html: '<svg viewBox="0 0 ' + TW + ' 72" width="' + TW + '" height="72" aria-hidden="true">' + th + "</svg>" });
+      words = "A bar of " + total + " equal parts of " + m.unit + ": " + m.parts.map(function (p) { return p + " part" + (p === 1 ? "" : "s"); }).join(" and ");
+    } else return null;
+    return el("div.am-model", { role: "img", "aria-label": words + (m.caption ? ". " + m.caption : "") },
+      art, m.caption ? el("span.am-model-cap", { "aria-hidden": "true" }, m.caption) : null);
+  }
+
   /* ---------- PracticeHeader ----------
      The calm-mode strip above a question: level, progress, count. The fill is a
      bare span so motion.css can scale it instead of resizing it. */
@@ -1546,6 +1603,7 @@
   AM.ProfileCard = ProfileCard;
   AM.CardPattern = CardPattern;
   AM.CARD_FRAMES = CARD_FRAMES;
+  AM.MathModel = MathModel;
   AM.tierGem = gem;
   AM.tierCrest = crest;
   AM.tierFrame = frameGrad;
