@@ -475,9 +475,14 @@
         if (r < m.tint) h += '<rect x="0" y="' + (r * (s + g) + g / 2) + '" width="' + W + '" height="' + (s + g) + '" rx="' + (s / 2) + '"' + fill(tint) + "/>";
         for (var c = 0; c < m.cols; c++) {
           var x = g + c * (s + g) + s / 2, y = g + r * (s + g) + s / 2;
-          h += r < m.tint && c < m.mark ? '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2) + '"' + fill(bright) + "/>"
-            : r < m.tint ? '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2 - 1) + '" style="fill:#fff;stroke:' + bright + ';stroke-width:1.5"/>'
-            : '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2 - 1) + '"' + fill("var(--surface-300)") + "/>";
+          /* Dots for things in groups; squares for cubes in a layer. */
+          var dot = function (rad, style) {
+            return m.shape === "squares" ? '<rect x="' + (x - rad) + '" y="' + (y - rad) + '" width="' + 2 * rad + '" height="' + 2 * rad + '" rx="3"' + style + "/>"
+              : '<circle cx="' + x + '" cy="' + y + '" r="' + rad + '"' + style + "/>";
+          };
+          h += r < m.tint && c < m.mark ? dot(s / 2, fill(bright))
+            : r < m.tint ? dot(s / 2 - 1, ' style="fill:#fff;stroke:' + bright + ';stroke-width:1.5"')
+            : dot(s / 2 - 1, fill("var(--surface-300)"));
         }
       }
       art = svg(W, H, h);

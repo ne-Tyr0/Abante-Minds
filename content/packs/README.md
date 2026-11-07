@@ -321,7 +321,7 @@ params and `answer`; `caption` is text, read under the picture.
 | `kind` | Fields | Draws |
 |---|---|---|
 | `columns` | `top`, `bottom`, `op` (`+` or `-`), `places` | A decimal sum in columns, the points lined up, the answer under the rule |
-| `array` | `rows`, `cols`, `tint`, `mark` | Dots in rows: the first `tint` rows picked out, the first `mark` dots of each of those coloured (a fraction of a fraction of a group) |
+| `array` | `rows`, `cols`, `tint`, `mark`; `shape` (`dots`, or `squares` for cubes) | Dots in rows: the first `tint` rows picked out, the first `mark` dots of each of those coloured (a fraction of a fraction of a group) |
 | `hundred` | `shaded` | A hundred square with that many squares coloured (a per cent) |
 | `tape` | `parts` (2 or 3); `unit`, or `units` (one per part, boxes drawn to size); `names` (optional, one per part) | A bar of parts, each part's share bracketed and named (a ratio; a total in GEMDAS) |
 | `line` | `points` (2 to 5), `labels` (one per point), `hops` (one between each two) | A number line with labelled hops between the points (time counted on); a hop of nothing is left out |

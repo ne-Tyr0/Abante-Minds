@@ -168,6 +168,7 @@ function checkModel(m, names) {
     else if (ty === "op") { if (val !== "+" && val !== "-") fail("a columns model's op is + or -"); }
     else if (ty === "mode") { if (val !== "multiples" && val !== "factors") fail("a lists model's mode is multiples or factors"); }
     else if (ty === "bool") { if (typeof val !== "boolean") fail(`model ${k} is true or false`); }
+    else if (ty === "shape") { if (val !== "dots" && val !== "squares") fail("an array model's shape is dots or squares"); }
   }
   const len = (k) => (Array.isArray(m[k]) ? m[k].length : -1);
   if (m.kind === "tape") {
