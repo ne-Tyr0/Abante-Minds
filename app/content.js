@@ -519,6 +519,7 @@
       distractors: distractors
     };
     if (t.chart) q.chart = renderChart(t.chart, scope);
+    if (t.model) q.model = renderModel(t.model, scope);
     if (q.type === "choice") {
       var values = [answer].concat(distractors.map(function (d) { return d.exact; }));
       values.sort(cmp);
@@ -540,6 +541,43 @@
       q.answerIndex = values.findIndex(function (v) { return eq(v, answer); });
     }
     return q;
+  }
+
+  /* ---------- models ----------
+     A picture of the maths, drawn from the question's own numbers: columns
+     for a decimal sum, an array of dots for a fraction of a group, a hundred
+     square for a per cent, a bar of equal parts for a ratio. It is shown once
+     the question has been answered right, and in a lesson's worked example;
+     never with the question itself, so what a learner is asked stays as it
+     was (the owner's rule, 2026-11-06). Its numbers may use the answer. */
+  var MODEL_FIELDS = { columns: ["top", "bottom", "op", "places"], array: ["rows", "cols", "tint", "mark"], hundred: ["shaded"], tape: ["parts", "unit"] };
+  function renderModel(spec, scope) {
+    var value = function (src) { return num(evalExpr(String(src), scope)); };
+    var count = function (src, lo, hi, what) {
+      var v = value(src);
+      if (!isInt(v) || v.n < lo || v.n > hi) throw ContentError("a model's " + what + " must be a whole number from " + lo + " to " + hi);
+      return v.n;
+    };
+    var m = { kind: spec.kind };
+    if (spec.kind === "columns") {
+      var places = count(spec.places, 0, 6, "places");
+      m.op = spec.op === "+" ? "+" : "\u2212";
+      m.rows = [decimalString(value(spec.top), places), decimalString(value(spec.bottom), places)];
+      m.result = decimalString(scope.answer, places);
+    } else if (spec.kind === "array") {
+      m.rows = count(spec.rows, 1, 10, "rows");
+      m.cols = count(spec.cols, 1, 30, "cols");
+      m.tint = count(spec.tint, 0, m.rows, "tint");
+      m.mark = count(spec.mark, 0, m.cols, "mark");
+    } else if (spec.kind === "hundred") {
+      m.shaded = count(spec.shaded, 0, 100, "shaded");
+    } else if (spec.kind === "tape") {
+      m.parts = spec.parts.map(function (p) { return count(p, 1, 20, "part"); });
+      if (m.parts.reduce(function (a, b) { return a + b; }, 0) > 24) throw ContentError("a model's bar has at most 24 parts");
+      m.unit = fmt(value(spec.unit));
+    } else throw ContentError("no model kind '" + spec.kind + "'");
+    if (spec.caption) m.caption = interpolate(spec.caption, scope);
+    return m;
   }
 
   /* ---------- charts ----------
@@ -1165,7 +1203,7 @@
       var q = instanceFrom(template(card.example.template), PACK, 1, card.example.params, card.example.format);
       return {
         kind: "example", title: card.title || "Worked example",
-        prompt: q.prompt, chart: q.chart || null, steps: q.steps, explain: q.explain,
+        prompt: q.prompt, chart: q.chart || null, model: q.model || null, steps: q.steps, explain: q.explain,
         /* Money shows as money (₱149.50), however the learner would type it. */
         answer: q.type === "choice" ? q.choices[q.answerIndex]
           : q.unit === PESO ? peso(q.answerExact) : q.unit + q.answerText + q.suffix
@@ -1381,6 +1419,7 @@
     QUICK_PROMPT: QUICK_PROMPT,
     rebuild: rebuild,
     retier: retier,
+    MODEL_FIELDS: MODEL_FIELDS,
     levelsOfKind: levelsOfKind,
     kindSession: kindSession,
     examPlan: examPlan,

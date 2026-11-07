@@ -987,6 +987,7 @@
         card.prompt && card.prompt.length <= 28 ? el("div.am-lesson-prompt", null, card.prompt)
           : el("div.body-lg", { style: { fontWeight: 600, textWrap: "pretty" } }, card.prompt),
         card.chart ? AM.Chart(card.chart) : null,
+        card.model ? AM.MathModel(card.model, t.colorKey) : null,
         steps,
         el("div", {
           style: {
@@ -1153,7 +1154,9 @@
       if (ses.phase === "correct") {
         return el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
           sectionLabel("How it works"),
-          el("span.body-lg", null, q.explain));
+          el("span.body-lg", null, q.explain),
+          /* The maths drawn, now that it is answered: never before. */
+          q.model ? AM.MathModel(q.model, q.colorKey || ses.colorKey) : null);
       }
       if (ses.phase === "wrong") {
         var block = el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },

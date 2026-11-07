@@ -324,6 +324,7 @@
       },
       "where": ["gcd(x, y) == 1", "x != y"],
       "answer": {"type": "integer", "value": "p * x"},
+      "model": {"kind": "tape", "parts": ["x", "y"], "unit": "p", "caption": "{x} + {y} = {x + y} equal parts of {p}. The first share is {x} × {p} = {answer}."},
       "formats": [
         {"id": "money", "prompt": "Ana and Ben share ₱{total} in the ratio {x} : {y}. How much does Ana get?"},
         {
@@ -374,6 +375,7 @@
       },
       "where": ["gcd(x, y) == 1", "x != y"],
       "answer": {"type": "integer", "value": "x * p"},
+      "model": {"kind": "tape", "parts": ["x", "y"], "unit": "p", "caption": "{y} part{y == 1 ? '' : 's'} make {girls}, so one part is {p}, and {x} part{x == 1 ? ' is' : 's are'} {answer}."},
       "formats": [
         {
           "id": "class",
