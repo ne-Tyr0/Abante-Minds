@@ -153,18 +153,39 @@ function checkParams(t) {
    fuzz does for every draw of every template. */
 function checkModel(m, names) {
   if (!m || typeof m !== "object" || Array.isArray(m)) { fail("model must be an object"); return; }
-  const fields = C.MODEL_FIELDS[m.kind];
-  if (!fields) { fail(`model kind is one of ${Object.keys(C.MODEL_FIELDS).join(", ")}`); return; }
-  unknownKeys(m, new Set(["kind", "caption", ...fields]), "model");
-  for (const k of fields) {
-    if (!(k in m)) { fail(`a ${m.kind} model needs ${k}`); continue; }
-    if (k === "op") { if (m.op !== "+" && m.op !== "-") fail("a columns model's op is + or -"); continue; }
-    if (k === "parts") {
-      if (!Array.isArray(m.parts) || m.parts.length < 2 || m.parts.length > 3) fail("a tape model has 2 or 3 parts");
-      else m.parts.forEach((p, i) => expr(p, names, `model parts[${i}]`));
-      continue;
-    }
-    expr(m[k], names, `model ${k}`);
+  const spec = C.MODEL_SPEC[m.kind];
+  if (!spec) { fail(`model kind is one of ${Object.keys(C.MODEL_SPEC).join(", ")}`); return; }
+  unknownKeys(m, new Set(["kind", "caption", ...Object.keys(spec)]), "model");
+  for (const [k, type] of Object.entries(spec)) {
+    const ty = type.replace("?", "");
+    if (!(k in m)) { if (!type.endsWith("?")) fail(`a ${m.kind} model needs ${k}`); continue; }
+    const val = m[k];
+    if (ty === "expr") expr(val, names, `model ${k}`);
+    else if (ty === "exprs" || ty === "texts") {
+      if (!Array.isArray(val) || !val.length) { fail(`model ${k} is a list`); continue; }
+      val.forEach((x, i) => (ty === "exprs" ? expr : text)(x, names, `model ${k}[${i}]`));
+    } else if (ty === "text") text(val, names, `model ${k}`);
+    else if (ty === "op") { if (val !== "+" && val !== "-") fail("a columns model's op is + or -"); }
+    else if (ty === "mode") { if (val !== "multiples" && val !== "factors") fail("a lists model's mode is multiples or factors"); }
+    else if (ty === "bool") { if (typeof val !== "boolean") fail(`model ${k} is true or false`); }
+  }
+  const len = (k) => (Array.isArray(m[k]) ? m[k].length : -1);
+  if (m.kind === "tape") {
+    if (("unit" in m) === ("units" in m)) fail("a tape model has one unit, or a unit for each part");
+    if (len("parts") < 2 || len("parts") > 3) fail("a tape model has 2 or 3 parts");
+    if ("units" in m && len("units") !== len("parts")) fail("a tape model has a unit for each part");
+    if ("names" in m && len("names") !== len("parts")) fail("a tape model has a name for each part");
+  }
+  if (m.kind === "line" && (len("points") < 2 || len("points") > 5 || len("labels") !== len("points") || len("hops") !== len("points") - 1))
+    fail("a line model has 2 to 5 points, a label for each and a hop between each two");
+  if (m.kind === "lists") {
+    if (len("of") < 2 || len("of") > 3 || len("labels") !== len("of")) fail("a lists model has 2 or 3 numbers and a label for each");
+    if ((m.mode === "multiples") !== ("upto" in m)) fail("a lists model of multiples says how far they go (upto), and only then");
+  }
+  if (m.kind === "rect") {
+    if ("cut" in m && len("cut") !== 2) fail("a rect model's cut is its width and height");
+    if (len("labels") !== 2 && !(m.cut && len("labels") === 4)) fail("a rect model has two labels, or four with a cut");
+    if (m.half && m.cut) fail("a rect model is halved or cut, not both");
   }
   if ("caption" in m) text(m.caption, names, "model caption");
 }

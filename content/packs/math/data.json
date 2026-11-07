@@ -888,6 +888,7 @@
         ]
       },
       "answer": {"type": "percent", "value": "p"},
+      "model": {"kind": "hundred", "shaded": "p", "caption": "The whole pie is 100%. The other slices make {100 - p}%, so this one is {p}%."},
       "formats": [
         {
           "id": "missing",
@@ -1096,6 +1097,7 @@
         ]
       },
       "answer": {"type": "percent", "value": "d * 5 / 18"},
+      "model": {"kind": "hundred", "shaded": "answer", "caption": "{d}° of the whole 360° is {answer} out of every 100."},
       "formats": [
         {
           "id": "percent",

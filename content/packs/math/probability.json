@@ -160,6 +160,7 @@
       "params": {"total": {"choose": [4, 5, 10, 20, 25, 50]}, "w": {"range": [1, "total - 1"]}},
       "where": ["2 * w != total"],
       "answer": {"type": "percent", "value": "w * 100 / total"},
+      "model": {"kind": "hundred", "shaded": "answer", "caption": "{w} out of {total} is the same chance as {answer} out of 100."},
       "formats": [
         {
           "id": "tickets",
@@ -239,6 +240,7 @@
         "total": {"value": "r + g + bl"}
       },
       "answer": {"type": "fraction", "value": "n / total"},
+      "model": {"kind": "array", "rows": "1", "cols": "total", "tint": "1", "mark": "n", "caption": "{n} of the {total} marbles are {colour}: {frac(n / total)}."},
       "formats": [
         {
           "id": "marbles",

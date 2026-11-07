@@ -500,6 +500,14 @@ function run() {
       case "model-tape":
         topicItem("ratio", "problems", "ratio.share", { x: 3, y: 2, p: 15 }, "45", true);
         break;
+      /* Any template's question, answered right: &t=template&tp=topic&lv=level&p={params as JSON}. */
+      case "model-of":
+        (function () {
+          var tp = params.get("tp"), lv = params.get("lv"), q = AM.content.instance(params.get("t"), 1, JSON.parse(params.get("p") || "{}"));
+          var given = q.type === "choice" ? q.answerIndex : q.entry === "time" ? q.answerText.replace(":", "") : q.answerText.replace("/", ">");
+          topicItem(tp, lv, params.get("t"), JSON.parse(params.get("p") || "{}"), given, true);
+        })();
+        break;
       case "lesson-hundred":
       case "lesson-tape":
         AM.app.openLesson(screen === "lesson-tape" ? "ratio" : "percent", screen === "lesson-tape" ? "problems" : "of-a-number");

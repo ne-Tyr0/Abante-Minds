@@ -835,3 +835,10 @@ html, body {
 .am-model .am-columns { padding: 0; background: none; }
 .am-col-result > span { color: var(--model-ink, var(--brand-blue-600)); font-weight: 800; }
 .am-model-cap { max-width: 34ch; font-size: 13px; line-height: 18px; color: var(--ink-600); text-wrap: pretty; }
+/* Multiples or factors in rows: the shared ones tinted, the answer filled. */
+.am-ml { display: grid; gap: 10px; max-width: 320px; }
+.am-ml-label { display: block; margin-bottom: 4px; font-size: 12px; font-weight: 600; color: var(--ink-600); }
+.am-ml-chips { display: flex; flex-wrap: wrap; gap: 4px; }
+.am-ml-chip { min-width: 30px; padding: 3px 6px; border-radius: 8px; background: var(--surface-100); box-shadow: inset 0 0 0 1.5px var(--surface-300); color: var(--ink-900); font-size: 13px; font-weight: 600; text-align: center; }
+.am-ml-chip.is-common { background: var(--ml-tint); box-shadow: inset 0 0 0 1.5px var(--ml-bright); }
+.am-ml-chip.is-answer { background: var(--ml-bright); box-shadow: none; color: #fff; font-weight: 800; }

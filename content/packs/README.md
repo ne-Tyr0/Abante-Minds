@@ -323,14 +323,19 @@ params and `answer`; `caption` is text, read under the picture.
 | `columns` | `top`, `bottom`, `op` (`+` or `-`), `places` | A decimal sum in columns, the points lined up, the answer under the rule |
 | `array` | `rows`, `cols`, `tint`, `mark` | Dots in rows: the first `tint` rows picked out, the first `mark` dots of each of those coloured (a fraction of a fraction of a group) |
 | `hundred` | `shaded` | A hundred square with that many squares coloured (a per cent) |
-| `tape` | `parts` (2 or 3), `unit` | A bar of equal parts of `unit`, each part's share bracketed (a ratio) |
+| `tape` | `parts` (2 or 3); `unit`, or `units` (one per part, boxes drawn to size); `names` (optional, one per part) | A bar of parts, each part's share bracketed and named (a ratio; a total in GEMDAS) |
+| `line` | `points` (2 to 5), `labels` (one per point), `hops` (one between each two) | A number line with labelled hops between the points (time counted on); a hop of nothing is left out |
+| `lists` | `mode` (`multiples` or `factors`), `of` (2 or 3 numbers), `labels`, `upto` (multiples only) | Rows of multiples or factors, the shared ones tinted and the answer filled (LCM, GCF) |
+| `rect` | `width`, `height`, `labels` (2, or 4 with a cut); `half` or `cut` (`[w, h]`) | A rectangle to scale: with the triangle on its base shaded (half of it), or with a corner cut away |
+| `circle` | `radius`, `diameter` (both text) | A circle with its radius and diameter drawn and labelled |
+| `turn` | `angle`, `count` | Copies of an angle round a point, and any gap left (tiling) |
 
 ```json
 "model": {"kind": "tape", "parts": ["x", "y"], "unit": "p", "caption": "One part is {p}."}
 ```
 
 The engine checks the numbers as it draws (whole, and small enough to read on a phone:
-up to 10 rows of 30 dots, 24 parts in a bar), and the fuzz draws every model of every
+up to 12 rows of 30 dots, 24 parts in a bar, 24 numbers in a row of a list), and the fuzz draws every model of every
 template. The screen (`AM.MathModel` in `app/ui.js`) says in words what each shows.
 
 ### Distractors

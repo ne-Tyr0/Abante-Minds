@@ -249,6 +249,7 @@
       },
       "where": ["x != y"],
       "answer": {"type": "integer", "value": "y * k"},
+      "model": {"kind": "tape", "parts": ["x", "y"], "unit": "k", "caption": "Each part is now {k}: {x} × {k} = {x * k}, and {y} × {k} = {answer}."},
       "formats": [
         {"id": "equal", "prompt": "{x} : {y} = {x * k} : ?"},
         {

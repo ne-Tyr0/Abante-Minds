@@ -139,6 +139,7 @@
       },
       "where": ["b * h % 2 == 0"],
       "answer": {"type": "unit", "value": "b * h / 2", "unit": "cm²"},
+      "model": {"kind": "rect", "width": "b", "height": "h", "half": true, "labels": ["{b} cm", "{h} cm"], "caption": "A triangle is half the rectangle round it: {b} × {h} ÷ 2 = {answer} cm²."},
       "formats": [
         {
           "id": "shape",
@@ -410,6 +411,7 @@
         "h": {"range": [2, "H - 2"]}
       },
       "answer": {"type": "unit", "value": "W * H - w * h", "unit": "m²"},
+      "model": {"kind": "rect", "width": "W", "height": "H", "cut": ["w", "h"], "labels": ["{W} m", "{H} m", "{w} m", "{h} m"], "caption": "The whole rectangle, {W} × {H} = {W * H} m², less the corner, {w} × {h} = {w * h} m²."},
       "formats": [
         {
           "id": "room",

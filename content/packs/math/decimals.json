@@ -347,6 +347,7 @@
       },
       "where": ["f1 % 10 != 0"],
       "answer": { "type": "decimal", "value": "a + b" },
+      "model": {"kind": "columns", "top": "a", "bottom": "b", "op": "+", "places": "pa"},
       "formats": [
         { "id": "sum", "prompt": "{fmt(a)} + {fmt(b)} = ?" },
         { "id": "walk", "prompt": "Ben walked {fmt(a)} km in the morning and {fmt(b)} km in the afternoon. How far did he walk in all?" },

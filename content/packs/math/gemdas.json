@@ -88,6 +88,7 @@
         "c": {"tiers": {"1": [2, 9], "3": [3, 12]}}
       },
       "answer": {"type": "integer", "value": "a + b * c"},
+      "model": {"kind": "tape", "parts": ["1", "c"], "units": ["a", "b"], "names": ["{a}", "{c} × {b}"], "caption": "Multiply first: {c} × {b} = {b * c}. Then add: {a} + {b * c} = {answer}."},
       "formats": [{"id": "expression", "prompt": "{a} + {b} × {c} = ?"}],
       "hints": ["Multiply before you add.", "{b} × {c} = {b * c}.", "{a} + {b * c} = ?"],
       "steps": ["Multiply first: {b} × {c} = {b * c}", "Then add: {a} + {b * c}", "= {answer}"],
@@ -221,6 +222,7 @@
         "c": {"tiers": {"1": [5, 20], "3": [12, 45]}}
       },
       "answer": {"type": "integer", "value": "p + n * c", "prefix": "₱"},
+      "model": {"kind": "tape", "parts": ["1", "n"], "units": ["p", "c"], "names": ["the pen", "{n} notebooks"], "caption": "{n} × ₱{c} = ₱{n * c} first, then ₱{p} + ₱{n * c} = ₱{answer}."},
       "formats": [
         {
           "id": "notebooks",

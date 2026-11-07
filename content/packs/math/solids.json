@@ -527,6 +527,7 @@
         "c": {"value": "e * r"}
       },
       "answer": {"type": "integer", "value": "p * q * r"},
+      "model": {"kind": "array", "rows": "q", "cols": "p", "tint": "q", "mark": "p", "caption": "One layer is {p} × {q} = {p * q} cubes, and {r} layer{r == 1 ? ' holds' : 's hold'} {answer}."},
       "formats": [
         {
           "id": "cubes",

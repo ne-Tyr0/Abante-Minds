@@ -87,6 +87,7 @@
       "schema": "multiplicative-compare",
       "params": {"r": {"tiers": {"1": [2, 25], "3": [5, 90]}}},
       "answer": {"type": "unit", "value": "2 * r", "unit": "cm"},
+      "model": {"kind": "circle", "radius": "{r} cm", "diameter": "{answer} cm", "caption": "The diameter is two radii: 2 × {r} = {answer} cm."},
       "formats": [
         {"id": "circle", "prompt": "A circle has a radius of {r} cm. What is its diameter?"},
         {"id": "plate", "prompt": "The radius of a plate is {r} cm. How wide is the plate across its centre?"}
@@ -119,6 +120,7 @@
       "schema": "multiplicative-compare",
       "params": {"d": {"tiers": {"1": [4, 50], "3": [9, 99]}}},
       "answer": {"type": "unit", "value": "d / 2", "unit": "cm"},
+      "model": {"kind": "circle", "radius": "{fmt(answer)} cm", "diameter": "{d} cm", "caption": "The radius is half the diameter: {d} ÷ 2 = {fmt(answer)} cm."},
       "formats": [
         {"id": "circle", "prompt": "A circle has a diameter of {d} cm. What is its radius?"},
         {

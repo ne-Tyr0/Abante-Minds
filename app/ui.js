@@ -448,12 +448,20 @@
   function MathModel(m, colorKey) {
     var k = colorKey || 1, bright = "var(--skill-" + k + "-bright)", deep = "var(--skill-" + k + "-deep)", tint = "var(--skill-" + k + "-tint)";
     var fill = function (c) { return ' style="fill:' + c + '"'; };
-    var art, words;
+    var esc = function (s) { return String(s).replace(/[&<>"]/g, function (ch) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[ch]; }); };
+    var f1 = function (x) { return (Math.round(x * 10) / 10).toString(); };
+    var txt = function (x, y, s, o) {
+      o = o || {};
+      return '<text x="' + f1(x) + '" y="' + f1(y) + '" text-anchor="' + (o.anchor || "middle") + '" font-size="' + (o.size || 12) + '" font-weight="' + (o.weight || 600) + '" style="fill:' + (o.ink || "var(--ink-900)") + '">' + esc(s) + "</text>";
+    };
+    var svg = function (w, h, inner) { return el("span", { html: '<svg viewBox="0 0 ' + f1(w) + " " + f1(h) + '" width="' + f1(w) + '" height="' + f1(h) + '" aria-hidden="true">' + inner + "</svg>" }); };
+    var plural = function (n, one) { return n + " " + one + (n === 1 ? "" : "s"); };
+    var art, words, i, j;
     if (m.kind === "columns") {
       var split = m.rows.concat([m.result]).map(function (r) { var p = r.split("."); return { w: p[0], f: p[1] || "" }; });
       var w = Math.max.apply(null, split.map(function (r) { return r.w.length; })), d = split[0].f.length;
       var row = function (r, sign, cls) {
-        var cells = [el("span.am-col-sign", null, sign || "")], j;
+        var cells = [el("span.am-col-sign", null, sign || "")];
         for (j = 0; j < w; j++) cells.push(el("span", null, r.w[r.w.length - w + j] || ""));
         if (d) { cells.push(el("span.am-col-dot", null, ".")); for (j = 0; j < d; j++) cells.push(el("span", null, r.f[j])); }
         return el("div.am-col-row" + (cls || ""), null, cells);
@@ -472,28 +480,111 @@
             : '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2 - 1) + '"' + fill("var(--surface-300)") + "/>";
         }
       }
-      art = el("span", { html: '<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">' + h + "</svg>" });
-      words = m.rows * m.cols + " dots in " + m.rows + " rows; " + m.tint + " row" + (m.tint === 1 ? "" : "s") + " picked out, and " + m.tint * m.mark + " of " + (m.tint === 1 ? "its" : "their") + " dots coloured";
+      art = svg(W, H, h);
+      words = m.rows * m.cols + " dots in " + plural(m.rows, "row") + "; " + plural(m.tint, "row") + " picked out, and " + m.tint * m.mark + " of " + (m.tint === 1 ? "its" : "their") + " dots coloured";
     } else if (m.kind === "hundred") {
       var q = 21, gp = 3, side = 10 * (q + gp) + gp, hh = "";
       for (var n = 0; n < 100; n++) hh += '<rect x="' + (gp + (n % 10) * (q + gp)) + '" y="' + (gp + Math.floor(n / 10) * (q + gp)) + '" width="' + q + '" height="' + q + '" rx="4"' + fill(n < m.shaded ? bright : "var(--surface-300)") + "/>";
-      art = el("span", { html: '<svg viewBox="0 0 ' + side + " " + side + '" width="' + side + '" height="' + side + '" aria-hidden="true">' + hh + "</svg>" });
+      art = svg(side, side, hh);
       words = "A hundred square with " + m.shaded + " of its 100 squares coloured";
     } else if (m.kind === "tape") {
-      var total = m.parts.reduce(function (a, b) { return a + b; }, 0), TW = 300, u = TW / total, inks = [bright, "var(--action-500)", "var(--brand-blue-600)"], th = "", at = 0;
-      m.parts.forEach(function (p, i) {
-        for (var j = 0; j < p; j++) {
-          var bx = (at + j) * u;
-          th += '<rect x="' + (bx + 1).toFixed(1) + '" y="1" width="' + (u - 2).toFixed(1) + '" height="34" rx="5"' + fill(inks[i]) + "/>";
-          if (u >= 24) th += '<text x="' + (bx + u / 2).toFixed(1) + '" y="23" text-anchor="middle" font-size="' + (u >= 36 ? 13 : 11) + '" font-weight="700" style="fill:#fff">' + m.unit + "</text>";
+      var total = 0; m.parts.forEach(function (p, ii) { total += p * m.sizes[ii]; });
+      var TW = 300, sc = TW / total, inks = [bright, "var(--action-500)", "var(--brand-blue-600)"], th = "", at = 0, np = m.parts.length;
+      m.parts.forEach(function (p, ii) {
+        var bw = m.sizes[ii] * sc, x0 = at;
+        for (var jj = 0; jj < p; jj++) {
+          th += '<rect x="' + f1(at + 1) + '" y="1" width="' + f1(Math.max(1, bw - 2)) + '" height="34" rx="5"' + fill(inks[ii]) + "/>";
+          if (bw >= 24) th += txt(at + bw / 2, 23, m.units[ii], { size: bw >= 36 ? 13 : 11, weight: 700, ink: "#fff" });
+          at += bw;
         }
-        var x0 = at * u + 2, x1 = (at + p) * u - 2;
-        th += '<path d="M' + x0.toFixed(1) + " 42v6H" + x1.toFixed(1) + 'v-6" style="fill:none;stroke:var(--ink-600);stroke-width:1.5"/>' +
-          '<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="66" text-anchor="middle" font-size="13" font-weight="600" style="fill:var(--ink-900)">' + p + " part" + (p === 1 ? "" : "s") + "</text>";
-        at += p;
+        var xa = x0 + 2, xb = at - 2, anchor = np === 2 ? (ii === 0 ? "start" : "end") : "middle";
+        th += '<path d="M' + f1(xa) + " 42v6H" + f1(xb) + 'v-6" style="fill:none;stroke:var(--ink-600);stroke-width:1.5"/>';
+        th += txt(anchor === "start" ? xa : anchor === "end" ? xb : (xa + xb) / 2, 66, m.names ? m.names[ii] : plural(p, "part"), { anchor: anchor, size: 12.5 });
       });
-      art = el("span", { html: '<svg viewBox="0 0 ' + TW + ' 72" width="' + TW + '" height="72" aria-hidden="true">' + th + "</svg>" });
-      words = "A bar of " + total + " equal parts of " + m.unit + ": " + m.parts.map(function (p) { return p + " part" + (p === 1 ? "" : "s"); }).join(" and ");
+      art = svg(TW, 72, th);
+      words = "A bar in " + m.parts.map(function (p, ii) { return (m.names ? m.names[ii] + ": " : "") + plural(p, "part") + " of " + m.units[ii]; }).join(", and ");
+    } else if (m.kind === "line") {
+      var P = m.points, LW = 300, pad = 16, avail = LW - 2 * pad, span = P[P.length - 1].at - P[0].at, gaps = [];
+      for (i = 1; i < P.length; i++) gaps.push((P[i].at - P[i - 1].at) / span * avail);
+      /* Hops in proportion, but none too short to label. */
+      var floorW = Math.min(64, avail / gaps.length), small = gaps.map(function (gw) { return gw < floorW; });
+      var rest = avail - floorW * small.filter(Boolean).length, big = gaps.reduce(function (s2, gw, ii) { return s2 + (small[ii] ? 0 : gw); }, 0);
+      var xs = [pad]; gaps.forEach(function (gw, ii) { xs.push(xs[ii] + (small[ii] ? floorW : gw / big * rest)); });
+      var lh = '<path d="M' + (pad - 6) + " 60H" + (LW - pad + 6) + '" style="stroke:var(--ink-600);stroke-width:2"/>';
+      for (i = 0; i < P.length; i++) {
+        lh += '<path d="M' + f1(xs[i]) + " 54V66" + '" style="stroke:var(--ink-900);stroke-width:2"/>';
+        lh += txt(xs[i], 84, P[i].label, { anchor: i === 0 ? "start" : i === P.length - 1 ? "end" : "middle", size: 11.5 });
+      }
+      for (i = 1; i < P.length; i++) {
+        var mx = (xs[i - 1] + xs[i]) / 2;
+        lh += '<path d="M' + f1(xs[i - 1] + 2) + " 54Q" + f1(mx) + " 14 " + f1(xs[i] - 2) + ' 54" style="fill:none;stroke:' + bright + ';stroke-width:2.5;stroke-linecap:round"/>';
+        lh += '<path d="M' + f1(xs[i] - 9) + " 48L" + f1(xs[i] - 2) + " 54L" + f1(xs[i] - 4) + ' 45" style="fill:none;stroke:' + bright + ';stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round"/>';
+        lh += txt(mx, 24, m.hops[i - 1], { size: 12, weight: 700, ink: deep });
+      }
+      art = svg(LW, 92, lh);
+      words = "A number line from " + P[0].label + " to " + P[P.length - 1].label + ", in hops of " + m.hops.join(", then ");
+    } else if (m.kind === "lists") {
+      art = el("div.am-ml", null, m.lists.map(function (l) {
+        return el("div.am-ml-row", null, el("span.am-ml-label", null, l.label), el("span.am-ml-chips", null, l.items.map(function (vv) {
+          var shared = m.common.indexOf(vv) > -1;
+          return el("span.am-ml-chip" + (shared && vv === m.ring ? ".is-answer" : shared ? ".is-common" : ""), null, String(vv));
+        })));
+      }));
+      art.style.setProperty("--ml-bright", bright); art.style.setProperty("--ml-tint", tint);
+      words = m.lists.map(function (l) { return l.label + ": " + l.items.join(", "); }).join(". ") + ". Shared: " + m.common.join(", ");
+    } else if (m.kind === "rect") {
+      var sc2 = Math.min(230 / m.width, 130 / m.height), rw = m.width * sc2, rh = m.height * sc2, ox = 52, oy = 10, rs = "";
+      if (m.half) {
+        var apex = ox + rw * 0.35;
+        rs += '<rect x="' + ox + '" y="' + oy + '" width="' + f1(rw) + '" height="' + f1(rh) + '" style="fill:none;stroke:var(--ink-600);stroke-width:1.5;stroke-dasharray:5 4"/>';
+        rs += '<path d="M' + ox + " " + f1(oy + rh) + "H" + f1(ox + rw) + "L" + f1(apex) + " " + oy + 'Z" style="fill:' + tint + ";stroke:" + bright + ';stroke-width:2;stroke-linejoin:round"/>';
+        rs += '<path d="M' + f1(apex) + " " + oy + "V" + f1(oy + rh) + '" style="stroke:' + deep + ';stroke-width:1.5;stroke-dasharray:4 3"/>';
+        rs += txt(apex + 6, oy + rh / 2 + 4, m.labels[1], { anchor: "start", size: 12 });
+      } else if (m.cut) {
+        var cw = m.cut[0] * sc2, ch = m.cut[1] * sc2;
+        rs += '<path d="M' + ox + " " + oy + "H" + f1(ox + rw - cw) + "V" + f1(oy + ch) + "H" + f1(ox + rw) + "V" + f1(oy + rh) + "H" + ox + 'Z" style="fill:' + tint + ";stroke:" + bright + ';stroke-width:2;stroke-linejoin:round"/>';
+        rs += '<rect x="' + f1(ox + rw - cw) + '" y="' + oy + '" width="' + f1(cw) + '" height="' + f1(ch) + '" style="fill:none;stroke:var(--action-500);stroke-width:1.5;stroke-dasharray:5 4"/>';
+        if (m.labels.length === 4 && cw > 34 && ch > 16) rs += txt(ox + rw - cw / 2, oy + ch / 2 + 4, m.labels[2] + " × " + m.labels[3], { size: 11, ink: "var(--action-600)" });
+        rs += txt(ox - 6, oy + rh / 2 + 4, m.labels[1], { anchor: "end", size: 12 });
+      } else {
+        rs += '<rect x="' + ox + '" y="' + oy + '" width="' + f1(rw) + '" height="' + f1(rh) + '" style="fill:' + tint + ";stroke:" + bright + ';stroke-width:2"/>';
+        rs += txt(ox - 6, oy + rh / 2 + 4, m.labels[1], { anchor: "end", size: 12 });
+      }
+      rs += txt(ox + rw / 2, oy + rh + 18, m.labels[0], { size: 12 });
+      art = svg(ox + rw + 12, oy + rh + 26, rs);
+      words = "A rectangle " + m.labels[0] + " by " + m.labels[1] + (m.half ? ", with the triangle on its base shaded: half of it" : m.cut ? ", with a corner " + (m.labels[2] ? m.labels[2] + " by " + m.labels[3] + " " : "") + "cut away" : "");
+    } else if (m.kind === "circle") {
+      var R = 70, cx = 100, cy = 84, ra = 130 * Math.PI / 180, cs = "";
+      cs += '<circle cx="' + cx + '" cy="' + cy + '" r="' + R + '" style="fill:' + tint + ";stroke:" + bright + ';stroke-width:2.5"/>';
+      cs += '<path d="M' + (cx - R) + " " + cy + "H" + (cx + R) + '" style="stroke:' + deep + ';stroke-width:2.5"/>';
+      cs += '<path d="M' + cx + " " + cy + "L" + f1(cx + R * Math.cos(ra)) + " " + f1(cy + R * Math.sin(ra)) + '" style="stroke:var(--action-500);stroke-width:2.5;stroke-linecap:round"/>';
+      cs += '<circle cx="' + cx + '" cy="' + cy + '" r="3.5"' + fill("var(--ink-900)") + "/>";
+      cs += txt(cx, cy - 9, "diameter " + m.diameter, { size: 12, weight: 700, ink: deep });
+      cs += txt(cx, cy + R + 20, "radius " + m.radius, { size: 12, weight: 700, ink: "var(--action-600)" });
+      art = svg(200, 182, cs);
+      words = "A circle with a radius of " + m.radius + " and a diameter of " + m.diameter;
+    } else if (m.kind === "turn") {
+      var TR = 72, tx = 100, ty = 84, ts = "", start = -90;
+      var wedge = function (a0, a1) {
+        var p0 = [tx + TR * Math.cos(a0 * Math.PI / 180), ty + TR * Math.sin(a0 * Math.PI / 180)], p1 = [tx + TR * Math.cos(a1 * Math.PI / 180), ty + TR * Math.sin(a1 * Math.PI / 180)];
+        return "M" + tx + " " + ty + "L" + f1(p0[0]) + " " + f1(p0[1]) + "A" + TR + " " + TR + " 0 " + (a1 - a0 > 180 ? 1 : 0) + " 1 " + f1(p1[0]) + " " + f1(p1[1]) + "Z";
+      };
+      var label = function (a0, a1, s2, ink) { var mid = (a0 + a1) / 2 * Math.PI / 180; return txt(tx + TR * 0.6 * Math.cos(mid), ty + TR * 0.6 * Math.sin(mid) + 4, s2, { size: 11.5, weight: 700, ink: ink }); };
+      for (i = 0; i < m.count; i++) {
+        var a0 = start + i * m.angle, a1 = a0 + m.angle;
+        /* Copies alternate; an odd last one that would meet the first in the same colour gets a shade of its own. */
+        var odd = i === m.count - 1 && m.count % 2 === 1 && m.count > 1 && !(m.gap > 0);
+        ts += '<path d="' + wedge(a0, a1) + '" style="fill:' + (i % 2 ? tint : bright) + (odd ? ";fill-opacity:.55" : "") + ';stroke:var(--surface-200);stroke-width:2;stroke-linejoin:round"/>';
+        if (m.angle >= 30) ts += label(a0, a1, m.angle + "°", i % 2 ? deep : "#fff");
+      }
+      if (m.gap > 0) {
+        var g0 = start + m.count * m.angle;
+        ts += '<path d="' + wedge(g0, g0 + m.gap) + '" style="fill:none;stroke:var(--action-500);stroke-width:2;stroke-dasharray:4 3;stroke-linejoin:round"/>';
+        if (m.gap >= 20) ts += label(g0, g0 + m.gap, m.gap + "°", "var(--action-600)");
+      }
+      ts += '<circle cx="' + tx + '" cy="' + ty + '" r="3.5"' + fill("var(--ink-900)") + "/>";
+      art = svg(200, 168, ts);
+      words = m.count + " angles of " + m.angle + "° round a point" + (m.gap > 0 ? ", leaving a gap of " + m.gap + "°" : ", making the whole 360°");
     } else return null;
     return el("div.am-model", { role: "img", "aria-label": words + (m.caption ? ". " + m.caption : "") },
       art, m.caption ? el("span.am-model-cap", { "aria-hidden": "true" }, m.caption) : null);
