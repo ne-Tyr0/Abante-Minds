@@ -1,0 +1,8 @@
+{
+  "name": "abante-minds",
+  "private": true,
+  "description": "The app has no build step. This file exists only so the Publish workflow can install one pinned minifier (npm ci) for tools/site.js --minify; nothing here runs in the app or in CI's tests.",
+  "devDependencies": {
+    "terser": "5.51.2"
+  }
+}

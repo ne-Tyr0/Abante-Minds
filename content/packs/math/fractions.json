@@ -356,6 +356,7 @@
       },
       "where": ["gcd(a, b) == 1", "gcd(c, d) == 1", "n >= 12", "n <= 60"],
       "answer": { "type": "integer", "value": "part * c / d" },
+      "model": {"kind": "array", "rows": "b", "cols": "d * k", "tint": "a", "mark": "c * k", "caption": "{n} in {b} equal rows: {frac(a / b)} is {a} row{a == 1 ? '' : 's'}, {part}. {frac(c / d)} of each of those rows makes {answer}."},
       "formats": [
         { "id": "club", "prompt": "There are {n} pupils in a class. {frac(a / b)} of them are girls, and {frac(c / d)} of the girls are in the math club. How many girls are in the math club?" },
         { "id": "mangoes", "prompt": "A basket has {n} mangoes. {frac(a / b)} of them are ripe. Lola uses {frac(c / d)} of the ripe mangoes for shakes. How many mangoes does she use?" }

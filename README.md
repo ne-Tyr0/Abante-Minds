@@ -12,7 +12,7 @@ transformations are all written. Beside the path, a Basics track drills
 the facts under every topic, starting with adding and subtracting and the times tables,
 until they come without a calculator. `CLAUDE.md` and `RESEARCH-PLAN.md` hold the decisions and the plan.
 
-Open `index.html` through any static server. There is no build step.
+Open `index.html` through any static server. There is no build step: the files run as they are. Only the published copies are minified, by the Publish workflow (`tools/site.js --minify`).
 
 ```bash
 python devserver.py

@@ -21,3 +21,4 @@ _site/
 # Design catalog builder output: regenerable
 tools/design-catalog/shots/
 tools/design-catalog/*.pdf
+node_modules/

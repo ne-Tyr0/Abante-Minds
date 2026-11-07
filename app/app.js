@@ -1089,6 +1089,8 @@
          phone that has one goes straight home. */
       app.route = s.profile ? "home" : "splash";
       render();
+      /* For tools/bench.js: when the first screen is up. */
+      if (window.performance && performance.mark) performance.mark("am-first-screen");
     }, function (err) {
       app.loadError = err; /* for anyone debugging from the console */
       app.route = "loadFailed";

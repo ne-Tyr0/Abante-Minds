@@ -280,8 +280,10 @@ html, body {
 .am-ttile { position: relative; display: flex; flex-direction: column; align-items: flex-start; gap: 8px; min-width: 0; width: 100%; padding: 10px 12px 12px; border-radius: 18px; background: var(--surface-200); color: var(--ink-900); text-align: left; }
 .am-ttile-soon { background: transparent; box-shadow: inset 0 0 0 1.5px var(--surface-300); color: var(--ink-600); }
 .am-ttile-top { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: flex-start; gap: 6px; width: 100%; }
-.am-ttile-head { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 36px; }
-.am-ttile-name { min-width: 0; font-size: 14px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
+/* A name sits beside its picture when its longest word fits there, and under it when not: never broken inside a word
+   ("Percentage-s" on a 375px phone, seen 2026-11-07). */
+.am-ttile-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; width: 100%; min-height: 36px; }
+.am-ttile-name { flex: 1 1 0; min-width: min-content; font-size: 14px; font-weight: 700; line-height: 1.2; }
 /* The foot sits at the bottom, so tiles side by side line up whatever their names. */
 .am-ttile-foot { display: flex; flex-direction: column; gap: 5px; width: 100%; margin-top: auto; }
 .am-ttile > .am-ttag { position: absolute; top: -9px; right: 10px; z-index: 1; }
@@ -727,6 +729,8 @@ html, body {
 .am-badge-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .am-newtag { position: absolute; top: -2px; right: -6px; background: var(--celebration-coral-600); color: var(--ink-inverse); font-size: 10px; font-weight: 700; line-height: 1; padding: 3px 5px; border-radius: var(--radius-pill); }
 .am-badge-row { display: flex; flex-wrap: wrap; gap: 1px; }
+/* A long list's rows: one off screen is not laid out or painted until it scrolls near (tools/bench.js). Nothing in them reaches outside, which this would clip. */
+.am-cv { content-visibility: auto; contain-intrinsic-size: auto 96px; }
 /* A sheet from the bottom: a badge's card, or the question before leaving a round. */
 .am-badge-sheet-scrim, .am-sheet-scrim { position: absolute; inset: 0; z-index: 60; background: rgba(22, 32, 44, 0.35); }
 .am-badge-sheet, .am-sheet {
@@ -820,3 +824,14 @@ html, body {
 .am-pstat small { display: block; margin-top: 2px; font-size: 12px; line-height: 15px; color: var(--ink-600); }
 /* Question text keeps its size when headings step down. */
 .am-qprompt { font-size: 28px; line-height: 34px; }
+/* Tablets: the keypad, the Check button and the answer panel keep to a hand's width in the middle,
+   not the whole screen (an 11-inch iPad on its side made each key 190px wide; seen 2026-11-07). */
+#am-root[data-device="tablet"] .am-slot-belowfold > * { width: 100%; max-width: 480px; margin-left: auto; margin-right: auto; box-sizing: border-box; }
+#am-root[data-device="tablet"] .am-slot-footer > * { width: 100%; max-width: 560px; margin-left: auto; margin-right: auto; box-sizing: border-box; }
+/* ---------- The maths, drawn (after a right answer, and in a lesson's worked example) ---------- */
+.am-model { align-self: flex-start; display: flex; flex-direction: column; gap: 8px; max-width: 100%; margin-top: 4px; padding: 12px 14px; border-radius: 16px; background: var(--surface-200); box-shadow: var(--shadow-card); }
+.am-model > span:first-child { line-height: 0; }
+.am-model svg { display: block; max-width: 100%; height: auto; }
+.am-model .am-columns { padding: 0; background: none; }
+.am-col-result > span { color: var(--model-ink, var(--brand-blue-600)); font-weight: 800; }
+.am-model-cap { max-width: 34ch; font-size: 13px; line-height: 18px; color: var(--ink-600); text-wrap: pretty; }

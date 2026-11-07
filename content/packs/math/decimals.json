@@ -384,6 +384,7 @@
       },
       "where": ["f2 % 10 != 0"],
       "answer": { "type": "decimal", "value": "a - b" },
+      "model": {"kind": "columns", "top": "a", "bottom": "b", "op": "-", "places": "pb"},
       "formats": [
         { "id": "difference", "prompt": "{a} − {fmt(b)} = ?" },
         { "id": "rope", "prompt": "A rope is {a} m long. {fmt(b)} m is cut off. How much rope is left?" },

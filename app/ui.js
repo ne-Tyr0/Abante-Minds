@@ -205,7 +205,7 @@
   function glint(x, y, s, d) { return '<path class="am-glint" style="animation-delay:' + d + 's" transform="translate(' + x + " " + y + ") scale(" + s + ')" d="M0-10 1.8-1.8 10 0 1.8 1.8 0 10-1.8 1.8-10 0-1.8-1.8z" fill="#fff"/>'; }
   var gemUid = 0;
   /* gem(tier, {glints}) : a 100 x 100 picture of the tier's stone or medal. */
-  function gem(t, o) {
+  function drawGem(t, o) {
     o = o || {}; var id = "am-tg" + (gemUid++), h = "", c = t.c;
     if (t.kind === "metal") {
       h += '<defs><linearGradient id="' + id + 'a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset=".45" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[3] + '"/></linearGradient>' +
@@ -234,7 +234,7 @@
   function nest(svg, x, y, w, h) { return svg.replace('<svg viewBox="0 0 100 100" class="am-gem"', '<svg x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" viewBox="0 0 100 100" class="am-gem"'); }
   /* crest(tier): 140 x 70. A seal for the metals; for the gems, the stone in a mount with prongs,
      filigree wings, side stones (Sapphire up), a crown (Ruby), a halo and rays (Diamond). */
-  function crest(t) {
+  function drawCrest(t) {
     var i = tierIndexOf(t), mt = t.kind === "pearl" ? TIERS()[2] : settingOf(t), mc = mt.c, id = "am-cr" + (gemUid++), h = "", M = "url(#" + id + ")";
     h += '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + mc[0] + '"/><stop offset=".4" stop-color="' + mc[1] + '"/><stop offset=".75" stop-color="' + mc[2] + '"/><stop offset="1" stop-color="' + mc[3] + '"/></linearGradient>' +
       '<radialGradient id="' + id + 'g"><stop offset="0" stop-color="' + (t.kind === "metal" ? mc[0] : t.c[1]) + '" stop-opacity=".75"/><stop offset="1" stop-color="' + (t.kind === "metal" ? mc[1] : t.c[1]) + '" stop-opacity="0"/></radialGradient></defs>';
@@ -275,7 +275,7 @@
   }
   /* From Emerald up the card body is the gem, with the learner's colour kept as an accent. */
   var BODY = { emerald: ["#22c172", "#0a6b3c"], sapphire: ["#4a7ff2", "#112f86"], ruby: ["#ea4166", "#7d0a2c"], diamond: ["#6aa9dc", "#1b3f6e"], pearl: ["#fdf7f0", "#e4d3c1"] };
-  function facets(t) {
+  function drawFacets(t) {
     if (t.kind === "pearl") return "";
     var h = "", k;
     if (t.cut === "emerald") {
@@ -330,7 +330,7 @@
   function hashStr(s) { var h = 2166136261 >>> 0; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h; }
   function seeded(a) { return function () { a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   var weaveCount = 0;
-  function weaveSVG(name, style) {
+  function drawWeave(name, style) {
     var r = seeded(hashStr(String(name || "").toLowerCase().replace(/\s+/g, " ").trim() + "|1|" + style));
     var size = [36, 42, 48, 54][Math.floor(r() * 4)], m = size / 2, rings = 2 + Math.floor(r() * 3), sw = (1.3 + r() * 1.3).toFixed(2), th = "#ffffff", t = "", k;
     var line = function (d, op) { return '<path d="' + d + '" fill="none" stroke="' + th + '" stroke-opacity="' + op + '" stroke-width="' + sw + '" stroke-linejoin="round"/>'; };
@@ -362,7 +362,7 @@
     return (((w[0] || "?")[0] || "?") + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
   }
   var monoCount = 0;
-  function monogramSVG(initials, colorKey, tier) {
+  function drawMonogram(initials, colorKey, tier) {
     var hue = HERO[colorKey] || HERO[2], id = "am-mono-" + (++monoCount), big = initials.length > 2;
     var ring = !tier ? ["#ffffff", "#e8edf4", "#aab6c8", "#6b7a92"] : tier.kind === "pearl" ? ["#fffaf2", "#f1dfcb", "#ffe0ea", "#d8c2ab"] : settingOf(tier).c;
     var safe = initials.replace(/[&<>"]/g, "");
@@ -378,6 +378,31 @@
     if (c) ["--flame-shelf", "--flame-body", "--flame-mid", "--flame-core"].forEach(function (v, i) { f.style.setProperty(v, c[i]); });
     return f;
   }
+  /* ---------- drawn once ----------
+     A tier's stone and crest, a card's weave and its monogram are the same
+     for the same inputs, and drawing them (a brilliant's facets most of all)
+     cost more than the rest of a screen. Each is drawn once and kept as
+     markup; every copy gets ids of its own, so two on a page never share a
+     gradient (one hidden would take the other's colour with it). */
+  var KEPT = Object.create(null), idRun = 0;
+  function freshIds(s) {
+    var ids = Object.create(null), any = false;
+    s.replace(/ id="([^"]+)"/g, function (m, id) { ids[id] = any = true; return m; });
+    if (!any) return s;
+    var tag = "-" + (++idRun).toString(36);
+    return s.replace(/(id="|url\(#|href="#)([^")]+)/g, function (m, pre, id) { return ids[id] ? pre + id + tag : m; });
+  }
+  function kept(key, draw) { var s = KEPT[key]; if (s === undefined) s = KEPT[key] = draw(); return freshIds(s); }
+  function gem(t, o) { return kept("g|" + t.key + (o && o.glints === false ? "|0" : "|1"), function () { return drawGem(t, o); }); }
+  function crest(t) { return kept("c|" + t.key, function () { return drawCrest(t); }); }
+  function facets(t) { return kept("f|" + t.key, function () { return drawFacets(t); }); }
+  function weaveSVG(name, style) {
+    return kept("w|" + style + "|" + String(name || "").toLowerCase().replace(/\s+/g, " ").trim(), function () { return drawWeave(name, style); });
+  }
+  function monogramSVG(initials, colorKey, tier) {
+    return kept("m|" + initials + "|" + colorKey + "|" + (tier ? tier.key : ""), function () { return drawMonogram(initials, colorKey, tier); });
+  }
+
   function ProfileCard(o) {
     o = o || {};
     var hue = HERO[o.colorKey] || HERO[2], T = TIERS();
@@ -415,6 +440,63 @@
       el("span.am-lc-motto", null, o.motto ? "\u201c" + o.motto + "\u201d" : ""),
       el("span.am-lc-tchip", null, el("span", { "aria-hidden": "true", html: gem(shown, { glints: false }) }), shown.name)));
     return el("div.am-reset.am-lcard.am-lc-tier-" + shown.key + (gemBody ? ".am-lc-gembody" : ""), { style: style, role: "img", "aria-label": (o.name || "Your card") + ", " + shown.name + " card" + (o.title ? ", " + o.title : "") }, parts);
+  }
+
+  /* ---------- the maths, drawn (content.js renderModel) ----------
+     Shown after a right answer and in a lesson's worked example, in the
+     topic's colours. Each says in words what it shows. */
+  function MathModel(m, colorKey) {
+    var k = colorKey || 1, bright = "var(--skill-" + k + "-bright)", deep = "var(--skill-" + k + "-deep)", tint = "var(--skill-" + k + "-tint)";
+    var fill = function (c) { return ' style="fill:' + c + '"'; };
+    var art, words;
+    if (m.kind === "columns") {
+      var split = m.rows.concat([m.result]).map(function (r) { var p = r.split("."); return { w: p[0], f: p[1] || "" }; });
+      var w = Math.max.apply(null, split.map(function (r) { return r.w.length; })), d = split[0].f.length;
+      var row = function (r, sign, cls) {
+        var cells = [el("span.am-col-sign", null, sign || "")], j;
+        for (j = 0; j < w; j++) cells.push(el("span", null, r.w[r.w.length - w + j] || ""));
+        if (d) { cells.push(el("span.am-col-dot", null, ".")); for (j = 0; j < d; j++) cells.push(el("span", null, r.f[j])); }
+        return el("div.am-col-row" + (cls || ""), null, cells);
+      };
+      art = el("div.am-columns", null, row(split[0]), row(split[1], m.op), el("div.am-col-rule"), row(split[2], "", ".am-col-result"));
+      art.style.setProperty("--model-ink", deep);
+      words = m.rows[0] + (m.op === "+" ? " plus " : " minus ") + m.rows[1] + " is " + m.result + ", in columns with the points lined up";
+    } else if (m.kind === "array") {
+      var s = Math.max(8, Math.min(22, Math.floor(280 / m.cols))), g = Math.max(3, Math.round(s * 0.3)), W = m.cols * (s + g) + g, H = m.rows * (s + g) + g, h = "";
+      for (var r = 0; r < m.rows; r++) {
+        if (r < m.tint) h += '<rect x="0" y="' + (r * (s + g) + g / 2) + '" width="' + W + '" height="' + (s + g) + '" rx="' + (s / 2) + '"' + fill(tint) + "/>";
+        for (var c = 0; c < m.cols; c++) {
+          var x = g + c * (s + g) + s / 2, y = g + r * (s + g) + s / 2;
+          h += r < m.tint && c < m.mark ? '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2) + '"' + fill(bright) + "/>"
+            : r < m.tint ? '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2 - 1) + '" style="fill:#fff;stroke:' + bright + ';stroke-width:1.5"/>'
+            : '<circle cx="' + x + '" cy="' + y + '" r="' + (s / 2 - 1) + '"' + fill("var(--surface-300)") + "/>";
+        }
+      }
+      art = el("span", { html: '<svg viewBox="0 0 ' + W + " " + H + '" width="' + W + '" height="' + H + '" aria-hidden="true">' + h + "</svg>" });
+      words = m.rows * m.cols + " dots in " + m.rows + " rows; " + m.tint + " row" + (m.tint === 1 ? "" : "s") + " picked out, and " + m.tint * m.mark + " of " + (m.tint === 1 ? "its" : "their") + " dots coloured";
+    } else if (m.kind === "hundred") {
+      var q = 21, gp = 3, side = 10 * (q + gp) + gp, hh = "";
+      for (var n = 0; n < 100; n++) hh += '<rect x="' + (gp + (n % 10) * (q + gp)) + '" y="' + (gp + Math.floor(n / 10) * (q + gp)) + '" width="' + q + '" height="' + q + '" rx="4"' + fill(n < m.shaded ? bright : "var(--surface-300)") + "/>";
+      art = el("span", { html: '<svg viewBox="0 0 ' + side + " " + side + '" width="' + side + '" height="' + side + '" aria-hidden="true">' + hh + "</svg>" });
+      words = "A hundred square with " + m.shaded + " of its 100 squares coloured";
+    } else if (m.kind === "tape") {
+      var total = m.parts.reduce(function (a, b) { return a + b; }, 0), TW = 300, u = TW / total, inks = [bright, "var(--action-500)", "var(--brand-blue-600)"], th = "", at = 0;
+      m.parts.forEach(function (p, i) {
+        for (var j = 0; j < p; j++) {
+          var bx = (at + j) * u;
+          th += '<rect x="' + (bx + 1).toFixed(1) + '" y="1" width="' + (u - 2).toFixed(1) + '" height="34" rx="5"' + fill(inks[i]) + "/>";
+          if (u >= 24) th += '<text x="' + (bx + u / 2).toFixed(1) + '" y="23" text-anchor="middle" font-size="' + (u >= 36 ? 13 : 11) + '" font-weight="700" style="fill:#fff">' + m.unit + "</text>";
+        }
+        var x0 = at * u + 2, x1 = (at + p) * u - 2;
+        th += '<path d="M' + x0.toFixed(1) + " 42v6H" + x1.toFixed(1) + 'v-6" style="fill:none;stroke:var(--ink-600);stroke-width:1.5"/>' +
+          '<text x="' + ((x0 + x1) / 2).toFixed(1) + '" y="66" text-anchor="middle" font-size="13" font-weight="600" style="fill:var(--ink-900)">' + p + " part" + (p === 1 ? "" : "s") + "</text>";
+        at += p;
+      });
+      art = el("span", { html: '<svg viewBox="0 0 ' + TW + ' 72" width="' + TW + '" height="72" aria-hidden="true">' + th + "</svg>" });
+      words = "A bar of " + total + " equal parts of " + m.unit + ": " + m.parts.map(function (p) { return p + " part" + (p === 1 ? "" : "s"); }).join(" and ");
+    } else return null;
+    return el("div.am-model", { role: "img", "aria-label": words + (m.caption ? ". " + m.caption : "") },
+      art, m.caption ? el("span.am-model-cap", { "aria-hidden": "true" }, m.caption) : null);
   }
 
   /* ---------- PracticeHeader ----------
@@ -1521,6 +1603,7 @@
   AM.ProfileCard = ProfileCard;
   AM.CardPattern = CardPattern;
   AM.CARD_FRAMES = CARD_FRAMES;
+  AM.MathModel = MathModel;
   AM.tierGem = gem;
   AM.tierCrest = crest;
   AM.tierFrame = frameGrad;

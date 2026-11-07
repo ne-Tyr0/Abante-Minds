@@ -2,7 +2,7 @@
 
 Offline-first practice for the **Philippine Science High School System National Competitive
 Examination (NCE)**, taken by **Grade 6** learners for admission to Grade 7. Vanilla JS PWA,
-no build step, no backend. Implements `Abante Minds screens.dc.html`, the design spec
+no build step (the Publish workflow only minifies the site's copies), no backend. Implements `Abante Minds screens.dc.html`, the design spec
 imported from the claude.ai design project.
 
 **Next sitting: 30 January 2027.** The exam is dated, so the app is countdown-shaped, not
@@ -41,6 +41,8 @@ node tools/replay.js log.json  # reprint every question in an attempt log (--csv
 node poc/progress-code.js      # proves the backup-code codec; exits 1 if a claim fails
 node tests/invariants.js       # repo rules that fail silently at runtime; exits 1 on any
 node tests/cache-bump.js main  # did a precached file change without a CACHE bump?
+npm ci --ignore-scripts && node tests/minified.js  # the minified site, as published, passes the behaviour tests
+node tools/bench.js            # how long each screen takes to draw, CPU slowed 4x like a budget phone (needs the dev server)
 ```
 
 All of these run in CI (`.github/workflows/ci.yml`) on every pull request to `main`, and
@@ -72,7 +74,7 @@ mutant for it, so a test that can never fail does not pass for one.
 | `app/challenge.js` | The rules of the challenge round: the two modes, the scoring and the ladder. Pure, like `facts.js`; the questions are the engine's and the records the store's |
 | `app/share.js` | Pictures made on the phone: the streak milestone picture and the reward road's certificate, drawn on a canvas and handed to the phone's share menu |
 | `app/reminder.js`, `reminders/` | The practice reminder: the times and the Google Calendar link. The calendar file for each time is written into `reminders/` by `node tools/reminders.js`, which holds the file's text (CI checks they match). The `.ics` files are CR LF and stored byte for byte (`.gitattributes`) |
-| `tools/site.js`, `.github/workflows/publish.yml` | The published site: `sw.js`'s precache list, `sw.js` and the reminder files, and nothing else; the Publish workflow puts it on GitHub Pages (Settings -> Pages -> Source: GitHub Actions). Design pages, tools, tests and notes stay off the site |
+| `tools/site.js`, `.github/workflows/publish.yml` | The published site: `sw.js`'s precache list, `sw.js` and the reminder files, and nothing else, with the scripts, styles and packs minified on the way (`--minify`: terser, pinned in `package.json` and installed only by `npm ci` in the workflows; the repository keeps every comment); the Publish workflow puts it on GitHub Pages (Settings -> Pages -> Source: GitHub Actions). Design pages, tools, tests and notes stay off the site |
 | `tools/csp.js` | Writes the app page's Content Security Policy into `index.html`, with the hash of its one inline script; `tests/invariants.js` fails if it is missing, stale, or names any outside source. Run it after editing that script |
 | `app/road.js` | The reward road: its steps, which streaks are milestones, how a step opens, what the steps give, the shield cap. Pure; the store keeps what the learner has from it |
 | `content/packs/<subtest>/` | The questions, as JSON. `manifest.json` is the path: all 13 blueprint topics in order, the unwritten ones marked `comingSoon`. One file per written topic holds its levels, lessons and templates. All 13 are written: decimals, fractions, order of operations, factors, ratio, percentages, time, area, solids, circles, data, probability, transformations. The manifest's `basics` lists the Basics topics; written so far: adding and subtracting (`add-subtract.json`), the times tables (`times.json`), mental math (`mental.json`), pen-and-paper methods (`written.json`), missing-number algebra (`missing.json`), fraction and per cent equivalents (`equivalents.json`) and squares and cubes (`powers.json`). How to write one: `content/packs/README.md` |

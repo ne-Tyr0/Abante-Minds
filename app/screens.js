@@ -340,7 +340,7 @@
           AM.ProfileCard({
             name: draft.name, school: (draft.school ? draft.school + " · " : "") + "Grade 6", colorKey: draft.colorKey,
             frame: draft.frame || tierNow.key, pattern: draft.pattern, initials: draft.initials, title: draft.title, motto: draft.motto, streak: store.get().streakDays, flame: draft.flame,
-            style: { maxWidth: "none", width: "100%" }
+            style: { maxWidth: 440, width: "100%", marginLeft: "auto", marginRight: "auto" }
           })),
         field("Your name", "name"),
         field("School or barangay (optional)", "school"),
@@ -987,6 +987,7 @@
         card.prompt && card.prompt.length <= 28 ? el("div.am-lesson-prompt", null, card.prompt)
           : el("div.body-lg", { style: { fontWeight: 600, textWrap: "pretty" } }, card.prompt),
         card.chart ? AM.Chart(card.chart) : null,
+        card.model ? AM.MathModel(card.model, t.colorKey) : null,
         steps,
         el("div", {
           style: {
@@ -1153,7 +1154,9 @@
       if (ses.phase === "correct") {
         return el("div", { style: { padding: "18px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-2)" } },
           sectionLabel("How it works"),
-          el("span.body-lg", null, q.explain));
+          el("span.body-lg", null, q.explain),
+          /* The maths drawn, now that it is answered: never before. */
+          q.model ? AM.MathModel(q.model, q.colorKey || ses.colorKey) : null);
       }
       if (ses.phase === "wrong") {
         var block = el("div", { style: { padding: "16px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: "var(--space-3)" } },
@@ -1694,7 +1697,7 @@
     var nextFound = nextKey ? store.findBadge(nextKey, cat) : null;
 
     function row(t) {
-      return el("div", {
+      return el("div.am-cv", {
         style: {
           padding: "8px 10px", borderRadius: "var(--radius-md)",
           background: t.complete ? "var(--gold-tint, #fff1c2)" : "var(--surface-200)",
@@ -3217,7 +3220,7 @@
             school: (p.school ? p.school + " · " : "") + "Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
             colorKey: p.colorKey, frame: p.frame || store.tier().tier.key, pattern: p.pattern,
             initials: p.initials, title: p.title, motto: p.motto, streak: s.streakDays, flame: p.flame,
-            style: { maxWidth: "none", width: "100%" }
+            style: { maxWidth: 440, width: "100%", marginLeft: "auto", marginRight: "auto" }
           })),
         tierSection(app),
 
