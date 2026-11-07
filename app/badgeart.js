@@ -125,19 +125,34 @@
     return frame(o.size || 64, s);
   }
 
-  /* Any badge from the store's catalogue (store.catalog / findBadge). */
-  function art(found, size, opts) {
+  /* Any badge from the store's catalogue (store.catalog / findBadge). A
+     badge is drawn from a handful of facts, so each is drawn once: the
+     Trophy room draws ninety of them. The drawings carry no ids, so a copy
+     can sit beside the first. */
+  var DRAWN = Object.create(null), NODES = Object.create(null);
+  function keyOf(found, size, opts) {
+    var b = found.badge, t = found.topic, o = opts || {};
+    return t ? [t.track === "basics" ? "k" : "h", t.colorKey, t.icon, b.number, b.total, !b.earned, !!b.shiny, !!o.fresh, size].join("|")
+      : ["s", b.kind, b.tier, !b.earned, size].join("|");
+  }
+  function draw(found, size, opts) {
     var b = found.badge, t = found.topic, o = opts || {};
     if (!t) return special({ kind: b.kind, tier: b.tier, locked: !b.earned, size: size });
     var spec = { colorKey: t.colorKey, icon: t.icon, level: b.number, levels: b.total, locked: !b.earned, shiny: b.shiny, fresh: o.fresh, size: size };
     return t.track === "basics" ? token(spec) : hexagon(spec);
   }
+  function art(found, size, opts) {
+    var k = keyOf(found, size, opts);
+    return DRAWN[k] || (DRAWN[k] = draw(found, size, opts));
+  }
 
   /* The element: the drawing, with the words a screen reader says. */
   function Badge(found, size, opts) {
-    var b = found.badge;
+    var b = found.badge, k = keyOf(found, size, opts);
     var words = b.name + (b.earned ? (b.shiny ? ", shiny" : "") : ", not earned yet");
-    return AM.el("span.am-badge", { role: "img", "aria-label": words, style: { display: "inline-block", lineHeight: 0 }, html: art(found, size, opts) });
+    var node = (NODES[k] || (NODES[k] = AM.el("span.am-badge", { role: "img", style: { display: "inline-block", lineHeight: 0 }, html: art(found, size, opts) }))).cloneNode(true);
+    node.setAttribute("aria-label", words);
+    return node;
   }
 
   AM.badgeArt = { hexagon: hexagon, token: token, special: special, art: art, ornaments: ornaments };

@@ -205,7 +205,7 @@
   function glint(x, y, s, d) { return '<path class="am-glint" style="animation-delay:' + d + 's" transform="translate(' + x + " " + y + ") scale(" + s + ')" d="M0-10 1.8-1.8 10 0 1.8 1.8 0 10-1.8 1.8-10 0-1.8-1.8z" fill="#fff"/>'; }
   var gemUid = 0;
   /* gem(tier, {glints}) : a 100 x 100 picture of the tier's stone or medal. */
-  function gem(t, o) {
+  function drawGem(t, o) {
     o = o || {}; var id = "am-tg" + (gemUid++), h = "", c = t.c;
     if (t.kind === "metal") {
       h += '<defs><linearGradient id="' + id + 'a" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + c[0] + '"/><stop offset=".45" stop-color="' + c[1] + '"/><stop offset="1" stop-color="' + c[3] + '"/></linearGradient>' +
@@ -234,7 +234,7 @@
   function nest(svg, x, y, w, h) { return svg.replace('<svg viewBox="0 0 100 100" class="am-gem"', '<svg x="' + x + '" y="' + y + '" width="' + w + '" height="' + h + '" viewBox="0 0 100 100" class="am-gem"'); }
   /* crest(tier): 140 x 70. A seal for the metals; for the gems, the stone in a mount with prongs,
      filigree wings, side stones (Sapphire up), a crown (Ruby), a halo and rays (Diamond). */
-  function crest(t) {
+  function drawCrest(t) {
     var i = tierIndexOf(t), mt = t.kind === "pearl" ? TIERS()[2] : settingOf(t), mc = mt.c, id = "am-cr" + (gemUid++), h = "", M = "url(#" + id + ")";
     h += '<defs><linearGradient id="' + id + '" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="' + mc[0] + '"/><stop offset=".4" stop-color="' + mc[1] + '"/><stop offset=".75" stop-color="' + mc[2] + '"/><stop offset="1" stop-color="' + mc[3] + '"/></linearGradient>' +
       '<radialGradient id="' + id + 'g"><stop offset="0" stop-color="' + (t.kind === "metal" ? mc[0] : t.c[1]) + '" stop-opacity=".75"/><stop offset="1" stop-color="' + (t.kind === "metal" ? mc[1] : t.c[1]) + '" stop-opacity="0"/></radialGradient></defs>';
@@ -275,7 +275,7 @@
   }
   /* From Emerald up the card body is the gem, with the learner's colour kept as an accent. */
   var BODY = { emerald: ["#22c172", "#0a6b3c"], sapphire: ["#4a7ff2", "#112f86"], ruby: ["#ea4166", "#7d0a2c"], diamond: ["#6aa9dc", "#1b3f6e"], pearl: ["#fdf7f0", "#e4d3c1"] };
-  function facets(t) {
+  function drawFacets(t) {
     if (t.kind === "pearl") return "";
     var h = "", k;
     if (t.cut === "emerald") {
@@ -330,7 +330,7 @@
   function hashStr(s) { var h = 2166136261 >>> 0; for (var i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619) >>> 0; } return h; }
   function seeded(a) { return function () { a = (a + 0x6D2B79F5) | 0; var t = Math.imul(a ^ (a >>> 15), 1 | a); t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t; return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
   var weaveCount = 0;
-  function weaveSVG(name, style) {
+  function drawWeave(name, style) {
     var r = seeded(hashStr(String(name || "").toLowerCase().replace(/\s+/g, " ").trim() + "|1|" + style));
     var size = [36, 42, 48, 54][Math.floor(r() * 4)], m = size / 2, rings = 2 + Math.floor(r() * 3), sw = (1.3 + r() * 1.3).toFixed(2), th = "#ffffff", t = "", k;
     var line = function (d, op) { return '<path d="' + d + '" fill="none" stroke="' + th + '" stroke-opacity="' + op + '" stroke-width="' + sw + '" stroke-linejoin="round"/>'; };
@@ -362,7 +362,7 @@
     return (((w[0] || "?")[0] || "?") + (w.length > 1 ? w[w.length - 1][0] : "")).toUpperCase();
   }
   var monoCount = 0;
-  function monogramSVG(initials, colorKey, tier) {
+  function drawMonogram(initials, colorKey, tier) {
     var hue = HERO[colorKey] || HERO[2], id = "am-mono-" + (++monoCount), big = initials.length > 2;
     var ring = !tier ? ["#ffffff", "#e8edf4", "#aab6c8", "#6b7a92"] : tier.kind === "pearl" ? ["#fffaf2", "#f1dfcb", "#ffe0ea", "#d8c2ab"] : settingOf(tier).c;
     var safe = initials.replace(/[&<>"]/g, "");
@@ -378,6 +378,31 @@
     if (c) ["--flame-shelf", "--flame-body", "--flame-mid", "--flame-core"].forEach(function (v, i) { f.style.setProperty(v, c[i]); });
     return f;
   }
+  /* ---------- drawn once ----------
+     A tier's stone and crest, a card's weave and its monogram are the same
+     for the same inputs, and drawing them (a brilliant's facets most of all)
+     cost more than the rest of a screen. Each is drawn once and kept as
+     markup; every copy gets ids of its own, so two on a page never share a
+     gradient (one hidden would take the other's colour with it). */
+  var KEPT = Object.create(null), idRun = 0;
+  function freshIds(s) {
+    var ids = Object.create(null), any = false;
+    s.replace(/ id="([^"]+)"/g, function (m, id) { ids[id] = any = true; return m; });
+    if (!any) return s;
+    var tag = "-" + (++idRun).toString(36);
+    return s.replace(/(id="|url\(#|href="#)([^")]+)/g, function (m, pre, id) { return ids[id] ? pre + id + tag : m; });
+  }
+  function kept(key, draw) { var s = KEPT[key]; if (s === undefined) s = KEPT[key] = draw(); return freshIds(s); }
+  function gem(t, o) { return kept("g|" + t.key + (o && o.glints === false ? "|0" : "|1"), function () { return drawGem(t, o); }); }
+  function crest(t) { return kept("c|" + t.key, function () { return drawCrest(t); }); }
+  function facets(t) { return kept("f|" + t.key, function () { return drawFacets(t); }); }
+  function weaveSVG(name, style) {
+    return kept("w|" + style + "|" + String(name || "").toLowerCase().replace(/\s+/g, " ").trim(), function () { return drawWeave(name, style); });
+  }
+  function monogramSVG(initials, colorKey, tier) {
+    return kept("m|" + initials + "|" + colorKey + "|" + (tier ? tier.key : ""), function () { return drawMonogram(initials, colorKey, tier); });
+  }
+
   function ProfileCard(o) {
     o = o || {};
     var hue = HERO[o.colorKey] || HERO[2], T = TIERS();

@@ -62,28 +62,32 @@
 
   var SVG_NS = "http://www.w3.org/2000/svg";
 
-  /* Icon — one glyph from the subset. Single-ink; takes its colour from context. */
-  function icon(name, size, opts) {
-    var o = opts || {};
+  /* Icon — one glyph from the subset. Single-ink; takes its colour from context.
+     Each name and size is drawn once and copied after: copying a drawn SVG
+     is much cheaper than reading its markup again, and a screen draws dozens. */
+  var DRAWN = Object.create(null);
+  function drawn(key, make) { return (DRAWN[key] || (DRAWN[key] = make())).cloneNode(true); }
+  function bare(name, size) {
     var svg = document.createElementNS(SVG_NS, "svg");
     svg.setAttribute("viewBox", "0 0 256 256");
     svg.setAttribute("width", size || 22);
     svg.setAttribute("height", size || 22);
     svg.setAttribute("fill", "currentColor");
     svg.setAttribute("focusable", "false");
-    if (o.title) {
-      svg.setAttribute("role", "img");
-      svg.setAttribute("aria-label", o.title);
-    } else {
-      svg.setAttribute("role", "img");
-      svg.setAttribute("aria-hidden", "true");
-    }
+    svg.setAttribute("role", "img");
     svg.style.display = "inline-block";
     svg.style.flex = "none";
     svg.style.verticalAlign = "middle";
+    svg.innerHTML = ICON_PATHS[name] || ICON_PATHS.star;
+    return svg;
+  }
+  function icon(name, size, opts) {
+    var o = opts || {};
+    var svg = drawn(name + "|" + (size || 22), function () { return bare(name, size); });
+    if (o.title) svg.setAttribute("aria-label", o.title);
+    else svg.setAttribute("aria-hidden", "true");
     if (o.glyph) svg.setAttribute("data-am-glyph", "");
     if (o.className) svg.setAttribute("class", o.className);
-    svg.innerHTML = ICON_PATHS[name] || ICON_PATHS.star;
     return svg;
   }
 
@@ -126,8 +130,13 @@
   var STRENGTH = { a: 1, a2: 0.55, b: 0.3 };
 
   window.AM.topicIcon = function (name, size, colorKey) {
+    var svg = drawn("t|" + name + "|" + (size || 22) + "|" + colorKey, function () { return topicDrawn(name, size, colorKey); });
+    svg.setAttribute("aria-hidden", "true");
+    return svg;
+  };
+  function topicDrawn(name, size, colorKey) {
     var bright = "var(--skill-" + colorKey + "-bright)";
-    var svg = icon(name, size);
+    var svg = bare(name, size);
     var inner;
     if (name === "topic-ratio") inner = RATIO_DUO.split("fill:B").join("fill:" + bright);
     else {
