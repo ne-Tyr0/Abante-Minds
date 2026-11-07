@@ -44,7 +44,7 @@ const KEYPAD_MAX = global.AM.entry.NUMBER_MAX;
 const KEBAB = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const IDENT = /^[A-Za-z_][A-Za-z0-9_]*$/;
 const TEMPLATE_KEYS = new Set(["id", "competency", "domain", "construct", "schema", "params", "where",
-  "answer", "formats", "hints", "steps", "explain", "fallback", "distractors", "grid", "chart"]);
+  "answer", "formats", "hints", "steps", "explain", "fallback", "distractors", "grid", "chart", "model"]);
 const ANSWER_KEYS = new Set(["type", "value", "prefix", "label", "maxDecimals", "unit", "form", "order", "figure"]);
 const TOPIC_KEYS = new Set(["key", "label", "icon", "colorKey", "file", "comingSoon", "weight"]);
 const LEVEL_KEYS = new Set(["id", "title", "templates", "lesson", "kind"]);
@@ -146,6 +146,29 @@ function checkParams(t) {
    drawn values, never the answer. A picture option is drawn the same way,
    once per option, with that option's value; it has no title, since its
    letter names it. */
+/* A model: the picture shown after a right answer and in a lesson's worked
+   example. Each kind takes its own fields; they are expressions over the
+   params and the answer (the question has been answered by then). Whether
+   the numbers fit (whole, in range) the engine checks as it draws, which the
+   fuzz does for every draw of every template. */
+function checkModel(m, names) {
+  if (!m || typeof m !== "object" || Array.isArray(m)) { fail("model must be an object"); return; }
+  const fields = C.MODEL_FIELDS[m.kind];
+  if (!fields) { fail(`model kind is one of ${Object.keys(C.MODEL_FIELDS).join(", ")}`); return; }
+  unknownKeys(m, new Set(["kind", "caption", ...fields]), "model");
+  for (const k of fields) {
+    if (!(k in m)) { fail(`a ${m.kind} model needs ${k}`); continue; }
+    if (k === "op") { if (m.op !== "+" && m.op !== "-") fail("a columns model's op is + or -"); continue; }
+    if (k === "parts") {
+      if (!Array.isArray(m.parts) || m.parts.length < 2 || m.parts.length > 3) fail("a tape model has 2 or 3 parts");
+      else m.parts.forEach((p, i) => expr(p, names, `model parts[${i}]`));
+      continue;
+    }
+    expr(m[k], names, `model ${k}`);
+  }
+  if ("caption" in m) text(m.caption, names, "model caption");
+}
+
 function checkChart(c, params, option) {
   if (!c || typeof c !== "object" || Array.isArray(c)) { fail("chart must be an object"); return; }
   unknownKeys(c, CHART_KEYS, "chart");
@@ -259,6 +282,7 @@ function checkTemplate(t, topic, ids, track = "path") {
   const params = new Set(checkParams(t));
   const withAnswer = new Set([...params, "answer"]);
   const withValue = new Set([...withAnswer, "value"]);
+  if ("model" in t) checkModel(t.model, withAnswer);
 
   if (t.where !== undefined) {
     if (!Array.isArray(t.where)) fail("where must be a list");

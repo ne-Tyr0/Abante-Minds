@@ -488,6 +488,24 @@ function run() {
         if (screen === "profile-motto") AM.store.set({ profile: Object.assign({}, AM.store.get().profile, { title: "Decimals Explorer", motto: "Kaya ko 'to!", pattern: "kusikus", colorKey: 1 }) });
         AM.app.go("profile");
         break;
+      /* Not in the PDF: the maths drawn, after a right answer (a fraction of
+         a group, a per cent, a ratio; the decimal columns are "correct"),
+         and in a lesson's worked example. */
+      case "model-array":
+        topicItem("fractions", "multiply-in-steps", "fractions.part-of-a-group", { b: 3, a: 2, d: 4, c: 3, k: 2 }, "12", true);
+        break;
+      case "model-hundred":
+        topicItem("percent", "of-a-number", "percent.of-number", { p: 25, k: 4 }, "20", true);
+        break;
+      case "model-tape":
+        topicItem("ratio", "problems", "ratio.share", { x: 3, y: 2, p: 15 }, "45", true);
+        break;
+      case "lesson-hundred":
+      case "lesson-tape":
+        AM.app.openLesson(screen === "lesson-tape" ? "ratio" : "percent", screen === "lesson-tape" ? "problems" : "of-a-number");
+        AM.app.scratch.lesson.page = AM.app.scratch.lesson.cards.findIndex(function (c) { return c.kind === "example"; });
+        AM.app.go("lesson");
+        break;
       /* Not in the PDF: the practice hub, with three questions due again, a
          kind of problem that needs practice (one kind answered right a third
          of the time, the rest four in five) and the topic with most to gain;

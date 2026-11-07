@@ -194,6 +194,7 @@ both being 56, and then neither can be named: leave one out.
 | `distractors` | The mistakes the template expects, below |
 | `grid` | Basics facts only: `true` puts the template's facts on the topic's grid. Above |
 | `chart` | Optional: a bar graph, line graph, pie graph or table shown with the question, drawn from its numbers. Below |
+| `model` | Optional: the maths drawn, shown after a right answer and in a lesson's worked example, never with the question. Below |
 
 ### Params
 
@@ -310,6 +311,28 @@ The screen draws the chart (`AM.Chart` in `app/ui.js`) and gives a screen reader
 whole data in words, so the picture is never the only way to read the question. A
 worked example in a lesson shows its chart too.
 
+### Models
+
+A model draws the maths of a question once it has been answered right, and in a lesson's
+worked example: never with the question itself, so what a learner is asked stays exactly
+as it was (decided with the owner, 6 November 2026). Its fields are expressions over the
+params and `answer`; `caption` is text, read under the picture.
+
+| `kind` | Fields | Draws |
+|---|---|---|
+| `columns` | `top`, `bottom`, `op` (`+` or `-`), `places` | A decimal sum in columns, the points lined up, the answer under the rule |
+| `array` | `rows`, `cols`, `tint`, `mark` | Dots in rows: the first `tint` rows picked out, the first `mark` dots of each of those coloured (a fraction of a fraction of a group) |
+| `hundred` | `shaded` | A hundred square with that many squares coloured (a per cent) |
+| `tape` | `parts` (2 or 3), `unit` | A bar of equal parts of `unit`, each part's share bracketed (a ratio) |
+
+```json
+"model": {"kind": "tape", "parts": ["x", "y"], "unit": "p", "caption": "One part is {p}."}
+```
+
+The engine checks the numbers as it draws (whole, and small enough to read on a phone:
+up to 10 rows of 30 dots, 24 parts in a bar), and the fuzz draws every model of every
+template. The screen (`AM.MathModel` in `app/ui.js`) says in words what each shows.
+
 ### Distractors
 
 Each is a mistake the template expects: the number it produces, a kebab-case `error` code
@@ -341,7 +364,7 @@ What each piece of text can refer to:
 |---|:-:|:-:|:-:|
 | `prompt`, `chart` | yes | no, so the question can never state its answer | a chart's `label`: that number |
 | `where` | yes | | |
-| `hints`, `steps`, `explain`, `fallback`, distractor `value` | yes | yes | |
+| `hints`, `steps`, `explain`, `fallback`, distractor `value`, `model` | yes | yes | |
 | distractor `feedback`, choice `label` or `figure` | yes | yes | that option's value |
 
 ## Expressions

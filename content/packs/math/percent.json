@@ -209,6 +209,7 @@
         "n": {"value": "20 * k"}
       },
       "answer": {"type": "integer", "value": "n * p / 100"},
+      "model": {"kind": "hundred", "shaded": "p", "caption": "{p}% means {p} in every 100. {n} × {p} ÷ 100 = {answer}."},
       "formats": [
         {"id": "of", "prompt": "What is {p}% of {n}?"},
         {
