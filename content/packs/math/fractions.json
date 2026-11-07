@@ -193,6 +193,7 @@
       },
       "where": ["gcd(a, b) == 1"],
       "answer": { "type": "integer", "value": "a * k" },
+      "model": {"kind": "array", "rows": "b", "cols": "k", "tint": "a", "mark": "k", "caption": "{n} in {b} equal rows of {k}: {frac(a / b)} is {a} row{a == 1 ? '' : 's'}, {answer}."},
       "formats": [
         { "id": "of", "prompt": "What is {frac(a / b)} of {n}?" },
         { "id": "rice", "prompt": "A store has {n} kg of rice. It sells {frac(a / b)} of it. How many kilograms of rice does it sell?" },

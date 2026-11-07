@@ -251,6 +251,7 @@
       "params": {"n": {"choose": [10, 20, 25, 50]}, "a": {"range": [1, "n - 1"]}},
       "where": ["a * 100 / n != n - a"],
       "answer": {"type": "percent", "value": "a * 100 / n"},
+      "model": {"kind": "hundred", "shaded": "answer", "caption": "{a} out of {n} is the same share as {answer} out of 100."},
       "formats": [
         {
           "id": "glasses",
@@ -330,6 +331,7 @@
         "p": {"choose": [5, 10, 15, 20, 25, 30, 40, 50]}
       },
       "answer": {"type": "integer", "value": "price * p / 100", "prefix": "₱"},
+      "model": {"kind": "hundred", "shaded": "p", "caption": "{p}% off is ₱{p} off every ₱100: ₱{price} × {p} ÷ 100 = ₱{answer}."},
       "formats": [
         {"id": "bag", "prompt": "A bag costs ₱{price}. It is on sale at {p}% off. How much is the discount?"},
         {"id": "shoes", "prompt": "Shoes priced at ₱{price} are {p}% off. How many pesos are taken off?"}

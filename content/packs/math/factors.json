@@ -446,6 +446,7 @@
       },
       "where": ["gcd(x, y) == 1"],
       "answer": {"type": "integer", "value": "g"},
+      "model": {"kind": "lists", "mode": "factors", "of": ["a", "b"], "labels": ["Factors of {a}", "Factors of {b}"], "caption": "The factors both have are tinted; the greatest is {answer}."},
       "formats": [
         {"id": "gcf", "prompt": "What is the GCF of {a} and {b}?"},
         {"id": "words", "prompt": "What is the greatest common factor of {a} and {b}?"}
@@ -539,6 +540,7 @@
       },
       "where": ["gcd(x, y) == 1"],
       "answer": {"type": "integer", "value": "g * x * y"},
+      "model": {"kind": "lists", "mode": "multiples", "of": ["a", "b"], "upto": "answer", "labels": ["Multiples of {a}", "Multiples of {b}"], "caption": "The first multiple both lists reach is {answer}."},
       "formats": [
         {"id": "lcm", "prompt": "What is the LCM of {a} and {b}?"},
         {"id": "words", "prompt": "What is the least common multiple of {a} and {b}?"}
@@ -578,6 +580,7 @@
       },
       "where": ["gcd(x, y) == 1"],
       "answer": {"type": "integer", "value": "g * x * y"},
+      "model": {"kind": "lists", "mode": "multiples", "of": ["a", "b"], "upto": "answer", "labels": ["Every {a} minutes", "Every {b} minutes"], "caption": "Both leave together again after {answer} minutes."},
       "formats": [
         {
           "id": "buses",

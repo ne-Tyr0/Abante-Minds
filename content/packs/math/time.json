@@ -217,6 +217,7 @@
       },
       "where": ["e % 60 < sm", "e < 1440"],
       "answer": {"type": "integer", "value": "d"},
+      "model": {"kind": "line", "points": ["s", "next", "next + 60 * floor((e - next) / 60)", "e"], "labels": ["{clock(s)}", "{clock(next)}", "{clock(next + 60 * floor((e - next) / 60))}", "{clock(e)}"], "hops": ["{next - s} min", "{floor((e - next) / 60)} h", "{(e - next) % 60} min"], "caption": "Count on to the hour, then whole hours, then the minutes: {answer} minutes in all."},
       "formats": [
         {
           "id": "bus",
@@ -362,6 +363,7 @@
       },
       "where": ["s % 60 + d % 60 >= 60", "s + d < 1440"],
       "answer": {"type": "time", "value": "s + d"},
+      "model": {"kind": "line", "points": ["s", "s - s % 60 + 60", "s + d"], "labels": ["{clock(s)}", "{clock(s - s % 60 + 60)}", "{clock(s + d)}"], "hops": ["{60 - s % 60} min", "{hm(d - 60 + s % 60)}"], "caption": "Up to the next hour first, then the rest of the {hm(d)}."},
       "formats": [
         {
           "id": "movie",

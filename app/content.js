@@ -550,7 +550,20 @@
      the question has been answered right, and in a lesson's worked example;
      never with the question itself, so what a learner is asked stays as it
      was (the owner's rule, 2026-11-06). Its numbers may use the answer. */
-  var MODEL_FIELDS = { columns: ["top", "bottom", "op", "places"], array: ["rows", "cols", "tint", "mark"], hundred: ["shaded"], tape: ["parts", "unit"] };
+  /* What each kind of model takes: an expression, a list of them, text (with
+     {slots}), a list of texts, or a fixed word; "?" marks a field it may leave
+     out. The validator reads this too. */
+  var MODEL_SPEC = {
+    columns: { top: "expr", bottom: "expr", op: "op", places: "expr" },
+    array: { rows: "expr", cols: "expr", tint: "expr", mark: "expr" },
+    hundred: { shaded: "expr" },
+    tape: { parts: "exprs", unit: "expr?", units: "exprs?", names: "texts?" },
+    line: { points: "exprs", labels: "texts", hops: "texts" },
+    lists: { mode: "mode", of: "exprs", upto: "expr?", labels: "texts" },
+    rect: { width: "expr", height: "expr", half: "bool?", cut: "exprs?", labels: "texts" },
+    circle: { radius: "text", diameter: "text" },
+    turn: { angle: "expr", count: "expr" }
+  };
   function renderModel(spec, scope) {
     var value = function (src) { return num(evalExpr(String(src), scope)); };
     var count = function (src, lo, hi, what) {
@@ -558,6 +571,7 @@
       if (!isInt(v) || v.n < lo || v.n > hi) throw ContentError("a model's " + what + " must be a whole number from " + lo + " to " + hi);
       return v.n;
     };
+    var words = function (t) { return interpolate(t, scope); };
     var m = { kind: spec.kind };
     if (spec.kind === "columns") {
       var places = count(spec.places, 0, 6, "places");
@@ -565,7 +579,7 @@
       m.rows = [decimalString(value(spec.top), places), decimalString(value(spec.bottom), places)];
       m.result = decimalString(scope.answer, places);
     } else if (spec.kind === "array") {
-      m.rows = count(spec.rows, 1, 10, "rows");
+      m.rows = count(spec.rows, 1, 12, "rows");
       m.cols = count(spec.cols, 1, 30, "cols");
       m.tint = count(spec.tint, 0, m.rows, "tint");
       m.mark = count(spec.mark, 0, m.cols, "mark");
@@ -573,10 +587,53 @@
       m.shaded = count(spec.shaded, 0, 100, "shaded");
     } else if (spec.kind === "tape") {
       m.parts = spec.parts.map(function (p) { return count(p, 1, 20, "part"); });
-      if (m.parts.reduce(function (a, b) { return a + b; }, 0) > 24) throw ContentError("a model's bar has at most 24 parts");
-      m.unit = fmt(value(spec.unit));
+      if (m.parts.reduce(function (s, p) { return s + p; }, 0) > 24) throw ContentError("a model's bar has at most 24 parts");
+      var units = spec.units ? spec.units.map(value) : m.parts.map(function () { return value(spec.unit); });
+      if (units.length !== m.parts.length) throw ContentError("a model's bar needs a unit for each part");
+      units.forEach(function (u) { if (u.n <= 0) throw ContentError("a model's bar has parts bigger than nothing"); });
+      m.units = units.map(fmt);
+      /* One unit for all draws equal boxes; a unit each draws them to size. */
+      m.sizes = spec.units ? units.map(toNumber) : m.parts.map(function () { return 1; });
+      if (spec.names) m.names = spec.names.map(words);
+    } else if (spec.kind === "line") {
+      var at = spec.points.map(function (p) { return toNumber(value(p)); });
+      m.points = []; m.hops = [];
+      at.forEach(function (x, i) {
+        if (i && x === at[i - 1]) return;   /* a hop of nothing is left out */
+        if (i && x < at[i - 1]) throw ContentError("a line model's points go up");
+        if (m.points.length) m.hops.push(words(spec.hops[i - 1]));
+        m.points.push({ at: x, label: words(spec.labels[i]) });
+      });
+      if (m.points.length < 2) throw ContentError("a line model needs two different points");
+    } else if (spec.kind === "lists") {
+      var upto = spec.mode === "multiples" ? count(spec.upto, 1, 100000, "upto") : 0;
+      m.mode = spec.mode;
+      m.lists = spec.of.map(function (src, i) {
+        var v = count(src, 1, 100000, "number"), items = [], f;
+        if (spec.mode === "multiples") for (f = v; f <= upto; f += v) items.push(f);
+        else for (f = 1; f <= v; f++) if (v % f === 0) items.push(f);
+        if (!items.length || items.length > 24) throw ContentError("a lists model shows 1 to 24 numbers in a row");
+        return { label: words(spec.labels[i]), items: items };
+      });
+      m.common = m.lists[0].items.filter(function (x) { return m.lists.every(function (l) { return l.items.indexOf(x) > -1; }); });
+      m.ring = isInt(scope.answer) ? scope.answer.n : null;
+    } else if (spec.kind === "rect") {
+      m.width = toNumber(value(spec.width)); m.height = toNumber(value(spec.height));
+      if (!(m.width > 0 && m.height > 0)) throw ContentError("a rect model has a width and a height");
+      m.half = !!spec.half;
+      if (spec.cut) {
+        m.cut = spec.cut.map(function (x) { return toNumber(value(x)); });
+        if (!(m.cut[0] > 0 && m.cut[0] < m.width && m.cut[1] > 0 && m.cut[1] < m.height)) throw ContentError("a rect model's cut fits inside it");
+      }
+      m.labels = spec.labels.map(words);
+    } else if (spec.kind === "circle") {
+      m.radius = words(spec.radius); m.diameter = words(spec.diameter);
+    } else if (spec.kind === "turn") {
+      m.angle = toNumber(value(spec.angle)); m.count = count(spec.count, 1, 12, "count");
+      if (!(m.angle > 0) || m.angle * m.count > 360) throw ContentError("a turn model's copies fit in a whole turn");
+      m.gap = Math.round((360 - m.angle * m.count) * 1000) / 1000;
     } else throw ContentError("no model kind '" + spec.kind + "'");
-    if (spec.caption) m.caption = interpolate(spec.caption, scope);
+    if (spec.caption) m.caption = words(spec.caption);
     return m;
   }
 
@@ -1419,7 +1476,7 @@
     QUICK_PROMPT: QUICK_PROMPT,
     rebuild: rebuild,
     retier: retier,
-    MODEL_FIELDS: MODEL_FIELDS,
+    MODEL_SPEC: MODEL_SPEC,
     levelsOfKind: levelsOfKind,
     kindSession: kindSession,
     examPlan: examPlan,
