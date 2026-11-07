@@ -555,7 +555,7 @@
      out. The validator reads this too. */
   var MODEL_SPEC = {
     columns: { top: "expr", bottom: "expr", op: "op", places: "expr" },
-    array: { rows: "expr", cols: "expr", tint: "expr", mark: "expr" },
+    array: { rows: "expr", cols: "expr", tint: "expr", mark: "expr", shape: "shape?" },
     hundred: { shaded: "expr" },
     tape: { parts: "exprs", unit: "expr?", units: "exprs?", names: "texts?" },
     line: { points: "exprs", labels: "texts", hops: "texts" },
@@ -583,6 +583,7 @@
       m.cols = count(spec.cols, 1, 30, "cols");
       m.tint = count(spec.tint, 0, m.rows, "tint");
       m.mark = count(spec.mark, 0, m.cols, "mark");
+      m.shape = spec.shape === "squares" ? "squares" : "dots";
     } else if (spec.kind === "hundred") {
       m.shaded = count(spec.shaded, 0, 100, "shaded");
     } else if (spec.kind === "tape") {
