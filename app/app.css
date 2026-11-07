@@ -727,6 +727,8 @@ html, body {
 .am-badge-btn:focus-visible { outline: 3px solid var(--focus-ring); outline-offset: 2px; }
 .am-newtag { position: absolute; top: -2px; right: -6px; background: var(--celebration-coral-600); color: var(--ink-inverse); font-size: 10px; font-weight: 700; line-height: 1; padding: 3px 5px; border-radius: var(--radius-pill); }
 .am-badge-row { display: flex; flex-wrap: wrap; gap: 1px; }
+/* A long list's rows: one off screen is not laid out or painted until it scrolls near (tools/bench.js). Nothing in them reaches outside, which this would clip. */
+.am-cv { content-visibility: auto; contain-intrinsic-size: auto 96px; }
 /* A sheet from the bottom: a badge's card, or the question before leaving a round. */
 .am-badge-sheet-scrim, .am-sheet-scrim { position: absolute; inset: 0; z-index: 60; background: rgba(22, 32, 44, 0.35); }
 .am-badge-sheet, .am-sheet {

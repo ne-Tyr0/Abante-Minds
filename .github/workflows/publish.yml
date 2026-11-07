@@ -21,8 +21,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-      - name: Gather the app's files, and nothing else
-        run: node tools/site.js _site
+      # One pinned minifier, from package-lock.json, its install scripts not run
+      # (decided with the owner, 2026-11-07). The repository's files are not
+      # changed: only the copies on the site are smaller.
+      - name: Install the minifier
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Gather the app's files, and nothing else, minified
+        run: node tools/site.js _site --minify
       - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
       - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

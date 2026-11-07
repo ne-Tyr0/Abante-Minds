@@ -1694,7 +1694,7 @@
     var nextFound = nextKey ? store.findBadge(nextKey, cat) : null;
 
     function row(t) {
-      return el("div", {
+      return el("div.am-cv", {
         style: {
           padding: "8px 10px", borderRadius: "var(--radius-md)",
           background: t.complete ? "var(--gold-tint, #fff1c2)" : "var(--surface-200)",
