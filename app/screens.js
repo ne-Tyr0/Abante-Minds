@@ -340,7 +340,7 @@
           AM.ProfileCard({
             name: draft.name, school: (draft.school ? draft.school + " · " : "") + "Grade 6", colorKey: draft.colorKey,
             frame: draft.frame || tierNow.key, pattern: draft.pattern, initials: draft.initials, title: draft.title, motto: draft.motto, streak: store.get().streakDays, flame: draft.flame,
-            style: { maxWidth: "none", width: "100%" }
+            style: { maxWidth: 440, width: "100%", marginLeft: "auto", marginRight: "auto" }
           })),
         field("Your name", "name"),
         field("School or barangay (optional)", "school"),
@@ -3217,7 +3217,7 @@
             school: (p.school ? p.school + " · " : "") + "Grade 6 · " + path.levelsCleared + " level" + (path.levelsCleared === 1 ? "" : "s") + " cleared",
             colorKey: p.colorKey, frame: p.frame || store.tier().tier.key, pattern: p.pattern,
             initials: p.initials, title: p.title, motto: p.motto, streak: s.streakDays, flame: p.flame,
-            style: { maxWidth: "none", width: "100%" }
+            style: { maxWidth: 440, width: "100%", marginLeft: "auto", marginRight: "auto" }
           })),
         tierSection(app),
 
