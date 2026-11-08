@@ -17,7 +17,7 @@ const { spawnSync } = require("child_process");
 const REPO = path.join(__dirname, "..");
 const WORK = fs.mkdtempSync(path.join(os.tmpdir(), "am-minified-"));
 const SKIP = new Set([".git", "node_modules", "_site", ".claude"]);
-const TESTS = ["engine", "entry", "facts", "insights", "progress", "readiness", "challenge", "share", "road", "reminder", "replay", "validate-packs", "item-spec", "fuzz"];
+const TESTS = ["engine", "entry", "facts", "insights", "progress", "readiness", "challenge", "share", "road", "events", "reminder", "replay", "validate-packs", "item-spec", "fuzz"];
 
 fs.cpSync(REPO, WORK, { recursive: true, filter: (src) => !SKIP.has(path.basename(src)) || path.dirname(src) !== REPO });
 const built = path.join(WORK, "_min");

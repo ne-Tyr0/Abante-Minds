@@ -26,7 +26,7 @@
   var MASTERY_DAYS = 2;         /* different days a Basics fact must be right and quick */
   var LOG_KEY = "abante-minds/attempts";
   var LOG_MAX = 5000;           /* attempts kept; past it the oldest go */
-  var APP_BUILD = 85;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
+  var APP_BUILD = 86;           /* this build of the app: the number in sw.js's CACHE (tests/invariants.js) */
 
   function today() {
     var d = new Date();
@@ -760,6 +760,7 @@
     if (badges[key]) return false;
     var b = { at: today() };
     if (extra && extra.shiny) b.shiny = true;
+    if (extra && extra.theme) b.theme = extra.theme;
     if (syncing) { b.before = true; b.seen = true; } else { b.seen = false; recent.push(key); }
     badges[key] = b;
     return true;
@@ -810,8 +811,30 @@
     var before = dailyGoal().met, first = dailyGoal().done === 0;
     state.rounds = { day: today(), n: dailyGoal().done + 1 };
     if (first) state.roundDays += 1;
+    checkWeek();
     commit();
     return !before && dailyGoal().met;
+  }
+
+  /* ---------- the weekly challenge (app/events.js) ----------
+     This week's theme, how far along it is, and its badge, earned at the
+     end of the round that meets the goal. */
+  function weekChallenge() {
+    var E = AM.events;
+    if (!E) return null;
+    var w = E.weekOf(today()), theme = E.themeOfWeek(w), key = "week:" + w.id;
+    var rows = loadLog().filter(function (r) { var d = E.dayOf(r.at); return d >= w.start && d <= w.end; });
+    var levels = Object.keys(state.badges || {}).filter(function (k) {
+      var b = state.badges[k];
+      return k.indexOf("lv:") === 0 && !b.before && b.at >= w.start && b.at <= w.end;
+    }).length;
+    var p = E.progress(theme, { rows: rows, levels: levels });
+    var left = Math.round((new Date(w.end + "T12:00:00") - new Date(today() + "T12:00:00")) / 864e5);
+    return { id: w.id, key: key, theme: theme, start: w.start, end: w.end, have: p.have, need: p.need, done: p.done, earned: !!badgeOf(key), daysLeft: left };
+  }
+  function checkWeek() {
+    var c = weekChallenge();
+    if (c && c.done && !c.earned) award(c.key, { theme: c.theme.key });
   }
 
   /* ---------- a look back at last week ----------
@@ -1082,6 +1105,7 @@
   /* Every badge there is, in path order then Basics then the specials, with
      what the learner has: for the shelf, the badge card and the counts. */
   function badgeOf(key) { return (state.badges || {})[key] || null; }
+  var MONTH_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   function catalog() {
     var topics = [], earned = 0, total = 0;
     AM.content.TOPICS.concat(AM.content.BASICS || []).forEach(function (t) {
@@ -1111,6 +1135,16 @@
         key: sp.key, kind: sp.kind, tier: sp.tier, name: sp.name, how: sp.how,
         earned: !!b, at: b ? b.at : null, before: !!(b && b.before), seen: !b || b.seen !== false
       };
+    });
+    /* A week's badge, once earned, sits with the specials, oldest first. */
+    Object.keys(state.badges || {}).filter(function (k) { return k.indexOf("week:") === 0; }).sort().forEach(function (k) {
+      var b = state.badges[k], th = AM.events && AM.events.themeByKey(b.theme);
+      if (!th) return;
+      var d = new Date(k.slice(5) + "T12:00:00");
+      specials.push({
+        key: k, kind: "week", tier: 0, theme: th.key, name: th.name + ", " + d.getDate() + " " + MONTH_SHORT[d.getMonth()], how: th.what,
+        earned: true, at: b.at, before: !!b.before, seen: b.seen !== false
+      });
     });
     return { topics: topics, specials: specials, earned: earned, total: total };
   }
@@ -1218,6 +1252,7 @@
     leaveLevel: leaveLevel,
     canStillShine: canStillShine,
     catalog: catalog,
+    weekChallenge: weekChallenge,
     findBadge: findBadge,
     tierName: tierName,
     markBadgeSeen: markBadgeSeen,

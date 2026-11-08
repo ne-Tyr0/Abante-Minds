@@ -442,6 +442,21 @@
     if (n < 2) return goal.days + " days in a row earns a badge";
     return "Day " + n + " · a badge in " + goal.left + " day" + (goal.left === 1 ? "" : "s");
   }
+  /* When this week's challenge ends, in words. */
+  function weekEnds(wk) { return wk.daysLeft <= 0 ? "ends tonight" : wk.daysLeft === 1 ? "ends tomorrow" : "ends Sunday · " + wk.daysLeft + " days left"; }
+  /* The week's challenge in full: its story, its goal, how far along. */
+  function openWeek(wk) {
+    openSheet(wk.theme.name, el("div", { style: { width: "100%", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, textAlign: "center" } },
+      el("span", { "aria-hidden": "true", style: { lineHeight: 0 }, html: AM.badgeArt.special({ kind: "week", theme: wk.theme.key, locked: false, size: 112 }) }),
+      el("div.heading-md", null, wk.theme.name),
+      el("div.body", { style: { color: "var(--ink-600)", textWrap: "pretty", maxWidth: "34ch" } }, wk.theme.why),
+      AM.Card({ style: { width: "100%", gap: 8, textAlign: "left" } },
+        el("span.label", null, wk.theme.what),
+        wk.earned ? el("span.body-sm", { style: { color: "var(--success-700)" } }, "Done. The badge is in your Trophy room.")
+          : AM.ProgressBar({ ratio: wk.have / wk.need, height: 8, color: "var(--brand-blue-600)", label: "This week's challenge" }),
+        wk.earned ? null : el("span.caption", { style: { color: "var(--ink-600)" } }, wk.have + " of " + wk.need + " · " + weekEnds(wk))),
+      el("div.caption", { style: { color: "var(--ink-600)", textWrap: "pretty" } }, "A new challenge starts every Monday. Missing one costs nothing.")));
+  }
   function streakGoal(s) {
     var goal = store.nextStreakBadge(), back = s.streakDays > 1 ? "Back for day " + s.streakDays : null;
     if (!goal) return back || "Good to see you";
@@ -638,17 +653,32 @@
 
     var offer = s.totalCorrect > 0 && app.canOfferInstall() && !s.installCardDismissed ? installCard(app) : null;
 
+    /* This week's challenge: its badge, how far along, and when it ends. */
+    var wk = first ? null : store.weekChallenge();
+    var weekCard = wk ? el("button.am-reset.am-pressable.am-weekcard", {
+      type: "button", style: { "--am-edge": "var(--surface-300)" }, onClick: function () { openWeek(wk); },
+      "aria-label": wk.theme.name + ". " + wk.theme.what + " " + (wk.earned ? "Done: badge earned." : wk.have + " of " + wk.need + ". " + weekEnds(wk) + ".")
+    },
+      el("span.am-weekcard-badge", { "aria-hidden": "true", html: AM.badgeArt.special({ kind: "week", theme: wk.theme.key, locked: false, size: 52 }) }),
+      el("span.am-weekcard-text", { "aria-hidden": "true" },
+        el("span.am-weekcard-eyebrow", null, "This week · " + weekEnds(wk)),
+        el("span.label", null, wk.theme.name),
+        el("span.caption", { style: { color: "var(--ink-600)" } }, wk.theme.what),
+        wk.earned ? el("span.am-weekcard-done", null, icon("check", 14, { glyph: true }), "Done: badge earned")
+          : el("span.am-weekcard-bar", null, el("span.am-weekcard-track", null, el("i", { style: { width: Math.round(100 * wk.have / wk.need) + "%" } })), el("b", null, wk.have + " of " + wk.need))),
+      el("span.am-rowcard-chev", { "aria-hidden": "true" }, icon("next", 20))) : null;
+
     /* Tablet and desktop spend the extra width on a second card rather than on
        longer lines. */
     var cards = AM.device() === "phone"
       ? el("div", { style: { display: "flex", flexDirection: "column", gap: "var(--space-4)", padding: "0 " + gutter() + "px" } },
-          goalCard, forgiven, recapCard, upNext, offer, reviewCard, countdown, badgeCard, examCard, challengeCard, basicsCard)
+          goalCard, forgiven, recapCard, upNext, weekCard, offer, reviewCard, countdown, badgeCard, examCard, challengeCard, basicsCard)
       : el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, padding: "0 " + gutter() + "px" } },
           goalCard,
           forgiven,
           recapCard,
           el("div.am-pair", null, upNext,
-            el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, minWidth: 0 } }, countdown, badgeCard)),
+            el("div", { style: { display: "flex", flexDirection: "column", gap: desktop ? 32 : 24, minWidth: 0 } }, weekCard, countdown, badgeCard)),
           offer,
           reviewCard,
           el("div.am-pair", null, examCard, challengeCard),
@@ -1755,6 +1785,20 @@
               sectionLabel("Next badge"),
               el("span.label", null, nextFound.badge.name),
               el("span.body-sm", { style: { color: "var(--ink-600)" } }, "Clear level " + p.next.level.number + ", " + p.next.level.title + ": " + p.next.level.correct + " of " + p.next.level.target + " right first time so far.")))) : null,
+        /* The weekly challenges: this week's, and every week's badge earned. */
+        (function () {
+          var wk = store.weekChallenge(), weeks = cat.specials.filter(function (sp) { return sp.kind === "week"; });
+          if (!wk && !weeks.length) return null;
+          return el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
+            sectionLabel("Weekly challenges" + (weeks.length ? " · " + weeks.length + " earned" : "")),
+            wk ? AM.RowCard({
+              lead: el("span", { "aria-hidden": "true", style: { width: 44, height: 44, lineHeight: 0 }, html: AM.badgeArt.special({ kind: "week", theme: wk.theme.key, locked: !wk.earned, size: 44 }) }),
+              title: "This week: " + wk.theme.name, caption: wk.earned ? "Done: badge earned" : wk.have + " of " + wk.need + " · " + wk.theme.what,
+              onClick: function () { openWeek(wk); }
+            }) : null,
+            weeks.length ? el("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))", gap: 6 } },
+              weeks.slice().reverse().map(function (sp) { return badgeButton({ topic: null, badge: sp }, 54, { caption: sp.name, style: { display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 } }); })) : null);
+        })(),
         el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
           sectionLabel("Topics"),
           cat.topics.filter(function (t) { return t.track === "path"; }).map(row)),
@@ -1764,7 +1808,7 @@
         el("div", { style: { padding: "20px " + gutter() + "px 0", display: "flex", flexDirection: "column", gap: 10 } },
           sectionLabel("Special badges"),
           el("div", { style: { display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(76px, 1fr))", gap: 6 } },
-            cat.specials.map(function (sp) { return badgeButton({ topic: null, badge: sp }, 54, { caption: sp.name, style: { display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 } }); })))
+            cat.specials.filter(function (sp) { return sp.kind !== "week"; }).map(function (sp) { return badgeButton({ topic: null, badge: sp }, 54, { caption: sp.name, style: { display: "flex", flexDirection: "column", alignItems: "center", lineHeight: 1 } }); })))
       ], { paddingBottom: 24 })
     };
   };
