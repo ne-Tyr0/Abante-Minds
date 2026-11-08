@@ -114,6 +114,21 @@
         '<path d="M72 96l18 18 38-40" fill="none" stroke="#fff" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>';
       return frame(o.size || 64, s);
     }
+    if (o.kind === "week") {
+      var th = AM.events && AM.events.themeByKey(o.theme), hueOf = th && th.hue === "action" ? ["var(--action-500)", "var(--action-700)"] : [hue(th ? th.hue : 1, "bright"), hue(th ? th.hue : 1, "deep")];
+      if (g) hueOf = [GREY.b, GREY.d];
+      var petals = function (cy) {
+        var pts = [];
+        for (var k = 0; k < 24; k++) { var a = k * Math.PI / 12, r = k % 2 ? 72 : 84; pts.push((100 + r * Math.cos(a)).toFixed(1) + " " + (cy + r * Math.sin(a)).toFixed(1)); }
+        return "M" + pts.join("L") + "Z";
+      };
+      s += '<path d="M78 150L64 214L84 204L96 224L106 156Z" ' + fill(hueOf[1]) + '/><path d="M122 150L136 214L116 204L104 224L94 156Z" ' + fill(hueOf[1]) + "/>";
+      s += '<path d="' + petals(108) + '" ' + fill(hueOf[1]) + ' stroke-linejoin="round" stroke-width="8" stroke="' + hueOf[1] + '"/>';
+      s += '<path d="' + petals(98) + '" ' + fill(hueOf[0]) + ' stroke-linejoin="round" stroke-width="8" stroke="' + hueOf[0] + '"/>';
+      s += '<circle cx="100" cy="98" r="58" fill="none" stroke="#fff" stroke-opacity=".45" stroke-width="4"/>';
+      s += g ? QUESTION : glyph(th ? th.icon : "star", "#fff", 66, 64, 68);
+      return frame(o.size || 64, s);
+    }
     var body = { streak: ["var(--action-500)", "var(--action-700)"], challenge: [hue(3, "bright"), hue(3, "deep")], improver: [hue(4, "bright"), hue(4, "deep")], welcome: [hue(2, "bright"), hue(2, "deep")] }[o.kind];
     if (g) body = [GREY.b, GREY.d];
     s += '<circle cx="100" cy="111" r="82" ' + fill(body[1]) + '/><circle cx="100" cy="100" r="82" ' + fill(body[0]) + "/>";
@@ -133,11 +148,11 @@
   function keyOf(found, size, opts) {
     var b = found.badge, t = found.topic, o = opts || {};
     return t ? [t.track === "basics" ? "k" : "h", t.colorKey, t.icon, b.number, b.total, !b.earned, !!b.shiny, !!o.fresh, size].join("|")
-      : ["s", b.kind, b.tier, !b.earned, size].join("|");
+      : ["s", b.kind, b.tier, b.theme || "", !b.earned, size].join("|");
   }
   function draw(found, size, opts) {
     var b = found.badge, t = found.topic, o = opts || {};
-    if (!t) return special({ kind: b.kind, tier: b.tier, locked: !b.earned, size: size });
+    if (!t) return special({ kind: b.kind, tier: b.tier, theme: b.theme, locked: !b.earned, size: size });
     var spec = { colorKey: t.colorKey, icon: t.icon, level: b.number, levels: b.total, locked: !b.earned, shiny: b.shiny, fresh: o.fresh, size: size };
     return t.track === "basics" ? token(spec) : hexagon(spec);
   }

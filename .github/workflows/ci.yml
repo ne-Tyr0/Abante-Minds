@@ -59,6 +59,9 @@ jobs:
       - name: Reward road
         run: node tests/road.js
 
+      - name: Weekly challenge
+        run: node tests/events.js
+
       - name: The published site is the app's files only, all present
         run: node tools/site.js _site
 

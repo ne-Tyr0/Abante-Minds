@@ -488,6 +488,40 @@ function run() {
         if (screen === "profile-motto") AM.store.set({ profile: Object.assign({}, AM.store.get().profile, { title: "Decimals Explorer", motto: "Kaya ko 'to!", pattern: "kusikus", colorKey: 1 }) });
         AM.app.go("profile");
         break;
+      /* Not in the PDF: the weekly challenge, shown as Palengke week whatever
+         the date. Part-way on Home, its sheet, the round that meets it (its
+         badge on the summary), and the Trophy room with two weeks' badges. */
+      case "week-home":
+      case "week-sheet":
+      case "week-done":
+      case "week-trophy":
+        AM.events.previewTheme(0);
+        (function () {
+          var n = screen === "week-home" || screen === "week-sheet" ? 12 : 20;
+          for (var i = 0; i < n; i++) AM.store.logAttempt({ session: "wk", topic: i % 3 ? "decimals" : "percent", level: "x", kind: "practice", template: "decimals.add", tier: 1, seed: i,
+            pinned: null, format: "difference", fact: null, pack: AM.content.packVersion, ordinal: i % 10, attempt: 1, given: "", correct: true, error: null, ms: 8000, hints: 0, steps: 0 });
+        })();
+        if (screen === "week-trophy") {
+          var bs = AM.store.get().badges || {};
+          bs["week:2026-10-19"] = { at: "2026-10-23", theme: "jeepney", seen: true };
+          bs["week:2026-10-26"] = { at: "2026-10-30", theme: "banig", seen: true };
+          AM.store.set({ badges: bs });
+          AM.store.recordRound(); AM.store.takeRecent();
+          AM.app.scratch.badgesBack = null; AM.app.go("badges");
+          break;
+        }
+        if (screen === "week-done") {
+          AM.app.startLevel("decimals", "add-and-subtract");
+          AM.app.scratch.result = { topicKey: "decimals", topicLabel: "Decimals", colorKey: 1, levelId: "add-and-subtract", levelTitle: "Add and subtract", levelNumber: 3, redo: false,
+            attempted: 10, correct: 9, levelStart: 0, bestRun: 7, missed: [], minutes: 6 };
+          AM.app.session = null;
+          AM.store.recordRound();
+          AM.app.go("summary");
+          break;
+        }
+        AM.app.go("home");
+        if (screen === "week-sheet") w.document.querySelector(".am-weekcard").click();
+        break;
       /* Not in the PDF: the maths drawn, after a right answer (a fraction of
          a group, a per cent, a ratio; the decimal columns are "correct"),
          and in a lesson's worked example. */
